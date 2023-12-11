@@ -944,6 +944,13 @@ func GetAvailableNotifiers() []*NotifierPlugin {
 					PropertyName: "message",
 					Placeholder:  alertingTemplates.DefaultMessageEmbed,
 				},
+				{ // NEW!
+					Label:        "JSON Template",
+					Description:  "Your own JSON template!!!",
+					Element:      ElementTypeTextArea,
+					PropertyName: "json_template",
+					Placeholder:  alertingTemplates.DefaultMessageEmbed,
+				},
 			},
 		},
 		{

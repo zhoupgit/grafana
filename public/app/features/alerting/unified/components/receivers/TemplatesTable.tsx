@@ -19,22 +19,27 @@ import { TemplateEditor } from './TemplateEditor';
 interface Props {
   config: AlertManagerCortexConfig;
   alertManagerName: string;
+  type: string;
 }
 
-export const TemplatesTable = ({ config, alertManagerName }: Props) => {
+export const TemplatesTable = ({ config, alertManagerName, type }: Props) => {
   const dispatch = useDispatch();
   const [expandedTemplates, setExpandedTemplates] = useState<Record<string, boolean>>({});
   const tableStyles = useStyles2(getAlertTableStyles);
 
   const templateRows = useMemo(() => {
     const templates = Object.entries(config.template_files);
-
-    return templates.map(([name, template]) => ({
+    const tmpls = templates.map(([name, template, isJson]) => ({
       name,
       template,
+      isJson,
       provenance: (config.template_file_provenances ?? {})[name],
     }));
-  }, [config]);
+    return tmpls.filter((el) => (type === 'json' ? el.isJson : !el.isJson));
+
+    return tmpls;
+  }, [config, type]);
+
   const [templateToDelete, setTemplateToDelete] = useState<string>();
 
   const deleteTemplate = () => {
@@ -146,6 +151,7 @@ export const TemplatesTable = ({ config, alertManagerName }: Props) => {
                             readOnly: true,
                             scrollBeyondLastLine: false,
                           }}
+                          type="go"
                         />
                       </DetailsField>
                     </td>

@@ -23,6 +23,7 @@ import {
   Stack,
 } from '@grafana/ui';
 import { useCleanup } from 'app/core/hooks/useCleanup';
+import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { AlertManagerCortexConfig } from 'app/plugins/datasource/alertmanager/types';
 import { useDispatch } from 'app/types';
 
@@ -77,6 +78,8 @@ const DEFAULT_PAYLOAD = `[
 `;
 
 export const TemplateForm = ({ existing, alertManagerSourceName, config, provenance }: Props) => {
+  const [queryParams] = useQueryParams();
+  const templateType = queryParams.type && queryParams.type.toLowerCase();
   const styles = useStyles2(getStyles);
   const dispatch = useDispatch();
 
@@ -157,7 +160,11 @@ export const TemplateForm = ({ existing, alertManagerSourceName, config, provena
   return (
     <FormProvider {...formApi}>
       <form onSubmit={handleSubmit(submit)}>
-        <h4>{existing && !isduplicating ? 'Edit notification template' : 'Create notification template'}</h4>
+        <h4>
+          {existing && !isduplicating
+            ? `Edit ${templateType === 'json' ? 'JSON' : 'notification'} template`
+            : `Create ${templateType === 'json' ? 'JSON' : 'notification'} template`}
+        </h4>
         {error && (
           <Alert severity="error" title="Error saving template">
             {error.message || (isFetchError(error) && error.data?.message) || String(error)}
@@ -176,7 +183,7 @@ export const TemplateForm = ({ existing, alertManagerSourceName, config, provena
               autoFocus={true}
             />
           </Field>
-          <TemplatingGuideline />
+          {templateType !== 'json' && <TemplatingGuideline />}
           <div className={styles.editorsWrapper}>
             <div className={styles.contentContainer}>
               <TabsBar>
@@ -198,6 +205,7 @@ export const TemplateForm = ({ existing, alertManagerSourceName, config, provena
                                 width={width}
                                 height={363}
                                 onBlur={(value) => setValue('content', value)}
+                                type={templateType === 'json' ? 'json' : 'go'}
                               />
                             </div>
                           </Field>

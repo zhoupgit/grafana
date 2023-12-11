@@ -48,6 +48,7 @@ import { GrafanaReceiversExporter } from '../export/GrafanaReceiversExporter';
 import { ReceiverMetadataBadge } from '../receivers/grafanaAppReceivers/ReceiverMetadataBadge';
 import { ReceiverPluginMetadata } from '../receivers/grafanaAppReceivers/useReceiversMetadata';
 
+import { JSONTemplates } from './JSONTemplates';
 import { NotificationTemplates } from './NotificationTemplates';
 import { ContactPointsFilter } from './components/ContactPointsFilter';
 import { GlobalConfigAlert } from './components/GlobalConfigAlert';
@@ -65,6 +66,7 @@ import { ContactPointWithMetadata, getReceiverDescription, isProvisioned, Receiv
 enum ActiveTab {
   ContactPoints,
   NotificationTemplates,
+  JsonTemplates,
 }
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -90,6 +92,7 @@ const ContactPoints = () => {
 
   const showingContactPoints = activeTab === ActiveTab.ContactPoints;
   const showNotificationTemplates = activeTab === ActiveTab.NotificationTemplates;
+  const showJsonTemplates = activeTab === ActiveTab.JsonTemplates;
 
   if (error) {
     // TODO fix this type casting, when error comes from "getContactPointsStatus" it probably won't be a SerializedError
@@ -114,6 +117,11 @@ const ContactPoints = () => {
             label="Notification Templates"
             active={showNotificationTemplates}
             onChangeTab={() => setActiveTab(ActiveTab.NotificationTemplates)}
+          />
+          <Tab
+            label="JSON Templates"
+            active={showJsonTemplates}
+            onChangeTab={() => setActiveTab(ActiveTab.JsonTemplates)}
           />
         </TabsBar>
         <TabContent>
@@ -182,6 +190,21 @@ const ContactPoints = () => {
                     </LinkButton>
                   </Stack>
                   <NotificationTemplates />
+                </>
+              )}
+              {/* Json Templates tab */}
+              {showJsonTemplates && (
+                <>
+                  <Stack direction="row" alignItems="center">
+                    <Text variant="body" color="secondary">
+                      Create JSON templates to customize your notification payloads.
+                    </Text>
+                    <Spacer />
+                    <LinkButton icon="plus" variant="primary" href="/alerting/notifications/templates/new?type=json">
+                      Add JSON template
+                    </LinkButton>
+                  </Stack>
+                  <JSONTemplates />
                 </>
               )}
             </>

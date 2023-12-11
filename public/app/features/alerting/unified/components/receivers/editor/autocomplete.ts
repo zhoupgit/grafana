@@ -4,6 +4,14 @@ import type { languages, editor, Position, IRange, IDisposable } from 'monaco-ed
 import type { Monaco } from '@grafana/ui';
 
 import { getAlertManagerSuggestions } from './alertManagerSuggestions';
+import {
+  getAlertsSuggestions,
+  getAlertSuggestions,
+  getGlobalSuggestions,
+  getKeyValueSuggestions,
+  getSnippetsSuggestions,
+  getStdSuggestions,
+} from './jsonnetDataSuggestions';
 import { SuggestionDefinition } from './suggestionDefinition';
 import {
   getAlertsSuggestions,
@@ -93,6 +101,25 @@ export class CompletionProvider {
     }
   };
 
+  getJsonnetDataSuggestions = (wordContext: string): languages.ProviderResult<languages.CompletionList> => {
+    switch (wordContext) {
+      case 'data':
+        return this.getCompletionsFromDefinitions(getGlobalSuggestions(this.monaco), getAlertSuggestions(this.monaco));
+      case 'std':
+        return this.getCompletionsFromDefinitions(getStdSuggestions(this.monaco));
+      case 'alerts':
+        return this.getCompletionsFromDefinitions(getAlertsSuggestions(this.monaco));
+      case 'groupLabels':
+      case 'commonLabels':
+      case 'commonAnnotations':
+      case 'labels':
+      case 'annotations':
+        return this.getCompletionsFromDefinitions(getKeyValueSuggestions(this.monaco));
+      default:
+        return { suggestions: [] };
+    }
+  };
+
   private getCompletionsFromDefinitions = (...args: SuggestionDefinition[][]): languages.CompletionList => {
     const allDefinitions = concat(...args);
 
@@ -119,4 +146,34 @@ function buildAutocompleteSuggestion(
     documentation: documentation,
     detail: detail,
   };
+}
+
+export function registerJsonnetAutocomplete(monaco: Monaco): IDisposable {
+  const jsonnetAutocompleteProvider: languages.CompletionItemProvider = {
+    triggerCharacters: ['.'],
+    provideCompletionItems(model, position, context): languages.ProviderResult<languages.CompletionList> {
+      const word = model.getWordUntilPosition(position);
+      const range = {
+        startLineNumber: position.lineNumber,
+        endLineNumber: position.lineNumber,
+        startColumn: word.startColumn,
+        endColumn: word.endColumn,
+      };
+
+      const completionProvider = new CompletionProvider(monaco, range);
+
+      if (context.triggerKind === monaco.languages.CompletionTriggerKind.Invoke && !context.triggerCharacter) {
+        return completionProvider.getFunctionsSuggestions();
+      }
+
+      const wordBeforeDot = model.getWordUntilPosition({
+        lineNumber: position.lineNumber,
+        column: position.column - 1,
+      });
+
+      return completionProvider.getJsonnetDataSuggestions(wordBeforeDot.word);
+    },
+  };
+
+  return monaco.languages.registerCompletionItemProvider('jsonnet', jsonnetAutocompleteProvider);
 }
