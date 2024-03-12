@@ -388,10 +388,11 @@ func (ots *TracingService) initOpentelemetryTracer() error {
 func (ots *TracingService) Run(ctx context.Context) error {
 	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
 		// TODO
-		// err = level.Error(ots.log).Log("msg", "OpenTelemetry handler returned an error", "err", err)
-		if err != nil {
-			ots.log.Error("OpenTelemetry log returning error", err)
-		}
+		// err = level.Error().Log("msg", "OpenTelemetry handler returned an error", "err", err)
+		// if err != nil {
+		// 	ots.log.Error("OpenTelemetry log returning error", err)
+		// }
+		ots.log.Error("msg", "OpenTelemetry handler returned an error", "err", err)
 	}))
 	<-ctx.Done()
 
