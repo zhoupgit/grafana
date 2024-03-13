@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
+import { compareDesc, formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
 import { isEqual } from 'lodash';
 import pluralize from 'pluralize';
 import React from 'react';
@@ -19,6 +19,7 @@ import {
   Tab,
   TabsBar,
   Text,
+  TextLink,
   useStyles2,
 } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
@@ -36,7 +37,6 @@ import { alertmanagerApi } from './api/alertmanagerApi';
 import { AlertLabels } from './components/AlertLabels';
 import { AlertStateDot } from './components/AlertStateDot';
 import { AlertmanagerPageWrapper } from './components/AlertingPageWrapper';
-import { AnnotationDetailsField } from './components/AnnotationDetailsField';
 import { CollapseToggle } from './components/CollapseToggle';
 import { AlertGroupFilter } from './components/alert-groups/AlertGroupFilter';
 import { useAlertmanager } from './state/AlertmanagerContext';
@@ -190,14 +190,15 @@ interface GroupAlertsProps {
 
 function GroupAlerts({ alerts, groupLabels = {}, alertmanagerName }: GroupAlertsProps) {
   const styles = useStyles2(getGroupAlertsStyles);
+  const sortedAlerts = alerts.toSorted((a, b) => compareDesc(a.startsAt, b.startsAt));
 
   return (
-    <div className={styles.container}>
+    <div className={styles.grid}>
       <div></div>
       <div>State</div>
       <div>Instance</div>
       <div></div>
-      {alerts.map((alert) => (
+      {sortedAlerts.map((alert) => (
         <GroupAlertsAlert
           key={alert.fingerprint}
           alert={alert}
@@ -260,20 +261,20 @@ function GroupAlertsAlert({ alert, commonLabels, alertmanagerName }: GroupAlerts
       </Dropdown>
       {!collapsed && (
         <>
-          <div></div>
+          <div className={styles.expander}></div>
           <div className={styles.expanded}>
             <ol className={styles.timeline}>
               <li>
-                <div className={styles.timestamp}>{formatDistanceToNow(alert.startsAt, { addSuffix: true })}</div>
                 <div className={styles.event}>Started Firing</div>
+                <div className={styles.timestamp}>{formatDistanceToNow(alert.startsAt, { addSuffix: true })}</div>
               </li>
               <li>
-                <div className={styles.timestamp}>{formatDistanceToNow(alert.updatedAt, { addSuffix: true })}</div>
                 <div className={styles.event}>Last update</div>
+                <div className={styles.timestamp}>{formatDistanceToNow(alert.updatedAt, { addSuffix: true })}</div>
               </li>
               <li>
-                <div className={styles.timestamp}>{formatDistanceToNow(alert.endsAt, { addSuffix: true })}</div>
                 <div className={styles.event}>Ends</div>
+                <div className={styles.timestamp}>{formatDistanceToNow(alert.endsAt, { addSuffix: true })}</div>
               </li>
             </ol>
             <AlertAnnotations annotations={alert.annotations} />
@@ -285,11 +286,17 @@ function GroupAlertsAlert({ alert, commonLabels, alertmanagerName }: GroupAlerts
 }
 
 const getGroupAlertsStyles = (theme: GrafanaTheme2) => ({
-  container: css({
+  grid: css({
     display: 'grid',
     gridTemplateColumns: 'min-content max-content 1fr min-content',
     gap: theme.spacing(2),
     alignItems: 'center',
+  }),
+  expander: css({
+    height: '100%',
+    width: 1,
+    margin: '0 auto',
+    backgroundColor: theme.colors.border.weak,
   }),
   expanded: css({
     gridColumn: '2 / -1',
@@ -305,12 +312,6 @@ const getGroupAlertsStyles = (theme: GrafanaTheme2) => ({
     },
   }),
   timestamp: css({
-    padding: theme.spacing(0, 4, 2, 4),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  }),
-  event: css({
     padding: theme.spacing(2, 4, 0, 4),
     display: 'flex',
     justifyContent: 'center',
@@ -327,6 +328,12 @@ const getGroupAlertsStyles = (theme: GrafanaTheme2) => ({
       top: -8,
     },
   }),
+  event: css({
+    padding: theme.spacing(0, 4, 2, 4),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }),
 });
 
 function AlertAnnotations({ annotations }: { annotations: Record<string, string> }) {
@@ -337,12 +344,26 @@ function AlertAnnotations({ annotations }: { annotations: Record<string, string>
   const description = annotations[Annotation.description];
 
   return (
-    <div>
-      <div className={styles.annotationName}>Summary</div>
-      <div className={styles.annotationValue}>{summary}</div>
-      <div className={styles.annotationName}>Description</div>
-      <div className={styles.annotationValue}>{description}</div>
-    </div>
+    <Stack direction="column" gap={2}>
+      {summary && (
+        <div>
+          <div className={styles.annotationName}>Summary</div>
+          <div className={styles.annotationValue}>{summary}</div>
+        </div>
+      )}
+      {description && (
+        <div>
+          <div className={styles.annotationName}>Description</div>
+          <div className={styles.annotationValue}>{description}</div>
+        </div>
+      )}
+      {runbookUrl && (
+        <div>
+          <div className={styles.annotationName}>Runbook</div>
+          <TextLink href={runbookUrl}>{runbookUrl}</TextLink>
+        </div>
+      )}
+    </Stack>
   );
 }
 
