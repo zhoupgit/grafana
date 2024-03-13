@@ -150,7 +150,7 @@ const getStyles = (
       },
     }),
     icon: css({
-      // color: color.text,
+      color: color.text,
     }),
     content: css({
       color: theme.colors.text.primary,
