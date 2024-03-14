@@ -861,6 +861,7 @@ class UnthemedLogs extends PureComponent<Props, State> {
                     containerRendered={!!this.state.logsContainer}
                     onClickFilterValue={this.props.onClickFilterValue}
                     onClickFilterOutValue={this.props.onClickFilterOutValue}
+                    scrollContainer={this.state.logsContainer}
                   />
                 </InfiniteScroll>
               </div>

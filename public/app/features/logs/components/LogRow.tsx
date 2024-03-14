@@ -63,6 +63,7 @@ interface Props extends Themeable2 {
   pinned?: boolean;
   containerRendered?: boolean;
   handleTextSelection?: (e: MouseEvent<HTMLTableRowElement>, row: LogRowModel) => boolean;
+  scrollContainer?: HTMLDivElement | null;
 }
 
 interface State {
@@ -70,6 +71,7 @@ interface State {
   showingContext: boolean;
   showDetails: boolean;
   mouseIsOver: boolean;
+  visible: boolean;
 }
 
 /**
@@ -85,6 +87,7 @@ class UnThemedLogRow extends PureComponent<Props, State> {
     showingContext: false,
     showDetails: false,
     mouseIsOver: false,
+    visible: false,
   };
   logLineRef: React.RefObject<HTMLTableRowElement>;
 
@@ -161,10 +164,25 @@ class UnThemedLogRow extends PureComponent<Props, State> {
 
   componentDidMount() {
     this.scrollToLogRow(this.state, true);
+    if (this.props.scrollContainer) {
+      this.initVisibility();
+    }
   }
 
-  componentDidUpdate(_: Props, prevState: State) {
+  componentWillUnmount(): void {
+    this.props.scrollContainer?.removeEventListener('scroll', this.checkVisibility);
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
     this.scrollToLogRow(prevState);
+    if (!prevProps.scrollContainer && this.props.scrollContainer) {
+      this.initVisibility();
+    }
+  }
+
+  initVisibility = () => {
+    this.props.scrollContainer?.addEventListener('scroll', this.checkVisibility);
+    this.checkVisibility();
   }
 
   scrollToLogRow = (prevState: State, mounted = false) => {
@@ -195,6 +213,24 @@ class UnThemedLogRow extends PureComponent<Props, State> {
       : row;
   });
 
+  checkVisibility = () => {
+    if (!this.props.scrollContainer || !this.logLineRef) {
+      this.setState({ visible: true });
+      return;
+    }
+
+    const scrollZone = this.props.scrollContainer.scrollTop + this.props.scrollContainer.clientHeight + 100;
+
+    if (!this.state.visible) {
+      console.log(`checking ${this.logLineRef.current} ${this.props.row.rowIndex} ${scrollZone} ${this.logLineRef.current?.offsetTop}`)
+    }
+    
+    if (this.logLineRef.current && this.logLineRef.current.offsetTop <= scrollZone && !this.state.visible) {
+      console.log('visible!')
+      this.setState({ visible: true });
+    }
+  }
+
   render() {
     const {
       getRows,
@@ -218,6 +254,11 @@ class UnThemedLogRow extends PureComponent<Props, State> {
       styles,
       getRowContextQuery,
     } = this.props;
+    
+    if (!this.state.visible) {
+      return <tr ref={this.logLineRef}><td colSpan={10} style={{ height: '1.5em' }}>Future line</td></tr>;
+    }
+
     const { showDetails, showingContext, permalinked } = this.state;
     const levelStyles = getLogLevelStyles(theme, row.logLevel);
     const { errorMessage, hasError } = checkLogsError(row);
