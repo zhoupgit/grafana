@@ -35,6 +35,8 @@ type Service interface {
 	// If FullpathUIDs is true it computes a string that contains the UIDs of all parent folders separated by slash.
 	GetFolders(ctx context.Context, q GetFoldersQuery) ([]*Folder, error)
 	GetDescendantCounts(ctx context.Context, q *GetDescendantCountsQuery) (DescendantCounts, error)
+
+	GetAllFolders(ctx context.Context) ([]*Folder, error)
 }
 
 // FolderStore is a folder store.
@@ -52,4 +54,6 @@ type FolderStore interface {
 	GetFolderByID(ctx context.Context, orgID int64, id int64) (*Folder, error)
 	// GetFolders returns all folders for the given orgID and UIDs.
 	GetFolders(ctx context.Context, orgID int64, uids []string) (map[string]*Folder, error)
+
+	GetAllFolders(ctx context.Context) ([]*Folder, error)
 }

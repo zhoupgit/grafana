@@ -457,6 +457,11 @@ func (hs *HTTPServer) registerRoutes() {
 			})
 		})
 
+		// Folders
+		apiRoute.Group("/migrate", func(migrateRoute routing.RouteRegister) {
+			migrateRoute.Post("/", routing.Wrap(hs.MigrateResources))
+		})
+
 		// Dashboard
 		apiRoute.Group("/dashboards", func(dashboardRoute routing.RouteRegister) {
 			dashboardRoute.Get("/uid/:uid", authorize(ac.EvalPermission(dashboards.ActionDashboardsRead)), routing.Wrap(hs.GetDashboard))

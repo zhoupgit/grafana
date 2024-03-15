@@ -134,3 +134,14 @@ func (d *DashboardFolderStoreImpl) GetFolders(ctx context.Context, orgID int64, 
 	}
 	return m, nil
 }
+
+func (d *DashboardFolderStoreImpl) GetAllFolders(ctx context.Context) ([]*folder.Folder, error) {
+	var folders []*folder.Folder
+	if err := d.store.WithDbSession(ctx, func(sess *db.Session) error {
+		return sess.SQL("SELECT * FROM folder").Find(&folders)
+	}); err != nil {
+		return nil, err
+	}
+
+	return folders, nil
+}

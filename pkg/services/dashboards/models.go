@@ -145,6 +145,17 @@ func (cmd *SaveDashboardCommand) GetDashboardModel() *Dashboard {
 	return dash
 }
 
+func (d *Dashboard) GetSaveDashboardCommand() *SaveDashboardCommand {
+	cmd := &SaveDashboardCommand{
+		Dashboard: d.Data,
+		OrgID:     d.OrgID,
+		PluginID:  d.PluginID,
+		IsFolder:  d.IsFolder,
+		FolderUID: d.FolderUID,
+	}
+	return cmd
+}
+
 // UpdateSlug updates the slug
 func (d *Dashboard) UpdateSlug() {
 	title := d.Data.Get("title").MustString()

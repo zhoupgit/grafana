@@ -270,6 +270,10 @@ func (s *Service) Get(ctx context.Context, q *folder.GetFolderQuery) (*folder.Fo
 	return f, err
 }
 
+func (s *Service) GetAllFolders(ctx context.Context) ([]*folder.Folder, error) {
+	return s.dashboardFolderStore.GetAllFolders(ctx)
+}
+
 func (s *Service) GetChildren(ctx context.Context, q *folder.GetChildrenQuery) ([]*folder.Folder, error) {
 	defer func(t time.Time) {
 		parent := q.UID
