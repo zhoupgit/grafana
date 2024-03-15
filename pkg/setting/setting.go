@@ -31,6 +31,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models/roletype"
+
 	"github.com/grafana/grafana/pkg/util"
 	"github.com/grafana/grafana/pkg/util/osutil"
 )
@@ -473,6 +474,9 @@ type Cfg struct {
 	RBACResetBasicRoles bool
 	// RBAC single organization. This configuration option is subject to change.
 	RBACSingleOrganization bool
+
+	// RBACMode is the mode of the RBAC system. It can be either "basic" or "advanced".
+	RBACMode string
 
 	// GRPC Server.
 	GRPCServerNetwork   string
@@ -1627,12 +1631,21 @@ func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 	return nil
 }
 
+type RBACMode string
+
+const (
+	RBACModeBasic    RBACMode = "basic"
+	RBACModeAdvanced RBACMode = "advanced"
+)
+
 func readAccessControlSettings(iniFile *ini.File, cfg *Cfg) {
 	rbac := iniFile.Section("rbac")
 	cfg.RBACPermissionCache = rbac.Key("permission_cache").MustBool(true)
 	cfg.RBACPermissionValidationEnabled = rbac.Key("permission_validation_enabled").MustBool(false)
 	cfg.RBACResetBasicRoles = rbac.Key("reset_basic_roles").MustBool(false)
 	cfg.RBACSingleOrganization = rbac.Key("single_organization").MustBool(false)
+	rbacoverride := cfg.SectionWithEnvOverrides("rbac")
+	cfg.RBACMode = rbacoverride.Key("rbac_mode").MustString(string(RBACModeAdvanced))
 }
 
 func readOAuth2ServerSettings(cfg *Cfg) {
