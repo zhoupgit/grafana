@@ -219,7 +219,7 @@ Complete the following steps to set up labels and notifications.
 
 ## Add annotations
 
-Add [annotations](ref:annotation-label). to provide more context on the alert in your alert notification message.
+Add [annotations](ref:annotation-label) to provide more context on the alert in your alert notification message.
 
 Annotations add metadata to provide more information on the alert in your alert notification message. For example, add a **Summary** annotation to tell you which value caused the alert to fire or which server it happened on.
 
