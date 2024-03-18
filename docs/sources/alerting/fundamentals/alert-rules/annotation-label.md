@@ -20,12 +20,6 @@ labels:
     - oss
 title: Labels and annotations
 weight: 105
-refs:
-  variables-label-annotation:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/alerting-rules/templating-labels-annotations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules/templating-labels-annotations/
 ---
 
 # Labels and annotations
