@@ -582,7 +582,7 @@ func (s *Storage) GuaranteedUpdate(
 		s.watchSet.notifyWatchers(watch.Event{
 			Object: destination.DeepCopyObject(),
 			Type:   eventType,
-		})
+		}, obj.DeepCopyObject())
 		return nil
 	}
 	return nil

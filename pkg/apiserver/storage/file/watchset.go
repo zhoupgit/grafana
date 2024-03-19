@@ -9,9 +9,16 @@ import (
 	"fmt"
 	"sync"
 
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/storage"
 )
+
+type UpdateEvent struct {
+	ev watch.Event
+	// optional: oldObject is only set for modifications for determining their type as necessary (when using predicate filtering)
+	oldObject runtime.Object
+}
 
 // Keeps track of which watches need to be notified
 type WatchSet struct {
@@ -39,7 +46,7 @@ func (s *WatchSet) newWatch(requestedRV uint64) *watchNode {
 		requestedRV: requestedRV,
 		id:          s.counter,
 		s:           s,
-		updateCh:    make(chan watch.Event, 10),
+		updateCh:    make(chan UpdateEvent, 10),
 		outCh:       make(chan watch.Event),
 	}
 }
@@ -56,7 +63,10 @@ func (s *WatchSet) cleanupWatchers() {
 	}
 }
 
-func (s *WatchSet) notifyWatchers(ev watch.Event) {
+// oldObject is only passed in the event of a modification
+// in case a predicate filtered watch is impactec as a result of modification
+// and wants to convert a MODIFIED event to DELETED instead
+func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	fmt.Println("notifyWatchers START")
@@ -69,9 +79,16 @@ func (s *WatchSet) notifyWatchers(ev watch.Event) {
 	fmt.Println("NOTIFY: length of nodes=", len(s.nodes))
 
 	fmt.Println("Looping on nodes for notify")
+	updateEv := UpdateEvent{
+		ev: ev,
+	}
+	if len(oldObject) > 0 {
+		updateEv.oldObject = oldObject[0]
+	}
+
 	for _, w := range s.nodes {
 		fmt.Println("Updating channel with ev")
-		w.updateCh <- ev
+		w.updateCh <- updateEv
 	}
 
 	fmt.Println("notifyWatchers COMPLETE")
@@ -80,7 +97,7 @@ func (s *WatchSet) notifyWatchers(ev watch.Event) {
 type watchNode struct {
 	s           *WatchSet
 	id          int
-	updateCh    chan watch.Event
+	updateCh    chan UpdateEvent
 	outCh       chan watch.Event
 	requestedRV uint64
 }
@@ -100,16 +117,26 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 
 		for e := range w.updateCh {
 			fmt.Println("From update channel", e)
-			ok, err := p.Matches(e.Object)
+
+			ok, err := p.Matches(e.ev.Object)
 			if err != nil {
 				continue
 			}
 
 			if !ok {
-				continue
+				if e.ev.Type == watch.Modified {
+					if ok, err := p.Matches(e.oldObject); err == nil && ok {
+						e.ev.Type = watch.Deleted
+						e.ev.Object = e.oldObject
+					} else {
+						continue
+					}
+				} else {
+					continue
+				}
 			}
 			fmt.Println("To out channel", e)
-			w.outCh <- e
+			w.outCh <- e.ev
 		}
 
 		fmt.Println("Start post")
