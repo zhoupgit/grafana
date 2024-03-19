@@ -60,6 +60,7 @@ func withDefaults(options *setupOptions) {
 	options.newFunc = newPod
 	options.newListFunc = newPodList
 	options.prefix = os.TempDir()
+	fmt.Println("Temp dir is", options.prefix)
 	options.resourcePrefix = "/pods"
 	options.groupResource = schema.GroupResource{Resource: "pods"}
 }

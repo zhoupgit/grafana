@@ -133,8 +133,8 @@ func (s *Storage) Versioner() storage.Versioner {
 // in seconds (0 means forever). If no error is returned and out is not nil, out will be
 // set to the read value from database.
 func (s *Storage) Create(ctx context.Context, key string, obj runtime.Object, out runtime.Object, ttl uint64) error {
-	// s.rvMutex.Lock()
-	// defer s.rvMutex.Unlock()
+	s.rvMutex.Lock()
+	defer s.rvMutex.Unlock()
 
 	fpath := s.filePath(key)
 	if exists(fpath) {
@@ -199,8 +199,8 @@ func (s *Storage) Delete(
 	validateDeletion storage.ValidateObjectFunc,
 	cachedExistingObject runtime.Object,
 ) error {
-	// s.rvMutex.Lock()
-	// defer s.rvMutex.Unlock()
+	s.rvMutex.Lock()
+	defer s.rvMutex.Unlock()
 
 	fpath := s.filePath(key)
 	var currentState runtime.Object
@@ -290,8 +290,8 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 	fmt.Println("[Watch] 1")
 
 	if opts.ResourceVersion != "" {
-		// s.rvMutex.RLock()
-		// defer s.rvMutex.RUnlock()
+		s.rvMutex.RLock()
+		defer s.rvMutex.RUnlock()
 
 		if err := s.getList(ctx, key, opts, listObj); err != nil {
 			return nil, err
@@ -378,8 +378,8 @@ func (s *Storage) Get(ctx context.Context, key string, opts storage.GetOptions, 
 }
 
 func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
-	// s.rvMutex.RLock()
-	// defer s.rvMutex.RUnlock()
+	s.rvMutex.RLock()
+	defer s.rvMutex.RUnlock()
 	klog.Info("In GetList")
 	return s.getList(ctx, key, opts, listObj)
 }
@@ -488,8 +488,8 @@ func (s *Storage) GuaranteedUpdate(
 	tryUpdate storage.UpdateFunc,
 	cachedExistingObject runtime.Object,
 ) error {
-	// s.rvMutex.Lock()
-	// defer s.rvMutex.Unlock()
+	s.rvMutex.Lock()
+	defer s.rvMutex.Unlock()
 
 	var res storage.ResponseMeta
 	for attempt := 1; attempt <= MaxUpdateAttempts; attempt = attempt + 1 {
