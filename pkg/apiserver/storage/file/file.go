@@ -570,6 +570,7 @@ func (s *Storage) GuaranteedUpdate(
 			Object: updatedObj.DeepCopyObject(),
 			Type:   eventType,
 		})
+		return nil
 	}
 	return nil
 }
