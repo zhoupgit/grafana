@@ -8,7 +8,6 @@ package file
 import (
 	"context"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -50,17 +49,17 @@ type setupOptions struct {
 	recorderEnabled bool
 }
 
-type setupOption func(*setupOptions)
+type setupOption func(*setupOptions, testing.TB)
 
-func withDefaults(options *setupOptions) {
+func withDefaults(options *setupOptions, t testing.TB) {
 	options.client = func(t testing.TB) *clientv3.Client {
 		return testserver.RunEtcd(t, nil)
 	}
 	options.codec = apitesting.TestCodec(codecs, examplev1.SchemeGroupVersion)
 	options.newFunc = newPod
 	options.newListFunc = newPodList
-	options.prefix = os.TempDir()
-	fmt.Println("Temp dir is", options.prefix)
+	options.prefix = t.TempDir()
+	t.Logf("Temp dir is %s", options.prefix)
 	options.resourcePrefix = "/pods"
 	options.groupResource = schema.GroupResource{Resource: "pods"}
 }
@@ -71,7 +70,7 @@ func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Inte
 	setupOpts := setupOptions{}
 	opts = append([]setupOption{withDefaults}, opts...)
 	for _, opt := range opts {
-		opt(&setupOpts)
+		opt(&setupOpts, t)
 	}
 
 	config := storagebackend.NewDefaultConfig(setupOpts.prefix, setupOpts.codec)
@@ -100,6 +99,7 @@ func TestWatch(t *testing.T) {
 	defer destroyFunc()
 	assert.NoError(t, err)
 	fmt.Println("TestWatch...")
+
 	storagetesting.RunTestWatch(ctx, t, store)
 }
 

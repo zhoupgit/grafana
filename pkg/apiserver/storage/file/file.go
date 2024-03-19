@@ -534,7 +534,7 @@ func (s *Storage) GuaranteedUpdate(
 			continue
 		}
 
-		unchanged, err := isUnchanged(s.codec, obj, updatedObj)
+		unchanged, err := isUnchanged(s.Versioner(), s.codec, obj, updatedObj)
 		if err != nil {
 			return err
 		}
@@ -559,15 +559,28 @@ func (s *Storage) GuaranteedUpdate(
 		if err := s.Versioner().UpdateObject(updatedObj, generatedRV); err != nil {
 			return err
 		}
+
 		if err := writeFile(s.codec, fpath, updatedObj); err != nil {
 			return err
 		}
+
+		// TODO: make a helper for this and re-use
+		u, err := conversion.EnforcePtr(updatedObj)
+		if err != nil {
+			return fmt.Errorf("unable to enforce updated object pointer: %w", err)
+		}
+		d, err := conversion.EnforcePtr(destination)
+		if err != nil {
+			return fmt.Errorf("unable to enforce destination pointer: %w", err)
+		}
+		d.Set(u)
+
 		eventType := watch.Modified
 		if created {
 			eventType = watch.Added
 		}
 		s.watchSet.notifyWatchers(watch.Event{
-			Object: updatedObj.DeepCopyObject(),
+			Object: destination.DeepCopyObject(),
 			Type:   eventType,
 		})
 		return nil

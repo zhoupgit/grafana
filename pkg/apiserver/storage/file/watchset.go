@@ -46,12 +46,13 @@ func (s *WatchSet) newWatch(requestedRV uint64) *watchNode {
 
 func (s *WatchSet) cleanupWatchers() {
 	fmt.Println("Pre cleanup - lock get")
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	fmt.Println("Looping on nodes for cleanup")
 	for _, w := range s.nodes {
 		fmt.Println("Stopping node")
 		w.stop()
+
 	}
 }
 
@@ -117,15 +118,16 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 }
 
 func (w *watchNode) Stop() {
-	w.s.mu.RLock()
-	defer w.s.mu.RUnlock()
+	w.s.mu.Lock()
+	defer w.s.mu.Unlock()
 	w.stop()
 }
 
 func (w *watchNode) stop() {
+	fmt.Println("Before close")
 	delete(w.s.nodes, w.id)
-	fmt.Println("Stop post")
 	close(w.updateCh)
+	fmt.Println("After close")
 }
 
 func (w *watchNode) ResultChan() <-chan watch.Event {
