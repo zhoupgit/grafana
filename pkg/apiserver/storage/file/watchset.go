@@ -6,6 +6,7 @@
 package file
 
 import (
+	"fmt"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/watch"
@@ -44,8 +45,12 @@ func (s *WatchSet) newWatch(requestedRV uint64) *watchNode {
 }
 
 func (s *WatchSet) cleanupWatchers() {
-	// Doesn't protect the below access on nodes slice since it won't ever be modified during cleanup
+	fmt.Println("Pre cleanup - lock get")
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	fmt.Println("Looping on nodes for cleanup")
 	for _, w := range s.nodes {
+		fmt.Println("Stopping node")
 		w.Stop()
 	}
 }
@@ -53,14 +58,20 @@ func (s *WatchSet) cleanupWatchers() {
 func (s *WatchSet) notifyWatchers(ev watch.Event) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	fmt.Println("notifyWatchers START")
 
 	if len(s.nodes) == 0 {
+		fmt.Println("No nodes")
 		return
 	}
 
+	fmt.Println("Looping on nodes for notify")
 	for _, w := range s.nodes {
+		fmt.Println("Updating channel with ev")
 		w.updateCh <- ev
 	}
+
+	fmt.Println("notifyWatchers COMPLETE")
 }
 
 type watchNode struct {
@@ -77,12 +88,15 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 	w.s.nodes[w.id] = w
 	w.s.mu.Unlock()
 
+	fmt.Println("Start pre")
+
 	go func() {
 		for _, e := range initEvents {
 			w.outCh <- e
 		}
 
 		for e := range w.updateCh {
+			fmt.Println("From update channel", e)
 			ok, err := p.Matches(e.Object)
 			if err != nil {
 				continue
@@ -91,20 +105,27 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 			if !ok {
 				continue
 			}
+			fmt.Println("To out channel", e)
 			w.outCh <- e
 		}
+
+		fmt.Println("Start post")
 		close(w.outCh)
 	}()
 }
 
 func (w *watchNode) Stop() {
+	fmt.Println("Stop pre")
 	w.s.mu.Lock()
 	delete(w.s.nodes, w.id)
 	w.s.mu.Unlock()
+
+	fmt.Println("Stop post")
 
 	close(w.updateCh)
 }
 
 func (w *watchNode) ResultChan() <-chan watch.Event {
+	fmt.Println("ResultChan")
 	return w.outCh
 }

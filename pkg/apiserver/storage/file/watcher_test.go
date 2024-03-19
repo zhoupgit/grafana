@@ -25,6 +25,7 @@ import (
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/etcd3/testserver"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
+	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
 	storagetesting "k8s.io/apiserver/pkg/storage/testing"
 )
 
@@ -65,7 +66,7 @@ func withDefaults(options *setupOptions) {
 
 var _ setupOption = withDefaults
 
-func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Interface, error) {
+func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Interface, factory.DestroyFunc, error) {
 	setupOpts := setupOptions{}
 	opts = append([]setupOption{withDefaults}, opts...)
 	for _, opt := range opts {
@@ -73,7 +74,7 @@ func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Inte
 	}
 
 	config := storagebackend.NewDefaultConfig(setupOpts.prefix, setupOpts.codec)
-	store, _, err := NewStorage(
+	store, destroyFunc, err := NewStorage(
 		config.ForResource(setupOpts.groupResource),
 		setupOpts.resourcePrefix,
 		func(obj runtime.Object) (string, error) {
@@ -87,39 +88,44 @@ func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Inte
 	)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	ctx := context.Background()
-	return ctx, store, nil
+	return ctx, store, destroyFunc, nil
 }
 
 func TestWatch(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	fmt.Println("TestWatch...")
 	storagetesting.RunTestWatch(ctx, t, store)
 }
 
 func TestClusterScopedWatch(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestClusterScopedWatch(ctx, t, store)
 }
 
 func TestNamespaceScopedWatch(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestNamespaceScopedWatch(ctx, t, store)
 }
 
 func TestDeleteTriggerWatch(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestDeleteTriggerWatch(ctx, t, store)
 }
 
 func TestWatchFromZero(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatchFromZero(ctx, t, store, func(_ context.Context, _ *testing.T, _ string) {})
 }
@@ -127,13 +133,15 @@ func TestWatchFromZero(t *testing.T) {
 // TestWatchFromNonZero tests that
 // - watch from non-0 should just watch changes after given version
 func TestWatchFromNoneZero(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatchFromNonZero(ctx, t, store)
 }
 
 func TestDelayedWatchDelivery(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestDelayedWatchDelivery(ctx, t, store)
 }
@@ -144,33 +152,39 @@ func TestDelayedWatchDelivery(t *testing.T) {
 } */
 
 func TestWatchContextCancel(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatchContextCancel(ctx, t, store)
 }
 
 func TestWatcherTimeout(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatcherTimeout(ctx, t, store)
 }
 
 func TestWatchDeleteEventObjectHaveLatestRV(t *testing.T) {
-	ctx, store, err := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatchDeleteEventObjectHaveLatestRV(ctx, t, store)
 }
 
 func TestWatchInitializationSignal(t *testing.T) {
-	ctx, store, _ := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunTestWatchInitializationSignal(ctx, t, store)
 }
 
 func TestProgressNotify(t *testing.T) {
 	clusterConfig := testserver.NewTestConfig(t)
 	clusterConfig.ExperimentalWatchProgressNotifyInterval = time.Second
-	ctx, store, _ := testSetup(t)
-
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunOptionalTestProgressNotify(ctx, t, store)
 }
 
@@ -180,23 +194,30 @@ func TestProgressNotify(t *testing.T) {
 func TestWatchDispatchBookmarkEvents(t *testing.T) {
 	clusterConfig := testserver.NewTestConfig(t)
 	clusterConfig.ExperimentalWatchProgressNotifyInterval = time.Second
-	ctx, store, _ := testSetup(t)
-
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunTestWatchDispatchBookmarkEvents(ctx, t, store, false)
 }
 
 func TestSendInitialEventsBackwardCompatibility(t *testing.T) {
-	ctx, store, _ := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunSendInitialEventsBackwardCompatibility(ctx, t, store)
 }
 
 func TestEtcdWatchSemantics(t *testing.T) {
-	ctx, store, _ := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunWatchSemantics(ctx, t, store)
 }
 
 func TestEtcdWatchSemanticInitialEventsExtended(t *testing.T) {
-	ctx, store, _ := testSetup(t)
+	ctx, store, destroyFunc, err := testSetup(t)
+	defer destroyFunc()
+	assert.NoError(t, err)
 	storagetesting.RunWatchSemanticInitialEventsExtended(ctx, t, store)
 }
 

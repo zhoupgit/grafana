@@ -291,9 +291,9 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 
 	if opts.ResourceVersion != "" {
 		// s.rvMutex.RLock()
-		err := s.getList(ctx, key, opts, listObj)
 		// defer s.rvMutex.RUnlock()
-		if err != nil {
+
+		if err := s.getList(ctx, key, opts, listObj); err != nil {
 			return nil, err
 		}
 	}
@@ -421,6 +421,7 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 
 	// only used if we are being asked to return list at a specific version
 	maxRVFromItem := uint64(0)
+	fmt.Println("List length", len(objs))
 	for _, obj := range objs {
 		currentVersion, err := s.Versioner().ObjectResourceVersion(obj)
 		if err != nil {
@@ -459,6 +460,8 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 	if err := s.Versioner().UpdateList(listObj, resourceVersionInt, "", &remainingItems); err != nil {
 		return err
 	}
+
+	fmt.Println("Finishing GetList")
 
 	return nil
 }
