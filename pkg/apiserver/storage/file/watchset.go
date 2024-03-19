@@ -39,7 +39,7 @@ func (s *WatchSet) newWatch(requestedRV uint64) *watchNode {
 		requestedRV: requestedRV,
 		id:          s.counter,
 		s:           s,
-		updateCh:    make(chan watch.Event),
+		updateCh:    make(chan watch.Event, 10),
 		outCh:       make(chan watch.Event),
 	}
 }
@@ -51,7 +51,7 @@ func (s *WatchSet) cleanupWatchers() {
 	fmt.Println("Looping on nodes for cleanup")
 	for _, w := range s.nodes {
 		fmt.Println("Stopping node")
-		w.Stop()
+		w.stop()
 	}
 }
 
@@ -64,6 +64,8 @@ func (s *WatchSet) notifyWatchers(ev watch.Event) {
 		fmt.Println("No nodes")
 		return
 	}
+
+	fmt.Println("NOTIFY: length of nodes=", len(s.nodes))
 
 	fmt.Println("Looping on nodes for notify")
 	for _, w := range s.nodes {
@@ -115,13 +117,14 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 }
 
 func (w *watchNode) Stop() {
-	fmt.Println("Stop pre")
-	w.s.mu.Lock()
+	w.s.mu.RLock()
+	defer w.s.mu.RUnlock()
+	w.stop()
+}
+
+func (w *watchNode) stop() {
 	delete(w.s.nodes, w.id)
-	w.s.mu.Unlock()
-
 	fmt.Println("Stop post")
-
 	close(w.updateCh)
 }
 
