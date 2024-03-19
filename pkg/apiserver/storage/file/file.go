@@ -26,6 +26,7 @@ import (
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 )
 
 const MaxUpdateAttempts = 30
@@ -132,8 +133,8 @@ func (s *Storage) Versioner() storage.Versioner {
 // in seconds (0 means forever). If no error is returned and out is not nil, out will be
 // set to the read value from database.
 func (s *Storage) Create(ctx context.Context, key string, obj runtime.Object, out runtime.Object, ttl uint64) error {
-	s.rvMutex.Lock()
-	defer s.rvMutex.Unlock()
+	// s.rvMutex.Lock()
+	// defer s.rvMutex.Unlock()
 
 	fpath := s.filePath(key)
 	if exists(fpath) {
@@ -198,8 +199,8 @@ func (s *Storage) Delete(
 	validateDeletion storage.ValidateObjectFunc,
 	cachedExistingObject runtime.Object,
 ) error {
-	s.rvMutex.Lock()
-	defer s.rvMutex.Unlock()
+	// s.rvMutex.Lock()
+	// defer s.rvMutex.Unlock()
 
 	fpath := s.filePath(key)
 	var currentState runtime.Object
@@ -274,11 +275,10 @@ func (s *Storage) Delete(
 // If resource version is "0", this interface will get current object at given key
 // and send it in an "ADDED" event, before watch starts.
 func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOptions) (watch.Interface, error) {
-	s.rvMutex.RLock()
-	defer s.rvMutex.RUnlock()
-
 	p := opts.Predicate
 	listObj := s.newListFunc()
+
+	fmt.Println("[Watch] 0")
 
 	requestedRV, err := s.Versioner().ParseResourceVersion(opts.ResourceVersion)
 	if err != nil {
@@ -287,12 +287,18 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 
 	jw := s.watchSet.newWatch(requestedRV)
 
+	fmt.Println("[Watch] 1")
+
 	if opts.ResourceVersion != "" {
+		// s.rvMutex.RLock()
 		err := s.getList(ctx, key, opts, listObj)
+		// defer s.rvMutex.RUnlock()
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	fmt.Println("[Watch] 2")
 
 	initEvents := make([]watch.Event, 0)
 	listPtr, err := meta.GetItemsPtr(listObj)
@@ -304,16 +310,22 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, fmt.Errorf("Need pointer to slice: %v", err)
 	}
 
+	fmt.Println("[Watch] 4")
+
 	if v.IsNil() {
 		jw.Start(p, initEvents)
 		return jw, nil
 	}
+
+	fmt.Println("[Watch] 5")
 
 	for i := 0; i < v.Len(); i++ {
 		obj, ok := v.Index(i).Addr().Interface().(runtime.Object)
 		if !ok {
 			return nil, fmt.Errorf("Need item to be a runtime.Object: %v", err)
 		}
+
+		fmt.Println("[Watch] 6")
 
 		initEvents = append(initEvents, watch.Event{
 			Type:   watch.Added,
@@ -366,8 +378,9 @@ func (s *Storage) Get(ctx context.Context, key string, opts storage.GetOptions, 
 }
 
 func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
-	s.rvMutex.RLock()
-	defer s.rvMutex.RUnlock()
+	// s.rvMutex.RLock()
+	// defer s.rvMutex.RUnlock()
+	klog.Info("In GetList")
 	return s.getList(ctx, key, opts, listObj)
 }
 
@@ -472,8 +485,8 @@ func (s *Storage) GuaranteedUpdate(
 	tryUpdate storage.UpdateFunc,
 	cachedExistingObject runtime.Object,
 ) error {
-	s.rvMutex.Lock()
-	defer s.rvMutex.Unlock()
+	// s.rvMutex.Lock()
+	// defer s.rvMutex.Unlock()
 
 	var res storage.ResponseMeta
 	for attempt := 1; attempt <= MaxUpdateAttempts; attempt = attempt + 1 {
