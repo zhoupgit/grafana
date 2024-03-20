@@ -9,9 +9,11 @@ import (
 	"fmt"
 	"sync"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/storage"
+	"k8s.io/klog/v2"
 )
 
 type UpdateEvent struct {
@@ -36,19 +38,24 @@ func NewWatchSet() *WatchSet {
 
 // Creates a new watch with a unique id, but
 // does not start sending events to it until start() is called.
-func (s *WatchSet) newWatch(requestedRV uint64) *watchNode {
+func (s *WatchSet) newWatch(requestedRV uint64, namespace string) *watchNode {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.counter++
 
-	return &watchNode{
+	node := &watchNode{
 		requestedRV: requestedRV,
 		id:          s.counter,
 		s:           s,
 		updateCh:    make(chan UpdateEvent, 10),
 		outCh:       make(chan watch.Event),
 	}
+	if namespace != "" {
+		node.namespace = namespace
+		node.isNamespaced = true
+	}
+	return node
 }
 
 func (s *WatchSet) cleanupWatchers() {
@@ -95,11 +102,13 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
 }
 
 type watchNode struct {
-	s           *WatchSet
-	id          int
-	updateCh    chan UpdateEvent
-	outCh       chan watch.Event
-	requestedRV uint64
+	s            *WatchSet
+	id           int
+	updateCh     chan UpdateEvent
+	outCh        chan watch.Event
+	requestedRV  uint64
+	namespace    string
+	isNamespaced bool
 }
 
 // Start sending events to this watch.
@@ -118,6 +127,16 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 		for e := range w.updateCh {
 			fmt.Println("From update channel", e)
 
+			obj, err := meta.Accessor(e.ev.Object)
+			if err != nil {
+				klog.Warningf("Could not get accessor to object in event")
+				continue
+			}
+
+			if w.namespace != obj.GetNamespace() {
+				continue
+			}
+
 			ok, err := p.Matches(e.ev.Object)
 			if err != nil {
 				continue
@@ -134,6 +153,8 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 				} else {
 					continue
 				}
+			} else {
+				fmt.Println("Predicate p=", p, "matches type=", e.ev.Type, "obj=", e.ev.Object)
 			}
 			fmt.Println("To out channel", e)
 			w.outCh <- e.ev

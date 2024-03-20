@@ -22,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
@@ -64,10 +65,6 @@ var ErrFileNotExists = fmt.Errorf("file doesn't exist")
 
 // ErrNamespaceNotExists means the directory for the namespace doesn't actually exist.
 var ErrNamespaceNotExists = errors.New("namespace does not exist")
-
-var (
-	once sync.Once
-)
 
 // NewStorage instantiates a new Storage.
 func NewStorage(
@@ -285,7 +282,8 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("invalid resource version: %v", err))
 	}
 
-	jw := s.watchSet.newWatch(requestedRV)
+	namespace := request.NamespaceValue(ctx)
+	jw := s.watchSet.newWatch(requestedRV, namespace)
 
 	fmt.Println("[Watch] 1")
 
@@ -311,7 +309,6 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 	}
 
 	fmt.Println("[Watch] 4")
-
 	if v.IsNil() {
 		jw.Start(p, initEvents)
 		return jw, nil
@@ -421,7 +418,7 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 
 	// only used if we are being asked to return list at a specific version
 	maxRVFromItem := uint64(0)
-	fmt.Println("List length", len(objs))
+	fmt.Println("Key", key, "dirPath", dirpath, "List length", len(objs))
 	for _, obj := range objs {
 		currentVersion, err := s.Versioner().ObjectResourceVersion(obj)
 		if err != nil {
