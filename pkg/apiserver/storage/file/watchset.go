@@ -134,7 +134,7 @@ func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
 		return false, nil
 	}
 
-	if w.watchNamespace != nil && *w.watchNamespace == obj.GetNamespace() {
+	if w.watchNamespace != nil && *w.watchNamespace != obj.GetNamespace() {
 		return false, err
 	}
 

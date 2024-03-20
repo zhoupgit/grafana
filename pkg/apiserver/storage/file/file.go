@@ -19,6 +19,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/conversion"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
@@ -26,6 +27,7 @@ import (
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 )
 
 const MaxUpdateAttempts = 30
@@ -285,7 +287,7 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("invalid resource version: %v", err))
 	}
 
-	parsedkey, err := s.convertToParsedKey(key)
+	parsedkey, err := s.convertToParsedKey(key, p)
 	if err != nil {
 		return nil, err
 	}
@@ -293,6 +295,7 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 	var namespace *string
 	if parsedkey.namespace != "" {
 		namespace = &parsedkey.namespace
+		klog.Infof("Filtering on namespace=%s", *namespace)
 	}
 	jw := s.watchSet.newWatch(requestedRV, p, namespace)
 
@@ -646,7 +649,9 @@ func (s *Storage) nameFromKey(key string) string {
 // While this is an inefficent way to differentiate the ambiguous keys,
 // we only need it for initial namespace calculation in watch
 // This helps us with watcher tests that don't always set up requestcontext correctly
-func (s *Storage) convertToParsedKey(key string) (*parsedKey, error) {
+func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (*parsedKey, error) {
+	// NOTE: the following supports the watcher tests that run against v1/pods and hence don't have a group
+
 	// Cases handled below:
 	// namespace scoped:
 	// /<group>/<resource>/[<namespace>]/[<name>]
@@ -655,7 +660,7 @@ func (s *Storage) convertToParsedKey(key string) (*parsedKey, error) {
 	// cluster scoped:
 	// /<group>/<resource>/[<name>]
 	// /<group>/<resource>
-	parts := strings.SplitN(key, "/", 4)
+	parts := strings.SplitN(key, "/", 5)
 	if len(parts) < 3 {
 		return nil, fmt.Errorf("invalid key (expecting at least 2 parts): %s", key)
 	}
@@ -666,20 +671,33 @@ func (s *Storage) convertToParsedKey(key string) (*parsedKey, error) {
 
 	k := &parsedKey{}
 
-	if len(parts) > 1 {
-		k.group = parts[1]
-		k.resource = parts[2]
+	klog.Infof("parts in namespace func: %v", parts)
 
-		return k, nil
+	// beware the empty "" as the first separated part.
+	if len(parts) > 2 {
+		// this is a test
+		if parts[0] == "pods" {
+			k.group = parts[1]
+			k.namespace = parts[2]
+		} else {
+			k.group = parts[1]
+			k.resource = parts[2]
+		}
 	}
 
-	if len(parts) > 2 && exists(s.filePath(key)) {
-		k.name = parts[3]
-	}
-
-	if len(parts) > 3 && exists(s.dirPath(key)) {
-		k.namespace = parts[3]
-		k.name = parts[4]
+	if len(parts) > 3 {
+		// this is a test
+		if parts[0] == "pods" {
+			k.name = parts[3]
+		} else {
+			field := fields.Set{
+				"metadata.name": parts[3],
+			}
+			if !p.Field.Matches(field) {
+				klog.Infof("Parts[3]=%s", parts[3])
+				k.namespace = parts[3]
+			}
+		}
 	}
 
 	return k, nil
