@@ -22,7 +22,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
@@ -36,6 +35,13 @@ var _ storage.Interface = (*Storage)(nil)
 // Replace with: https://github.com/kubernetes/kubernetes/blob/v1.29.0-alpha.3/staging/src/k8s.io/apiserver/pkg/storage/errors.go#L28
 // When we upgrade to 1.29
 var errResourceVersionSetOnCreate = errors.New("resourceVersion should not be set on objects to be created")
+
+type parsedKey struct {
+	group     string
+	resource  string
+	namespace string
+	name      string
+}
 
 // Storage implements storage.Interface and storage resources as JSON files on disk.
 type Storage struct {
@@ -279,8 +285,15 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("invalid resource version: %v", err))
 	}
 
-	// TODO: change to using key for determining namespace
-	namespace := request.NamespaceValue(ctx)
+	parsedkey, err := s.convertToParsedKey(key)
+	if err != nil {
+		return nil, err
+	}
+
+	var namespace *string
+	if parsedkey.namespace != "" {
+		namespace = &parsedkey.namespace
+	}
 	jw := s.watchSet.newWatch(requestedRV, p, namespace)
 
 	if opts.ResourceVersion == "0" {
@@ -628,4 +641,46 @@ func (s *Storage) validateMinimumResourceVersion(minimumResourceVersion string, 
 
 func (s *Storage) nameFromKey(key string) string {
 	return strings.Replace(key, s.resourcePrefix+"/", "", 1)
+}
+
+// While this is an inefficent way to differentiate the ambiguous keys,
+// we only need it for initial namespace calculation in watch
+// This helps us with watcher tests that don't always set up requestcontext correctly
+func (s *Storage) convertToParsedKey(key string) (*parsedKey, error) {
+	// Cases handled below:
+	// namespace scoped:
+	// /<group>/<resource>/[<namespace>]/[<name>]
+	// /<group>/<resource>/[<namespace>]
+	//
+	// cluster scoped:
+	// /<group>/<resource>/[<name>]
+	// /<group>/<resource>
+	parts := strings.SplitN(key, "/", 4)
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("invalid key (expecting at least 2 parts): %s", key)
+	}
+
+	if parts[0] != "" {
+		return nil, fmt.Errorf("invalid key (expecting leading slash): %s", key)
+	}
+
+	k := &parsedKey{}
+
+	if len(parts) > 1 {
+		k.group = parts[1]
+		k.resource = parts[2]
+
+		return k, nil
+	}
+
+	if len(parts) > 2 && exists(s.filePath(key)) {
+		k.name = parts[3]
+	}
+
+	if len(parts) > 3 && exists(s.dirPath(key)) {
+		k.namespace = parts[3]
+		k.name = parts[4]
+	}
+
+	return k, nil
 }

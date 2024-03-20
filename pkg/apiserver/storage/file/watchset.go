@@ -52,24 +52,22 @@ func NewWatchSet() *WatchSet {
 
 // Creates a new watch with a unique id, but
 // does not start sending events to it until start() is called.
-func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, namespace string) *watchNode {
+func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, namespace *string) *watchNode {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.counter++
 
 	node := &watchNode{
-		requestedRV: requestedRV,
-		id:          s.counter,
-		s:           s,
-		updateCh:    make(chan UpdateEvent, UpdateChannelSize),
-		outCh:       make(chan watch.Event),
-		predicate:   p,
+		requestedRV:    requestedRV,
+		id:             s.counter,
+		s:              s,
+		updateCh:       make(chan UpdateEvent, UpdateChannelSize),
+		outCh:          make(chan watch.Event),
+		predicate:      p,
+		watchNamespace: namespace,
 	}
-	if namespace != "" {
-		node.namespace = namespace
-		node.isNamespaced = true
-	}
+
 	return node
 }
 
@@ -109,14 +107,14 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 }
 
 type watchNode struct {
-	s            *WatchSet
-	id           int
-	updateCh     chan UpdateEvent
-	outCh        chan watch.Event
-	requestedRV  uint64
-	namespace    string
-	isNamespaced bool
-	predicate    storage.SelectionPredicate
+	s           *WatchSet
+	id          int
+	updateCh    chan UpdateEvent
+	outCh       chan watch.Event
+	requestedRV uint64
+	// the watch may or may not be namespaced for a namespaced resource. This is always nil for cluster-scoped kinds
+	watchNamespace *string
+	predicate      storage.SelectionPredicate
 }
 
 // isValid is not necessary to be called on oldObject in UpdateEvents - assuming the Watch pushes correctly setup UpdateEvent our way
@@ -136,16 +134,16 @@ func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
 		return false, nil
 	}
 
-	if w.isNamespaced && (w.namespace != obj.GetNamespace()) {
+	if w.watchNamespace != nil && *w.watchNamespace == obj.GetNamespace() {
 		return false, err
 	}
 
-	isCurrentMatch, err := w.predicate.Matches(e.ev.Object)
+	valid, err := w.predicate.Matches(e.ev.Object)
 	if err != nil {
 		return false, err
 	}
 
-	return isCurrentMatch, nil
+	return valid, nil
 }
 
 // Only call this method if current object matches the predicate
@@ -218,6 +216,7 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 				w.outCh <- *ev
 			}
 		} else {
+			klog.Infof("Event processed (add case): %v", e.ev)
 			w.outCh <- e.ev
 		}
 	} else {
@@ -229,9 +228,7 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 			if ev != nil {
 				w.outCh <- *ev
 			}
-		} else {
-			w.outCh <- e.ev
-		}
+		} // explicitly doesn't have an event forward for the else case here
 	}
 
 	return nil
@@ -246,7 +243,9 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 	go func() {
 		for _, ev := range initEvents {
 			klog.Infof("Init events loop: %v", ev)
-			w.outCh <- ev
+			if err := w.processEvent(UpdateEvent{ev: ev}); err != nil {
+				klog.Errorf("Could not process event: %v", err)
+			}
 		}
 
 		w.s.bufferedMutex.RLock()

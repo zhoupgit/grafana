@@ -102,14 +102,14 @@ func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Inte
 	return ctx, store, destroyFunc, nil
 }
 
-/* func TestWatch(t *testing.T) {
+func TestWatch(t *testing.T) {
 	ctx, store, destroyFunc, err := testSetup(t)
 	defer destroyFunc()
 	assert.NoError(t, err)
 	fmt.Println("TestWatch...")
 
 	storagetesting.RunTestWatch(ctx, t, store)
-} */
+}
 
 func TestClusterScopedWatch(t *testing.T) {
 	ctx, store, destroyFunc, err := testSetup(t)
