@@ -281,45 +281,43 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("invalid resource version: %v", err))
 	}
 
+	// TODO: change to using key for determining namespace
 	namespace := request.NamespaceValue(ctx)
-	jw := s.watchSet.newWatch(requestedRV, namespace)
+	jw := s.watchSet.newWatch(requestedRV, p, namespace)
 
-	if opts.ResourceVersion != "" {
+	if opts.ResourceVersion == "0" {
 		s.rvMutex.RLock()
-		defer s.rvMutex.RUnlock()
-
 		if err := s.getList(ctx, key, opts, listObj); err != nil {
 			return nil, err
 		}
-	}
+		s.rvMutex.RUnlock()
 
-	initEvents := make([]watch.Event, 0)
-	listPtr, err := meta.GetItemsPtr(listObj)
-	if err != nil {
-		return nil, err
-	}
-	v, err := conversion.EnforcePtr(listPtr)
-	if err != nil || v.Kind() != reflect.Slice {
-		return nil, fmt.Errorf("Need pointer to slice: %v", err)
-	}
+		initEvents := make([]watch.Event, 0)
+		listPtr, err := meta.GetItemsPtr(listObj)
+		if err != nil {
+			return nil, err
+		}
+		v, err := conversion.EnforcePtr(listPtr)
+		if err != nil || v.Kind() != reflect.Slice {
+			return nil, fmt.Errorf("Need pointer to slice: %v", err)
+		}
 
-	if v.IsNil() {
-		jw.Start(p, initEvents)
+		for i := 0; i < v.Len(); i++ {
+			obj, ok := v.Index(i).Addr().Interface().(runtime.Object)
+			if !ok {
+				return nil, fmt.Errorf("Need item to be a runtime.Object: %v", err)
+			}
+
+			initEvents = append(initEvents, watch.Event{
+				Type:   watch.Added,
+				Object: obj.DeepCopyObject(),
+			})
+		}
+		jw.Start(initEvents...)
 		return jw, nil
 	}
 
-	for i := 0; i < v.Len(); i++ {
-		obj, ok := v.Index(i).Addr().Interface().(runtime.Object)
-		if !ok {
-			return nil, fmt.Errorf("Need item to be a runtime.Object: %v", err)
-		}
-
-		initEvents = append(initEvents, watch.Event{
-			Type:   watch.Added,
-			Object: obj.DeepCopyObject(),
-		})
-	}
-	jw.Start(p, initEvents)
+	jw.Start()
 	return jw, nil
 }
 

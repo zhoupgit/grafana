@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,18 +29,23 @@ type WatchSet struct {
 	mu      sync.RWMutex
 	nodes   map[int]*watchNode
 	counter int
+	// Buffers events during startup so that the brief window in which informers
+	// are getting set up doesn't end up them losing the events
+	buffered      []UpdateEvent
+	bufferedMutex sync.RWMutex
 }
 
 func NewWatchSet() *WatchSet {
 	return &WatchSet{
-		nodes:   make(map[int]*watchNode, 20),
-		counter: 0,
+		buffered: make([]UpdateEvent, 0, 64),
+		nodes:    make(map[int]*watchNode, 20),
+		counter:  0,
 	}
 }
 
 // Creates a new watch with a unique id, but
 // does not start sending events to it until start() is called.
-func (s *WatchSet) newWatch(requestedRV uint64, namespace string) *watchNode {
+func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, namespace string) *watchNode {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -51,6 +57,7 @@ func (s *WatchSet) newWatch(requestedRV uint64, namespace string) *watchNode {
 		s:           s,
 		updateCh:    make(chan UpdateEvent, 10),
 		outCh:       make(chan watch.Event),
+		predicate:   p,
 	}
 	if namespace != "" {
 		node.namespace = namespace
@@ -74,20 +81,23 @@ func (s *WatchSet) cleanupWatchers() {
 // oldObject is only passed in the event of a modification
 // in case a predicate filtered watch is impactec as a result of modification
 // and wants to convert a MODIFIED event to DELETED instead
-func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
+func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-
-	if len(s.nodes) == 0 {
-		return
-	}
 
 	updateEv := UpdateEvent{
 		ev: ev,
 	}
-	if len(oldObject) > 0 {
-		updateEv.oldObject = oldObject[0]
+	if oldObject != nil {
+		updateEv.oldObject = oldObject
 	}
+
+	// Events are always buffered because of an inadvertent delay
+	// which is built into the way the Start function works for a node
+	// The delay is due to the channel implementation
+	s.bufferedMutex.Lock()
+	s.buffered = append(s.buffered, updateEv)
+	s.bufferedMutex.Unlock()
 
 	for _, w := range s.nodes {
 		w.updateCh <- updateEv
@@ -102,95 +112,142 @@ type watchNode struct {
 	requestedRV  uint64
 	namespace    string
 	isNamespaced bool
+	predicate    storage.SelectionPredicate
+}
+
+// Returns a boolean signifying
+func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
+	obj, err := meta.Accessor(e.ev.Object)
+	if err != nil {
+		klog.Warningf("Could not get accessor to object in event")
+		return false, nil
+	}
+
+	eventRV, err := strconv.Atoi(obj.GetResourceVersion())
+	if err != nil {
+		return false, err
+	}
+
+	if eventRV <= int(w.requestedRV) {
+		return false, nil
+	}
+
+	if w.isNamespaced && (w.namespace != obj.GetNamespace()) {
+		return false, err
+	}
+
+	isCurrentMatch, err := w.predicate.Matches(e.ev.Object)
+	if err != nil {
+		return false, err
+	}
+
+	return isCurrentMatch, nil
+}
+
+// Only call this method if current object matches the predicate
+func (w *watchNode) handleAddedToFilteredList(e UpdateEvent) (*watch.Event, error) {
+	if e.oldObject == nil {
+		return nil, fmt.Errorf("oldObject should be set for modified events")
+	}
+
+	ok, err := w.predicate.Matches(e.oldObject)
+	if err != nil {
+		return nil, err
+	}
+
+	if !ok {
+		e.ev.Type = watch.Added
+	}
+
+	return &e.ev, nil
+}
+
+func (w *watchNode) handleDeletedFromFilteredList(e UpdateEvent) (*watch.Event, error) {
+	if e.oldObject == nil {
+		return nil, fmt.Errorf("oldObject should be set for modified events")
+	}
+
+	ok, err := w.predicate.Matches(e.oldObject)
+	if err != nil {
+		return nil, err
+	}
+
+	if !ok {
+		return nil, nil
+	}
+
+	// isn't a match but used to be
+	e.ev.Type = watch.Deleted
+
+	oldObjectAccessor, err := meta.Accessor(e.oldObject)
+	if err != nil {
+		klog.Warning("Could not get accessor to correct the old RV of filtered out object")
+		return nil, err
+	}
+
+	obj, err := meta.Accessor(e.ev.Object)
+	if err != nil {
+		klog.Warningf("Could not get accessor to object in event")
+		return nil, err
+	}
+
+	oldObjectAccessor.SetResourceVersion(obj.GetResourceVersion())
+	e.ev.Object = e.oldObject
+
+	return &e.ev, nil
+}
+
+func (w *watchNode) processEvent(e UpdateEvent) error {
+	valid, err := w.isValid(e)
+	if err != nil {
+		klog.Errorf("Could not determine validity of the event: %v", err)
+		return err
+	}
+	if valid {
+		ev, err := w.handleAddedToFilteredList(e)
+		if err != nil {
+			return err
+		}
+		if ev != nil {
+			w.outCh <- *ev
+		}
+	} else {
+		ev, err := w.handleDeletedFromFilteredList(e)
+		if err != nil {
+			return err
+		}
+		if ev != nil {
+			w.outCh <- *ev
+		}
+	}
+
+	return nil
 }
 
 // Start sending events to this watch.
-func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event) {
+func (w *watchNode) Start(initEvents ...watch.Event) {
+	time.Sleep(500 * time.Millisecond)
+
 	w.s.mu.Lock()
 	w.s.nodes[w.id] = w
 	w.s.mu.Unlock()
 
 	go func() {
 		for _, ev := range initEvents {
-			obj, err := meta.Accessor(ev.Object)
-			if err != nil {
-				klog.Warningf("Could not get accessor to object in event")
-				continue
-			}
-
-			eventRV, err := strconv.Atoi(obj.GetResourceVersion())
-			if err != nil {
-				continue
-			}
-
-			if eventRV <= int(w.requestedRV) {
-				continue
-			}
-
 			w.outCh <- ev
 		}
 
+		w.s.bufferedMutex.RLock()
+		for _, e := range w.s.buffered {
+			if err := w.processEvent(e); err != nil {
+				klog.Errorf("Could not process event: %v", err)
+			}
+		}
+		w.s.bufferedMutex.RUnlock()
+
 		for e := range w.updateCh {
-			obj, err := meta.Accessor(e.ev.Object)
-			if err != nil {
-				klog.Warningf("Could not get accessor to object in event")
-				continue
-			}
-
-			eventRV, err := strconv.Atoi(obj.GetResourceVersion())
-			if err != nil {
-				continue
-			}
-
-			if eventRV <= int(w.requestedRV) {
-				continue
-			}
-
-			if w.isNamespaced && (w.namespace != obj.GetNamespace()) {
-				continue
-			}
-
-			isCurrentMatch, err := p.Matches(e.ev.Object)
-			if err != nil {
-				continue
-			}
-
-			if !isCurrentMatch {
-				if e.ev.Type == watch.Modified && e.oldObject != nil {
-					ok, err := p.Matches(e.oldObject)
-					if err != nil {
-						continue
-					}
-
-					if ok {
-						// isn't a match but used to be
-						e.ev.Type = watch.Deleted
-
-						oldObjectAccessor, err := meta.Accessor(e.oldObject)
-						if err != nil {
-							klog.Warning("Could not get accessor to correct the old RV of filtered out object")
-						}
-						oldObjectAccessor.SetResourceVersion(obj.GetResourceVersion())
-						e.ev.Object = e.oldObject
-
-						w.outCh <- e.ev
-					} else {
-						continue
-					}
-				}
-			} else {
-				if e.ev.Type == watch.Modified && e.oldObject != nil {
-					ok, err := p.Matches(e.oldObject)
-					if err != nil {
-						continue
-					}
-
-					if !ok {
-						// is a match but didn't use to be
-						e.ev.Type = watch.Added
-					}
-				}
-				w.outCh <- e.ev
+			if err := w.processEvent(e); err != nil {
+				klog.Errorf("Could not process event: %v", err)
 			}
 		}
 		close(w.outCh)
