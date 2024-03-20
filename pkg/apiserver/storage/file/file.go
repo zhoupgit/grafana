@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -392,19 +393,36 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 
 	// Watch is failing when set the list resourceVersion to 0, even though informers provide that in the opts
 	if opts.ResourceVersion == "0" {
-		opts.ResourceVersion = ""
+		opts.ResourceVersion = strconv.Itoa(int(s.getCurrentResourceVersion()))
 	}
 
+	var fpath string
 	dirpath := s.dirPath(key)
 	// Since it's a get, check if the dir exists and return early as needed
 	if !exists(dirpath) {
-		// ensure we return empty list in listObj insted of a not found error
-		return nil
+		// We may have gotten the key targeting an individual item
+		dirpath = filepath.Dir(dirpath)
+		if !exists(dirpath) {
+			// ensure we return empty list in listObj instead of a not found error
+			return nil
+		}
+		fpath = s.filePath(key)
 	}
 
-	objs, err := readDirRecursive(s.codec, dirpath, s.newFunc)
-	if err != nil {
-		return err
+	var objs []runtime.Object
+	if fpath != "" {
+		obj, err := readFile(s.codec, fpath, func() runtime.Object {
+			return s.newFunc()
+		})
+		if err == nil {
+			objs = append(objs, obj)
+		}
+	} else {
+		var err error
+		objs, err = readDirRecursive(s.codec, dirpath, s.newFunc)
+		if err != nil {
+			return err
+		}
 	}
 
 	listPtr, err := meta.GetItemsPtr(listObj)

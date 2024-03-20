@@ -203,6 +203,5 @@ func (w *watchNode) stop() {
 }
 
 func (w *watchNode) ResultChan() <-chan watch.Event {
-	fmt.Println("ResultChan")
 	return w.outCh
 }
