@@ -380,7 +380,6 @@ func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOpti
 func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
 	remainingItems := int64(0)
 
-	// Watch is failing when set the list resourceVersion to 0, even though informers provide that in the opts
 	if opts.ResourceVersion == "0" {
 		opts.ResourceVersion = strconv.Itoa(int(s.getCurrentResourceVersion()))
 	}
