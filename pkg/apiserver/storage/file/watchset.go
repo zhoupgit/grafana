@@ -151,7 +151,18 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 
 					if ok {
 						e.ev.Type = watch.Deleted
+
+						oldObjectAccessor, err := meta.Accessor(e.oldObject)
+						if err != nil {
+							klog.Warning("Could not get accessor to correct the old RV of filtered out object")
+						}
+						newObjectAccessor, err := meta.Accessor(e.ev.Object)
+						if err != nil {
+							klog.Warning("Could not get accessor to correct the RV of filtered out object")
+						}
+						oldObjectAccessor.SetResourceVersion(newObjectAccessor.GetResourceVersion())
 						e.ev.Object = e.oldObject
+
 						w.outCh <- e.ev
 					}
 				}
