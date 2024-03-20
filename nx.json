@@ -26,7 +26,19 @@
           "packages/grafana-runtime",
           "packages/grafana-schema",
           "packages/grafana-e2e",
-          "packages/grafana-e2e-selectors"
+          "packages/grafana-e2e-selectors",
+          "packages/grafana-flamegraph",
+          "packages/grafana-o11y-ds-frontend",
+          "packages/grafana-prometheus",
+          "packages/grafana-sql",
+          "public/app/plugins/datasource/azuremonitor",
+          "public/app/plugins/datasource/cloud-monitoring",
+          "public/app/plugins/datasource/grafana-pyroscope-datasource",
+          "public/app/plugins/datasource/grafana-testdata-datasource",
+          "public/app/plugins/datasource/jaeger",
+          "public/app/plugins/datasource/parca",
+          "public/app/plugins/datasource/tempo",
+          "public/app/plugins/datasource/zipkin"
         ]
       },
       "grafanaIcons": {
