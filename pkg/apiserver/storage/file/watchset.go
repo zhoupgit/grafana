@@ -216,7 +216,6 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 				w.outCh <- *ev
 			}
 		} else {
-			klog.Infof("Event processed (add case): %v", e.ev)
 			w.outCh <- e.ev
 		}
 	} else {
@@ -242,7 +241,6 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 
 	go func() {
 		for _, ev := range initEvents {
-			klog.Infof("Init events loop: %v", ev)
 			if err := w.processEvent(UpdateEvent{ev: ev}); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
@@ -250,7 +248,6 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 
 		w.s.bufferedMutex.RLock()
 		for _, e := range w.s.buffered {
-			klog.Infof("Buffered loop: %v", e)
 			if err := w.processEvent(e); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
@@ -258,7 +255,6 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 		w.s.bufferedMutex.RUnlock()
 
 		for e := range w.updateCh {
-			klog.Infof("Update Event loop: %v", e)
 			if err := w.processEvent(e); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
