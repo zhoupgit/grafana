@@ -8,6 +8,9 @@ package file
 import (
 	"context"
 	"fmt"
+	"io/fs"
+	"os"
+	"path"
 	"testing"
 	"time"
 
@@ -86,6 +89,11 @@ func testSetup(t testing.TB, opts ...setupOption) (context.Context, storage.Inte
 		make(map[string]storage.IndexerFunc, 0),
 		nil,
 	)
+
+	// Some tests may start reading before writing
+	if err := os.MkdirAll(path.Join(setupOpts.prefix, "pods", "test-ns"), fs.ModePerm); err != nil {
+		return nil, nil, nil, err
+	}
 
 	if err != nil {
 		return nil, nil, nil, err
