@@ -32,7 +32,8 @@ type UpdateEvent struct {
 
 // Keeps track of which watches need to be notified
 type WatchSet struct {
-	mu      sync.RWMutex
+	mu sync.RWMutex
+	// mu protects both nodes and counter
 	nodes   map[int]*watchNode
 	counter int
 	// Buffers events during startup so that the brief window in which informers
@@ -82,8 +83,7 @@ func (s *WatchSet) cleanupWatchers() {
 }
 
 // oldObject is only passed in the event of a modification
-// in case a predicate filtered watch is impactec as a result of modification
-// and wants to convert a MODIFIED event to DELETED instead
+// in case a predicate filtered watch is impacted as a result of modification
 func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -119,7 +119,7 @@ type watchNode struct {
 	predicate    storage.SelectionPredicate
 }
 
-// Returns a boolean signifying
+// isValid is not necessary to be called on oldObject in UpdateEvents - assuming the Watch pushes correctly setup UpdateEvent our way
 func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
 	obj, err := meta.Accessor(e.ev.Object)
 	if err != nil {
