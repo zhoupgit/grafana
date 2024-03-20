@@ -14,5 +14,24 @@
   },
   "affected": {
     "defaultBase": "main"
+  },
+  "release": {
+    "projectsRelationship": "independent",
+    "groups": {
+      "grafanaPackages": {
+        "projectsRelationship": "fixed",
+        "projects": [
+          "packages/grafana-ui",
+          "packages/grafana-data",
+          "packages/grafana-runtime",
+          "packages/grafana-schema",
+          "packages/grafana-e2e",
+          "packages/grafana-e2e-selectors"
+        ]
+      },
+      "grafanaIcons": {
+        "projects": ["packages/grafana-icons"]
+      }
+    }
   }
 }
