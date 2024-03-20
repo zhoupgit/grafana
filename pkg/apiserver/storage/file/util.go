@@ -100,14 +100,6 @@ func ensureDir(dirname string) error {
 }
 
 func isUnchanged(versioner storage.Versioner, codec runtime.Codec, obj runtime.Object, newObj runtime.Object) (bool, error) {
-	// TODO: hacky - retract the change so comparison doesn't return false just cuz we updated the RV
-	/* lastRV, err := versioner.ObjectResourceVersion(obj)
-	if err != nil {
-		return false, err
-	}
-	if err := versioner.UpdateObject(newObj, lastRV); err != nil {
-		return false, err
-	} */
 	buf := new(bytes.Buffer)
 	if err := codec.Encode(obj, buf); err != nil {
 		return false, err

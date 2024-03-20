@@ -77,16 +77,11 @@ func (s *WatchSet) cleanupWatchers() {
 func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	fmt.Println("notifyWatchers START")
 
 	if len(s.nodes) == 0 {
-		fmt.Println("No nodes")
 		return
 	}
 
-	fmt.Println("NOTIFY: length of nodes=", len(s.nodes))
-
-	fmt.Println("Looping on nodes for notify")
 	updateEv := UpdateEvent{
 		ev: ev,
 	}
@@ -95,11 +90,8 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
 	}
 
 	for _, w := range s.nodes {
-		fmt.Println("Updating channel with ev", updateEv)
 		w.updateCh <- updateEv
 	}
-
-	fmt.Println("notifyWatchers COMPLETE")
 }
 
 type watchNode struct {
@@ -117,8 +109,6 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 	w.s.mu.Lock()
 	w.s.nodes[w.id] = w
 	w.s.mu.Unlock()
-
-	fmt.Println("Start pre")
 
 	go func() {
 		for _, ev := range initEvents {
@@ -141,8 +131,6 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 		}
 
 		for e := range w.updateCh {
-			fmt.Println("From update channel", e)
-
 			obj, err := meta.Accessor(e.ev.Object)
 			if err != nil {
 				klog.Warningf("Could not get accessor to object in event")
@@ -192,9 +180,6 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 				}
 			} else {
 				if e.ev.Type == watch.Modified && e.oldObject != nil {
-					fmt.Println("oldObject is:", e.oldObject)
-					fmt.Println("newObject is", e.ev.Object)
-					fmt.Println("Predicate is:", p)
 					ok, err := p.Matches(e.oldObject)
 					if err != nil {
 						continue
@@ -207,11 +192,7 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 				}
 				w.outCh <- e.ev
 			}
-			fmt.Println("To out channel", e)
-
 		}
-
-		fmt.Println("Start post")
 		close(w.outCh)
 	}()
 }
@@ -222,11 +203,10 @@ func (w *watchNode) Stop() {
 	w.stop()
 }
 
+// Unprotected func: ensure mutex on the parent watch set is locked before calling
 func (w *watchNode) stop() {
-	fmt.Println("Before close")
 	delete(w.s.nodes, w.id)
 	close(w.updateCh)
-	fmt.Println("After close")
 }
 
 func (w *watchNode) ResultChan() <-chan watch.Event {

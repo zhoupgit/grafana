@@ -276,8 +276,6 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 	p := opts.Predicate
 	listObj := s.newListFunc()
 
-	fmt.Println("[Watch] 0")
-
 	requestedRV, err := s.Versioner().ParseResourceVersion(opts.ResourceVersion)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(fmt.Sprintf("invalid resource version: %v", err))
@@ -285,8 +283,6 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 
 	namespace := request.NamespaceValue(ctx)
 	jw := s.watchSet.newWatch(requestedRV, namespace)
-
-	fmt.Println("[Watch] 1")
 
 	if opts.ResourceVersion != "" {
 		s.rvMutex.RLock()
@@ -296,8 +292,6 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 			return nil, err
 		}
 	}
-
-	fmt.Println("[Watch] 2")
 
 	initEvents := make([]watch.Event, 0)
 	listPtr, err := meta.GetItemsPtr(listObj)
@@ -309,21 +303,16 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		return nil, fmt.Errorf("Need pointer to slice: %v", err)
 	}
 
-	fmt.Println("[Watch] 4")
 	if v.IsNil() {
 		jw.Start(p, initEvents)
 		return jw, nil
 	}
-
-	fmt.Println("[Watch] 5")
 
 	for i := 0; i < v.Len(); i++ {
 		obj, ok := v.Index(i).Addr().Interface().(runtime.Object)
 		if !ok {
 			return nil, fmt.Errorf("Need item to be a runtime.Object: %v", err)
 		}
-
-		fmt.Println("[Watch] 6")
 
 		initEvents = append(initEvents, watch.Event{
 			Type:   watch.Added,
@@ -436,7 +425,6 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 
 	// only used if we are being asked to return list at a specific version
 	maxRVFromItem := uint64(0)
-	fmt.Println("Key", key, "dirPath", dirpath, "List length", len(objs), "ResourceVersion", opts.ResourceVersion)
 	for _, obj := range objs {
 		currentVersion, err := s.Versioner().ObjectResourceVersion(obj)
 		if err != nil {
@@ -475,8 +463,6 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 	if err := s.Versioner().UpdateList(listObj, resourceVersionInt, "", &remainingItems); err != nil {
 		return err
 	}
-
-	fmt.Println("Finishing GetList")
 
 	return nil
 }
