@@ -675,13 +675,13 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 
 	// beware the empty "" as the first separated part.
 
-	if len(parts) > 1 && parts[0] == "pods" {
+	if len(parts) > 1 && parts[1] == "pods" {
 		k.resource = parts[1]
 	}
 
 	if len(parts) > 2 {
 		// this is a test
-		if parts[0] == "pods" {
+		if parts[1] == "pods" {
 			k.resource = parts[1]
 			k.namespace = parts[2]
 		} else {
@@ -692,7 +692,7 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 
 	if len(parts) > 3 {
 		// this is a test
-		if parts[0] == "pods" {
+		if parts[1] == "pods" {
 			k.name = parts[3]
 		} else {
 			field := fields.Set{
