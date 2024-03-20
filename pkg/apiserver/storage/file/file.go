@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -28,7 +27,6 @@ import (
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/klog/v2"
 )
 
 const MaxUpdateAttempts = 30
@@ -179,7 +177,7 @@ func (s *Storage) Create(ctx context.Context, key string, obj runtime.Object, ou
 	s.watchSet.notifyWatchers(watch.Event{
 		Object: out.DeepCopyObject(),
 		Type:   watch.Added,
-	})
+	}, nil)
 
 	return nil
 }
@@ -259,7 +257,7 @@ func (s *Storage) Delete(
 		s.watchSet.notifyWatchers(watch.Event{
 			Object: out.DeepCopyObject(),
 			Type:   watch.Deleted,
-		})
+		}, nil)
 
 		return nil
 	}
@@ -362,25 +360,22 @@ func (s *Storage) Get(ctx context.Context, key string, opts storage.GetOptions, 
 	return nil
 }
 
-func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
-	s.rvMutex.RLock()
-	defer s.rvMutex.RUnlock()
-	klog.Info("In GetList")
-	return s.getList(ctx, key, opts, listObj)
-}
-
 // GetList unmarshalls objects found at key into a *List api object (an object
 // that satisfies runtime.IsList definition).
 // If 'opts.Recursive' is false, 'key' is used as an exact match. If `opts.Recursive'
 // is true, 'key' is used as a prefix.
 // The returned contents may be delayed, but it is guaranteed that they will
 // match 'opts.ResourceVersion' according 'opts.ResourceVersionMatch'.
+func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
+	s.rvMutex.RLock()
+	defer s.rvMutex.RUnlock()
+	return s.getList(ctx, key, opts, listObj)
+}
+
+// getList is the lock-free helper called by GetList and Watch. Those other callers must read-lock on the RV Mutex
+// before invoking getList
 func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
 	remainingItems := int64(0)
-
-	if opts.ResourceVersion == "0" {
-		opts.ResourceVersion = strconv.Itoa(int(s.getCurrentResourceVersion()))
-	}
 
 	var fpath string
 	dirpath := s.dirPath(key)
@@ -420,7 +415,6 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 		return err
 	}
 
-	// only used if we are being asked to return list at a specific version
 	maxRVFromItem := uint64(0)
 	for _, obj := range objs {
 		currentVersion, err := s.Versioner().ObjectResourceVersion(obj)
@@ -435,23 +429,22 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 		ok, err := opts.Predicate.Matches(obj)
 		if err == nil && ok {
 			v.Set(reflect.Append(v, reflect.ValueOf(obj).Elem()))
-
-			if opts.ResourceVersion == "" {
-				if currentVersion > maxRVFromItem {
-					maxRVFromItem = currentVersion
-				}
+			if currentVersion > maxRVFromItem {
+				maxRVFromItem = currentVersion
 			}
 		}
 	}
 
 	resourceVersionInt := uint64(0)
-	if opts.ResourceVersion != "" {
+	if opts.ResourceVersion != "" && opts.ResourceVersion != "0" {
 		var err error
 		resourceVersionInt, err = s.Versioner().ParseResourceVersion(opts.ResourceVersion)
 		if err != nil {
 			return err
 		}
-	} else if maxRVFromItem == 0 { // we have an empty list, use current RV we are on, this will ensure any items added afterwards will use a fresher RV
+	} else if maxRVFromItem == 0 {
+		// we have an empty list, use current RV we are on.
+		// this will ensure any items added afterwards will use a fresher RV.
 		resourceVersionInt = s.getCurrentResourceVersion()
 	} else {
 		resourceVersionInt = maxRVFromItem + uint64(1)
@@ -611,7 +604,7 @@ func (s *Storage) Count(key string) (int64, error) {
 //
 // TODO: Remove when storage.Interface will be separate from etc3.store.
 // Deprecated: Added temporarily to simplify exposing RequestProgress for watch cache.
-func (s *Storage) RequestWatchProgress(ctx context.Context) error {
+func (s *Storage) RequestWatchProgress(_ context.Context) error {
 	return nil
 }
 

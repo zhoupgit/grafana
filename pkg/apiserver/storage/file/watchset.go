@@ -9,13 +9,19 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"time"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/klog/v2"
+)
+
+const (
+	UpdateChannelSize     = 10
+	InitialWatchNodesSize = 20
+
+	InitialBufferedEventsSize = 25
 )
 
 type UpdateEvent struct {
@@ -37,8 +43,8 @@ type WatchSet struct {
 
 func NewWatchSet() *WatchSet {
 	return &WatchSet{
-		buffered: make([]UpdateEvent, 0, 64),
-		nodes:    make(map[int]*watchNode, 20),
+		buffered: make([]UpdateEvent, 0, InitialBufferedEventsSize),
+		nodes:    make(map[int]*watchNode, InitialWatchNodesSize),
 		counter:  0,
 	}
 }
@@ -55,7 +61,7 @@ func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, na
 		requestedRV: requestedRV,
 		id:          s.counter,
 		s:           s,
-		updateCh:    make(chan UpdateEvent, 10),
+		updateCh:    make(chan UpdateEvent, UpdateChannelSize),
 		outCh:       make(chan watch.Event),
 		predicate:   p,
 	}
@@ -67,12 +73,9 @@ func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, na
 }
 
 func (s *WatchSet) cleanupWatchers() {
-	fmt.Println("Pre cleanup - lock get")
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	fmt.Println("Looping on nodes for cleanup")
 	for _, w := range s.nodes {
-		fmt.Println("Stopping node")
 		w.stop()
 
 	}
@@ -93,8 +96,9 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 	}
 
 	// Events are always buffered because of an inadvertent delay
-	// which is built into the way the Start function works for a node
-	// The delay is due to the channel implementation
+	// which is built into the watch process
+	// While a watch begins and gets subscribed fully, another client (internal or external) could
+	// change system state and this may be after the informers have successfully listed state
 	s.bufferedMutex.Lock()
 	s.buffered = append(s.buffered, updateEv)
 	s.bufferedMutex.Unlock()
@@ -145,7 +149,7 @@ func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
 }
 
 // Only call this method if current object matches the predicate
-func (w *watchNode) handleAddedToFilteredList(e UpdateEvent) (*watch.Event, error) {
+func (w *watchNode) handleAddedForFilteredList(e UpdateEvent) (*watch.Event, error) {
 	if e.oldObject == nil {
 		return nil, fmt.Errorf("oldObject should be set for modified events")
 	}
@@ -157,12 +161,13 @@ func (w *watchNode) handleAddedToFilteredList(e UpdateEvent) (*watch.Event, erro
 
 	if !ok {
 		e.ev.Type = watch.Added
+		return &e.ev, nil
 	}
 
-	return &e.ev, nil
+	return nil, nil
 }
 
-func (w *watchNode) handleDeletedFromFilteredList(e UpdateEvent) (*watch.Event, error) {
+func (w *watchNode) handleDeletedForFilteredList(e UpdateEvent) (*watch.Event, error) {
 	if e.oldObject == nil {
 		return nil, fmt.Errorf("oldObject should be set for modified events")
 	}
@@ -204,20 +209,28 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 		return err
 	}
 	if valid {
-		ev, err := w.handleAddedToFilteredList(e)
-		if err != nil {
-			return err
-		}
-		if ev != nil {
-			w.outCh <- *ev
+		if e.ev.Type == watch.Modified {
+			ev, err := w.handleAddedForFilteredList(e)
+			if err != nil {
+				return err
+			}
+			if ev != nil {
+				w.outCh <- *ev
+			}
+		} else {
+			w.outCh <- e.ev
 		}
 	} else {
-		ev, err := w.handleDeletedFromFilteredList(e)
-		if err != nil {
-			return err
-		}
-		if ev != nil {
-			w.outCh <- *ev
+		if e.ev.Type == watch.Modified {
+			ev, err := w.handleDeletedForFilteredList(e)
+			if err != nil {
+				return err
+			}
+			if ev != nil {
+				w.outCh <- *ev
+			}
+		} else {
+			w.outCh <- e.ev
 		}
 	}
 
@@ -226,19 +239,19 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 
 // Start sending events to this watch.
 func (w *watchNode) Start(initEvents ...watch.Event) {
-	time.Sleep(500 * time.Millisecond)
-
 	w.s.mu.Lock()
 	w.s.nodes[w.id] = w
 	w.s.mu.Unlock()
 
 	go func() {
 		for _, ev := range initEvents {
+			klog.Infof("Init events loop: %v", ev)
 			w.outCh <- ev
 		}
 
 		w.s.bufferedMutex.RLock()
 		for _, e := range w.s.buffered {
+			klog.Infof("Buffered loop: %v", e)
 			if err := w.processEvent(e); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
@@ -246,6 +259,7 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 		w.s.bufferedMutex.RUnlock()
 
 		for e := range w.updateCh {
+			klog.Infof("Update Event loop: %v", e)
 			if err := w.processEvent(e); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
