@@ -94,7 +94,7 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject ...runtime.Object) {
 	}
 
 	for _, w := range s.nodes {
-		fmt.Println("Updating channel with ev")
+		fmt.Println("Updating channel with ev", updateEv)
 		w.updateCh <- updateEv
 	}
 
@@ -133,31 +133,44 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 				continue
 			}
 
-			if w.namespace != obj.GetNamespace() {
+			if w.isNamespaced && (w.namespace != obj.GetNamespace()) {
 				continue
 			}
 
-			ok, err := p.Matches(e.ev.Object)
+			isCurrentMatch, err := p.Matches(e.ev.Object)
 			if err != nil {
 				continue
 			}
 
-			if !ok {
+			if !isCurrentMatch {
 				if e.ev.Type == watch.Modified {
-					if ok, err := p.Matches(e.oldObject); err == nil && ok {
-						e.ev.Type = watch.Deleted
-						e.ev.Object = e.oldObject
-					} else {
+					ok, err := p.Matches(e.oldObject)
+					if err != nil {
 						continue
 					}
-				} else {
-					continue
+
+					if ok {
+						e.ev.Type = watch.Deleted
+						e.ev.Object = e.oldObject
+						w.outCh <- e.ev
+					}
 				}
 			} else {
-				fmt.Println("Predicate p=", p, "matches type=", e.ev.Type, "obj=", e.ev.Object)
+				if e.ev.Type == watch.Modified {
+					ok, err := p.Matches(e.oldObject)
+					if err != nil {
+						continue
+					}
+
+					if !ok {
+						// This came to be a part of the result set through modification
+						e.ev.Type = watch.Added
+					}
+				}
+				w.outCh <- e.ev
 			}
 			fmt.Println("To out channel", e)
-			w.outCh <- e.ev
+
 		}
 
 		fmt.Println("Start post")
