@@ -661,7 +661,7 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 	// /<group>/<resource>/[<name>]
 	// /<group>/<resource>
 	parts := strings.SplitN(key, "/", 5)
-	if len(parts) < 3 {
+	if len(parts) < 3 && (len(parts) == 2 && parts[1] != "pods") {
 		return nil, fmt.Errorf("invalid key (expecting at least 2 parts): %s", key)
 	}
 
@@ -674,10 +674,15 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 	klog.Infof("parts in namespace func: %v", parts)
 
 	// beware the empty "" as the first separated part.
+
+	if len(parts) > 1 && parts[0] == "pods" {
+		k.resource = parts[1]
+	}
+
 	if len(parts) > 2 {
 		// this is a test
 		if parts[0] == "pods" {
-			k.group = parts[1]
+			k.resource = parts[1]
 			k.namespace = parts[2]
 		} else {
 			k.group = parts[1]
