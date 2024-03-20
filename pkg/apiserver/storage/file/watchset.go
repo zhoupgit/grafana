@@ -7,6 +7,7 @@ package file
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -120,8 +121,23 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 	fmt.Println("Start pre")
 
 	go func() {
-		for _, e := range initEvents {
-			w.outCh <- e
+		for _, ev := range initEvents {
+			obj, err := meta.Accessor(ev.Object)
+			if err != nil {
+				klog.Warningf("Could not get accessor to object in event")
+				continue
+			}
+
+			eventRV, err := strconv.Atoi(obj.GetResourceVersion())
+			if err != nil {
+				continue
+			}
+
+			if eventRV <= int(w.requestedRV) {
+				continue
+			}
+
+			w.outCh <- ev
 		}
 
 		for e := range w.updateCh {
@@ -130,6 +146,15 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 			obj, err := meta.Accessor(e.ev.Object)
 			if err != nil {
 				klog.Warningf("Could not get accessor to object in event")
+				continue
+			}
+
+			eventRV, err := strconv.Atoi(obj.GetResourceVersion())
+			if err != nil {
+				continue
+			}
+
+			if eventRV <= int(w.requestedRV) {
 				continue
 			}
 
@@ -143,38 +168,40 @@ func (w *watchNode) Start(p storage.SelectionPredicate, initEvents []watch.Event
 			}
 
 			if !isCurrentMatch {
-				if e.ev.Type == watch.Modified {
+				if e.ev.Type == watch.Modified && e.oldObject != nil {
 					ok, err := p.Matches(e.oldObject)
 					if err != nil {
 						continue
 					}
 
 					if ok {
+						// isn't a match but used to be
 						e.ev.Type = watch.Deleted
 
 						oldObjectAccessor, err := meta.Accessor(e.oldObject)
 						if err != nil {
 							klog.Warning("Could not get accessor to correct the old RV of filtered out object")
 						}
-						newObjectAccessor, err := meta.Accessor(e.ev.Object)
-						if err != nil {
-							klog.Warning("Could not get accessor to correct the RV of filtered out object")
-						}
-						oldObjectAccessor.SetResourceVersion(newObjectAccessor.GetResourceVersion())
+						oldObjectAccessor.SetResourceVersion(obj.GetResourceVersion())
 						e.ev.Object = e.oldObject
 
 						w.outCh <- e.ev
+					} else {
+						continue
 					}
 				}
 			} else {
-				if e.ev.Type == watch.Modified {
+				if e.ev.Type == watch.Modified && e.oldObject != nil {
+					fmt.Println("oldObject is:", e.oldObject)
+					fmt.Println("newObject is", e.ev.Object)
+					fmt.Println("Predicate is:", p)
 					ok, err := p.Matches(e.oldObject)
 					if err != nil {
 						continue
 					}
 
 					if !ok {
-						// This came to be a part of the result set through modification
+						// is a match but didn't use to be
 						e.ev.Type = watch.Added
 					}
 				}

@@ -436,7 +436,7 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 
 	// only used if we are being asked to return list at a specific version
 	maxRVFromItem := uint64(0)
-	fmt.Println("Key", key, "dirPath", dirpath, "List length", len(objs))
+	fmt.Println("Key", key, "dirPath", dirpath, "List length", len(objs), "ResourceVersion", opts.ResourceVersion)
 	for _, obj := range objs {
 		currentVersion, err := s.Versioner().ObjectResourceVersion(obj)
 		if err != nil {
@@ -593,11 +593,17 @@ func (s *Storage) GuaranteedUpdate(
 		eventType := watch.Modified
 		if created {
 			eventType = watch.Added
+			s.watchSet.notifyWatchers(watch.Event{
+				Object: destination.DeepCopyObject(),
+				Type:   eventType,
+			}, nil)
 		}
+
 		s.watchSet.notifyWatchers(watch.Event{
 			Object: destination.DeepCopyObject(),
 			Type:   eventType,
 		}, obj.DeepCopyObject())
+
 		return nil
 	}
 	return nil
