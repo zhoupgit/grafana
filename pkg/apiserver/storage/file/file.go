@@ -534,7 +534,7 @@ func (s *Storage) GuaranteedUpdate(
 			continue
 		}
 
-		unchanged, err := isUnchanged(s.Versioner(), s.codec, obj, updatedObj)
+		unchanged, err := isUnchanged(s.codec, obj, updatedObj)
 		if err != nil {
 			return err
 		}

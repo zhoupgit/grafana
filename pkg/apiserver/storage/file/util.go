@@ -13,7 +13,6 @@ import (
 	"strings"
 
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apiserver/pkg/storage"
 )
 
 func (s *Storage) filePath(key string) string {
@@ -99,7 +98,7 @@ func ensureDir(dirname string) error {
 	return nil
 }
 
-func isUnchanged(versioner storage.Versioner, codec runtime.Codec, obj runtime.Object, newObj runtime.Object) (bool, error) {
+func isUnchanged(codec runtime.Codec, obj runtime.Object, newObj runtime.Object) (bool, error) {
 	buf := new(bytes.Buffer)
 	if err := codec.Encode(obj, buf); err != nil {
 		return false, err
