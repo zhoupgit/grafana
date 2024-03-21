@@ -136,7 +136,7 @@ func TestWatchFromZero(t *testing.T) {
 	ctx, store, destroyFunc, err := testSetup(t)
 	defer destroyFunc()
 	assert.NoError(t, err)
-	storagetesting.RunTestWatchFromZero(ctx, t, store, func(_ context.Context, _ *testing.T, _ string) {})
+	storagetesting.RunTestWatchFromZero(ctx, t, store, nil)
 }
 
 // TestWatchFromNonZero tests that

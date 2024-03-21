@@ -59,11 +59,14 @@ func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, na
 	s.counter++
 
 	node := &watchNode{
-		requestedRV:    requestedRV,
-		id:             s.counter,
-		s:              s,
-		updateCh:       make(chan UpdateEvent, UpdateChannelSize),
-		outCh:          make(chan watch.Event),
+		requestedRV: requestedRV,
+		id:          s.counter,
+		s:           s,
+		// updateCh size needs to be > 1 to allow slower clients to not block passing new events
+		updateCh: make(chan UpdateEvent, UpdateChannelSize),
+		// outCh size needs to be > 1 for single process use-cases such as tests where watch and event seeding from CUD
+		// events is happening on the same thread
+		outCh:          make(chan watch.Event, UpdateChannelSize),
 		predicate:      p,
 		watchNamespace: namespace,
 	}
@@ -118,32 +121,35 @@ type watchNode struct {
 }
 
 // isValid is not necessary to be called on oldObject in UpdateEvents - assuming the Watch pushes correctly setup UpdateEvent our way
-func (w *watchNode) isValid(e UpdateEvent) (bool, error) {
+// first bool is whether the event is valid for current watcher
+// second bool is whether the event is not valid for current watcher but its old value is valid against the predicate
+// (note that this second bool is only determined if we pass other checks first, namely RV and namespace)
+func (w *watchNode) isValid(e UpdateEvent) (bool, bool, error) {
 	obj, err := meta.Accessor(e.ev.Object)
 	if err != nil {
 		klog.Warningf("Could not get accessor to object in event")
-		return false, nil
+		return false, false, nil
 	}
 
 	eventRV, err := strconv.Atoi(obj.GetResourceVersion())
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 
 	if eventRV <= int(w.requestedRV) {
-		return false, nil
+		return false, false, nil
 	}
 
 	if w.watchNamespace != nil && *w.watchNamespace != obj.GetNamespace() {
-		return false, err
+		return false, false, err
 	}
 
 	valid, err := w.predicate.Matches(e.ev.Object)
 	if err != nil {
-		return false, err
+		return false, true, err
 	}
 
-	return valid, nil
+	return valid, false, nil
 }
 
 // Only call this method if current object matches the predicate
@@ -201,7 +207,7 @@ func (w *watchNode) handleDeletedForFilteredList(e UpdateEvent) (*watch.Event, e
 }
 
 func (w *watchNode) processEvent(e UpdateEvent) error {
-	valid, err := w.isValid(e)
+	valid, runDeleteFromFilteredListHandler, err := w.isValid(e)
 	if err != nil {
 		klog.Errorf("Could not determine validity of the event: %v", err)
 		return err
@@ -214,11 +220,14 @@ func (w *watchNode) processEvent(e UpdateEvent) error {
 			}
 			if ev != nil {
 				w.outCh <- *ev
+			} else {
+				// forward the original event if add handling didn't signal any impact
+				w.outCh <- e.ev
 			}
 		} else {
 			w.outCh <- e.ev
 		}
-	} else {
+	} else if runDeleteFromFilteredListHandler {
 		if e.ev.Type == watch.Modified {
 			ev, err := w.handleDeletedForFilteredList(e)
 			if err != nil {
@@ -246,13 +255,17 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 			}
 		}
 
-		w.s.bufferedMutex.RLock()
-		for _, e := range w.s.buffered {
-			if err := w.processEvent(e); err != nil {
-				klog.Errorf("Could not process event: %v", err)
+		// The if check below helps not send duplicate events when reading from 0
+		// since ADDED events made from initial list above are already sent
+		if w.requestedRV != 0 {
+			w.s.bufferedMutex.RLock()
+			for _, e := range w.s.buffered {
+				if err := w.processEvent(e); err != nil {
+					klog.Errorf("Could not process event: %v", err)
+				}
 			}
+			w.s.bufferedMutex.RUnlock()
 		}
-		w.s.bufferedMutex.RUnlock()
 
 		for e := range w.updateCh {
 			if err := w.processEvent(e); err != nil {
