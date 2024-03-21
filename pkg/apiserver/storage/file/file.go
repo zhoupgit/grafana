@@ -19,7 +19,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/conversion"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
@@ -683,7 +682,9 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 		// this is a test
 		if parts[1] == "pods" {
 			k.resource = parts[1]
-			k.namespace = parts[2]
+			if _, found := p.Field.RequiresExactMatch("metadata.name"); !found {
+				k.namespace = parts[2]
+			}
 		} else {
 			k.group = parts[1]
 			k.resource = parts[2]
@@ -695,11 +696,7 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 		if parts[1] == "pods" {
 			k.name = parts[3]
 		} else {
-			field := fields.Set{
-				"metadata.name": parts[3],
-			}
-			if !p.Field.Matches(field) {
-				klog.Infof("Parts[3]=%s", parts[3])
+			if _, found := p.Field.RequiresExactMatch("metadata.name"); !found {
 				k.namespace = parts[3]
 			}
 		}
