@@ -18,16 +18,29 @@ import (
 )
 
 const (
-	UpdateChannelSize     = 10
-	InitialWatchNodesSize = 20
-
+	UpdateChannelSize         = 10
+	InitialWatchNodesSize     = 20
 	InitialBufferedEventsSize = 25
 )
 
-type UpdateEvent struct {
+type eventWrapper struct {
 	ev watch.Event
 	// optional: oldObject is only set for modifications for determining their type as necessary (when using predicate filtering)
 	oldObject runtime.Object
+}
+
+type watchNode struct {
+	s           *WatchSet
+	id          int
+	updateCh    chan eventWrapper
+	outCh       chan watch.Event
+	requestedRV uint64
+	// the watch may or may not be namespaced for a namespaced resource. This is always nil for cluster-scoped kinds
+	watchNamespace *string
+	predicate      storage.SelectionPredicate
+	// Buffers events during startup so that the brief window in which the async
+	// part of start method starts doesn't lead to us missing events
+	buffered []eventWrapper
 }
 
 // Keeps track of which watches need to be notified
@@ -36,17 +49,12 @@ type WatchSet struct {
 	// mu protects both nodes and counter
 	nodes   map[int]*watchNode
 	counter int
-	// Buffers events during startup so that the brief window in which informers
-	// are getting set up doesn't end up them losing the events
-	buffered      []UpdateEvent
-	bufferedMutex sync.RWMutex
 }
 
 func NewWatchSet() *WatchSet {
 	return &WatchSet{
-		buffered: make([]UpdateEvent, 0, InitialBufferedEventsSize),
-		nodes:    make(map[int]*watchNode, InitialWatchNodesSize),
-		counter:  0,
+		nodes:   make(map[int]*watchNode, InitialWatchNodesSize),
+		counter: 0,
 	}
 }
 
@@ -62,8 +70,9 @@ func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, na
 		requestedRV: requestedRV,
 		id:          s.counter,
 		s:           s,
+		buffered:    make([]eventWrapper, 0, InitialBufferedEventsSize),
 		// updateCh size needs to be > 1 to allow slower clients to not block passing new events
-		updateCh: make(chan UpdateEvent, UpdateChannelSize),
+		updateCh: make(chan eventWrapper, UpdateChannelSize),
 		// outCh size needs to be > 1 for single process use-cases such as tests where watch and event seeding from CUD
 		// events is happening on the same thread
 		outCh:          make(chan watch.Event, UpdateChannelSize),
@@ -89,42 +98,29 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	updateEv := UpdateEvent{
+	updateEv := eventWrapper{
 		ev: ev,
 	}
 	if oldObject != nil {
 		updateEv.oldObject = oldObject
 	}
 
-	// Events are always buffered because of an inadvertent delay
-	// which is built into the watch process
-	// While a watch begins and gets subscribed fully, another client (internal or external) could
-	// change system state and this may be after the informers have successfully listed state
-	s.bufferedMutex.Lock()
-	s.buffered = append(s.buffered, updateEv)
-	s.bufferedMutex.Unlock()
-
 	for _, w := range s.nodes {
+		// Events are always buffered because of an inadvertent delay
+		// which is built into the watch process
+		// While a watch begins and gets subscribed fully, another client (internal or external) could
+		// change system state and this may be after the informers have successfully listed state
+		w.buffered = append(w.buffered, updateEv)
 		w.updateCh <- updateEv
 	}
 }
 
-type watchNode struct {
-	s           *WatchSet
-	id          int
-	updateCh    chan UpdateEvent
-	outCh       chan watch.Event
-	requestedRV uint64
-	// the watch may or may not be namespaced for a namespaced resource. This is always nil for cluster-scoped kinds
-	watchNamespace *string
-	predicate      storage.SelectionPredicate
-}
-
-// isValid is not necessary to be called on oldObject in UpdateEvents - assuming the Watch pushes correctly setup UpdateEvent our way
+// isValid is not necessary to be called on oldObject in UpdateEvents - assuming the Watch pushes correctly setup eventWrapper our way
 // first bool is whether the event is valid for current watcher
-// second bool is whether the event is not valid for current watcher but its old value is valid against the predicate
-// (note that this second bool is only determined if we pass other checks first, namely RV and namespace)
-func (w *watchNode) isValid(e UpdateEvent) (bool, bool, error) {
+// second bool is whether checking the old value against the predicate may be valuable to the caller
+// second bool may be a helpful aid to establish context around MODIFIED events
+// (note that this second bool is only marked true if we pass other checks first, namely RV and namespace)
+func (w *watchNode) isValid(e eventWrapper) (bool, bool, error) {
 	obj, err := meta.Accessor(e.ev.Object)
 	if err != nil {
 		klog.Warningf("Could not get accessor to object in event")
@@ -146,14 +142,14 @@ func (w *watchNode) isValid(e UpdateEvent) (bool, bool, error) {
 
 	valid, err := w.predicate.Matches(e.ev.Object)
 	if err != nil {
-		return false, true, err
+		return false, false, err
 	}
 
-	return valid, false, nil
+	return valid, true, nil
 }
 
 // Only call this method if current object matches the predicate
-func (w *watchNode) handleAddedForFilteredList(e UpdateEvent) (*watch.Event, error) {
+func (w *watchNode) handleAddedForFilteredList(e eventWrapper) (*watch.Event, error) {
 	if e.oldObject == nil {
 		return nil, fmt.Errorf("oldObject should be set for modified events")
 	}
@@ -171,7 +167,7 @@ func (w *watchNode) handleAddedForFilteredList(e UpdateEvent) (*watch.Event, err
 	return nil, nil
 }
 
-func (w *watchNode) handleDeletedForFilteredList(e UpdateEvent) (*watch.Event, error) {
+func (w *watchNode) handleDeletedForFilteredList(e eventWrapper) (*watch.Event, error) {
 	if e.oldObject == nil {
 		return nil, fmt.Errorf("oldObject should be set for modified events")
 	}
@@ -206,7 +202,7 @@ func (w *watchNode) handleDeletedForFilteredList(e UpdateEvent) (*watch.Event, e
 	return &e.ev, nil
 }
 
-func (w *watchNode) processEvent(e UpdateEvent) error {
+func (w *watchNode) processEvent(e eventWrapper) error {
 	valid, runDeleteFromFilteredListHandler, err := w.isValid(e)
 	if err != nil {
 		klog.Errorf("Could not determine validity of the event: %v", err)
@@ -250,7 +246,7 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 
 	go func() {
 		for _, ev := range initEvents {
-			if err := w.processEvent(UpdateEvent{ev: ev}); err != nil {
+			if err := w.processEvent(eventWrapper{ev: ev}); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
 		}
@@ -258,13 +254,11 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 		// The if check below helps not send duplicate events when reading from 0
 		// since ADDED events made from initial list above are already sent
 		if w.requestedRV != 0 {
-			w.s.bufferedMutex.RLock()
-			for _, e := range w.s.buffered {
+			for _, e := range w.buffered {
 				if err := w.processEvent(e); err != nil {
 					klog.Errorf("Could not process event: %v", err)
 				}
 			}
-			w.s.bufferedMutex.RUnlock()
 		}
 
 		for e := range w.updateCh {
