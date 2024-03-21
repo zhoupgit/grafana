@@ -40,7 +40,9 @@ type watchNode struct {
 	predicate      storage.SelectionPredicate
 	// Buffers events during startup so that the brief window in which the async
 	// part of start method starts doesn't lead to us missing events
-	buffered []eventWrapper
+	buffered      []eventWrapper
+	bufferedMutex sync.RWMutex
+	started       bool
 }
 
 // Keeps track of which watches need to be notified
@@ -106,11 +108,17 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 	}
 
 	for _, w := range s.nodes {
-		// Events are always buffered because of an inadvertent delay
-		// which is built into the watch process
+		// Events are buffered per node before startup is complete
+		// this is because of an inadvertent delay which is built into the watch process
 		// While a watch begins and gets subscribed fully, another client (internal or external) could
 		// change system state and this may be after the informers have successfully listed state
-		w.buffered = append(w.buffered, updateEv)
+		if !w.started {
+			w.bufferedMutex.Lock()
+			w.buffered = append(w.buffered, updateEv)
+			w.bufferedMutex.Unlock()
+		}
+
+		w.started = true
 		w.updateCh <- updateEv
 	}
 }
@@ -209,6 +217,7 @@ func (w *watchNode) processEvent(e eventWrapper) error {
 		return err
 	}
 	if valid {
+		// klog.Infof("Event %v is valid", e.ev)
 		if e.ev.Type == watch.Modified {
 			ev, err := w.handleAddedForFilteredList(e)
 			if err != nil {
@@ -226,6 +235,7 @@ func (w *watchNode) processEvent(e eventWrapper) error {
 	} else if runDeleteFromFilteredListHandler {
 		if e.ev.Type == watch.Modified {
 			ev, err := w.handleDeletedForFilteredList(e)
+			// klog.Infof("Result of handleDeletedForFilteredList: ev=%v, err=%v", ev, err)
 			if err != nil {
 				return err
 			}
@@ -254,11 +264,13 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 		// The if check below helps not send duplicate events when reading from 0
 		// since ADDED events made from initial list above are already sent
 		if w.requestedRV != 0 {
+			w.bufferedMutex.RLock()
 			for _, e := range w.buffered {
 				if err := w.processEvent(e); err != nil {
 					klog.Errorf("Could not process event: %v", err)
 				}
 			}
+			w.bufferedMutex.RUnlock()
 		}
 
 		for e := range w.updateCh {

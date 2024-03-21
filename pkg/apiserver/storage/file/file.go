@@ -684,7 +684,9 @@ func (s *Storage) convertToParsedKey(key string, p storage.SelectionPredicate) (
 			k.resource = parts[1]
 			if _, found := p.Field.RequiresExactMatch("metadata.name"); !found {
 				k.namespace = parts[2]
-			}
+			} /*  else {
+				klog.Infof("Found name set on field selector: name=%s", value)
+			} */
 		} else {
 			k.group = parts[1]
 			k.resource = parts[2]
