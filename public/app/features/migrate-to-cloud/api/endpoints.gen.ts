@@ -1,55 +1,44 @@
 import { baseAPI as api } from './baseAPI';
-export const addTagTypes = ['folders'] as const;
-const injectedRtkApi = api
-  .enhanceEndpoints({
-    addTagTypes,
-  })
-  .injectEndpoints({
-    endpoints: (build) => ({
-      getFolders: build.query<GetFoldersApiResponse, GetFoldersApiArg>({
-        query: (queryArg) => ({
-          url: `/folders`,
-          params: {
-            limit: queryArg.limit,
-            page: queryArg.page,
-            parentUid: queryArg.parentUid,
-            permission: queryArg.permission,
-          },
-        }),
-        providesTags: ['folders'],
-      }),
-      createFolder: build.mutation<CreateFolderApiResponse, CreateFolderApiArg>({
-        query: (queryArg) => ({ url: `/folders`, method: 'POST', body: queryArg.createFolderCommand }),
-        invalidatesTags: ['folders'],
-      }),
-      deleteFolder: build.mutation<DeleteFolderApiResponse, DeleteFolderApiArg>({
-        query: (queryArg) => ({
-          url: `/folders/${queryArg.folderUid}`,
-          method: 'DELETE',
-          params: { forceDeleteRules: queryArg.forceDeleteRules },
-        }),
-        invalidatesTags: ['folders'],
-      }),
-      getFolderByUid: build.query<GetFolderByUidApiResponse, GetFolderByUidApiArg>({
-        query: (queryArg) => ({ url: `/folders/${queryArg.folderUid}` }),
-        providesTags: ['folders'],
-      }),
-      updateFolder: build.mutation<UpdateFolderApiResponse, UpdateFolderApiArg>({
-        query: (queryArg) => ({
-          url: `/folders/${queryArg.folderUid}`,
-          method: 'PUT',
-          body: queryArg.updateFolderCommand,
-        }),
-        invalidatesTags: ['folders'],
-      }),
-      getFolderDescendantCounts: build.query<GetFolderDescendantCountsApiResponse, GetFolderDescendantCountsApiArg>({
-        query: (queryArg) => ({ url: `/folders/${queryArg.folderUid}/counts` }),
-        providesTags: ['folders'],
+const injectedRtkApi = api.injectEndpoints({
+  endpoints: (build) => ({
+    getFolders: build.query<GetFoldersApiResponse, GetFoldersApiArg>({
+      query: (queryArg) => ({
+        url: `/folders`,
+        params: {
+          limit: queryArg.limit,
+          page: queryArg.page,
+          parentUid: queryArg.parentUid,
+          permission: queryArg.permission,
+        },
       }),
     }),
-    overrideExisting: false,
-  });
-export { injectedRtkApi as petApi };
+    createFolder: build.mutation<CreateFolderApiResponse, CreateFolderApiArg>({
+      query: (queryArg) => ({ url: `/folders`, method: 'POST', body: queryArg.createFolderCommand }),
+    }),
+    deleteFolder: build.mutation<DeleteFolderApiResponse, DeleteFolderApiArg>({
+      query: (queryArg) => ({
+        url: `/folders/${queryArg.folderUid}`,
+        method: 'DELETE',
+        params: { forceDeleteRules: queryArg.forceDeleteRules },
+      }),
+    }),
+    getFolderByUid: build.query<GetFolderByUidApiResponse, GetFolderByUidApiArg>({
+      query: (queryArg) => ({ url: `/folders/${queryArg.folderUid}` }),
+    }),
+    updateFolder: build.mutation<UpdateFolderApiResponse, UpdateFolderApiArg>({
+      query: (queryArg) => ({
+        url: `/folders/${queryArg.folderUid}`,
+        method: 'PUT',
+        body: queryArg.updateFolderCommand,
+      }),
+    }),
+    getFolderDescendantCounts: build.query<GetFolderDescendantCountsApiResponse, GetFolderDescendantCountsApiArg>({
+      query: (queryArg) => ({ url: `/folders/${queryArg.folderUid}/counts` }),
+    }),
+  }),
+  overrideExisting: false,
+});
+export { injectedRtkApi as enhancedApi };
 export type GetFoldersApiResponse = /** status 200 (empty) */ FolderSearchHit[];
 export type GetFoldersApiArg = {
   /** Limit the maximum number of folders to return */
