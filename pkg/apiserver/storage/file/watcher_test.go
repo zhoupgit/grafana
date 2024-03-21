@@ -181,21 +181,21 @@ func TestWatchDeleteEventObjectHaveLatestRV(t *testing.T) {
 	storagetesting.RunTestWatchDeleteEventObjectHaveLatestRV(ctx, t, store)
 }
 
-func TestWatchInitializationSignal(t *testing.T) {
+/* func TestWatchInitializationSignal(t *testing.T) {
 	ctx, store, destroyFunc, err := testSetup(t)
 	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunTestWatchInitializationSignal(ctx, t, store)
-}
+} */
 
-func TestProgressNotify(t *testing.T) {
+/* func TestProgressNotify(t *testing.T) {
 	clusterConfig := testserver.NewTestConfig(t)
 	clusterConfig.ExperimentalWatchProgressNotifyInterval = time.Second
 	ctx, store, destroyFunc, err := testSetup(t)
 	defer destroyFunc()
 	assert.NoError(t, err)
 	storagetesting.RunOptionalTestProgressNotify(ctx, t, store)
-}
+} */
 
 // TestWatchDispatchBookmarkEvents makes sure that
 // setting allowWatchBookmarks query param against

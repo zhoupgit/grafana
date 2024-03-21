@@ -6,9 +6,11 @@
 package file
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"sync"
+	"sync/atomic"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,7 +20,7 @@ import (
 )
 
 const (
-	UpdateChannelSize         = 10
+	UpdateChannelSize         = 20
 	InitialWatchNodesSize     = 20
 	InitialBufferedEventsSize = 25
 )
@@ -30,49 +32,83 @@ type eventWrapper struct {
 }
 
 type watchNode struct {
+	ctx         context.Context
 	s           *WatchSet
-	id          int
+	id          uint64
 	updateCh    chan eventWrapper
 	outCh       chan watch.Event
 	requestedRV uint64
 	// the watch may or may not be namespaced for a namespaced resource. This is always nil for cluster-scoped kinds
 	watchNamespace *string
 	predicate      storage.SelectionPredicate
-	// Buffers events during startup so that the brief window in which the async
-	// part of start method starts doesn't lead to us missing events
-	buffered      []eventWrapper
-	bufferedMutex sync.RWMutex
-	started       bool
+}
+
+type LoggingMutex interface {
+	Lock(string)
+	Unlock(string)
+	RLock(string)
+	RUnlock(string)
+}
+
+var _ LoggingMutex = &LoggingMutexImpl{}
+
+type LoggingMutexImpl struct {
+	mu   sync.RWMutex
+	name string
+}
+
+func NewLoggingMutex(mu sync.RWMutex, name string) *LoggingMutexImpl {
+	return &LoggingMutexImpl{mu: mu, name: name}
+}
+
+func (lm *LoggingMutexImpl) Lock(str string) {
+	klog.InfoS("Lock:"+str, "name", lm.name)
+	lm.mu.Lock()
+}
+func (lm *LoggingMutexImpl) Unlock(str string) {
+	klog.InfoS("Unlock:"+str, "name", lm.name)
+	lm.mu.Unlock()
+}
+func (lm *LoggingMutexImpl) RLock(str string) {
+	klog.InfoS("RLock:"+str, "name", lm.name)
+	lm.mu.RLock()
+}
+func (lm *LoggingMutexImpl) RUnlock(str string) {
+	klog.InfoS("RUnlock:"+str, "name", lm.name)
+	lm.mu.RUnlock()
 }
 
 // Keeps track of which watches need to be notified
 type WatchSet struct {
-	mu sync.RWMutex
+	mu LoggingMutex
 	// mu protects both nodes and counter
-	nodes   map[int]*watchNode
-	counter int
+	nodes   map[uint64]*watchNode
+	counter atomic.Uint64
+	// Buffers events during startup so that the brief window in which the async
+	// part of start method starts doesn't lead to us missing events
+	buffered      []eventWrapper
+	bufferedMutex sync.RWMutex
 }
 
 func NewWatchSet() *WatchSet {
+	mutex := NewLoggingMutex(sync.RWMutex{}, "nodes")
 	return &WatchSet{
-		nodes:   make(map[int]*watchNode, InitialWatchNodesSize),
-		counter: 0,
+		mu:       mutex,
+		buffered: make([]eventWrapper, 0, InitialBufferedEventsSize),
+		nodes:    make(map[uint64]*watchNode, InitialWatchNodesSize),
 	}
 }
 
 // Creates a new watch with a unique id, but
 // does not start sending events to it until start() is called.
-func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, namespace *string) *watchNode {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.counter++
+func (s *WatchSet) newWatch(ctx context.Context, requestedRV uint64, p storage.SelectionPredicate, namespace *string) *watchNode {
+	s.counter.Add(1)
 
 	node := &watchNode{
+		ctx:         ctx,
 		requestedRV: requestedRV,
-		id:          s.counter,
+		id:          s.counter.Load(),
 		s:           s,
-		buffered:    make([]eventWrapper, 0, InitialBufferedEventsSize),
 		// updateCh size needs to be > 1 to allow slower clients to not block passing new events
 		updateCh: make(chan eventWrapper, UpdateChannelSize),
 		// outCh size needs to be > 1 for single process use-cases such as tests where watch and event seeding from CUD
@@ -86,19 +122,18 @@ func (s *WatchSet) newWatch(requestedRV uint64, p storage.SelectionPredicate, na
 }
 
 func (s *WatchSet) cleanupWatchers() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.Lock("cleanupWatchers")
+	defer s.mu.Unlock("cleanupWatchers")
 	for _, w := range s.nodes {
 		w.stop()
-
 	}
 }
 
 // oldObject is only passed in the event of a modification
 // in case a predicate filtered watch is impacted as a result of modification
 func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mu.RLock("notifyWatchers")
+	defer s.mu.RUnlock("notifyWatchers")
 
 	updateEv := eventWrapper{
 		ev: ev,
@@ -107,18 +142,15 @@ func (s *WatchSet) notifyWatchers(ev watch.Event, oldObject runtime.Object) {
 		updateEv.oldObject = oldObject
 	}
 
-	for _, w := range s.nodes {
-		// Events are buffered per node before startup is complete
-		// this is because of an inadvertent delay which is built into the watch process
-		// While a watch begins and gets subscribed fully, another client (internal or external) could
-		// change system state and this may be after the informers have successfully listed state
-		if !w.started {
-			w.bufferedMutex.Lock()
-			w.buffered = append(w.buffered, updateEv)
-			w.bufferedMutex.Unlock()
-		}
+	// Events are buffered before startup is complete
+	// this is because of an inadvertent delay which is built into the watch process
+	// While a watch begins and gets subscribed fully, another client (internal or external) could
+	// change system state and this may be after the informers have successfully listed state
+	s.bufferedMutex.Lock()
+	s.buffered = append(s.buffered, updateEv)
+	s.bufferedMutex.Unlock()
 
-		w.started = true
+	for _, w := range s.nodes {
 		w.updateCh <- updateEv
 	}
 }
@@ -140,7 +172,7 @@ func (w *watchNode) isValid(e eventWrapper) (bool, bool, error) {
 		return false, false, err
 	}
 
-	if eventRV <= int(w.requestedRV) {
+	if eventRV < int(w.requestedRV) {
 		return false, false, nil
 	}
 
@@ -153,7 +185,7 @@ func (w *watchNode) isValid(e eventWrapper) (bool, bool, error) {
 		return false, false, err
 	}
 
-	return valid, true, nil
+	return valid, e.ev.Type == watch.Modified, nil
 }
 
 // Only call this method if current object matches the predicate
@@ -198,13 +230,13 @@ func (w *watchNode) handleDeletedForFilteredList(e eventWrapper) (*watch.Event, 
 		return nil, err
 	}
 
-	obj, err := meta.Accessor(e.ev.Object)
+	currentRV, err := getResourceVersion(e.ev)
 	if err != nil {
 		klog.Warningf("Could not get accessor to object in event")
 		return nil, err
 	}
 
-	oldObjectAccessor.SetResourceVersion(obj.GetResourceVersion())
+	oldObjectAccessor.SetResourceVersion(currentRV)
 	e.ev.Object = e.oldObject
 
 	return &e.ev, nil
@@ -212,12 +244,14 @@ func (w *watchNode) handleDeletedForFilteredList(e eventWrapper) (*watch.Event, 
 
 func (w *watchNode) processEvent(e eventWrapper) error {
 	valid, runDeleteFromFilteredListHandler, err := w.isValid(e)
+	rvDebug, _ := getResourceVersion(e.ev)
+	nameDebug, _ := getName(e.ev)
+	klog.Infof("Event %v rv=%s metadata.name=%s valid=%t (delete handler recommended = %t)", e.ev, rvDebug, nameDebug, valid, runDeleteFromFilteredListHandler)
 	if err != nil {
 		klog.Errorf("Could not determine validity of the event: %v", err)
 		return err
 	}
 	if valid {
-		// klog.Infof("Event %v is valid", e.ev)
 		if e.ev.Type == watch.Modified {
 			ev, err := w.handleAddedForFilteredList(e)
 			if err != nil {
@@ -232,10 +266,13 @@ func (w *watchNode) processEvent(e eventWrapper) error {
 		} else {
 			w.outCh <- e.ev
 		}
-	} else if runDeleteFromFilteredListHandler {
+		return nil
+	}
+
+	if runDeleteFromFilteredListHandler {
 		if e.ev.Type == watch.Modified {
 			ev, err := w.handleDeletedForFilteredList(e)
-			// klog.Infof("Result of handleDeletedForFilteredList: ev=%v, err=%v", ev, err)
+			klog.Infof("Result of handleDeletedForFilteredList: ev=%v, err=%v", ev, err)
 			if err != nil {
 				return err
 			}
@@ -243,6 +280,7 @@ func (w *watchNode) processEvent(e eventWrapper) error {
 				w.outCh <- *ev
 			}
 		} // explicitly doesn't have an event forward for the else case here
+		return nil
 	}
 
 	return nil
@@ -250,41 +288,72 @@ func (w *watchNode) processEvent(e eventWrapper) error {
 
 // Start sending events to this watch.
 func (w *watchNode) Start(initEvents ...watch.Event) {
-	w.s.mu.Lock()
+	w.s.mu.Lock(fmt.Sprintf("Start: %d", w.id))
 	w.s.nodes[w.id] = w
-	w.s.mu.Unlock()
+	w.s.mu.Unlock(fmt.Sprintf("Start: %d", w.id))
 
 	go func() {
+		maxRV := w.requestedRV
 		for _, ev := range initEvents {
+			klog.Infof("Init event: %v", ev)
 			if err := w.processEvent(eventWrapper{ev: ev}); err != nil {
 				klog.Errorf("Could not process event: %v", err)
+			}
+			eventRV, _ := getResourceVersion(ev)
+			eventRVInt, _ := strconv.Atoi(eventRV)
+			if maxRV < uint64(eventRVInt) {
+				maxRV = uint64(eventRVInt)
 			}
 		}
 
 		// The if check below helps not send duplicate events when reading from 0
 		// since ADDED events made from initial list above are already sent
 		if w.requestedRV != 0 {
-			w.bufferedMutex.RLock()
-			for _, e := range w.buffered {
+			w.s.bufferedMutex.RLock()
+			for _, e := range w.s.buffered {
+				eventRV, _ := getResourceVersion(e.ev)
+				eventRVInt, _ := strconv.Atoi(eventRV)
+
+				if maxRV < uint64(eventRVInt) {
+					maxRV = uint64(eventRVInt)
+				} else {
+					continue
+				}
+
 				if err := w.processEvent(e); err != nil {
 					klog.Errorf("Could not process event: %v", err)
 				}
 			}
-			w.bufferedMutex.RUnlock()
+			w.s.bufferedMutex.RUnlock()
 		}
 
-		for e := range w.updateCh {
-			if err := w.processEvent(e); err != nil {
-				klog.Errorf("Could not process event: %v", err)
+		klog.Infof("Before for/select")
+		// program flow has reached here for a certain node
+		for {
+			select {
+			case e, ok := <-w.updateCh:
+				if !ok {
+					close(w.outCh)
+					return
+				}
+				klog.Infof("Before process event in select")
+				// eventRV, _ := getResourceVersion(e.ev)
+				// eventRVInt, _ := strconv.Atoi(eventRV)
+
+				if err := w.processEvent(e); err != nil {
+					klog.Errorf("Could not process event: %v", err)
+				}
+			case <-w.ctx.Done():
+				close(w.outCh)
+				return
 			}
 		}
-		close(w.outCh)
 	}()
 }
 
 func (w *watchNode) Stop() {
-	w.s.mu.Lock()
-	defer w.s.mu.Unlock()
+	w.s.mu.Lock(fmt.Sprintf("Stop: %d", w.id))
+	defer w.s.mu.Unlock(fmt.Sprintf("Stop: %d", w.id))
 	w.stop()
 }
 
@@ -296,4 +365,22 @@ func (w *watchNode) stop() {
 
 func (w *watchNode) ResultChan() <-chan watch.Event {
 	return w.outCh
+}
+
+func getResourceVersion(ev watch.Event) (string, error) {
+	obj, err := meta.Accessor(ev.Object)
+	if err != nil {
+		klog.Warningf("Could not get accessor to object in event")
+		return "", err
+	}
+	return obj.GetResourceVersion(), nil
+}
+
+func getName(ev watch.Event) (string, error) {
+	obj, err := meta.Accessor(ev.Object)
+	if err != nil {
+		klog.Warningf("Could not get accessor to object in event")
+		return "", err
+	}
+	return obj.GetName(), nil
 }

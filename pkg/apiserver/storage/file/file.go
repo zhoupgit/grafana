@@ -202,6 +202,7 @@ func (s *Storage) Delete(
 	validateDeletion storage.ValidateObjectFunc,
 	cachedExistingObject runtime.Object,
 ) error {
+	// TODO: is it gonna be contentious
 	s.rvMutex.Lock()
 	defer s.rvMutex.Unlock()
 
@@ -296,14 +297,12 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 		namespace = &parsedkey.namespace
 		klog.Infof("Filtering on namespace=%s", *namespace)
 	}
-	jw := s.watchSet.newWatch(requestedRV, p, namespace)
+	jw := s.watchSet.newWatch(ctx, requestedRV, p, namespace)
 
-	if opts.ResourceVersion == "0" {
-		s.rvMutex.RLock()
+	if requestedRV == 0 {
 		if err := s.getList(ctx, key, opts, listObj); err != nil {
 			return nil, err
 		}
-		s.rvMutex.RUnlock()
 
 		initEvents := make([]watch.Event, 0)
 		listPtr, err := meta.GetItemsPtr(listObj)
@@ -382,8 +381,6 @@ func (s *Storage) Get(ctx context.Context, key string, opts storage.GetOptions, 
 // The returned contents may be delayed, but it is guaranteed that they will
 // match 'opts.ResourceVersion' according 'opts.ResourceVersionMatch'.
 func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
-	s.rvMutex.RLock()
-	defer s.rvMutex.RUnlock()
 	return s.getList(ctx, key, opts, listObj)
 }
 
@@ -391,6 +388,10 @@ func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOpti
 // before invoking getList
 func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
 	remainingItems := int64(0)
+
+	s.rvMutex.RLock()
+	currentResourceVersion := s.getCurrentResourceVersion()
+	s.rvMutex.RUnlock()
 
 	var fpath string
 	dirpath := s.dirPath(key)
@@ -460,7 +461,7 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 	} else if maxRVFromItem == 0 {
 		// we have an empty list, use current RV we are on.
 		// this will ensure any items added afterwards will use a fresher RV.
-		resourceVersionInt = s.getCurrentResourceVersion()
+		resourceVersionInt = currentResourceVersion
 	} else {
 		resourceVersionInt = maxRVFromItem + uint64(1)
 	}
@@ -494,19 +495,17 @@ func (s *Storage) GuaranteedUpdate(
 	tryUpdate storage.UpdateFunc,
 	cachedExistingObject runtime.Object,
 ) error {
-	s.rvMutex.Lock()
-	defer s.rvMutex.Unlock()
+	var (
+		res         storage.ResponseMeta
+		updatedObj  runtime.Object
+		objFromDisk runtime.Object
+		created     bool
+		fpath       = s.filePath(key)
+		dirpath     = filepath.Dir(fpath)
+	)
 
-	var res storage.ResponseMeta
 	for attempt := 1; attempt <= MaxUpdateAttempts; attempt = attempt + 1 {
-		var (
-			fpath   = s.filePath(key)
-			dirpath = filepath.Dir(fpath)
-
-			obj     runtime.Object
-			err     error
-			created bool
-		)
+		var err error
 
 		if !exists(dirpath) {
 			if err := ensureDir(dirpath); err != nil {
@@ -518,59 +517,36 @@ func (s *Storage) GuaranteedUpdate(
 			return apierrors.NewNotFound(s.gr, s.nameFromKey(key))
 		}
 
-		obj, err = readFile(s.codec, fpath, s.newFunc)
+		objFromDisk, err = readFile(s.codec, fpath, s.newFunc)
 		if err != nil {
 			// fallback to new object if the file is not found
-			obj = s.newFunc()
+			objFromDisk = s.newFunc()
 			created = true
 		}
 
-		if err := preconditions.Check(key, obj); err != nil {
+		if err := preconditions.Check(key, objFromDisk); err != nil {
 			if attempt >= MaxUpdateAttempts {
 				return fmt.Errorf("precondition failed: %w", err)
 			}
 			continue
 		}
 
-		updatedObj, _, err := tryUpdate(obj, res)
+		updatedObj, _, err = tryUpdate(objFromDisk, res)
 		if err != nil {
 			if attempt >= MaxUpdateAttempts {
 				return err
 			}
 			continue
 		}
+		break
+	}
 
-		unchanged, err := isUnchanged(s.codec, obj, updatedObj)
-		if err != nil {
-			return err
-		}
+	unchanged, err := isUnchanged(s.codec, objFromDisk, updatedObj)
+	if err != nil {
+		return err
+	}
 
-		if unchanged {
-			u, err := conversion.EnforcePtr(updatedObj)
-			if err != nil {
-				return fmt.Errorf("unable to enforce updated object pointer: %w", err)
-			}
-			d, err := conversion.EnforcePtr(destination)
-			if err != nil {
-				return fmt.Errorf("unable to enforce destination pointer: %w", err)
-			}
-			d.Set(u)
-			return nil
-		}
-
-		generatedRV := s.getNewResourceVersion()
-		if err != nil {
-			return err
-		}
-		if err := s.Versioner().UpdateObject(updatedObj, generatedRV); err != nil {
-			return err
-		}
-
-		if err := writeFile(s.codec, fpath, updatedObj); err != nil {
-			return err
-		}
-
-		// TODO: make a helper for this and re-use
+	if unchanged {
 		u, err := conversion.EnforcePtr(updatedObj)
 		if err != nil {
 			return fmt.Errorf("unable to enforce updated object pointer: %w", err)
@@ -580,24 +556,51 @@ func (s *Storage) GuaranteedUpdate(
 			return fmt.Errorf("unable to enforce destination pointer: %w", err)
 		}
 		d.Set(u)
+		return nil
+	}
 
-		eventType := watch.Modified
-		if created {
-			eventType = watch.Added
-			s.watchSet.notifyWatchers(watch.Event{
-				Object: destination.DeepCopyObject(),
-				Type:   eventType,
-			}, nil)
-			return nil
-		}
+	s.rvMutex.Lock()
+	generatedRV := s.getNewResourceVersion()
+	if err != nil {
+		s.rvMutex.Unlock()
+		return err
+	}
+	s.rvMutex.Unlock()
 
+	if err := s.Versioner().UpdateObject(updatedObj, generatedRV); err != nil {
+		return err
+	}
+
+	if err := writeFile(s.codec, fpath, updatedObj); err != nil {
+		return err
+	}
+
+	// TODO: make a helper for this and re-use
+	u, err := conversion.EnforcePtr(updatedObj)
+	if err != nil {
+		return fmt.Errorf("unable to enforce updated object pointer: %w", err)
+	}
+	d, err := conversion.EnforcePtr(destination)
+	if err != nil {
+		return fmt.Errorf("unable to enforce destination pointer: %w", err)
+	}
+	d.Set(u)
+
+	eventType := watch.Modified
+	if created {
+		eventType = watch.Added
 		s.watchSet.notifyWatchers(watch.Event{
 			Object: destination.DeepCopyObject(),
 			Type:   eventType,
-		}, obj.DeepCopyObject())
-
+		}, nil)
 		return nil
 	}
+
+	s.watchSet.notifyWatchers(watch.Event{
+		Object: destination.DeepCopyObject(),
+		Type:   eventType,
+	}, objFromDisk.DeepCopyObject())
+
 	return nil
 }
 
