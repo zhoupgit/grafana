@@ -459,8 +459,10 @@ func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOpti
 			return err
 		}
 
-		if err = s.validateMinimumResourceVersion(opts.ResourceVersion, currentVersion); err != nil {
-			continue
+		if opts.SendInitialEvents == nil || (opts.SendInitialEvents != nil && !*opts.SendInitialEvents) {
+			if err = s.validateMinimumResourceVersion(opts.ResourceVersion, currentVersion); err != nil {
+				continue
+			}
 		}
 
 		ok, err := opts.Predicate.Matches(obj)

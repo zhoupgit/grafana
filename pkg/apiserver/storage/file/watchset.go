@@ -242,8 +242,8 @@ func (w *watchNode) handleDeletedForFilteredList(e eventWrapper) (*watch.Event, 
 	return &e.ev, nil
 }
 
-func (w *watchNode) processEvent(e eventWrapper) error {
-	if e.ev.Type == watch.Bookmark {
+func (w *watchNode) processEvent(e eventWrapper, isInitEvent bool) error {
+	if isInitEvent {
 		w.outCh <- e.ev
 		return nil
 	}
@@ -301,7 +301,7 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 		maxRV := w.requestedRV
 		for _, ev := range initEvents {
 			klog.Infof("Init event: %v", ev)
-			if err := w.processEvent(eventWrapper{ev: ev}); err != nil {
+			if err := w.processEvent(eventWrapper{ev: ev}, true); err != nil {
 				klog.Errorf("Could not process event: %v", err)
 			}
 			eventRV, _ := getResourceVersion(ev)
@@ -325,7 +325,7 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 					continue
 				}
 
-				if err := w.processEvent(e); err != nil {
+				if err := w.processEvent(e, false); err != nil {
 					klog.Errorf("Could not process event: %v", err)
 				}
 			}
@@ -345,7 +345,7 @@ func (w *watchNode) Start(initEvents ...watch.Event) {
 				// eventRV, _ := getResourceVersion(e.ev)
 				// eventRVInt, _ := strconv.Atoi(eventRV)
 
-				if err := w.processEvent(e); err != nil {
+				if err := w.processEvent(e, false); err != nil {
 					klog.Errorf("Could not process event: %v", err)
 				}
 			case <-w.ctx.Done():
