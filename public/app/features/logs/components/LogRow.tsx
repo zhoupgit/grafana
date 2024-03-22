@@ -63,6 +63,7 @@ interface Props extends Themeable2 {
   pinned?: boolean;
   containerRendered?: boolean;
   handleTextSelection?: (e: MouseEvent<HTMLTableRowElement>, row: LogRowModel) => boolean;
+  scrollElement?: HTMLDivElement;
 }
 
 interface State {
@@ -70,6 +71,7 @@ interface State {
   showingContext: boolean;
   showDetails: boolean;
   mouseIsOver: boolean;
+  visible: boolean;
 }
 
 /**
@@ -85,12 +87,12 @@ class UnThemedLogRow extends PureComponent<Props, State> {
     showingContext: false,
     showDetails: false,
     mouseIsOver: false,
+    visible: false,
   };
-  logLineRef: React.RefObject<HTMLTableRowElement>;
+  logLineRef: HTMLTableRowElement | null = null;
 
   constructor(props: Props) {
     super(props);
-    this.logLineRef = React.createRef();
   }
 
   // we are debouncing the state change by 3 seconds to highlight the logline after the context closed.
@@ -161,10 +163,33 @@ class UnThemedLogRow extends PureComponent<Props, State> {
 
   componentDidMount() {
     this.scrollToLogRow(this.state, true);
+    this.checkVisibility();
   }
 
   componentDidUpdate(_: Props, prevState: State) {
+    this.checkVisibility();
     this.scrollToLogRow(prevState);
+  }
+
+  onLogLineRef = (node: HTMLTableRowElement) => {
+    this.logLineRef = node;
+    this.checkVisibility();
+  }
+
+  checkVisibility = () => {
+    if (!this.props.scrollElement || !this.logLineRef) {
+      return;
+    }
+    const yPosition = this.logLineRef.offsetTop;
+    const scrollTop = this.props.scrollElement.scrollTop;
+    const viewPort = scrollTop + this.props.scrollElement?.clientHeight;
+    if (yPosition >= scrollTop && yPosition <= viewPort && !this.state.visible) {
+      this.setState({ visible: true });
+      return;
+    } 
+    if ((yPosition < scrollTop || yPosition > viewPort) && this.state.visible) {
+      this.setState({ visible: false });
+    }
   }
 
   scrollToLogRow = (prevState: State, mounted = false) => {
@@ -178,9 +203,9 @@ class UnThemedLogRow extends PureComponent<Props, State> {
       return;
     }
 
-    if (!this.state.permalinked && containerRendered && this.logLineRef.current && scrollIntoView) {
+    if (!this.state.permalinked && containerRendered && this.logLineRef && scrollIntoView) {
       // at this point this row is the permalinked row, so we need to scroll to it and highlight it if possible.
-      scrollIntoView(this.logLineRef.current);
+      scrollIntoView(this.logLineRef);
       reportInteraction('grafana_explore_logs_permalink_opened', {
         datasourceType: row.datasourceType ?? 'unknown',
         logRowUid: row.uid,
@@ -232,10 +257,14 @@ class UnThemedLogRow extends PureComponent<Props, State> {
 
     const processedRow = this.escapeRow(row, forceEscape);
 
+    if (!this.state.visible) {
+      return <tr ref={this.onLogLineRef}><td colSpan={10} style={{ height: 20 }}></td></tr>;
+    }
+
     return (
       <>
         <tr
-          ref={this.logLineRef}
+          ref={this.onLogLineRef}
           className={logRowBackground}
           onClick={this.onRowClick}
           onMouseEnter={this.onMouseEnter}
