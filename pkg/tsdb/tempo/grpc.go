@@ -12,6 +12,7 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/proxy"
 	"github.com/grafana/tempo/pkg/tempopb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -26,7 +27,7 @@ var logger = backend.NewLoggerWith("logger", "tsdb.tempo")
 // standard HTTP requests.
 // Using other library like connect-go isn't possible right now because Tempo uses non-standard proto compiler which
 // makes generating different client difficult. See https://github.com/grafana/grafana/pull/81683
-func newGrpcClient(settings backend.DataSourceInstanceSettings, opts httpclient.Options) (tempopb.StreamingQuerierClient, error) {
+func newGrpcClient(settings backend.DataSourceInstanceSettings, opts httpclient.Options, proxy proxy.Client) (tempopb.StreamingQuerierClient, error) {
 	parsedUrl, err := url.Parse(settings.URL)
 	if err != nil {
 		logger.Error("Error parsing URL for gRPC client", "error", err, "URL", settings.URL, "function", logEntrypoint())
@@ -43,7 +44,7 @@ func newGrpcClient(settings backend.DataSourceInstanceSettings, opts httpclient.
 		}
 	}
 
-	clientConn, err := grpc.Dial(onlyHost, getDialOpts(settings, opts)...)
+	clientConn, err := grpc.Dial(onlyHost, getDialOpts(settings, opts, proxy)...)
 	if err != nil {
 		logger.Error("Error dialing gRPC client", "error", err, "URL", settings.URL, "function", logEntrypoint())
 		return nil, err
@@ -54,7 +55,7 @@ func newGrpcClient(settings backend.DataSourceInstanceSettings, opts httpclient.
 
 // getDialOpts creates options and interceptors (middleware) this should roughly match what we do in
 // http_client_provider.go for standard http requests.
-func getDialOpts(settings backend.DataSourceInstanceSettings, opts httpclient.Options) []grpc.DialOption {
+func getDialOpts(settings backend.DataSourceInstanceSettings, opts httpclient.Options, proxy proxy.Client) []grpc.DialOption {
 	// TODO: Missing middleware TracingMiddleware, DataSourceMetricsMiddleware, ContextualMiddleware,
 	//  ResponseLimitMiddleware RedirectLimitMiddleware.
 	// Also User agent but that is set before each rpc call as for decoupled DS we have to get it from request context
@@ -73,6 +74,11 @@ func getDialOpts(settings backend.DataSourceInstanceSettings, opts httpclient.Op
 		// Otherwise, it uses insecure credentials.
 		dialOps = append(dialOps, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
+
+	dialer, _ := proxy.NewSecureSocksProxyContextDialer()
+	d, _ := dialer.Dial("", "")
+	opt := grpc.WithContextDialer(d)
+	dialOps = append(dialOps, opt)
 
 	return dialOps
 }

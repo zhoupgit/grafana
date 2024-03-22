@@ -66,7 +66,9 @@ func newInstanceSettings(httpClientProvider *httpclient.Provider) datasource.Ins
 			return nil, err
 		}
 
-		streamingClient, err := newGrpcClient(settings, opts)
+		proxy, _ := settings.ProxyClient(ctx)
+		streamingClient, err := newGrpcClient(settings, opts, proxy)
+
 		if err != nil {
 			ctxLogger.Error("Failed to get gRPC client", "error", err, "function", logEntrypoint())
 			return nil, err
