@@ -76,8 +76,15 @@ func getDialOpts(settings backend.DataSourceInstanceSettings, opts httpclient.Op
 	}
 
 	dialer, _ := proxy.NewSecureSocksProxyContextDialer()
-	d, _ := dialer.Dial("", "")
-	opt := grpc.WithContextDialer(d)
+	opt := grpc.WithContextDialer(dialer)
+	// d, _ := dialer.Dial("", "")
+	// opt := grpc.WithContextDialer(d)
+
+	// opt := grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) { 
+	// 	dialer, _ := proxy.NewSecureSocksProxyContextDialer()
+	// 	return dialer.Dial("", "")
+	// })
+	
 	dialOps = append(dialOps, opt)
 
 	return dialOps
