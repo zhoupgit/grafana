@@ -243,6 +243,11 @@ func (w *watchNode) handleDeletedForFilteredList(e eventWrapper) (*watch.Event, 
 }
 
 func (w *watchNode) processEvent(e eventWrapper) error {
+	if e.ev.Type == watch.Bookmark {
+		w.outCh <- e.ev
+		return nil
+	}
+
 	valid, runDeleteFromFilteredListHandler, err := w.isValid(e)
 	rvDebug, _ := getResourceVersion(e.ev)
 	nameDebug, _ := getName(e.ev)
