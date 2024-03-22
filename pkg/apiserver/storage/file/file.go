@@ -300,7 +300,7 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 	jw := s.watchSet.newWatch(ctx, requestedRV, p, namespace)
 
 	if (opts.SendInitialEvents == nil && requestedRV == 0) || (opts.SendInitialEvents != nil && *opts.SendInitialEvents) {
-		if err := s.getList(ctx, key, opts, listObj); err != nil {
+		if err := s.GetList(ctx, key, opts, listObj); err != nil {
 			return nil, err
 		}
 
@@ -328,10 +328,20 @@ func (s *Storage) Watch(ctx context.Context, key string, opts storage.ListOption
 
 		if p.AllowWatchBookmarks && len(initEvents) > 0 {
 			lastInitEvent := initEvents[len(initEvents)-1]
-			bookmarkRV, err := s.Versioner().ObjectResourceVersion(lastInitEvent.Object)
+			lastItemRV, err := s.Versioner().ObjectResourceVersion(lastInitEvent.Object)
 			if err != nil {
 				return nil, fmt.Errorf("Could not get last init event's revision for bookmark: %v", err)
 			}
+
+			s.rvMutex.RLock()
+			globalRV := s.getCurrentResourceVersion()
+			s.rvMutex.RUnlock()
+
+			bookmarkRV := lastItemRV
+			if lastItemRV < globalRV {
+				bookmarkRV = globalRV
+			}
+
 			bookmarkEvent := watch.Event{
 				Type:   watch.Bookmark,
 				Object: s.newFunc(),
@@ -402,12 +412,6 @@ func (s *Storage) Get(ctx context.Context, key string, opts storage.GetOptions, 
 // The returned contents may be delayed, but it is guaranteed that they will
 // match 'opts.ResourceVersion' according 'opts.ResourceVersionMatch'.
 func (s *Storage) GetList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
-	return s.getList(ctx, key, opts, listObj)
-}
-
-// getList is the lock-free helper called by GetList and Watch. Those other callers must read-lock on the RV Mutex
-// before invoking getList
-func (s *Storage) getList(ctx context.Context, key string, opts storage.ListOptions, listObj runtime.Object) error {
 	remainingItems := int64(0)
 
 	s.rvMutex.RLock()
