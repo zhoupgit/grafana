@@ -71,7 +71,7 @@ interface State {
   showingContext: boolean;
   showDetails: boolean;
   mouseIsOver: boolean;
-  visible: boolean;
+  visible?: boolean;
 }
 
 /**
@@ -87,9 +87,10 @@ class UnThemedLogRow extends PureComponent<Props, State> {
     showingContext: false,
     showDetails: false,
     mouseIsOver: false,
-    visible: false,
+    visible: undefined,
   };
   logLineRef: HTMLTableRowElement | null = null;
+  height = 20;
 
   constructor(props: Props) {
     super(props);
@@ -163,13 +164,31 @@ class UnThemedLogRow extends PureComponent<Props, State> {
 
   componentDidMount() {
     this.scrollToLogRow(this.state, true);
-    this.checkVisibility();
+    if (this.props.scrollElement) {
+      this.props.scrollElement.addEventListener('scroll', this.handleScroll);
+    }
+    if (this.state.visible === undefined) {
+      this.checkVisibility();
+    }
   }
 
-  componentDidUpdate(_: Props, prevState: State) {
-    this.checkVisibility();
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    if (!prevProps.scrollElement && this.props.scrollElement) {
+      this.props.scrollElement.addEventListener('scroll', this.handleScroll);
+    }
+    if (this.state.visible === undefined) {
+      this.checkVisibility();
+    }
     this.scrollToLogRow(prevState);
   }
+
+  componentWillUnmount(): void {
+    this.props.scrollElement?.removeEventListener('scroll', this.handleScroll);
+  }
+
+  handleScroll = debounce(() => {
+    this.checkVisibility();
+  }, 50);
 
   onLogLineRef = (node: HTMLTableRowElement) => {
     this.logLineRef = node;
@@ -181,14 +200,17 @@ class UnThemedLogRow extends PureComponent<Props, State> {
       return;
     }
     const yPosition = this.logLineRef.offsetTop;
-    const scrollTop = this.props.scrollElement.scrollTop;
-    const viewPort = scrollTop + this.props.scrollElement?.clientHeight;
-    if (yPosition >= scrollTop && yPosition <= viewPort && !this.state.visible) {
+    const viewPortBuffer = 2 * this.props.scrollElement.clientHeight;
+    const viewportStart = Math.max(this.props.scrollElement.scrollTop - viewPortBuffer, 0);
+    const viewportEnd = this.props.scrollElement.scrollTop + this.props.scrollElement.clientHeight + viewPortBuffer;
+    if (yPosition >= viewportStart && yPosition <= viewportEnd && !this.state.visible) {
       this.setState({ visible: true });
       return;
-    } 
-    if ((yPosition < scrollTop || yPosition > viewPort) && this.state.visible) {
-      this.setState({ visible: false });
+    }
+    if ((yPosition < viewportStart || yPosition > viewportEnd) && this.state.visible) {
+      this.height = this.logLineRef.clientHeight;
+      //this.setState({ visible: false });
+      return;
     }
   }
 
@@ -258,7 +280,7 @@ class UnThemedLogRow extends PureComponent<Props, State> {
     const processedRow = this.escapeRow(row, forceEscape);
 
     if (!this.state.visible) {
-      return <tr ref={this.onLogLineRef}><td colSpan={10} style={{ height: 20 }}></td></tr>;
+      return <tr ref={this.onLogLineRef}><td colSpan={10} style={{ height: this.height }}>{row.raw}</td></tr>;
     }
 
     return (
