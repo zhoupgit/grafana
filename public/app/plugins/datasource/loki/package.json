@@ -2,7 +2,7 @@
   "name": "@grafana-plugins/loki",
   "description": "Grafana plugin for the Loki data source.",
   "private": true,
-  "version": "11.0.0-pre",
+  "version": "11.1.0-pre",
   "dependencies": {
     "tslib": "2.6.2"
   },
