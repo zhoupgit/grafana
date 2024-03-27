@@ -22,9 +22,10 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 
+	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
+	"github.com/grafana/grafana/pkg/promlib/converter"
 	"github.com/grafana/grafana/pkg/tsdb/loki/instrumentation"
 	"github.com/grafana/grafana/pkg/tsdb/loki/tracing"
-
 	"github.com/grafana/grafana/pkg/tsdb/prometheus/converter"
 )
 
@@ -100,7 +101,7 @@ func makeDataRequest(ctx context.Context, lokiDsUrl string, query lokiQuery, cat
 	}
 
 	if query.SupportingQueryType != SupportingQueryNone {
-		value := getSupportingQueryHeaderValue(req, query.SupportingQueryType)
+		value := getSupportingQueryHeaderValue(query.SupportingQueryType)
 		if value != "" {
 			req.Header.Set("X-Query-Tags", "Source="+value)
 		}
@@ -326,8 +327,13 @@ func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiR
 	return rawLokiResponse, nil
 }
 
-func getSupportingQueryHeaderValue(req *http.Request, supportingQueryType SupportingQueryType) string {
+func getSupportingQueryHeaderValue(supportingQueryType SupportingQueryType) string {
 	value := ""
+
+	// we need to map the SupportingQueryType to the actual header value. For
+	// legacy reasons we defined each value, such as "logsVolume" maps to the
+	// "logvolhist" header value to Loki. With #85123, even the value set in the
+	// frontend query can be passed as is to Loki.
 	switch supportingQueryType {
 	case SupportingQueryLogsVolume:
 		value = "logvolhist"
@@ -337,7 +343,8 @@ func getSupportingQueryHeaderValue(req *http.Request, supportingQueryType Suppor
 		value = "datasample"
 	case SupportingQueryInfiniteScroll:
 		value = "infinitescroll"
-	default: // ignore
+	default:
+		value = string(supportingQueryType)
 	}
 
 	return value

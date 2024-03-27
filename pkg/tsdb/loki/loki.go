@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -49,7 +48,7 @@ func ProvideService(httpClientProvider *httpclient.Provider, features featuremgm
 		im:       datasource.NewInstanceManager(newInstanceSettings(httpClientProvider)),
 		features: features,
 		tracer:   tracer,
-		logger:   logger,
+		logger:   backend.NewLoggerWith("logger", "tsdb.loki"),
 	}
 }
 
@@ -123,18 +122,7 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 
 func callResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender, dsInfo *datasourceInfo, plog log.Logger, tracer tracing.Tracer) error {
 	url := req.URL
-	// a very basic is-this-url-valid check
-	if req.Method != "GET" {
-		plog.Error("Invalid HTTP method", "method", req.Method)
-		return fmt.Errorf("invalid HTTP method: %s", req.Method)
-	}
-	if (!strings.HasPrefix(url, "labels?")) &&
-		(!strings.HasPrefix(url, "label/")) && // the `/label/$label_name/values` form
-		(!strings.HasPrefix(url, "series?")) &&
-		(!strings.HasPrefix(url, "index/stats?")) {
-		plog.Error("Invalid URL", "url", url)
-		return fmt.Errorf("invalid URL: %s", url)
-	}
+
 	lokiURL := fmt.Sprintf("/loki/api/v1/%s", url)
 
 	ctx, span := tracer.Start(ctx, "datasource.loki.CallResource", trace.WithAttributes(
@@ -246,6 +234,11 @@ func executeQuery(ctx context.Context, query *lokiQuery, req *backend.QueryDataR
 	defer span.End()
 
 	queryRes, err := runQuery(ctx, api, query, responseOpts, plog)
+	if queryRes == nil {
+		// we always want to return a backend.DataResponse object, even if we received just an error
+		queryRes = &backend.DataResponse{}
+	}
+
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())

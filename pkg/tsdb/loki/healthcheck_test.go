@@ -76,10 +76,19 @@ func (provider *healthCheckProvider[T]) GetTransport(opts ...httpclient.Options)
 	return *new(T), nil
 }
 
-func getMockProvider[T http.RoundTripper]() *healthCheckProvider[T] {
-	return &healthCheckProvider[T]{
+// Return a mocked HTTP client provider.
+//
+// Example taken from `pkg/promlib/healthcheck_test.go`
+func getMockProvider[T http.RoundTripper]() *httpclient.Provider {
+	p := &healthCheckProvider[T]{
 		RoundTripper: new(T),
 	}
+	anotherFN := func(o httpclient.Options, next http.RoundTripper) http.RoundTripper {
+		return *p.RoundTripper
+	}
+	fn := httpclient.MiddlewareFunc(anotherFN)
+	mid := httpclient.NamedMiddlewareFunc("mock", fn)
+	return httpclient.NewProvider(httpclient.ProviderOptions{Middlewares: []httpclient.Middleware{mid}})
 }
 
 func Test_healthcheck(t *testing.T) {
