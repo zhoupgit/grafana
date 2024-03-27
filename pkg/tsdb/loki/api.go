@@ -21,12 +21,9 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
-
-	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana/pkg/promlib/converter"
 	"github.com/grafana/grafana/pkg/tsdb/loki/instrumentation"
 	"github.com/grafana/grafana/pkg/tsdb/loki/tracing"
-	"github.com/grafana/grafana/pkg/tsdb/prometheus/converter"
 )
 
 type LokiAPI struct {
