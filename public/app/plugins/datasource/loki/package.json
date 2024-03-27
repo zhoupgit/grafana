@@ -7,7 +7,7 @@
     "tslib": "2.6.2"
   },
   "devDependencies": {
-    "@grafana/plugin-configs": "11.0.0-pre",
+    "@grafana/plugin-configs": "11.1.0-pre",
     "typescript": "5.3.3",
     "webpack": "5.90.3"
   },
