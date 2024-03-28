@@ -4,6 +4,7 @@ import { AdHocVariableFilter } from '@grafana/data';
 import { SceneComponentProps, SceneObjectBase, SceneObjectState, SceneTimeRangeLike } from '@grafana/scenes';
 
 import { DataTrail } from '../DataTrail';
+import { getRecentDataTrailSettings } from '../utils';
 
 export interface DataTrailEmbeddedState extends SceneObjectState {
   timeRange: SceneTimeRangeLike;
@@ -33,5 +34,6 @@ export function buildDataTrailFromState({ metric, filters, dataSourceUid, timeRa
     initialDS: dataSourceUid,
     initialFilters: filters,
     embedded: true,
+    settings: getRecentDataTrailSettings(),
   });
 }

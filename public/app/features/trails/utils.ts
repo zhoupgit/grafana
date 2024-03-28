@@ -30,9 +30,18 @@ export function newMetricsTrail(initialDS?: string): DataTrail {
   return new DataTrail({
     initialDS,
     $timeRange: new SceneTimeRange({ from: 'now-1h', to: 'now' }),
-    //initialFilters: [{ key: 'job', operator: '=', value: 'grafana' }],
     embedded: false,
+    settings: getRecentDataTrailSettings(),
   });
+}
+
+export function getRecentDataTrailSettings(): DataTrailSettings | undefined {
+  const mostRecent = getTrailStore().recent[0];
+  if (!mostRecent) {
+    return undefined;
+  }
+  const { settings } = mostRecent.resolve().state;
+  return settings.clone();
 }
 
 export function getUrlForTrail(trail: DataTrail) {
