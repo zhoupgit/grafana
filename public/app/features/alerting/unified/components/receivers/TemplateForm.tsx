@@ -150,7 +150,7 @@ export const TemplateForm = ({ existing, alertManagerSourceName, config, provena
     watch,
   } = formApi;
 
-  const validateNameIsUnique: Validate<string> = (name: string) => {
+  const validateNameIsUnique: Validate<string, TemplateFormValues> = (name: string) => {
     return !config.template_files[name] || existing?.name === name
       ? true
       : 'Another template with this name already exists.';
@@ -288,7 +288,7 @@ function TemplatingGuideline() {
       </Stack>
 
       <div className={styles.snippets}>
-        To make templating easier, we provide a few snippets in the content editor to help you speed up your workflow.
+        For auto-completion of common templating code, type the following keywords in the content editor:
         <div className={styles.code}>
           {Object.values(snippets)
             .map((s) => s.label)
