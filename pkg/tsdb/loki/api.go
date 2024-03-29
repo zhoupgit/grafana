@@ -18,6 +18,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
@@ -93,6 +94,21 @@ func makeDataRequest(ctx context.Context, lokiDsUrl string, query lokiQuery, cat
 	lokiUrl.RawQuery = qs.Encode()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", lokiUrl.String(), nil)
+
+	md, _ := metadata.FromIncomingContext(ctx)
+	// for k, v := range md {
+	// 	fmt.Printf("fab - key: %s, value: %s\n", k, v)
+	// 	logger.Info("fab - key/value", "key", k, "value", v)
+	// }
+	t := md.Get("tenantid")
+	if (len(t) == 0) {
+		logger.Error("fab - tenantid-key/value", "id", "nope!")
+	} else {
+		logger.Info("fab - tenantid-key/value", "id", t[0])
+		req.Header.Add("X-Scope-OrgID", t[0])
+	}
+	// setXScopeOrgIDHeader(ctx, req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -210,6 +226,8 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 		return &res, nil
 	} else {
 		lp = append(lp, "status", "ok")
+		t := req.Header.Get("X-Scope-OrgID")
+		api.log.Info("fab - X-Scope-OrgID: " + t, "tenantID", t)
 		api.log.Info("Response received from loki", lp...)
 	}
 
@@ -253,6 +271,20 @@ func makeRawRequest(ctx context.Context, lokiDsUrl string, resourcePath string) 
 
 	req, err := http.NewRequestWithContext(ctx, "GET", lokiUrl.String(), nil)
 
+	md, _ := metadata.FromIncomingContext(ctx)
+	// for k, v := range md {
+	// 	fmt.Printf("fab - key: %s, value: %s\n", k, v)
+	// 	logger.Info("fab - key/value", "key", k, "value", v)
+	// }
+	t := md.Get("tenantid")
+	if (len(t) == 0) {
+		logger.Error("fab - tenantid-key/value", "id", "nope!")
+	} else {
+		logger.Info("fab - tenantid-key/value", "id", t[0])
+		req.Header.Add("X-Scope-OrgID", t[0])
+	}
+	// setXScopeOrgIDHeader(ctx, req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +294,11 @@ func makeRawRequest(ctx context.Context, lokiDsUrl string, resourcePath string) 
 
 func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiResponse, error) {
 	api.log.Debug("Sending raw query to loki", "resourcePath", resourcePath)
+	
 	req, err := makeRawRequest(ctx, api.url, resourcePath)
+	t := req.Header.Get("X-Scope-OrgID")
+	api.log.Info("fab - X-Scope-OrgID: " + t, "tenantID", t)
+
 	if err != nil {
 		api.log.Error("Failed to prepare request to loki", "error", err, "resourcePath", resourcePath)
 		return RawLokiResponse{}, err
