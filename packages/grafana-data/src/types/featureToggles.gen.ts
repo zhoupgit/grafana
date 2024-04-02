@@ -24,9 +24,9 @@ export interface FeatureToggles {
   panelTitleSearch?: boolean;
   publicDashboards?: boolean;
   publicDashboardsEmailSharing?: boolean;
+  publicDashboardsScene?: boolean;
   lokiExperimentalStreaming?: boolean;
   featureHighlights?: boolean;
-  migrationLocking?: boolean;
   storage?: boolean;
   correlations?: boolean;
   exploreContentOutline?: boolean;
@@ -37,20 +37,18 @@ export interface FeatureToggles {
   autoMigratePiechartPanel?: boolean;
   autoMigrateWorldmapPanel?: boolean;
   autoMigrateStatPanel?: boolean;
+  autoMigrateXYChartPanel?: boolean;
   disableAngular?: boolean;
   canvasPanelNesting?: boolean;
   newVizTooltips?: boolean;
   scenes?: boolean;
   disableSecretsCompatibility?: boolean;
   logRequestsInstrumentedAsUnknown?: boolean;
-  dataConnectionsConsole?: boolean;
   topnav?: boolean;
   returnToPrevious?: boolean;
   grpcServer?: boolean;
   unifiedStorage?: boolean;
   cloudWatchCrossAccountQuerying?: boolean;
-  redshiftAsyncQueryDataSupport?: boolean;
-  athenaAsyncQueryDataSupport?: boolean;
   showDashboardValidationWarnings?: boolean;
   mysqlAnsiQuotes?: boolean;
   accessControlOnCall?: boolean;
@@ -88,8 +86,6 @@ export interface FeatureToggles {
   frontendSandboxMonitorOnly?: boolean;
   sqlDatasourceDatabaseSelection?: boolean;
   lokiFormatQuery?: boolean;
-  cloudWatchLogsMonacoEditor?: boolean;
-  exploreScrollableLogsContainer?: boolean;
   recordedQueriesMulti?: boolean;
   pluginsDynamicAngularDetectionPatterns?: boolean;
   vizAndWidgetSplit?: boolean;
@@ -111,6 +107,7 @@ export interface FeatureToggles {
   alertingNoDataErrorExecution?: boolean;
   angularDeprecationUI?: boolean;
   dashgpt?: boolean;
+  aiGeneratedDashboardChanges?: boolean;
   reportingRetries?: boolean;
   sseGroupByDatasource?: boolean;
   libraryPanelRBAC?: boolean;
@@ -120,7 +117,6 @@ export interface FeatureToggles {
   externalCorePlugins?: boolean;
   pluginsAPIMetrics?: boolean;
   idForwarding?: boolean;
-  cloudWatchWildCardDimensionValues?: boolean;
   externalServiceAccounts?: boolean;
   panelMonitoring?: boolean;
   enableNativeHTTPHistogram?: boolean;
@@ -153,7 +149,6 @@ export interface FeatureToggles {
   canvasPanelPanZoom?: boolean;
   logsInfiniteScrolling?: boolean;
   flameGraphItemCollapsing?: boolean;
-  alertingDetailsViewV2?: boolean;
   datatrails?: boolean;
   alertingSimplifiedRouting?: boolean;
   logRowsPopoverMenu?: boolean;
@@ -162,7 +157,6 @@ export interface FeatureToggles {
   regressionTransformation?: boolean;
   lokiQueryHints?: boolean;
   kubernetesFeatureToggles?: boolean;
-  alertingPreviewUpgrade?: boolean;
   enablePluginsTracingByDefault?: boolean;
   cloudRBACRoles?: boolean;
   alertingQueryOptimization?: boolean;
@@ -178,5 +172,10 @@ export interface FeatureToggles {
   kubernetesAggregator?: boolean;
   expressionParser?: boolean;
   groupByVariable?: boolean;
-  alertingUpgradeDryrunOnStart?: boolean;
+  betterPageScrolling?: boolean;
+  authAPIAccessTokenAuth?: boolean;
+  scopeFilters?: boolean;
+  ssoSettingsSAML?: boolean;
+  usePrometheusFrontendPackage?: boolean;
+  oauthRequireSubClaim?: boolean;
 }

@@ -1,11 +1,10 @@
 import { getDataSourceRef, IntervalVariableModel } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import {
+  CustomVariable,
   MultiValueVariable,
   SceneDataTransformer,
   sceneGraph,
-  SceneGridItem,
-  SceneGridLayout,
   SceneGridRow,
   SceneObject,
   SceneQueryRunner,
@@ -18,6 +17,9 @@ import { DashboardScene } from '../scene/DashboardScene';
 import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { VizPanelLinks, VizPanelLinksMenu } from '../scene/PanelLinks';
 import { panelMenuBehavior } from '../scene/PanelMenuBehavior';
+import { RowActions } from '../scene/row-actions/RowActions';
+
+import { dashboardSceneGraph } from './dashboardSceneGraph';
 
 export const NEW_PANEL_HEIGHT = 8;
 export const NEW_PANEL_WIDTH = 12;
@@ -30,8 +32,12 @@ export function getPanelIdForVizPanel(panel: SceneObject): number {
   return parseInt(panel.state.key!.replace('panel-', ''), 10);
 }
 
+export function getPanelIdForLibraryVizPanel(panel: LibraryVizPanel): number {
+  return parseInt(panel.state.panelKey!.replace('panel-', ''), 10);
+}
+
 /**
- * This will also  try lookup based on panelId
+ * This will also try lookup based on panelId
  */
 export function findVizPanelByKey(scene: SceneObject, key: string | undefined): VizPanel | null {
   if (!key) {
@@ -89,7 +95,7 @@ export function forceRenderChildren(model: SceneObject, recursive?: boolean) {
   });
 }
 
-export function getMultiVariableValues(variable: MultiValueVariable) {
+export function getMultiVariableValues(variable: MultiValueVariable | CustomVariable) {
   const { value, text, options } = variable.state;
 
   if (variable.hasAllValue()) {
@@ -201,47 +207,8 @@ export function isPanelClone(key: string) {
   return key.includes('clone');
 }
 
-export function getNextPanelId(dashboard: DashboardScene) {
-  let max = 0;
-  const body = dashboard.state.body;
-
-  if (body instanceof SceneGridLayout) {
-    for (const child of body.state.children) {
-      if (child instanceof SceneGridItem) {
-        const vizPanel = child.state.body;
-
-        if (vizPanel instanceof VizPanel) {
-          const panelId = getPanelIdForVizPanel(vizPanel);
-
-          if (panelId > max) {
-            max = panelId;
-          }
-        }
-      }
-
-      if (child instanceof SceneGridRow) {
-        for (const rowChild of child.state.children) {
-          if (rowChild instanceof SceneGridItem) {
-            const vizPanel = rowChild.state.body;
-
-            if (vizPanel instanceof VizPanel) {
-              const panelId = getPanelIdForVizPanel(vizPanel);
-
-              if (panelId > max) {
-                max = panelId;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return max + 1;
-}
-
 export function getDefaultVizPanel(dashboard: DashboardScene): VizPanel {
-  const panelId = getNextPanelId(dashboard);
+  const panelId = dashboardSceneGraph.getNextPanelId(dashboard);
 
   return new VizPanel({
     title: 'Panel Title',
@@ -261,6 +228,20 @@ export function getDefaultVizPanel(dashboard: DashboardScene): VizPanel {
   });
 }
 
-export function isLibraryPanelChild(vizPanel: VizPanel) {
-  return vizPanel.parent instanceof LibraryVizPanel;
+export function getDefaultRow(dashboard: DashboardScene): SceneGridRow {
+  const id = dashboardSceneGraph.getNextPanelId(dashboard);
+
+  return new SceneGridRow({
+    key: getVizPanelKeyForPanelId(id),
+    title: 'Row title',
+    actions: new RowActions({}),
+    y: 0,
+  });
+}
+
+export function getLibraryPanel(vizPanel: VizPanel): LibraryVizPanel | undefined {
+  if (vizPanel.parent instanceof LibraryVizPanel) {
+    return vizPanel.parent;
+  }
+  return;
 }
