@@ -207,7 +207,6 @@ func (s *SocialBase) extractOrgRolesFromRaw(ctx context.Context, rawJSON []byte,
 
 	orgRoles := make(map[int64]org.RoleType, 0)
 	for _, orgRoleMapping := range orgRoleMappings {
-
 		if orgRoleMapping.OrgID == 0 && orgRoleMapping.OrgName != "" {
 			getOrgQuery := &org.GetOrgByNameQuery{Name: orgRoleMapping.OrgName}
 			res, err := s.orgService.GetByName(ctx, getOrgQuery)

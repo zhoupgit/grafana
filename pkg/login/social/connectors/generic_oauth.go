@@ -267,12 +267,12 @@ func (s *SocialGenericOAuth) UserInfo(ctx context.Context, client *http.Client, 
 		}
 
 		if len(userInfo.OrgRoles) == 0 && !s.info.SkipOrgRoleSync {
-				orgRoles, err := s.extractOrgRoles(ctx, data.rawJSON, []string{})
-				if err != nil {
-						s.log.Warn("Failed to extract org roles", "err", err)
-				} else {
-						userInfo.OrgRoles = orgRoles
-				}
+			orgRoles, err := s.extractOrgRoles(ctx, data.rawJSON, []string{})
+			if err != nil {
+				s.log.Warn("Failed to extract org roles", "err", err)
+			} else {
+				userInfo.OrgRoles = orgRoles
+			}
 		}
 
 		if len(userInfo.Groups) == 0 {
