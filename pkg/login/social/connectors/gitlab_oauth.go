@@ -259,7 +259,7 @@ func (s *SocialGitlab) extractFromAPI(ctx context.Context, client *http.Client, 
 
 		idData.Role = role
 
-		orgRoles, err := s.extractOrgRoles(ctx, response.Body, idData.Groups)
+		orgRoles, err := s.extractOrgRoles(ctx, response.Body, idData.Groups, idData.Role)
 		if err != nil {
 			return nil, err
 		}
@@ -321,7 +321,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 
 		data.Role = role
 
-		orgRoles, err := s.extractOrgRoles(ctx, rawJSON, data.Groups)
+		orgRoles, err := s.extractOrgRoles(ctx, rawJSON, data.Groups, data.Role)
 		if err != nil {
 			return nil, err
 		}

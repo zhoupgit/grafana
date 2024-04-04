@@ -154,7 +154,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 			isGrafanaAdmin = &grafanaAdmin
 		}
 
-		orgRoles, err = s.extractOrgRoles(ctx, data.rawJSON, groups)
+		orgRoles, err = s.extractOrgRoles(ctx, data.rawJSON, groups, role)
 		if err != nil {
 			return nil, err
 		}

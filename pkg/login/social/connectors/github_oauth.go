@@ -341,7 +341,7 @@ func (s *SocialGithub) UserInfo(ctx context.Context, client *http.Client, token 
 	}
 
 	if !s.info.SkipOrgRoleSync {
-		orgRoles, err := s.extractOrgRoles(ctx, response.Body, teams)
+		orgRoles, err := s.extractOrgRoles(ctx, response.Body, teams, userInfo.Role)
 		if err != nil {
 			return nil, err
 		}

@@ -162,7 +162,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 
 		userInfo.Role = role
 
-		orgRoles, errOrgRoles := s.extractOrgRoles(ctx, data.rawJSON, groups)
+		orgRoles, errOrgRoles := s.extractOrgRoles(ctx, data.rawJSON, groups, userInfo.Role)
 		if errOrgRoles != nil {
 			return nil, errOrgRoles
 		} else {
