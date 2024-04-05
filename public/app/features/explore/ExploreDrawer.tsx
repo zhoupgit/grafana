@@ -5,17 +5,18 @@ import React from 'react';
 
 // Services & Utils
 import { GrafanaTheme2 } from '@grafana/data';
-import { getDragStyles, useStyles2, useTheme2 } from '@grafana/ui';
+import { getDragStyles, useTheme2 } from '@grafana/ui';
 
 export interface Props {
+  full?: boolean;
   children: React.ReactNode;
   onResize?: ResizeCallback;
 }
 
 export function ExploreDrawer(props: Props) {
-  const { children, onResize } = props;
+  const { full, children, onResize } = props;
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
+  const styles = getStyles(theme, !!full); // if width is defined, it is not full-width
   const dragStyles = getDragStyles(theme);
 
   return (
@@ -51,13 +52,14 @@ const drawerSlide = (theme: GrafanaTheme2) => keyframes`
   }
 `;
 
-const getStyles = (theme: GrafanaTheme2) => ({
+const getStyles = (theme: GrafanaTheme2, full: boolean) => ({
   // @ts-expect-error csstype doesn't allow !important. see https://github.com/frenic/csstype/issues/114
   fixed: css({
-    position: 'absolute !important',
+    position: `${full ? 'fixed' : 'absolute'} !important`,
   }),
   container: css({
     bottom: 0,
+    left: full ? 0 : undefined,
     background: theme.colors.background.primary,
     borderTop: `1px solid ${theme.colors.border.weak}`,
     boxShadow: theme.shadows.z3,
