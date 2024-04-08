@@ -4,7 +4,7 @@
 //     public/app/plugins/gen.go
 // Using jennies:
 //     TSTypesJenny
-//     PluginTSTypesJenny
+//     PluginTsTypesJenny
 //
 // Run 'make gen-cue' from repository root to regenerate.
 
@@ -19,6 +19,10 @@ export interface CloudMonitoringQuery extends common.DataQuery {
    * Time interval in milliseconds.
    */
   intervalMs?: number;
+  /**
+   * PromQL sub-query properties.
+   */
+  promQLQuery?: PromQLQuery;
   /**
    * SLO sub-query properties.
    */
@@ -40,6 +44,7 @@ export interface CloudMonitoringQuery extends common.DataQuery {
  */
 export enum QueryType {
   ANNOTATION = 'annotation',
+  PROMQL = 'promQL',
   SLO = 'slo',
   TIME_SERIES_LIST = 'timeSeriesList',
   TIME_SERIES_QUERY = 'timeSeriesQuery',
@@ -184,6 +189,24 @@ export interface SLOQuery {
    * Name of the SLO.
    */
   sloName: string;
+}
+
+/**
+ * PromQL sub-query properties.
+ */
+export interface PromQLQuery {
+  /**
+   * PromQL expression/query to be executed.
+   */
+  expr: string;
+  /**
+   * GCP project to execute the query against.
+   */
+  projectName: string;
+  /**
+   * PromQL min step
+   */
+  step: string;
 }
 
 /**
@@ -352,4 +375,4 @@ export enum MetricFindQueryTypes {
   Services = 'services',
 }
 
-export interface GoogleCloudMonitoring {}
+export interface GoogleCloudMonitoringDataQuery {}

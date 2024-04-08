@@ -3,13 +3,16 @@ package contexthandler
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net/http"
+
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
-	"github.com/grafana/grafana/pkg/services/auth"
+	"github.com/grafana/grafana/pkg/services/auth/identity"
 	"github.com/grafana/grafana/pkg/services/authn"
 	"github.com/grafana/grafana/pkg/services/contexthandler/ctxkey"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
@@ -20,7 +23,7 @@ import (
 	"github.com/grafana/grafana/pkg/web"
 )
 
-func ProvideService(cfg *setting.Cfg, tracer tracing.Tracer, features *featuremgmt.FeatureManager, authnService authn.Service,
+func ProvideService(cfg *setting.Cfg, tracer tracing.Tracer, features featuremgmt.FeatureToggles, authnService authn.Service,
 ) *ContextHandler {
 	return &ContextHandler{
 		Cfg:          cfg,
@@ -34,7 +37,7 @@ func ProvideService(cfg *setting.Cfg, tracer tracing.Tracer, features *featuremg
 type ContextHandler struct {
 	Cfg          *setting.Cfg
 	tracer       tracing.Tracer
-	features     *featuremgmt.FeatureManager
+	features     featuremgmt.FeatureToggles
 	authnService authn.Service
 }
 
@@ -61,19 +64,19 @@ func CopyWithReqContext(ctx context.Context) context.Context {
 		Resp: web.NewResponseWriter(origReqCtx.Req.Method, response.CreateNormalResponse(http.Header{}, []byte{}, 0)),
 	}
 	reqCtx := &contextmodel.ReqContext{
-		Context:               webCtx,
-		SignedInUser:          origReqCtx.SignedInUser,
-		UserToken:             origReqCtx.UserToken,
-		IsSignedIn:            origReqCtx.IsSignedIn,
-		IsRenderCall:          origReqCtx.IsRenderCall,
-		AllowAnonymous:        origReqCtx.AllowAnonymous,
-		SkipDSCache:           origReqCtx.SkipDSCache,
-		SkipQueryCache:        origReqCtx.SkipQueryCache,
-		Logger:                origReqCtx.Logger,
-		Error:                 origReqCtx.Error,
-		RequestNonce:          origReqCtx.RequestNonce,
-		IsPublicDashboardView: origReqCtx.IsPublicDashboardView,
-		LookupTokenErr:        origReqCtx.LookupTokenErr,
+		Context:                    webCtx,
+		SignedInUser:               origReqCtx.SignedInUser,
+		UserToken:                  origReqCtx.UserToken,
+		IsSignedIn:                 origReqCtx.IsSignedIn,
+		IsRenderCall:               origReqCtx.IsRenderCall,
+		AllowAnonymous:             origReqCtx.AllowAnonymous,
+		SkipDSCache:                origReqCtx.SkipDSCache,
+		SkipQueryCache:             origReqCtx.SkipQueryCache,
+		Logger:                     origReqCtx.Logger,
+		Error:                      origReqCtx.Error,
+		RequestNonce:               origReqCtx.RequestNonce,
+		PublicDashboardAccessToken: origReqCtx.PublicDashboardAccessToken,
+		LookupTokenErr:             origReqCtx.LookupTokenErr,
 	}
 	return context.WithValue(ctx, reqContextKey{}, reqCtx)
 }
@@ -81,13 +84,11 @@ func CopyWithReqContext(ctx context.Context) context.Context {
 // Middleware provides a middleware to initialize the request context.
 func (h *ContextHandler) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		mContext := web.FromContext(ctx)
-		_, span := h.tracer.Start(ctx, "Auth - Middleware")
-		defer span.End()
+		ctx, span := h.tracer.Start(r.Context(), "Auth - Middleware")
+		defer span.End() // this will span to next handlers as well
 
 		reqContext := &contextmodel.ReqContext{
-			Context: mContext,
+			Context: web.FromContext(ctx), // Extract web context from context (no knowledge of the trace)
 			SignedInUser: &user.SignedInUser{
 				Permissions: map[int64]map[string][]string{},
 			},
@@ -97,59 +98,68 @@ func (h *ContextHandler) Middleware(next http.Handler) http.Handler {
 			Logger:         log.New("context"),
 		}
 
-		// Inject ReqContext into http.Request.Context
-		*r = *r.WithContext(context.WithValue(ctx, reqContextKey{}, reqContext))
+		// inject ReqContext in the context
+		ctx = context.WithValue(ctx, reqContextKey{}, reqContext)
 		// store list of possible auth header in context
-		*reqContext.Req = *reqContext.Req.WithContext(WithAuthHTTPHeaders(reqContext.Req.Context(), h.Cfg))
+		ctx = WithAuthHTTPHeaders(ctx, h.Cfg)
+		// Set the context for the http.Request.Context
+		// This modifies both r and reqContext.Req since they point to the same value
+		*reqContext.Req = *reqContext.Req.WithContext(ctx)
 
-		traceID := tracing.TraceIDFromContext(mContext.Req.Context(), false)
+		traceID := tracing.TraceIDFromContext(reqContext.Req.Context(), false)
 		if traceID != "" {
 			reqContext.Logger = reqContext.Logger.New("traceID", traceID)
 		}
 
-		identity, err := h.authnService.Authenticate(ctx, &authn.Request{HTTPRequest: reqContext.Req, Resp: reqContext.Resp})
+		identity, err := h.authnService.Authenticate(reqContext.Req.Context(), &authn.Request{HTTPRequest: reqContext.Req, Resp: reqContext.Resp})
 		if err != nil {
-			if errors.Is(err, auth.ErrInvalidSessionToken) || errors.Is(err, authn.ErrExpiredAccessToken) {
-				// Burn the cookie in case of invalid, expired or missing token
-				reqContext.Resp.Before(h.deleteInvalidCookieEndOfRequestFunc(reqContext))
-			}
-
 			// Hack: set all errors on LookupTokenErr, so we can check it in auth middlewares
 			reqContext.LookupTokenErr = err
 		} else {
 			reqContext.SignedInUser = identity.SignedInUser()
 			reqContext.UserToken = identity.SessionToken
-			reqContext.IsSignedIn = !identity.IsAnonymous
-			reqContext.AllowAnonymous = identity.IsAnonymous
-			reqContext.IsRenderCall = identity.AuthenticatedBy == login.RenderModule
+			reqContext.IsSignedIn = !reqContext.SignedInUser.IsAnonymous
+			reqContext.AllowAnonymous = reqContext.SignedInUser.IsAnonymous
+			reqContext.IsRenderCall = identity.IsAuthenticatedBy(login.RenderModule)
 		}
 
 		reqContext.Logger = reqContext.Logger.New("userId", reqContext.UserID, "orgId", reqContext.OrgID, "uname", reqContext.Login)
-		span.AddEvents(
-			[]string{"uname", "orgId", "userId"},
-			[]tracing.EventValue{
-				{Str: reqContext.Login},
-				{Num: reqContext.OrgID},
-				{Num: reqContext.UserID}},
-		)
+		span.AddEvent("user", trace.WithAttributes(
+			attribute.String("uname", reqContext.Login),
+			attribute.Int64("orgId", reqContext.OrgID),
+			attribute.Int64("userId", reqContext.UserID),
+		))
+
+		if h.Cfg.IDResponseHeaderEnabled && reqContext.SignedInUser != nil {
+			reqContext.Resp.Before(h.addIDHeaderEndOfRequestFunc(reqContext.SignedInUser))
+		}
 
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (h *ContextHandler) deleteInvalidCookieEndOfRequestFunc(reqContext *contextmodel.ReqContext) web.BeforeFunc {
+func (h *ContextHandler) addIDHeaderEndOfRequestFunc(ident identity.Requester) web.BeforeFunc {
 	return func(w web.ResponseWriter) {
-		if h.features.IsEnabled(featuremgmt.FlagClientTokenRotation) {
-			return
-		}
-
 		if w.Written() {
-			reqContext.Logger.Debug("Response written, skipping invalid cookie delete")
 			return
 		}
 
-		reqContext.Logger.Debug("Expiring invalid cookie")
-		authn.DeleteSessionCookie(reqContext.Resp, h.Cfg)
+		namespace, id := ident.GetNamespacedID()
+		if !identity.IsNamespace(
+			namespace,
+			identity.NamespaceUser,
+			identity.NamespaceServiceAccount,
+			identity.NamespaceAPIKey,
+		) || id == "0" {
+			return
+		}
+
+		if _, ok := h.Cfg.IDResponseHeaderNamespaces[namespace]; !ok {
+			return
+		}
+
+		headerName := fmt.Sprintf("%s-Identity-Id", h.Cfg.IDResponseHeaderPrefix)
+		w.Header().Add(headerName, fmt.Sprintf("%s:%s", namespace, id))
 	}
 }
 
@@ -176,15 +186,18 @@ func WithAuthHTTPHeaders(ctx context.Context, cfg *setting.Cfg) context.Context 
 	// used by basic auth, api keys and potentially jwt auth
 	list.Items = append(list.Items, "Authorization")
 
+	// remove X-Grafana-Device-Id as it is only used for auth in authn clients.
+	list.Items = append(list.Items, "X-Grafana-Device-Id")
+
 	// if jwt is enabled we add it to the list. We can ignore in case it is set to Authorization
-	if cfg.JWTAuthEnabled && cfg.JWTAuthHeaderName != "" && cfg.JWTAuthHeaderName != "Authorization" {
-		list.Items = append(list.Items, cfg.JWTAuthHeaderName)
+	if cfg.JWTAuth.Enabled && cfg.JWTAuth.HeaderName != "" && cfg.JWTAuth.HeaderName != "Authorization" {
+		list.Items = append(list.Items, cfg.JWTAuth.HeaderName)
 	}
 
 	// if auth proxy is enabled add the main proxy header and all configured headers
-	if cfg.AuthProxyEnabled {
-		list.Items = append(list.Items, cfg.AuthProxyHeaderName)
-		for _, header := range cfg.AuthProxyHeaders {
+	if cfg.AuthProxy.Enabled {
+		list.Items = append(list.Items, cfg.AuthProxy.HeaderName)
+		for _, header := range cfg.AuthProxy.Headers {
 			if header != "" {
 				list.Items = append(list.Items, header)
 			}

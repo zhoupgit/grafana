@@ -11,8 +11,11 @@ import {
   ExternalAlertmanagerConfig,
   ExternalAlertmanagers,
   ExternalAlertmanagersResponse,
+  GrafanaManagedContactPoint,
   Matcher,
+  MuteTimeInterval,
 } from '../../../../plugins/datasource/alertmanager/types';
+import { NotifierDTO } from '../../../../types';
 import { withPerformanceLogging } from '../Analytics';
 import { matcherToOperator } from '../utils/alertmanager';
 import {
@@ -81,6 +84,10 @@ export const alertmanagerApi = alertingApi.injectEndpoints({
       query: ({ amSourceName }) => ({
         url: `/api/alertmanager/${getDatasourceAPIUid(amSourceName)}/api/v2/alerts/groups`,
       }),
+    }),
+
+    grafanaNotifiers: build.query<NotifierDTO[], void>({
+      query: () => ({ url: '/api/alert-notifiers' }),
     }),
 
     getAlertmanagerChoiceStatus: build.query<AlertmanagersChoiceResponse, void>({
@@ -157,8 +164,8 @@ export const alertmanagerApi = alertingApi.injectEndpoints({
 
         // wrap our fetchConfig function with some performance logging functions
         const fetchAMconfigWithLogging = withPerformanceLogging(
+          'unifiedalerting/fetchAmConfig',
           fetchAlertManagerConfig,
-          `[${alertmanagerSourceName}] Alertmanager config loaded`,
           {
             dataSourceName: alertmanagerSourceName,
             thunk: 'unifiedalerting/fetchAmConfig',
@@ -251,6 +258,13 @@ export const alertmanagerApi = alertingApi.injectEndpoints({
           }),
         }));
       },
+    }),
+    // Grafana Managed Alertmanager only
+    getContactPointsList: build.query<GrafanaManagedContactPoint[], void>({
+      query: () => ({ url: '/api/v1/notifications/receivers' }),
+    }),
+    getMuteTimingList: build.query<MuteTimeInterval[], void>({
+      query: () => ({ url: '/api/v1/notifications/time-intervals' }),
     }),
   }),
 });

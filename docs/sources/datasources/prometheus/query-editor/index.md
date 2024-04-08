@@ -74,13 +74,13 @@ The **Legend** setting defines the time series's name. You can use a predefined 
 
 The **Min step** setting defines the lower bounds on the interval between data points.
 For example, set this to `1h` to hint that measurements are taken hourly.
-This setting supports the `$__interval` and `$__rate_interval` macros.
+This setting supports the `$__interval` and `$__rate_interval` macros. Be aware that the query range dates are aligned to the step and this can change the start and end of the range.
 
 ### Format
 
 Switch between the following format options:
 
-- **Time series** - The default time series format. See [Time series kind formats](https://grafana.github.io/dataplane/timeseries/) for information on time series data frames and how time and value fields are structured.
+- **Time series** - The default time series format. See [Time series kind formats](https://grafana.com/developers/dataplane/timeseries/) for information on time series data frames and how time and value fields are structured.
 - **Table** - This works only in a [Table panel][table].
 - **Heatmap** - Displays metrics of the Histogram type on a [Heatmap panel][heatmap] by converting cumulative histograms to regular ones and sorting the series by the bucket bound.
 
@@ -96,7 +96,7 @@ For more information, refer to the [Time Series Transform option documentation][
 
 {{% admonition type="note" %}}
 Grafana modifies the request dates for queries to align them with the dynamically calculated step.
-This ensures a consistent display of metrics data, but it can result in a small gap of data at the right edge of a graph.
+This ensures a consistent display of metrics data and Prometheus requires this for caching results. But, aligning the range with the step can result in a small gap of data at the right edge of a graph or change the start date of the range. For example, a 15s step aligns the range to Unix time divisible by 15s and a 1w minstep aligns the range to the start of the week on a Thursday.
 {{% /admonition %}}
 
 ### Exemplars

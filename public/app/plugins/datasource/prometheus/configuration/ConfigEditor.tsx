@@ -30,8 +30,8 @@ export const ConfigEditor = (props: Props) => {
 
   const azureAuthSettings = {
     azureAuthSupported: config.azureAuthEnabled,
-    getAzureAuthEnabled: (config: DataSourceSettings<any, any>): boolean => hasCredentials(config),
-    setAzureAuthEnabled: (config: DataSourceSettings<any, any>, enabled: boolean) =>
+    getAzureAuthEnabled: (config: DataSourceSettings): boolean => hasCredentials(config),
+    setAzureAuthEnabled: (config: DataSourceSettings, enabled: boolean) =>
       enabled ? setDefaultCredentials(config) : resetCredentials(config),
     azureSettingsUI: AzureAuthSettings,
   };
@@ -59,7 +59,9 @@ export const ConfigEditor = (props: Props) => {
             onOptionsChange={onOptionsChange}
             azureAuthSettings={azureAuthSettings}
             sigV4AuthToggleEnabled={config.sigV4AuthEnabled}
-            renderSigV4Editor={<SIGV4ConnectionConfig {...props}></SIGV4ConnectionConfig>}
+            renderSigV4Editor={
+              <SIGV4ConnectionConfig inExperimentalAuthComponent={true} {...props}></SIGV4ConnectionConfig>
+            }
             secureSocksDSProxyEnabled={config.secureSocksDSProxyEnabled}
           />
         </>

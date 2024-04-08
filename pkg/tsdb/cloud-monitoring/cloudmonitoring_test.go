@@ -12,8 +12,8 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/kinds/dataquery"
 
 	"github.com/stretchr/testify/assert"
@@ -23,8 +23,8 @@ import (
 func TestNewInstanceSettings(t *testing.T) {
 	t.Run("should create a new instance with empty settings", func(t *testing.T) {
 		cli := httpclient.NewProvider()
-		f := newInstanceSettings(cli)
-		dsInfo, err := f(backend.DataSourceInstanceSettings{
+		f := newInstanceSettings(*cli)
+		dsInfo, err := f(context.Background(), backend.DataSourceInstanceSettings{
 			JSONData: json.RawMessage(`{}`),
 		})
 		require.NoError(t, err)
@@ -34,8 +34,8 @@ func TestNewInstanceSettings(t *testing.T) {
 
 	t.Run("should create a new instance parsing settings", func(t *testing.T) {
 		cli := httpclient.NewProvider()
-		f := newInstanceSettings(cli)
-		dsInfo, err := f(backend.DataSourceInstanceSettings{
+		f := newInstanceSettings(*cli)
+		dsInfo, err := f(context.Background(), backend.DataSourceInstanceSettings{
 			JSONData: json.RawMessage(`{"authenticationType": "test", "defaultProject": "test", "clientEmail": "test", "tokenUri": "test"}`),
 		})
 		require.NoError(t, err)
@@ -53,7 +53,7 @@ func TestCloudMonitoring(t *testing.T) {
 
 	t.Run("parses a time series list query", func(t *testing.T) {
 		req := baseTimeSeriesList()
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -71,7 +71,7 @@ func TestCloudMonitoring(t *testing.T) {
 
 	t.Run("parses a time series query", func(t *testing.T) {
 		req := baseTimeSeriesQuery()
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringQueryFromInterface(t, qes)
 
@@ -95,7 +95,7 @@ func TestCloudMonitoring(t *testing.T) {
 			"aliasBy":    "testalias"
 		}`)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -114,7 +114,7 @@ func TestCloudMonitoring(t *testing.T) {
 			req := deprecatedReq()
 			err := migrateRequest(req)
 			require.NoError(t, err)
-			qes, err := service.buildQueryExecutors(slog, req)
+			qes, err := service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -140,7 +140,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     "2018-03-15T13:00:00Z",
 					"end":       "2018-03-15T13:34:00Z",
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"perSeriesAligner": "ALIGN_MEAN",
 					"filter":           "resource.type=\"a/resource/type\" metric.type=\"a/metric/type\"",
 				}
@@ -157,7 +157,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(query)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(slog, query)
+			qes, err := service.buildQueryExecutors(service.logger, query)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 			assert.Equal(t, 1, len(queries))
@@ -174,7 +174,7 @@ func TestCloudMonitoring(t *testing.T) {
 				"start":     "2018-03-15T13:00:00Z",
 				"end":       "2018-03-15T13:34:00Z",
 			}
-			expectedTimeSeriesFilter := map[string]interface{}{
+			expectedTimeSeriesFilter := map[string]any{
 				"filter": `key="value" key2="value2" resource.type="another/resource/type" metric.type="a/metric/type"`,
 			}
 			verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -191,7 +191,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+1000s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -206,7 +206,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     "2018-03-15T13:00:00Z",
 					"end":       "2018-03-15T13:34:00Z",
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `1000s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -221,7 +221,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -236,7 +236,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     "2018-03-15T13:00:00Z",
 					"end":       "2018-03-15T13:34:00Z",
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `60s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -257,7 +257,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -274,7 +274,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -291,7 +291,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+300s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -308,7 +308,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+3600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -329,7 +329,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -344,7 +344,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     req.Queries[0].TimeRange.From.Format(time.RFC3339),
 					"end":       req.Queries[0].TimeRange.To.Format(time.RFC3339),
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `60s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -361,7 +361,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+60s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -376,7 +376,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     req.Queries[0].TimeRange.From.Format(time.RFC3339),
 					"end":       req.Queries[0].TimeRange.To.Format(time.RFC3339),
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `60s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -393,7 +393,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+300s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -408,7 +408,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     req.Queries[0].TimeRange.From.Format(time.RFC3339),
 					"end":       req.Queries[0].TimeRange.To.Format(time.RFC3339),
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `300s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -425,7 +425,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+3600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -440,7 +440,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     req.Queries[0].TimeRange.From.Format(time.RFC3339),
 					"end":       req.Queries[0].TimeRange.To.Format(time.RFC3339),
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `3600s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -457,7 +457,7 @@ func TestCloudMonitoring(t *testing.T) {
 				err := migrateRequest(req)
 				require.NoError(t, err)
 
-				qes, err := service.buildQueryExecutors(slog, req)
+				qes, err := service.buildQueryExecutors(service.logger, req)
 				require.NoError(t, err)
 				queries := getCloudMonitoringListFromInterface(t, qes)
 				assert.Equal(t, `+600s`, queries[0].params["aggregation.alignmentPeriod"][0])
@@ -472,7 +472,7 @@ func TestCloudMonitoring(t *testing.T) {
 					"start":     "2018-03-15T13:00:00Z",
 					"end":       "2018-03-15T13:34:00Z",
 				}
-				expectedTimeSeriesFilter := map[string]interface{}{
+				expectedTimeSeriesFilter := map[string]any{
 					"minAlignmentPeriod": `600s`,
 				}
 				verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
@@ -489,7 +489,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(slog, req)
+			qes, err := service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -515,7 +515,7 @@ func TestCloudMonitoring(t *testing.T) {
 				"start":     "2018-03-15T13:00:00Z",
 				"end":       "2018-03-15T13:34:00Z",
 			}
-			expectedTimeSeriesFilter := map[string]interface{}{
+			expectedTimeSeriesFilter := map[string]any{
 				"minAlignmentPeriod": `60s`,
 				"crossSeriesReducer": "REDUCE_SUM",
 				"perSeriesAligner":   "ALIGN_MEAN",
@@ -535,7 +535,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(slog, req)
+			qes, err := service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -561,11 +561,11 @@ func TestCloudMonitoring(t *testing.T) {
 				"start":     "2018-03-15T13:00:00Z",
 				"end":       "2018-03-15T13:34:00Z",
 			}
-			expectedTimeSeriesFilter := map[string]interface{}{
+			expectedTimeSeriesFilter := map[string]any{
 				"minAlignmentPeriod": `60s`,
 				"perSeriesAligner":   "ALIGN_MEAN",
 				"filter":             "resource.type=\"a/resource/type\" metric.type=\"a/metric/type\"",
-				"groupByFields":      []interface{}{"metric.label.group1", "metric.label.group2"},
+				"groupByFields":      []any{"metric.label.group1", "metric.label.group2"},
 			}
 			verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
 		})
@@ -598,7 +598,7 @@ func TestCloudMonitoring(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Run("and query type is metrics", func(t *testing.T) {
-			qes, err := service.buildQueryExecutors(slog, req)
+			qes, err := service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -626,11 +626,11 @@ func TestCloudMonitoring(t *testing.T) {
 				"start":     "2018-03-15T13:00:00Z",
 				"end":       "2018-03-15T13:34:00Z",
 			}
-			expectedTimeSeriesFilter := map[string]interface{}{
+			expectedTimeSeriesFilter := map[string]any{
 				"minAlignmentPeriod": `60s`,
 				"perSeriesAligner":   "ALIGN_MEAN",
 				"filter":             "resource.type=\"a/resource/type\" metric.type=\"a/metric/type\"",
-				"groupByFields":      []interface{}{"metric.label.group1", "metric.label.group2"},
+				"groupByFields":      []any{"metric.label.group1", "metric.label.group2"},
 			}
 			verifyDeepLink(t, dl, expectedTimeSelection, expectedTimeSeriesFilter)
 
@@ -647,7 +647,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(slog, req)
+			qes, err = service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 
 			tqueries := getCloudMonitoringQueryFromInterface(t, qes)
@@ -675,7 +675,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err := migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err := service.buildQueryExecutors(slog, req)
+			qes, err := service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			queries := getCloudMonitoringSLOFromInterface(t, qes)
 
@@ -705,7 +705,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(slog, req)
+			qes, err = service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			qqueries := getCloudMonitoringSLOFromInterface(t, qes)
 			assert.Equal(t, "ALIGN_NEXT_OLDER", qqueries[0].params["aggregation.perSeriesAligner"][0])
@@ -730,7 +730,7 @@ func TestCloudMonitoring(t *testing.T) {
 			err = migrateRequest(req)
 			require.NoError(t, err)
 
-			qes, err = service.buildQueryExecutors(slog, req)
+			qes, err = service.buildQueryExecutors(service.logger, req)
 			require.NoError(t, err)
 			qqqueries := getCloudMonitoringSLOFromInterface(t, qes)
 			assert.Equal(t, `aggregation.alignmentPeriod=%2B60s&aggregation.perSeriesAligner=ALIGN_NEXT_OLDER&filter=select_slo_burn_rate%28%22projects%2Ftest-proj%2Fservices%2Ftest-service%2FserviceLevelObjectives%2Ftest-slo%22%2C+%221h%22%29&interval.endTime=2018-03-15T13%3A34%3A00Z&interval.startTime=2018-03-15T13%3A00%3A00Z`, qqqueries[0].params.Encode())
@@ -812,7 +812,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -842,7 +842,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -872,7 +872,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -900,7 +900,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -930,7 +930,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -958,7 +958,7 @@ func TestCloudMonitoring(t *testing.T) {
 		err := migrateRequest(req)
 		require.NoError(t, err)
 
-		qes, err := service.buildQueryExecutors(slog, req)
+		qes, err := service.buildQueryExecutors(service.logger, req)
 		require.NoError(t, err)
 		queries := getCloudMonitoringListFromInterface(t, qes)
 
@@ -1012,7 +1012,7 @@ func getCloudMonitoringQueryFromInterface(t *testing.T, qes []cloudMonitoringQue
 }
 
 func verifyDeepLink(t *testing.T, dl string, expectedTimeSelection map[string]string,
-	expectedTimeSeriesFilter map[string]interface{}) {
+	expectedTimeSeriesFilter map[string]any) {
 	t.Helper()
 
 	u, err := url.Parse(dl)
@@ -1039,7 +1039,7 @@ func verifyDeepLink(t *testing.T, dl string, expectedTimeSelection map[string]st
 	pageStateStr := params.Get("pageState")
 	assert.NotEmpty(t, pageStateStr)
 
-	var pageState map[string]map[string]interface{}
+	var pageState map[string]map[string]any
 	err = json.Unmarshal([]byte(pageStateStr), &pageState)
 	require.NoError(t, err)
 
@@ -1051,14 +1051,14 @@ func verifyDeepLink(t *testing.T, dl string, expectedTimeSelection map[string]st
 		assert.Equal(t, v, s)
 	}
 
-	dataSets, ok := pageState["xyChart"]["dataSets"].([]interface{})
+	dataSets, ok := pageState["xyChart"]["dataSets"].([]any)
 	assert.True(t, ok)
 	assert.Equal(t, 1, len(dataSets))
-	dataSet, ok := dataSets[0].(map[string]interface{})
+	dataSet, ok := dataSets[0].(map[string]any)
 	assert.True(t, ok)
 	i, ok := dataSet["timeSeriesFilter"]
 	assert.True(t, ok)
-	timeSeriesFilter := i.(map[string]interface{})
+	timeSeriesFilter := i.(map[string]any)
 	for k, v := range expectedTimeSeriesFilter {
 		s, ok := timeSeriesFilter[k]
 		assert.True(t, ok)
@@ -1144,7 +1144,7 @@ func baseTimeSeriesQuery() *backend.QueryDataRequest {
 
 func TestCheckHealth(t *testing.T) {
 	t.Run("and using GCE authentation should return proper error", func(t *testing.T) {
-		im := datasource.NewInstanceManager(func(s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+		im := datasource.NewInstanceManager(func(_ context.Context, s backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 			return &datasourceInfo{
 				authenticationType: gceAuthentication,
 			}, nil

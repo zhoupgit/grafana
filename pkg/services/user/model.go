@@ -1,10 +1,12 @@
 package user
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/grafana/grafana/pkg/services/auth/identity"
+	"github.com/grafana/grafana/pkg/services/search/model"
 )
 
 type HelpFlags1 uint64
@@ -17,25 +19,21 @@ const (
 	HelpFlagDashboardHelp1
 )
 
-// Typed errors
-var (
-	ErrCaseInsensitive   = errors.New("case insensitive conflict")
-	ErrUserNotFound      = errors.New("user not found")
-	ErrUserAlreadyExists = errors.New("user already exists")
-	ErrLastGrafanaAdmin  = errors.New("cannot remove last grafana admin")
-	ErrProtectedUser     = errors.New("cannot adopt protected user")
-	ErrNoUniqueID        = errors.New("identifying id not found")
-	ErrLastSeenUpToDate  = errors.New("last seen is already up to date")
-	ErrUpdateInvalidID   = errors.New("unable to update invalid id")
+type UpdateEmailActionType string
+
+const (
+	EmailUpdateAction UpdateEmailActionType = "email-update"
+	LoginUpdateAction UpdateEmailActionType = "login-update"
 )
 
 type User struct {
-	ID            int64 `xorm:"pk autoincr 'id'"`
+	ID            int64  `xorm:"pk autoincr 'id'"`
+	UID           string `json:"uid" xorm:"uid"`
 	Version       int
 	Email         string
 	Name          string
 	Login         string
-	Password      string
+	Password      Password
 	Salt          string
 	Rands         string
 	Company       string
@@ -54,13 +52,14 @@ type User struct {
 }
 
 type CreateUserCommand struct {
+	UID              string
 	Email            string
 	Login            string
 	Name             string
 	Company          string
 	OrgID            int64
 	OrgName          string
-	Password         string
+	Password         Password
 	EmailVerified    bool
 	IsAdmin          bool
 	IsDisabled       bool
@@ -83,12 +82,13 @@ type UpdateUserCommand struct {
 	Login string `json:"login"`
 	Theme string `json:"theme"`
 
-	UserID int64 `json:"-"`
+	UserID        int64 `json:"-"`
+	EmailVerified *bool `json:"-"`
 }
 
 type ChangeUserPasswordCommand struct {
-	OldPassword string `json:"oldPassword"`
-	NewPassword string `json:"newPassword"`
+	OldPassword Password `json:"oldPassword"`
+	NewPassword Password `json:"newPassword"`
 
 	UserID int64 `json:"-"`
 }
@@ -104,12 +104,13 @@ type SetUsingOrgCommand struct {
 }
 
 type SearchUsersQuery struct {
-	SignedInUser *SignedInUser
+	SignedInUser identity.Requester
 	OrgID        int64 `xorm:"org_id"`
 	Query        string
 	Page         int
 	Limit        int
 	AuthModule   string
+	SortOpts     []model.SortOption
 	Filters      []Filter
 
 	IsDisabled *bool
@@ -124,6 +125,7 @@ type SearchUserQueryResult struct {
 
 type UserSearchHitDTO struct {
 	ID            int64                `json:"id" xorm:"id"`
+	UID           string               `json:"uid" xorm:"id"`
 	Name          string               `json:"name"`
 	Login         string               `json:"login"`
 	Email         string               `json:"email"`
@@ -142,6 +144,7 @@ type GetUserProfileQuery struct {
 
 type UserProfileDTO struct {
 	ID                             int64           `json:"id"`
+	UID                            string          `json:"uid"`
 	Email                          string          `json:"email"`
 	Name                           string          `json:"name"`
 	Login                          string          `json:"login"`
@@ -218,12 +221,24 @@ type GetUserByIDQuery struct {
 	ID int64
 }
 
+type StartVerifyEmailCommand struct {
+	User   User
+	Email  string
+	Action UpdateEmailActionType
+}
+
+type CompleteEmailVerifyCommand struct {
+	User identity.Requester
+	Code string
+}
+
 type ErrCaseInsensitiveLoginConflict struct {
 	Users []User
 }
 
 type UserDisplayDTO struct {
 	ID        int64  `json:"id,omitempty"`
+	UID       string `json:"uid,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Login     string `json:"login,omitempty"`
 	AvatarURL string `json:"avatarUrl"`
@@ -254,12 +269,12 @@ type Filter interface {
 
 type WhereCondition struct {
 	Condition string
-	Params    interface{}
+	Params    any
 }
 
 type InCondition struct {
 	Condition string
-	Params    interface{}
+	Params    any
 }
 
 type JoinCondition struct {
@@ -283,10 +298,4 @@ const (
 type AdminCreateUserResponse struct {
 	ID      int64  `json:"id"`
 	Message string `json:"message"`
-}
-
-type Password string
-
-func (p Password) IsWeak() bool {
-	return len(p) <= 4
 }

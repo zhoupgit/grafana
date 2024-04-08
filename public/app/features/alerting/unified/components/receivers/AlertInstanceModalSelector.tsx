@@ -168,10 +168,13 @@ export function AlertInstanceModalSelector({
     const instances: TestTemplateAlert[] =
       selectedInstances?.map((instance: AlertmanagerAlert) => {
         const alert: TestTemplateAlert = {
+          status: 'firing',
           annotations: instance.annotations,
           labels: instance.labels,
           startsAt: instance.startsAt,
           endsAt: instance.endsAt,
+          generatorURL: instance.generatorURL,
+          fingerprint: instance.fingerprint,
         };
         return alert;
       }) || [];
@@ -233,7 +236,7 @@ export function AlertInstanceModalSelector({
           <div className={styles.column}>
             {!selectedRule && !loading && (
               <div className={styles.selectedRulePlaceholder}>
-                <div>Select an alert rule to get a list of available instances</div>
+                <div>Select an alert rule to get a list of available firing instances</div>
               </div>
             )}
             {loading && <LoadingPlaceholder text="Loading rule..." className={styles.loadingPlaceholder} />}

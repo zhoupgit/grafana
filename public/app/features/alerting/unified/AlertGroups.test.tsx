@@ -4,22 +4,23 @@ import React from 'react';
 import { TestProvider } from 'test/helpers/TestProvider';
 import { byRole, byTestId, byText } from 'testing-library-selector';
 
+import { selectors } from '@grafana/e2e-selectors';
 import { setDataSourceSrv } from '@grafana/runtime';
+import { AccessControlAction } from 'app/types';
 
 import AlertGroups from './AlertGroups';
 import { fetchAlertGroups } from './api/alertmanager';
-import { mockAlertGroup, mockAlertmanagerAlert, mockDataSource, MockDataSourceSrv } from './mocks';
+import {
+  grantUserPermissions,
+  mockAlertGroup,
+  mockAlertmanagerAlert,
+  mockDataSource,
+  MockDataSourceSrv,
+} from './mocks';
+import { AlertmanagerProvider } from './state/AlertmanagerContext';
 import { DataSourceType } from './utils/datasource';
 
 jest.mock('./api/alertmanager');
-
-jest.mock('app/core/services/context_srv', () => ({
-  contextSrv: {
-    isEditor: true,
-    hasAccess: () => true,
-    hasPermission: () => true,
-  },
-}));
 const mocks = {
   api: {
     fetchAlertGroups: jest.mocked(fetchAlertGroups),
@@ -29,7 +30,9 @@ const mocks = {
 const renderAmNotifications = () => {
   return render(
     <TestProvider>
-      <AlertGroups />
+      <AlertmanagerProvider accessType={'instance'}>
+        <AlertGroups />
+      </AlertmanagerProvider>
     </TestProvider>
   );
 };
@@ -46,7 +49,7 @@ const ui = {
   groupCollapseToggle: byTestId('alert-group-collapse-toggle'),
   groupTable: byTestId('alert-group-table'),
   row: byTestId('row'),
-  collapseToggle: byTestId('collapse-toggle'),
+  collapseToggle: byTestId(selectors.components.AlertRules.toggle),
   silenceButton: byText('Silence'),
   sourceButton: byText('See source'),
   matcherInput: byTestId('search-query-input'),
@@ -57,6 +60,13 @@ const ui = {
 
 describe('AlertGroups', () => {
   beforeAll(() => {
+    grantUserPermissions([
+      AccessControlAction.AlertingInstanceRead,
+      AccessControlAction.AlertingInstanceCreate,
+      AccessControlAction.AlertingInstancesExternalRead,
+      AccessControlAction.AlertingRuleRead,
+    ]);
+
     mocks.api.fetchAlertGroups.mockImplementation(() => {
       return Promise.resolve([
         mockAlertGroup({ labels: {}, alerts: [mockAlertmanagerAlert({ labels: { foo: 'bar' } })] }),

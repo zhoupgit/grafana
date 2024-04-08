@@ -12,6 +12,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/kinds/dataquery"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
+	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/utils"
 )
 
 const initialAlertPollPeriod = time.Second
@@ -36,9 +37,9 @@ var executeSyncLogQuery = func(ctx context.Context, e *cloudWatchExecutor, req *
 			logsQuery.QueryString = *logsQuery.Expression
 		}
 
-		region := logsQuery.Region
-		if logsQuery.Region == "" || region == defaultRegion {
-			logsQuery.Region = instance.Settings.Region
+		region := utils.Depointerizer(logsQuery.Region)
+		if region == "" || region == defaultRegion {
+			logsQuery.Region = utils.Pointer(instance.Settings.Region)
 		}
 
 		logsClient, err := e.getCWLogsClient(ctx, req.PluginContext, region)
@@ -108,7 +109,7 @@ func (e *cloudWatchExecutor) syncQuery(ctx context.Context, logsClient cloudwatc
 	for range ticker.C {
 		res, err := e.executeGetQueryResults(ctx, logsClient, requestParams)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("CloudWatch Error: %w", err)
 		}
 		if isTerminated(*res.Status) {
 			return res, err

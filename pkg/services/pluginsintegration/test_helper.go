@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/plugins/backendplugin"
 	"github.com/grafana/grafana/pkg/plugins/backendplugin/coreplugin"
@@ -26,37 +27,37 @@ import (
 	"github.com/grafana/grafana/pkg/plugins/manager/signature"
 	"github.com/grafana/grafana/pkg/plugins/manager/signature/statickey"
 	"github.com/grafana/grafana/pkg/plugins/manager/sources"
-	"github.com/grafana/grafana/pkg/plugins/manager/store"
 	"github.com/grafana/grafana/pkg/plugins/pluginscdn"
 	"github.com/grafana/grafana/pkg/plugins/state"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
-	"github.com/grafana/grafana/pkg/services/pluginsintegration/config"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pipeline"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginconfig"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginerrs"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginstore"
 	"github.com/grafana/grafana/pkg/setting"
 )
 
 type IntegrationTestCtx struct {
 	PluginClient   plugins.Client
-	PluginStore    *store.Service
+	PluginStore    *pluginstore.Service
 	PluginRegistry registry.Service
 }
 
 func CreateIntegrationTestCtx(t *testing.T, cfg *setting.Cfg, coreRegistry *coreplugin.Registry) *IntegrationTestCtx {
-	pCfg, err := config.ProvideConfig(setting.ProvideProvider(cfg), cfg, featuremgmt.WithFeatures())
+	pCfg, err := pluginconfig.ProvidePluginManagementConfig(cfg, setting.ProvideProvider(cfg), featuremgmt.WithFeatures())
 	require.NoError(t, err)
 
 	cdn := pluginscdn.ProvideService(pCfg)
 	reg := registry.ProvideService()
 	angularInspector := angularinspector.NewStaticInspector()
-	proc := process.NewManager(reg)
+	proc := process.ProvideService()
 	errTracker := pluginerrs.ProvideSignatureErrorTracker()
 	stateManager := state.ProvideService()
 
 	disc := pipeline.ProvideDiscoveryStage(pCfg, finder.NewLocalFinder(true), reg, stateManager)
-	boot := pipeline.ProvideBootstrapStage(pCfg, signature.ProvideService(pCfg, statickey.New()), assetpath.ProvideService(cdn), stateManager)
+	boot := pipeline.ProvideBootstrapStage(pCfg, signature.ProvideService(pCfg, statickey.New()), assetpath.ProvideService(pCfg, cdn), stateManager)
 	valid := pipeline.ProvideValidationStage(pCfg, signature.NewValidator(signature.NewUnsignedAuthorizer(pCfg)), angularInspector, errTracker, stateManager)
-	init := pipeline.ProvideInitializationStage(pCfg, reg, fakes.NewFakeLicensingService(), provider.ProvideService(coreRegistry), proc, &fakes.FakeOauthService{}, fakes.NewFakeRoleRegistry(), stateManager)
+	init := pipeline.ProvideInitializationStage(pCfg, reg, provider.ProvideService(coreRegistry), proc, &fakes.FakeAuthService{}, fakes.NewFakeRoleRegistry(), nil, tracing.InitializeTracerForTest(), stateManager)
 	term, err := pipeline.ProvideTerminationStage(pCfg, reg, proc, stateManager)
 	require.NoError(t, err)
 
@@ -68,11 +69,11 @@ func CreateIntegrationTestCtx(t *testing.T, cfg *setting.Cfg, coreRegistry *core
 		Terminator:   term,
 	})
 
-	ps, err := store.ProvideService(reg, sources.ProvideService(cfg, pCfg), l)
+	ps, err := pluginstore.ProvideService(reg, sources.ProvideService(cfg), l)
 	require.NoError(t, err)
 
 	return &IntegrationTestCtx{
-		PluginClient:   client.ProvideService(reg, pCfg),
+		PluginClient:   client.ProvideService(reg),
 		PluginStore:    ps,
 		PluginRegistry: reg,
 	}
@@ -86,13 +87,13 @@ type LoaderOpts struct {
 	Initializer  initialization.Initializer
 }
 
-func CreateTestLoader(t *testing.T, cfg *pluginsCfg.Cfg, opts LoaderOpts) *loader.Loader {
+func CreateTestLoader(t *testing.T, cfg *pluginsCfg.PluginManagementCfg, opts LoaderOpts) *loader.Loader {
 	if opts.Discoverer == nil {
 		opts.Discoverer = pipeline.ProvideDiscoveryStage(cfg, finder.NewLocalFinder(cfg.DevMode), registry.ProvideService(), state.ProvideService())
 	}
 
 	if opts.Bootstrapper == nil {
-		opts.Bootstrapper = pipeline.ProvideBootstrapStage(cfg, signature.ProvideService(cfg, statickey.New()), assetpath.ProvideService(pluginscdn.ProvideService(cfg)), state.ProvideService())
+		opts.Bootstrapper = pipeline.ProvideBootstrapStage(cfg, signature.ProvideService(cfg, statickey.New()), assetpath.ProvideService(cfg, pluginscdn.ProvideService(cfg)), state.ProvideService())
 	}
 
 	if opts.Validator == nil {
@@ -102,13 +103,13 @@ func CreateTestLoader(t *testing.T, cfg *pluginsCfg.Cfg, opts LoaderOpts) *loade
 	if opts.Initializer == nil {
 		reg := registry.ProvideService()
 		coreRegistry := coreplugin.NewRegistry(make(map[string]backendplugin.PluginFactoryFunc))
-		opts.Initializer = pipeline.ProvideInitializationStage(cfg, reg, fakes.NewFakeLicensingService(), provider.ProvideService(coreRegistry), process.NewManager(reg), &fakes.FakeOauthService{}, fakes.NewFakeRoleRegistry(), state.ProvideService())
+		opts.Initializer = pipeline.ProvideInitializationStage(cfg, reg, provider.ProvideService(coreRegistry), process.ProvideService(), &fakes.FakeAuthService{}, fakes.NewFakeRoleRegistry(), nil, tracing.InitializeTracerForTest(), state.ProvideService())
 	}
 
 	if opts.Terminator == nil {
 		var err error
 		reg := registry.ProvideService()
-		opts.Terminator, err = pipeline.ProvideTerminationStage(cfg, reg, process.NewManager(reg), state.ProvideService())
+		opts.Terminator, err = pipeline.ProvideTerminationStage(cfg, reg, process.ProvideService(), state.ProvideService())
 		require.NoError(t, err)
 	}
 

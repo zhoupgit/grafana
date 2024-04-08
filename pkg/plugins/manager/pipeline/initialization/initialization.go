@@ -21,7 +21,7 @@ type OnSuccessFunc func(ctx context.Context, ps []*plugins.Plugin)
 type OnErrorFunc func(ctx context.Context, p *plugins.Plugin, err error)
 
 type Initialize struct {
-	cfg             *config.Cfg
+	cfg             *config.PluginManagementCfg
 	initializeSteps []InitializeFunc
 
 	onSuccessFunc OnSuccessFunc
@@ -38,7 +38,7 @@ type Opts struct {
 }
 
 // New returns a new Initialization stage.
-func New(cfg *config.Cfg, opts Opts) *Initialize {
+func New(cfg *config.PluginManagementCfg, opts Opts) *Initialize {
 	if opts.InitializeFuncs == nil {
 		opts.InitializeFuncs = []InitializeFunc{}
 	}

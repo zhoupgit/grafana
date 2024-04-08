@@ -17,18 +17,13 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/resource/httpadapter"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 
-	"github.com/grafana/grafana/pkg/infra/httpclient"
-	"github.com/grafana/grafana/pkg/infra/log"
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/tsdb/cloud-monitoring/kinds/dataquery"
-)
-
-var (
-	slog = log.New("tsdb.cloudMonitoring")
 )
 
 var (
@@ -60,15 +55,16 @@ const (
 	timeSeriesListQueryType   = dataquery.QueryTypeTimeSeriesList
 	timeSeriesQueryQueryType  = dataquery.QueryTypeTimeSeriesQuery
 	sloQueryType              = dataquery.QueryTypeSlo
+	promQLQueryType           = dataquery.QueryTypePromQL
 	crossSeriesReducerDefault = "REDUCE_NONE"
 	perSeriesAlignerDefault   = "ALIGN_MEAN"
 )
 
-func ProvideService(httpClientProvider httpclient.Provider, tracer tracing.Tracer) *Service {
+func ProvideService(httpClientProvider *httpclient.Provider) *Service {
 	s := &Service{
-		tracer:             tracer,
-		httpClientProvider: httpClientProvider,
-		im:                 datasource.NewInstanceManager(newInstanceSettings(httpClientProvider)),
+		httpClientProvider: *httpClientProvider,
+		im:                 datasource.NewInstanceManager(newInstanceSettings(*httpClientProvider)),
+		logger:             backend.NewLoggerWith("logger", "tsdb.cloudmonitoring"),
 
 		gceDefaultProjectGetter: utils.GCEDefaultProject,
 	}
@@ -108,7 +104,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			slog.Warn("Failed to close response body", "err", err)
+			s.logger.Warn("Failed to close response body", "err", err)
 		}
 	}()
 
@@ -127,7 +123,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 type Service struct {
 	httpClientProvider httpclient.Provider
 	im                 instancemgmt.InstanceManager
-	tracer             tracing.Tracer
+	logger             log.Logger
 
 	resourceHandler backend.CallResourceHandler
 
@@ -160,7 +156,7 @@ type datasourceService struct {
 }
 
 func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.InstanceFactoryFunc {
-	return func(settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+	return func(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 		var jsonData datasourceJSONData
 		err := json.Unmarshal(settings.JSONData, &jsonData)
 		if err != nil {
@@ -187,13 +183,13 @@ func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.Inst
 			return nil, err
 		}
 
-		opts, err := settings.HTTPClientOptions()
+		opts, err := settings.HTTPClientOptions(ctx)
 		if err != nil {
 			return nil, err
 		}
 
 		for name, info := range routes {
-			client, err := newHTTPClient(dsInfo, opts, httpClientProvider, name)
+			client, err := newHTTPClient(dsInfo, opts, &httpClientProvider, name)
 			if err != nil {
 				return nil, err
 			}
@@ -207,10 +203,10 @@ func newInstanceSettings(httpClientProvider httpclient.Provider) datasource.Inst
 	}
 }
 
-func migrateMetricTypeFilter(metricTypeFilter string, prevFilters interface{}) []string {
+func migrateMetricTypeFilter(metricTypeFilter string, prevFilters any) []string {
 	metricTypeFilterArray := []string{"metric.type", "=", metricTypeFilter}
 	if prevFilters != nil {
-		filtersIface := prevFilters.([]interface{})
+		filtersIface := prevFilters.([]any)
 		filters := []string{}
 		for _, f := range filtersIface {
 			filters = append(filters, f.(string))
@@ -227,7 +223,7 @@ func strPtr(s string) *string {
 
 func migrateRequest(req *backend.QueryDataRequest) error {
 	for i, q := range req.Queries {
-		var rawQuery map[string]interface{}
+		var rawQuery map[string]any
 		err := json.Unmarshal(q.JSON, &rawQuery)
 		if err != nil {
 			return err
@@ -272,7 +268,7 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 
 		// Metric query was divided between timeSeriesList and timeSeriesQuery API calls
 		if rawQuery["metricQuery"] != nil && q.QueryType == "metrics" {
-			metricQuery := rawQuery["metricQuery"].(map[string]interface{})
+			metricQuery := rawQuery["metricQuery"].(map[string]any)
 
 			if metricQuery["editorMode"] != nil && toString(metricQuery["editorMode"]) == "mql" {
 				rawQuery["timeSeriesQuery"] = &dataquery.TimeSeriesQuery{
@@ -310,7 +306,7 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 		}
 
 		if rawQuery["sloQuery"] != nil && q.QueryType == string(dataquery.QueryTypeSlo) {
-			sloQuery := rawQuery["sloQuery"].(map[string]interface{})
+			sloQuery := rawQuery["sloQuery"].(map[string]any)
 			// AliasBy is now a top level property
 			if sloQuery["aliasBy"] != nil {
 				rawQuery["aliasBy"] = sloQuery["aliasBy"]
@@ -331,7 +327,7 @@ func migrateRequest(req *backend.QueryDataRequest) error {
 // QueryData takes in the frontend queries, parses them into the CloudMonitoring query format
 // executes the queries against the CloudMonitoring API and parses the response into data frames
 func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
-	logger := slog.FromContext(ctx)
+	logger := s.logger.FromContext(ctx)
 	if len(req.Queries) == 0 {
 		return nil, fmt.Errorf("query contains no queries")
 	}
@@ -353,21 +349,21 @@ func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) 
 
 	switch req.Queries[0].QueryType {
 	case string(dataquery.QueryTypeAnnotation):
-		return s.executeAnnotationQuery(ctx, req, *dsInfo, queries)
+		return s.executeAnnotationQuery(ctx, req, *dsInfo, queries, logger)
 	default:
-		return s.executeTimeSeriesQuery(ctx, req, *dsInfo, queries)
+		return s.executeTimeSeriesQuery(ctx, req, *dsInfo, queries, logger)
 	}
 }
 
-func (s *Service) executeTimeSeriesQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor) (
+func (s *Service) executeTimeSeriesQuery(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasourceInfo, queries []cloudMonitoringQueryExecutor, logger log.Logger) (
 	*backend.QueryDataResponse, error) {
 	resp := backend.NewQueryDataResponse()
 	for _, queryExecutor := range queries {
-		queryRes, dr, executedQueryString, err := queryExecutor.run(ctx, req, s, dsInfo, s.tracer)
+		queryRes, dr, executedQueryString, err := queryExecutor.run(ctx, req, s, dsInfo, logger)
 		if err != nil {
 			return resp, err
 		}
-		err = queryExecutor.parseResponse(queryRes, dr, executedQueryString)
+		err = queryExecutor.parseResponse(queryRes, dr, executedQueryString, logger)
 		if err != nil {
 			queryRes.Error = err
 		}
@@ -404,7 +400,6 @@ func (s *Service) buildQueryExecutors(logger log.Logger, req *backend.QueryDataR
 		case string(dataquery.QueryTypeTimeSeriesList), string(dataquery.QueryTypeAnnotation):
 			cmtsf := &cloudMonitoringTimeSeriesList{
 				refID:   query.RefID,
-				logger:  logger,
 				aliasBy: q.AliasBy,
 			}
 			if q.TimeSeriesList.View == nil || *q.TimeSeriesList.View == "" {
@@ -426,12 +421,20 @@ func (s *Service) buildQueryExecutors(logger log.Logger, req *backend.QueryDataR
 		case string(dataquery.QueryTypeSlo):
 			cmslo := &cloudMonitoringSLO{
 				refID:      query.RefID,
-				logger:     logger,
 				aliasBy:    q.AliasBy,
 				parameters: q.SloQuery,
 			}
 			cmslo.setParams(startTime, endTime, durationSeconds, query.Interval.Milliseconds())
 			queryInterface = cmslo
+		case string(dataquery.QueryTypePromQL):
+			cmp := &cloudMonitoringProm{
+				refID:      query.RefID,
+				aliasBy:    q.AliasBy,
+				parameters: q.PromQLQuery,
+				timeRange:  req.Queries[0].TimeRange,
+				logger:     logger,
+			}
+			queryInterface = cmp
 		default:
 			return nil, fmt.Errorf("unrecognized query type %q", query.QueryType)
 		}
@@ -585,7 +588,7 @@ func (s *Service) getDefaultProject(ctx context.Context, dsInfo datasourceInfo) 
 	return dsInfo.defaultProject, nil
 }
 
-func unmarshalResponse(logger log.Logger, res *http.Response) (cloudMonitoringResponse, error) {
+func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringResponse, error) {
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return cloudMonitoringResponse{}, err
@@ -636,7 +639,7 @@ func addConfigData(frames data.Frames, dl string, unit string, period *string) d
 		if period != nil && *period != "" {
 			err := addInterval(*period, frames[i].Fields[0])
 			if err != nil {
-				slog.Error("Failed to add interval", "error", err)
+				backend.Logger.Error("Failed to add interval", "error", err)
 			}
 		}
 	}

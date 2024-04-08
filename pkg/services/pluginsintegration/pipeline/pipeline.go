@@ -3,7 +3,9 @@ package pipeline
 import (
 	"context"
 
+	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/plugins"
+	"github.com/grafana/grafana/pkg/plugins/auth"
 	"github.com/grafana/grafana/pkg/plugins/config"
 	"github.com/grafana/grafana/pkg/plugins/envvars"
 	"github.com/grafana/grafana/pkg/plugins/manager/loader/angular/angularinspector"
@@ -17,20 +19,26 @@ import (
 	"github.com/grafana/grafana/pkg/plugins/manager/process"
 	"github.com/grafana/grafana/pkg/plugins/manager/registry"
 	"github.com/grafana/grafana/pkg/plugins/manager/signature"
-	"github.com/grafana/grafana/pkg/plugins/oauth"
 	"github.com/grafana/grafana/pkg/plugins/state"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginerrs"
 )
 
-func ProvideDiscoveryStage(cfg *config.Cfg, pf finder.Finder, pr registry.Service,
+func ProvideDiscoveryStage(cfg *config.PluginManagementCfg, pf finder.Finder, pr registry.Service,
 	stateManager state.Manager) *discovery.Discovery {
 	return discovery.New(cfg, discovery.Opts{
-		FindFunc: func(ctx context.Context, src plugins.PluginSource) ([]*plugins.FoundBundle, error) {
-			return pf.Find(ctx, src)
-		},
+		FindFunc: pf.Find,
 		FindFilterFuncs: []discovery.FindFilterFunc{
+			discovery.NewPermittedPluginTypesFilterStep([]plugins.Type{
+				plugins.TypeDataSource, plugins.TypeApp, plugins.TypePanel, plugins.TypeSecretsManager,
+			}),
 			func(ctx context.Context, _ plugins.Class, b []*plugins.FoundBundle) ([]*plugins.FoundBundle, error) {
-				return discovery.NewDuplicatePluginFilterStep(pr).Filter(ctx, b)
+				return NewDuplicatePluginIDFilterStep(pr).Filter(ctx, b)
+			},
+			func(_ context.Context, _ plugins.Class, b []*plugins.FoundBundle) ([]*plugins.FoundBundle, error) {
+				return NewDisablePluginsStep(cfg).Filter(b)
+			},
+			func(_ context.Context, c plugins.Class, b []*plugins.FoundBundle) ([]*plugins.FoundBundle, error) {
+				return NewAsExternalStep(cfg).Filter(c, b)
 			},
 		},
 		OnSuccessFunc: func(ctx context.Context, class plugins.Class, bundles []*plugins.FoundBundle) {
@@ -66,11 +74,11 @@ func ProvideDiscoveryStage(cfg *config.Cfg, pf finder.Finder, pr registry.Servic
 	})
 }
 
-func ProvideBootstrapStage(cfg *config.Cfg, sc plugins.SignatureCalculator, a *assetpath.Service,
+func ProvideBootstrapStage(cfg *config.PluginManagementCfg, sc plugins.SignatureCalculator, a *assetpath.Service,
 	stateManager state.Manager) *bootstrap.Bootstrap {
 	return bootstrap.New(cfg, bootstrap.Opts{
 		ConstructFunc: bootstrap.DefaultConstructFunc(sc, a),
-		DecorateFuncs: bootstrap.DefaultDecorateFuncs,
+		DecorateFuncs: bootstrap.DefaultDecorateFuncs(cfg),
 		OnSuccessFunc: func(ctx context.Context, ps []*plugins.Plugin) {
 			for _, p := range ps {
 				stateManager.SetPluginState(state.PluginInfo{
@@ -98,7 +106,7 @@ func ProvideBootstrapStage(cfg *config.Cfg, sc plugins.SignatureCalculator, a *a
 	})
 }
 
-func ProvideValidationStage(cfg *config.Cfg, sv signature.Validator, ai angularinspector.Inspector,
+func ProvideValidationStage(cfg *config.PluginManagementCfg, sv signature.Validator, ai angularinspector.Inspector,
 	et pluginerrs.SignatureErrorTracker, stateManager state.Manager) *validation.Validate {
 	return validation.New(cfg, validation.Opts{
 		ValidateFuncs: []validation.ValidateFunc{
@@ -123,15 +131,16 @@ func ProvideValidationStage(cfg *config.Cfg, sv signature.Validator, ai angulari
 	})
 }
 
-func ProvideInitializationStage(cfg *config.Cfg, pr registry.Service, l plugins.Licensing,
-	bp plugins.BackendFactoryProvider, pm process.Service, externalServiceRegistry oauth.ExternalServiceRegistry,
-	roleRegistry plugins.RoleRegistry, stateManager state.Manager) *initialization.Initialize {
+func ProvideInitializationStage(cfg *config.PluginManagementCfg, pr registry.Service, bp plugins.BackendFactoryProvider,
+	pm process.Manager, externalServiceRegistry auth.ExternalServiceRegistry,
+	roleRegistry plugins.RoleRegistry, pluginEnvProvider envvars.Provider, tracer tracing.Tracer,
+	stateManager state.Manager) *initialization.Initialize {
 	return initialization.New(cfg, initialization.Opts{
 		InitializeFuncs: []initialization.InitializeFunc{
-			initialization.BackendClientInitStep(envvars.NewProvider(cfg, l), bp),
+			ExternalServiceRegistrationStep(cfg, externalServiceRegistry, tracer),
+			initialization.BackendClientInitStep(pluginEnvProvider, bp),
 			initialization.PluginRegistrationStep(pr),
 			initialization.BackendProcessStartStep(pm),
-			ExternalServiceRegistrationStep(cfg, externalServiceRegistry),
 			RegisterPluginRolesStep(roleRegistry),
 			ReportBuildMetrics,
 		},
@@ -152,14 +161,12 @@ func ProvideInitializationStage(cfg *config.Cfg, pr registry.Service, l plugins.
 	})
 }
 
-func ProvideTerminationStage(cfg *config.Cfg, pr registry.Service, pm process.Service,
+func ProvideTerminationStage(cfg *config.PluginManagementCfg, pr registry.Service, pm process.Manager,
 	stateManager state.Manager) (*termination.Terminate, error) {
 	return termination.New(cfg, termination.Opts{
-		ResolveFunc: termination.TerminablePluginResolverStep(pr),
 		TerminateFuncs: []termination.TerminateFunc{
 			termination.BackendProcessTerminatorStep(pm),
 			termination.DeregisterStep(pr),
-			termination.FSRemoval,
 		},
 		OnSuccessFunc: func(ctx context.Context, p *plugins.Plugin) {
 			stateManager.SetPluginState(state.PluginInfo{
@@ -167,10 +174,10 @@ func ProvideTerminationStage(cfg *config.Cfg, pr registry.Service, pm process.Se
 				Version:  p.Info.Version,
 			}, state.StatusUninstalled)
 		},
-		OnErrorFunc: func(ctx context.Context, pluginID, version string, err error) {
+		OnErrorFunc: func(ctx context.Context, p *plugins.Plugin, err error) {
 			stateManager.SetPluginState(state.PluginInfo{
-				PluginID: pluginID,
-				Version:  version,
+				PluginID: p.ID,
+				Version:  p.Info.Version,
 			}, state.StatusError)
 		},
 	})

@@ -21,7 +21,7 @@ type OnSuccessFunc func(ctx context.Context, ps []*plugins.Plugin)
 type OnErrorFunc func(ctx context.Context, p *plugins.Plugin, err error)
 
 type Validate struct {
-	cfg           *config.Cfg
+	cfg           *config.PluginManagementCfg
 	validateSteps []ValidateFunc
 
 	onSuccessFunc OnSuccessFunc
@@ -38,7 +38,7 @@ type Opts struct {
 }
 
 // New returns a new Validation stage.
-func New(cfg *config.Cfg, opts Opts) *Validate {
+func New(cfg *config.PluginManagementCfg, opts Opts) *Validate {
 	if opts.ValidateFuncs == nil {
 		opts.ValidateFuncs = DefaultValidateFuncs(cfg)
 	}

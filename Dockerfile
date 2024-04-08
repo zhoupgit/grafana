@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-ARG BASE_IMAGE=alpine:3.17
-ARG JS_IMAGE=node:18-alpine3.17
+ARG BASE_IMAGE=alpine:3.19.1
+ARG JS_IMAGE=node:20-alpine
 ARG JS_PLATFORM=linux/amd64
-ARG GO_IMAGE=golang:1.20.6-alpine3.17
+ARG GO_IMAGE=golang:1.21.8-alpine
 
 ARG GO_SRC=go-builder
 ARG JS_SRC=js-builder
@@ -18,10 +18,13 @@ COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn .yarn
 COPY packages packages
 COPY plugins-bundled plugins-bundled
+COPY public public
+
+RUN apk add --no-cache make build-base python3
 
 RUN yarn install --immutable
 
-COPY tsconfig.json .eslintrc .editorconfig .browserslistrc .prettierrc.js babel.config.json .linguirc ./
+COPY tsconfig.json .eslintrc .editorconfig .browserslistrc .prettierrc.js ./
 COPY public public
 COPY scripts scripts
 COPY emails emails
@@ -37,15 +40,25 @@ ARG GO_BUILD_TAGS="oss"
 ARG WIRE_TAGS="oss"
 ARG BINGO="true"
 
-# Install build dependencies
 RUN if grep -i -q alpine /etc/issue; then \
-      apk add --no-cache gcc g++ make git; \
+      apk add --no-cache \
+          # This is required to allow building on arm64 due to https://github.com/golang/go/issues/22040
+          binutils-gold \
+          # Install build dependencies
+          gcc g++ make git; \
     fi
 
 WORKDIR /tmp/grafana
 
 COPY go.* ./
 COPY .bingo .bingo
+
+# Include vendored dependencies
+COPY pkg/util/xorm/go.* pkg/util/xorm/
+COPY pkg/apiserver/go.* pkg/apiserver/
+COPY pkg/apimachinery/go.* pkg/apimachinery/
+COPY pkg/build/wire/go.* pkg/build/wire/
+COPY pkg/promlib/go.* pkg/promlib/
 
 RUN go mod download
 RUN if [[ "$BINGO" = "true" ]]; then \
@@ -64,6 +77,7 @@ COPY pkg pkg
 COPY scripts scripts
 COPY conf conf
 COPY .github .github
+COPY LICENSE ./
 
 ENV COMMIT_SHA=${COMMIT_SHA}
 ENV BUILD_BRANCH=${BUILD_BRANCH}
@@ -110,7 +124,7 @@ RUN if grep -i -q alpine /etc/issue; then \
     elif grep -i -q ubuntu /etc/issue; then \
       DEBIAN_FRONTEND=noninteractive && \
       apt-get update && \
-      apt-get install -y ca-certificates curl tzdata && \
+      apt-get install -y ca-certificates curl tzdata musl && \
       apt-get autoremove -y && \
       rm -rf /var/lib/apt/lists/*; \
     else \
@@ -165,6 +179,7 @@ RUN if [ ! $(getent group "$GF_GID") ]; then \
 
 COPY --from=go-src /tmp/grafana/bin/grafana* /tmp/grafana/bin/*/grafana* ./bin/
 COPY --from=js-src /tmp/grafana/public ./public
+COPY --from=go-src /tmp/grafana/LICENSE ./
 
 EXPOSE 3000
 

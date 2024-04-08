@@ -53,7 +53,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -86,7 +86,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -169,7 +169,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -249,7 +249,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -350,7 +350,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -429,7 +429,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -516,7 +516,7 @@ func TestIntegrationTestReceivers(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -633,7 +633,7 @@ func TestIntegrationTestReceiversAlertCustomization(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -726,7 +726,7 @@ func TestIntegrationTestReceiversAlertCustomization(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -814,7 +814,7 @@ func TestIntegrationTestReceiversAlertCustomization(t *testing.T) {
 
 		grafanaListedAddr, env := testinfra.StartGrafanaEnv(t, dir, path)
 
-		createUser(t, env.SQLStore, user.CreateUserCommand{
+		createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 			DefaultOrgRole: string(org.RoleEditor),
 			Login:          "grafana",
 			Password:       "password",
@@ -943,7 +943,7 @@ func TestIntegrationNotificationChannels(t *testing.T) {
 	}
 
 	// Create a user to make authenticated requests
-	createUser(t, env.SQLStore, user.CreateUserCommand{
+	createUser(t, env.SQLStore, env.Cfg, user.CreateUserCommand{
 		DefaultOrgRole: string(org.RoleEditor),
 		Password:       "password",
 		Login:          "grafana",
@@ -2531,7 +2531,7 @@ var expNonEmailNotifications = map[string][]string{
 		  "attachments": [
 			{
 			  "title": "Integration Test [FIRING:1] SlackAlert1 (default)",
-			  "title_link": "http://localhost:3000/alerting/list",
+			  "title_link": "http://localhost:3000/alerting/grafana/UID_SlackAlert1/view",
 			  "text": "Integration Test ",
 			  "fallback": "Integration Test [FIRING:1] SlackAlert1 (default)",
 			  "footer": "Grafana v",
@@ -2551,7 +2551,7 @@ var expNonEmailNotifications = map[string][]string{
 		  "attachments": [
 			{
 			  "title": "[FIRING:1] SlackAlert2 (default)",
-			  "title_link": "http://localhost:3000/alerting/list",
+			  "title_link": "http://localhost:3000/alerting/grafana/UID_SlackAlert2/view",
 			  "text": "**Firing**\n\nValue: A=1\nLabels:\n - alertname = SlackAlert2\n - grafana_folder = default\nAnnotations:\nSource: http://localhost:3000/alerting/grafana/UID_SlackAlert2/view?orgId=1\nSilence: http://localhost:3000/alerting/silence/new?alertmanager=grafana&matcher=alertname%%3DSlackAlert2&matcher=grafana_folder%%3Ddefault&orgId=1\n",
 			  "fallback": "[FIRING:1] SlackAlert2 (default)",
 			  "footer": "Grafana v",
