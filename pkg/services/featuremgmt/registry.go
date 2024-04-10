@@ -860,11 +860,12 @@ var (
 			Owner:        grafanaObservabilityMetricsSquad,
 		},
 		{
-			Name:         "prometheusCodeModeMetricNamesSearch",
-			Description:  "Enables search for metric names in Code Mode, to improve performance when working with an enormous number of metric names",
-			FrontendOnly: true,
-			Stage:        FeatureStageExperimental,
-			Owner:        grafanaObservabilityMetricsSquad,
+			Name:           "prometheusCodeModeMetricNamesSearch",
+			Description:    "Enables search for metric names in Code Mode, to improve performance when working with an enormous number of metric names",
+			FrontendOnly:   true,
+			Stage:          FeatureStagePublicPreview,
+			Owner:          grafanaObservabilityMetricsSquad,
+			AllowSelfServe: true,
 		},
 		{
 			Name:         "addFieldFromCalculationStatFunctions",
