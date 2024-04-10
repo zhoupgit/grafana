@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "declaration": false
+    "declaration": false,
+    "allowJs": true
   },
   "extends": "@grafana/tsconfig"
 }

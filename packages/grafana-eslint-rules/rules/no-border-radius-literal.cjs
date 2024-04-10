@@ -1,22 +1,21 @@
 // @ts-check
 const { ESLintUtils, AST_NODE_TYPES } = require('@typescript-eslint/utils');
 
-const createRule = ESLintUtils.RuleCreator((name) => `https://github.com/grafana/grafana/blob/main/packages/grafana-eslint-rules/README.md#${name}`);
+const createRule = ESLintUtils.RuleCreator(
+  (name) => `https://github.com/grafana/grafana/blob/main/packages/grafana-eslint-rules/README.md#${name}`
+);
 
 const borderRadiusRule = createRule({
   create(context) {
     return {
       CallExpression(node) {
-        if (
-          node.callee.type === AST_NODE_TYPES.Identifier &&
-          node.callee.name === 'css'
-        ) {
+        if (node.callee.type === AST_NODE_TYPES.Identifier && node.callee.name === 'css') {
           const cssObjects = node.arguments.flatMap((node) => {
             switch (node.type) {
               case AST_NODE_TYPES.ObjectExpression:
                 return [node];
               case AST_NODE_TYPES.ArrayExpression:
-                return node.elements.filter(v => v.type === AST_NODE_TYPES.ObjectExpression);
+                return node.elements.filter((v) => v.type === AST_NODE_TYPES.ObjectExpression);
               default:
                 return [];
             }
