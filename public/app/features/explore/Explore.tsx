@@ -384,6 +384,9 @@ export class Explore extends React.PureComponent<Props, ExploreState> {
     // depth exceeded. This is maybe because the height is changing fast
     // also check if the legend ever expands or if Ed just wants the graph to expand
 
+    // TODO: if the handle doesn't show up you might need to overwrite react-resizable-handle css
+    // and set visible to true
+
     return (
       <Resizable
         width={width}
