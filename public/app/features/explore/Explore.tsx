@@ -3,6 +3,7 @@ import { get, groupBy } from 'lodash';
 import memoizeOne from 'memoize-one';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { Resizable } from 'react-resizable';
 import AutoSizer, { HorizontalSize } from 'react-virtualized-auto-sizer';
 
 import {
@@ -112,6 +113,9 @@ export interface ExploreProps extends Themeable2 {
 
 interface ExploreState {
   contentOutlineVisible: boolean;
+  graphContainer: {
+    height: number;
+  };
 }
 
 export type Props = ExploreProps & ConnectedProps<typeof connector>;
@@ -151,6 +155,9 @@ export class Explore extends React.PureComponent<Props, ExploreState> {
     super(props);
     this.state = {
       contentOutlineVisible: false,
+      graphContainer: {
+        height: 400,
+      },
     };
     this.graphEventBus = props.eventBus.newScopedBus('graph', { onlyLocal: false });
     this.logsEventBus = props.eventBus.newScopedBus('logs', { onlyLocal: false });
@@ -366,24 +373,41 @@ export class Explore extends React.PureComponent<Props, ExploreState> {
     });
   }
 
+  onGraphPanelResize = (event: React.SyntheticEvent, { size }: { size: { height: number } }) => {
+    this.setState({ graphContainer: { height: size.height } });
+  };
+
   renderGraphPanel(width: number) {
-    const { graphResult, absoluteRange, timeZone, queryResponse, showFlameGraph } = this.props;
+    const { graphResult, absoluteRange, timeZone, queryResponse } = this.props;
+
+    // TODO: sometimes on a long resize event EventCanvas complains that maximum update
+    // depth exceeded. This is maybe because the height is changing fast
+    // also check if the legend ever expands or if Ed just wants the graph to expand
 
     return (
-      <ContentOutlineItem panelId="Graph" title="Graph" icon="graph-bar">
-        <GraphContainer
-          data={graphResult!}
-          height={showFlameGraph ? 180 : 400}
-          width={width}
-          absoluteRange={absoluteRange}
-          timeZone={timeZone}
-          onChangeTime={this.onUpdateTimeRange}
-          annotations={queryResponse.annotations}
-          splitOpenFn={this.onSplitOpen('graph')}
-          loadingState={queryResponse.state}
-          eventBus={this.graphEventBus}
-        />
-      </ContentOutlineItem>
+      <Resizable
+        width={width}
+        height={this.state.graphContainer.height}
+        onResize={this.onGraphPanelResize}
+        resizeHandles={['s']}
+        handle={<div style={{ height: 10, width: '100%', cursor: 'row-resize' }} />}
+        handleSize={[width, 10]}
+      >
+        <ContentOutlineItem panelId="Graph" title="Graph" icon="graph-bar">
+          <GraphContainer
+            data={graphResult!}
+            height={this.state.graphContainer.height}
+            width={width}
+            absoluteRange={absoluteRange}
+            timeZone={timeZone}
+            onChangeTime={this.onUpdateTimeRange}
+            annotations={queryResponse.annotations}
+            splitOpenFn={this.onSplitOpen('graph')}
+            loadingState={queryResponse.state}
+            eventBus={this.graphEventBus}
+          />
+        </ContentOutlineItem>
+      </Resizable>
     );
   }
 
