@@ -380,7 +380,8 @@ export class Explore extends React.PureComponent<Props, ExploreState> {
   renderGraphPanel(width: number) {
     const { graphResult, absoluteRange, timeZone, queryResponse } = this.props;
 
-    // TODO: sometimes on a long resize event EventCanvas complains that maximum update
+    // TODO: this is not happning anymore, but just double check:
+    // sometimes on a long resize event EventCanvas complains that maximum update
     // depth exceeded. This is maybe because the height is changing fast
     // also check if the legend ever expands or if Ed just wants the graph to expand
 
