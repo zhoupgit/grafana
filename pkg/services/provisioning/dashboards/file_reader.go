@@ -16,7 +16,10 @@ import (
 	"github.com/grafana/grafana/pkg/infra/metrics"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/folder"
+	"github.com/grafana/grafana/pkg/services/folder/folderimpl"
+	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/grafana/grafana/pkg/services/provisioning/utils"
 	"github.com/grafana/grafana/pkg/util"
 )
@@ -37,6 +40,7 @@ type FileReader struct {
 	dashboardStore               utils.DashboardStore
 	FoldersFromFilesStructure    bool
 	folderService                folder.Service
+	features                     featuremgmt.FeatureToggles
 
 	mux                     sync.RWMutex
 	usageTracker            *usageTracker
@@ -45,7 +49,7 @@ type FileReader struct {
 
 // NewDashboardFileReader returns a new filereader based on `config`
 func NewDashboardFileReader(cfg *config, log log.Logger, service dashboards.DashboardProvisioningService,
-	dashboardStore utils.DashboardStore, folderService folder.Service) (*FileReader, error) {
+	dashboardStore utils.DashboardStore, features featuremgmt.FeatureToggles, folderService folder.Service) (*FileReader, error) {
 	var path string
 	path, ok := cfg.Options["path"].(string)
 	if !ok {
@@ -69,6 +73,7 @@ func NewDashboardFileReader(cfg *config, log log.Logger, service dashboards.Dash
 		dashboardProvisioningService: service,
 		dashboardStore:               dashboardStore,
 		folderService:                folderService,
+		features:                     features,
 		FoldersFromFilesStructure:    foldersFromFilesStructure,
 		usageTracker:                 newUsageTracker(),
 	}, nil
@@ -112,11 +117,19 @@ func (fr *FileReader) walkDisk(ctx context.Context) error {
 	fr.handleMissingDashboardFiles(ctx, provisionedDashboardRefs, filesFoundOnDisk)
 
 	usageTracker := newUsageTracker()
-	if fr.FoldersFromFilesStructure {
+	nestedFoldersEnabled := fr.features.IsEnabled(ctx, featuremgmt.FlagNestedFolders)
+
+	switch {
+	case nestedFoldersEnabled && fr.FoldersFromFilesStructure:
+		err = fr.storeDashboardsInNestedFoldersFromFileStructure(ctx, filesFoundOnDisk, provisionedDashboardRefs, resolvedPath, usageTracker)
+	case nestedFoldersEnabled:
+		err = fr.storeDashboardInNestedFolder(ctx, filesFoundOnDisk, provisionedDashboardRefs, usageTracker)
+	case fr.FoldersFromFilesStructure:
 		err = fr.storeDashboardsInFoldersFromFileStructure(ctx, filesFoundOnDisk, provisionedDashboardRefs, resolvedPath, usageTracker)
-	} else {
+	default:
 		err = fr.storeDashboardsInFolder(ctx, filesFoundOnDisk, provisionedDashboardRefs, usageTracker)
 	}
+
 	if err != nil {
 		return err
 	}
@@ -140,6 +153,79 @@ func (fr *FileReader) isDatabaseAccessRestricted() bool {
 	defer fr.mux.RUnlock()
 
 	return fr.dbWriteAccessRestricted
+}
+
+func (fr *FileReader) storeDashboardInNestedFolder(ctx context.Context, filesFoundOnDisk map[string]os.FileInfo,
+	dashboardRefs map[string]*dashboards.DashboardProvisioning, usageTracker *usageTracker) error {
+	folderTitles := folderimpl.SplitFullpath(fr.Cfg.Folder)
+
+	var folderID int64
+	var folderUID *string
+
+	if len(folderTitles) == 0 {
+		// nolint:staticcheck
+		folderID, folderUID = folder.GeneralFolder.ID, &folder.GeneralFolder.UID
+	}
+
+	for i := range folderTitles {
+		id, uid, err := fr.getOrCreateFolderByTitle(ctx, folderTitles[i], fr.Cfg.OrgID, folderUID)
+		if err != nil && !errors.Is(err, ErrFolderNameMissing) {
+			return fmt.Errorf("can't create folder %q: %w", folderTitles[i], err)
+		}
+
+		folderID = id
+		folderUID = &uid
+	}
+
+	// save dashboards based on json files
+	for path, fileInfo := range filesFoundOnDisk {
+		provisioningMetadata, err := fr.saveDashboard(ctx, path, folderID, *folderUID, fileInfo, dashboardRefs)
+		if err != nil {
+			fr.log.Error("failed to save dashboard", "file", path, "error", err)
+			continue
+		}
+
+		usageTracker.track(provisioningMetadata)
+	}
+	return nil
+}
+
+func (fr *FileReader) storeDashboardsInNestedFoldersFromFileStructure(ctx context.Context, filesFoundOnDisk map[string]os.FileInfo,
+	dashboardRefs map[string]*dashboards.DashboardProvisioning, resolvedPath string, usageTracker *usageTracker) error {
+	for filePath, fileInfo := range filesFoundOnDisk {
+		folderPath := filepath.Dir(filePath)
+		// if resolvedPath happen to be a path to a file instead of a directory, remove the file name from the path
+		if filePath == resolvedPath {
+			resolvedPath = filepath.Dir(resolvedPath)
+		}
+
+		folderTitles := folderimpl.SplitFullpath(strings.TrimPrefix(folderPath, resolvedPath))
+
+		var folderID int64
+		var folderUID *string
+
+		// If folderTitles is empty, then dashboard should be saved in the root folder
+		if len(folderTitles) == 0 {
+			// nolint:staticcheck
+			folderID, folderUID = folder.GeneralFolder.ID, &folder.GeneralFolder.UID
+		}
+
+		for i := range folderTitles {
+			id, uid, err := fr.getOrCreateFolderByTitle(ctx, folderTitles[i], fr.Cfg.OrgID, folderUID)
+			if err != nil {
+				return fmt.Errorf("can't provision folder %q from file system structure: %w", folderTitles[i], err)
+			}
+			folderID = id
+			folderUID = &uid
+		}
+
+		provisioningMetadata, err := fr.saveDashboard(ctx, filePath, folderID, *folderUID, fileInfo, dashboardRefs)
+		usageTracker.track(provisioningMetadata)
+		if err != nil {
+			fr.log.Error("failed to save dashboard", "file", filePath, "error", err)
+		}
+	}
+	return nil
 }
 
 // storeDashboardsInFolder saves dashboards from the filesystem on disk to the folder from config
@@ -187,6 +273,50 @@ func (fr *FileReader) storeDashboardsInFoldersFromFileStructure(ctx context.Cont
 		}
 	}
 	return nil
+}
+
+func (fr *FileReader) getOrCreateFolderByTitle(ctx context.Context, folderName string, orgID int64, parentUID *string) (int64, string, error) {
+	if folderName == "" {
+		return 0, "", ErrFolderNameMissing
+	}
+
+	cmd := &folder.GetFolderQuery{
+		Title:     &folderName,
+		ParentUID: parentUID,
+		OrgID:     orgID,
+		SignedInUser: accesscontrol.BackgroundUser("dashboard_provisioning", orgID, org.RoleAdmin, []accesscontrol.Permission{
+			{Action: dashboards.ActionFoldersRead, Scope: dashboards.ScopeFoldersAll},
+		}),
+	}
+
+	cmdResult, err := fr.folderService.Get(ctx, cmd)
+	if err != nil && !errors.Is(err, dashboards.ErrFolderNotFound) {
+		return 0, "", err
+	}
+
+	// if not found, create a new folder
+	if errors.Is(err, dashboards.ErrFolderNotFound) {
+		createCmd := &folder.CreateFolderCommand{
+			OrgID: orgID,
+			UID:   util.GenerateShortUID(),
+			Title: folderName,
+		}
+
+		if parentUID != nil {
+			createCmd.ParentUID = *parentUID
+		}
+
+		f, err := fr.dashboardProvisioningService.SaveFolderForProvisionedDashboards(ctx, createCmd)
+		if err != nil {
+			return 0, "", err
+		}
+
+		// nolint:staticcheck
+		return f.ID, f.UID, nil
+	}
+
+	// nolint:staticcheck
+	return cmdResult.ID, cmdResult.UID, nil
 }
 
 // handleMissingDashboardFiles will unprovision or delete dashboards which are missing on disk.
