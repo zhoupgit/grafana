@@ -21,15 +21,13 @@ type Service interface {
 	SetUsingOrg(context.Context, *SetUsingOrgCommand) error
 	GetSignedInUserWithCacheCtx(context.Context, *GetSignedInUserQuery) (*SignedInUser, error)
 	GetSignedInUser(context.Context, *GetSignedInUserQuery) (*SignedInUser, error)
-	NewAnonymousSignedInUser(context.Context) (*SignedInUser, error)
 	Search(context.Context, *SearchUsersQuery) (*SearchUserQueryResult, error)
-	Disable(context.Context, *DisableUserCommand) error
 	BatchDisableUsers(context.Context, *BatchDisableUsersCommand) error
-	UpdatePermissions(context.Context, int64, bool) error
 	SetUserHelpFlag(context.Context, *SetUserHelpFlagCommand) error
 	GetProfile(context.Context, *GetUserProfileQuery) (*UserProfileDTO, error)
 }
 
 type Verifier interface {
-	VerifyEmail(ctx context.Context, cmd VerifyEmailCommand) error
+	Start(ctx context.Context, cmd StartVerifyEmailCommand) error
+	Complete(ctx context.Context, cmd CompleteEmailVerifyCommand) error
 }

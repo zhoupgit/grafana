@@ -63,8 +63,11 @@ type PrometheusQueryProperties struct {
 	// Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname
 	LegendFormat string `json:"legendFormat,omitempty"`
 
-	// ???
+	// A set of filters applied to apply to the query
 	Scope *ScopeSpec `json:"scope,omitempty"`
+
+	// Additional Ad-hoc filters that take precedence over Scope on conflict.
+	AdhocFilters []ScopeFilter `json:"adhocFilters,omitempty"`
 }
 
 // ScopeSpec is a hand copy of the ScopeSpec struct from pkg/apis/scope/v0alpha1/types.go
@@ -80,10 +83,21 @@ type ScopeSpec struct {
 // ScopeFilter is a hand copy of the ScopeFilter struct from pkg/apis/scope/v0alpha1/types.go
 // to avoid import (temp fix)
 type ScopeFilter struct {
-	Key      string `json:"key"`
-	Value    string `json:"value"`
-	Operator string `json:"operator"`
+	Key      string         `json:"key"`
+	Value    string         `json:"value"`
+	Operator FilterOperator `json:"operator"`
 }
+
+// FilterOperator is a hand copy of the ScopeFilter struct from pkg/apis/scope/v0alpha1/types.go
+type FilterOperator string
+
+// Hand copy of enum from pkg/apis/scope/v0alpha1/types.go
+const (
+	FilterOperatorEquals        FilterOperator = "equals"
+	FilterOperatorNotEquals     FilterOperator = "not-equals"
+	FilterOperatorRegexMatch    FilterOperator = "regex-match"
+	FilterOperatorRegexNotMatch FilterOperator = "regex-not-match"
+)
 
 // Internal interval and range variables
 const (
@@ -177,12 +191,19 @@ func Parse(query backend.DataQuery, dsScrapeInterval string, intervalCalculator 
 		dsScrapeInterval,
 		timeRange,
 	)
-	if enableScope && model.Scope != nil && len(model.Scope.Filters) > 0 {
-		expr, err = ApplyQueryScope(expr, *model.Scope)
+
+	if enableScope {
+		var scopeFilters []ScopeFilter
+		if model.Scope != nil {
+			scopeFilters = model.Scope.Filters
+		}
+
+		expr, err = ApplyQueryFilters(expr, scopeFilters, model.AdhocFilters)
 		if err != nil {
 			return nil, err
 		}
 	}
+
 	if !model.Instant && !model.Range {
 		// In older dashboards, we were not setting range query param and !range && !instant was run as range query
 		model.Range = true

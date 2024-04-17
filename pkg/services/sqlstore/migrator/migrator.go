@@ -208,11 +208,13 @@ func (mg *Migrator) run() (err error) {
 		err := mg.InTransaction(func(sess *xorm.Session) error {
 			err := mg.exec(m, sess)
 			// if we get an sqlite busy/locked error, sleep 100ms and try again
-			// if errors.Is(err, sqlite3.ErrLocked) || errors.Is(err, sqlite3.ErrBusy) {
-			// 	mg.Logger.Debug("Database locked, sleeping then retrying", "error", err, "sql", sql)
-			// 	time.Sleep(100 * time.Millisecond)
-			// 	err = mg.exec(m, sess)
-			// }
+			cnt := 0
+			for cnt < 3 && (errors.Is(err, sqlite3.ErrLocked) || errors.Is(err, sqlite3.ErrBusy)) {
+				cnt++
+				mg.Logger.Debug("Database locked, sleeping then retrying", "error", err, "sql", sql)
+				time.Sleep(100 * time.Millisecond)
+				err = mg.exec(m, sess)
+			}
 
 			if err != nil {
 				mg.Logger.Error("Exec failed", "error", err, "sql", sql)

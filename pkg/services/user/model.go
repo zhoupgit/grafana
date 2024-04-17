@@ -82,7 +82,10 @@ type UpdateUserCommand struct {
 	Login string `json:"login"`
 	Theme string `json:"theme"`
 
-	UserID int64 `json:"-"`
+	UserID         int64 `json:"-"`
+	IsDisabled     *bool `json:"-"`
+	EmailVerified  *bool `json:"-"`
+	IsGrafanaAdmin *bool `json:"-"`
 }
 
 type ChangeUserPasswordCommand struct {
@@ -175,11 +178,6 @@ func (auth *AuthModuleConversion) ToDB() ([]byte, error) {
 	return []byte{}, nil
 }
 
-type DisableUserCommand struct {
-	UserID     int64 `xorm:"user_id"`
-	IsDisabled bool
-}
-
 type BatchDisableUsersCommand struct {
 	UserIDs    []int64 `xorm:"user_ids"`
 	IsDisabled bool
@@ -220,10 +218,15 @@ type GetUserByIDQuery struct {
 	ID int64
 }
 
-type VerifyEmailCommand struct {
+type StartVerifyEmailCommand struct {
 	User   User
 	Email  string
 	Action UpdateEmailActionType
+}
+
+type CompleteEmailVerifyCommand struct {
+	User identity.Requester
+	Code string
 }
 
 type ErrCaseInsensitiveLoginConflict struct {
