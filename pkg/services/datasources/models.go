@@ -44,10 +44,11 @@ type DataSource struct {
 	OrgID   int64 `json:"orgId,omitempty" xorm:"org_id"`
 	Version int   `json:"version,omitempty"`
 
-	Name   string   `json:"name"`
-	Type   string   `json:"type"`
-	Access DsAccess `json:"access"`
-	URL    string   `json:"url" xorm:"url"`
+	Name       string   `json:"name"`
+	Type       string   `json:"type"`
+	APIVersion string   `json:"apiVersion,omitempty" xorm:"api_version"`
+	Access     DsAccess `json:"access"`
+	URL        string   `json:"url" xorm:"url"`
 	// swagger:ignore
 	Password      string `json:"-"`
 	User          string `json:"user"`
@@ -165,6 +166,8 @@ type AddDataSourceCommand struct {
 	UID             string            `json:"uid"`
 	// swagger:ignore
 	IsPrunable bool
+	// swagger:ignore
+	APIVersion string `json:"apiVersion,omitempty"`
 
 	OrgID                   int64             `json:"-"`
 	UserID                  int64             `json:"-"`
@@ -189,6 +192,8 @@ type UpdateDataSourceCommand struct {
 	SecureJsonData  map[string]string `json:"secureJsonData"`
 	Version         int               `json:"version"`
 	UID             string            `json:"uid"`
+	// swagger:ignore
+	APIVersion string `json:"apiVersion,omitempty"`
 	// swagger:ignore
 	IsPrunable bool
 

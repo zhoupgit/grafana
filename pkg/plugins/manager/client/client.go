@@ -36,6 +36,10 @@ func ProvideService(pluginRegistry registry.Service) *Service {
 	}
 }
 
+func (s *Service) Plugin(ctx context.Context, req *backend.QueryDataRequest) (*plugins.Plugin, error) {
+	return nil, nil
+}
+
 func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
 	if req == nil {
 		return nil, errNilRequest

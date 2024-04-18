@@ -341,6 +341,7 @@ func (ss *SqlStore) UpdateDataSource(ctx context.Context, cmd *datasources.Updat
 			Version:         cmd.Version + 1,
 			UID:             cmd.UID,
 			IsPrunable:      cmd.IsPrunable,
+			APIVersion:      cmd.APIVersion,
 		}
 
 		sess.UseBool("is_default")

@@ -18,6 +18,7 @@ import (
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/infra/log"
+	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
@@ -207,6 +208,17 @@ func (s *Service) AddDataSource(ctx context.Context, cmd *datasources.AddDataSou
 
 	if err := validateFields(cmd.Name, cmd.URL); err != nil {
 		return nil, err
+	}
+
+	p, ok := s.pluginStore.Plugin(ctx, cmd.Type)
+	if !ok {
+		return nil, fmt.Errorf("unknown datasource/plugin type")
+	}
+	if p.Type != plugins.TypeDataSource {
+		return nil, fmt.Errorf("invalid datasource type")
+	}
+	if cmd.APIVersion != "" {
+		return nil, fmt.Errorf("the apiVersion can not (yet) be set from external request")
 	}
 
 	var dataSource *datasources.DataSource
