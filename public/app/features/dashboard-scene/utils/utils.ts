@@ -21,6 +21,8 @@ import { panelMenuBehavior } from '../scene/PanelMenuBehavior';
 import { RowActions } from '../scene/row-actions/RowActions';
 
 import { dashboardSceneGraph } from './dashboardSceneGraph';
+import { DashboardGridItem } from '../scene/DashboardGridItem';
+import { LibraryPanelBehavior } from '../scene/LibraryPanelBehaviour';
 
 export const NEW_PANEL_HEIGHT = 8;
 export const NEW_PANEL_WIDTH = 12;
@@ -246,4 +248,16 @@ export function getLibraryPanel(vizPanel: VizPanel): LibraryVizPanel | undefined
     return vizPanel.parent;
   }
   return;
+}
+
+export function isLibraryPanel(vizPanel: VizPanel) : boolean {
+  return Boolean(vizPanel.state.$behaviors && vizPanel.state.$behaviors[0] instanceof LibraryPanelBehavior)
+}
+
+export function getLibraryPanelBehaviour(vizPanel: VizPanel): LibraryPanelBehavior | null {
+  if (isLibraryPanel(vizPanel)) {
+    return vizPanel.state.$behaviors![0] as LibraryPanelBehavior;
+  }
+
+  return null;
 }

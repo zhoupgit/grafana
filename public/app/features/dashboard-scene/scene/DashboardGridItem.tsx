@@ -21,15 +21,16 @@ import {
 } from '@grafana/scenes';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN } from 'app/core/constants';
 
-import { getMultiVariableValues } from '../utils/utils';
+import { getMultiVariableValues, isLibraryPanel } from '../utils/utils';
 
 import { AddLibraryPanelDrawer } from './AddLibraryPanelDrawer';
 import { LibraryVizPanel } from './LibraryVizPanel';
 import { repeatPanelMenuBehavior } from './PanelMenuBehavior';
 import { DashboardRepeatsProcessedEvent } from './types';
+import { LibraryPanelBehavior } from './LibraryPanelBehaviour';
 
 interface DashboardGridItemState extends SceneGridItemStateLike {
-  body: VizPanel | LibraryVizPanel | AddLibraryPanelDrawer;
+  body: VizPanel | AddLibraryPanelDrawer;
   repeatedPanels?: VizPanel[];
   variableName?: string;
   itemHeight?: number;
@@ -62,7 +63,8 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.body !== prevState.body) {
-          if (newState.body instanceof LibraryVizPanel) {
+          if (newState.body instanceof VizPanel && isLibraryPanel(newState.body)) {
+            console.log("SUB")
             this.setupLibraryPanelChangeSubscription(newState.body);
           }
         }
@@ -70,7 +72,7 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     );
 
     // Initial setup of the lbrary panel subscription. Lib panels are lazy laded, so only then we can subscribe to the repeat config changes
-    if (this.state.body instanceof LibraryVizPanel) {
+    if (this.state.body instanceof VizPanel && isLibraryPanel(this.state.body)) {
       this.setupLibraryPanelChangeSubscription(this.state.body);
     }
 
@@ -80,19 +82,26 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     };
   }
 
-  private setupLibraryPanelChangeSubscription(panel: LibraryVizPanel) {
+  private setupLibraryPanelChangeSubscription(panel: VizPanel) {
     if (this._libPanelSubscription) {
       this._libPanelSubscription.unsubscribe();
       this._libPanelSubscription = undefined;
     }
 
     this._libPanelSubscription = panel.subscribeToState((newState) => {
-      if (newState._loadedPanel?.model.repeat) {
-        this._variableDependency.setVariableNames([newState._loadedPanel.model.repeat]);
+      const libPanel = newState.$behaviors![0] as LibraryPanelBehavior;
+
+      if (!libPanel) {
+        console.log("no lib panel")
+        return;
+      }
+
+      if (libPanel.state._loadedPanel?.model.repeat) {
+        this._variableDependency.setVariableNames([libPanel.state._loadedPanel.model.repeat]);
         this.setState({
-          variableName: newState._loadedPanel.model.repeat,
-          repeatDirection: newState._loadedPanel.model.repeatDirection,
-          maxPerRow: newState._loadedPanel.model.maxPerRow,
+          variableName: libPanel.state._loadedPanel.model.repeat,
+          repeatDirection: libPanel.state._loadedPanel.model.repeatDirection,
+          maxPerRow: libPanel.state._loadedPanel.model.maxPerRow,
         });
         this._performRepeat();
       }
@@ -153,7 +162,7 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
       return;
     }
 
-    let panelToRepeat = this.state.body instanceof LibraryVizPanel ? this.state.body.state.panel! : this.state.body;
+    let panelToRepeat = this.state.body;
     const { values, texts } = getMultiVariableValues(variable);
     const repeatedPanels: VizPanel[] = [];
 

@@ -38,7 +38,7 @@ import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { PanelTimeRange } from '../scene/PanelTimeRange';
 import { RowRepeaterBehavior } from '../scene/RowRepeaterBehavior';
 import { dashboardSceneGraph } from '../utils/dashboardSceneGraph';
-import { getPanelIdForVizPanel, getQueryRunnerFor } from '../utils/utils';
+import { getLibraryPanel, getLibraryPanelBehaviour, getPanelIdForVizPanel, getQueryRunnerFor, isLibraryPanel } from '../utils/utils';
 
 import { GRAFANA_DATASOURCE_REF } from './const';
 import { dataLayersToAnnotations } from './dataLayersToAnnotations';
@@ -176,16 +176,6 @@ export function gridItemToPanel(gridItem: DashboardGridItem, isSnapshot = false)
     w = 0,
     h = 0;
 
-  // Handle library panels, early exit
-  if (gridItem.state.body instanceof LibraryVizPanel) {
-    x = gridItem.state.x ?? 0;
-    y = gridItem.state.y ?? 0;
-    w = gridItem.state.width ?? 0;
-    h = gridItem.state.height ?? 0;
-
-    return libraryVizPanelToPanel(gridItem.state.body, { x, y, w, h });
-  }
-
   if (!(gridItem.state.body instanceof VizPanel)) {
     throw new Error('DashboardGridItem body expected to be VizPanel');
   }
@@ -211,6 +201,9 @@ export function vizPanelToPanel(
   isSnapshot = false,
   gridItem?: SceneGridItemLike
 ) {
+  const libPanel = getLibraryPanelBehaviour(vizPanel);
+
+  console.log(libPanel);
   const panel: Panel = {
     id: getPanelIdForVizPanel(vizPanel),
     type: vizPanel.state.pluginId,
@@ -222,6 +215,10 @@ export function vizPanelToPanel(
     transparent: vizPanel.state.displayMode === 'transparent',
     pluginVersion: vizPanel.state.pluginVersion,
     ...vizPanelDataToPanel(vizPanel, isSnapshot),
+    libraryPanel: libPanel ? {
+      name: libPanel.state.name,
+      uid: libPanel.state.uid,
+    } : undefined,
   };
 
   if (vizPanel.state.options) {

@@ -23,7 +23,7 @@ import { ShowConfirmModalEvent } from 'app/types/events';
 import { ShareModal } from '../sharing/ShareModal';
 import { DashboardInteractions } from '../utils/interactions';
 import { getEditPanelUrl, getInspectUrl, getViewPanelUrl, tryGetExploreUrlForPanel } from '../utils/urlBuilders';
-import { getDashboardSceneFor, getPanelIdForVizPanel, getQueryRunnerFor } from '../utils/utils';
+import { getDashboardSceneFor, getPanelIdForVizPanel, getQueryRunnerFor, isLibraryPanel } from '../utils/utils';
 
 import { DashboardScene } from './DashboardScene';
 import { LibraryVizPanel } from './LibraryVizPanel';
@@ -110,14 +110,14 @@ export function panelMenuBehavior(menu: VizPanelMenu, isRepeat = false) {
     }
 
     if (dashboard.state.isEditing && !isRepeat && !isEditingPanel) {
-      if (parent instanceof LibraryVizPanel) {
+      if (isLibraryPanel(panel)) {
         moreSubMenu.push({
           text: t('panel.header-menu.unlink-library-panel', `Unlink library panel`),
           onClick: () => {
             DashboardInteractions.panelMenuItemClicked('unlinkLibraryPanel');
             dashboard.showModal(
               new UnlinkLibraryPanelModal({
-                panelRef: parent.getRef(),
+                panelRef: panel.getRef(),
               })
             );
           },

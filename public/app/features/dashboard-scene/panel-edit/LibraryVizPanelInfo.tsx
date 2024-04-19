@@ -5,9 +5,10 @@ import { GrafanaTheme2, dateTimeFormat } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 import { LibraryVizPanel } from '../scene/LibraryVizPanel';
+import { LibraryPanelBehavior } from '../scene/LibraryPanelBehaviour';
 
 interface Props {
-  libraryPanel: LibraryVizPanel;
+  libraryPanel: LibraryPanelBehavior;
 }
 
 export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {

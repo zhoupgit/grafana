@@ -51,6 +51,7 @@ import { RowActions } from '../scene/row-actions/RowActions';
 import { setDashboardPanelContext } from '../scene/setDashboardPanelContext';
 import { createPanelDataProvider } from '../utils/createPanelDataProvider';
 import { DashboardInteractions } from '../utils/interactions';
+import { LibraryPanelBehavior } from '../scene/LibraryPanelBehaviour';
 import {
   getCurrentValueForOldIntervalModel,
   getDashboardSceneFor,
@@ -111,18 +112,6 @@ export function createSceneObjectsForPanels(oldPanels: PanelModel[]): SceneGridI
           currentRowPanels = [];
         }
       }
-    } else if (panel.libraryPanel?.uid && !('model' in panel.libraryPanel)) {
-      const gridItem = buildGridItemForLibPanel(panel);
-
-      if (!gridItem) {
-        continue;
-      }
-
-      if (currentRow) {
-        currentRowPanels.push(gridItem);
-      } else {
-        panels.push(gridItem);
-      }
     } else {
       // when rendering a snapshot created with the legacy Dashboards convert data to new snapshot format to be compatible with Scenes
       if (panel.snapshotData) {
@@ -155,16 +144,6 @@ function createRowFromPanelModel(row: PanelModel, content: SceneGridItemLike[]):
         // Collapsed panels are not actually PanelModel instances
         if (!(saveModel instanceof PanelModel)) {
           saveModel = new PanelModel(saveModel);
-        }
-
-        if (saveModel.libraryPanel?.uid && !('model' in saveModel.libraryPanel)) {
-          const gridItem = buildGridItemForLibPanel(saveModel);
-
-          if (!gridItem) {
-            throw new Error('Failed to build grid item for library panel');
-          }
-
-          return gridItem;
         }
 
         return buildGridItemForPanel(saveModel);
@@ -414,29 +393,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
   }
 }
 
-export function buildGridItemForLibPanel(panel: PanelModel) {
-  if (!panel.libraryPanel) {
-    return null;
-  }
-
-  const body = new LibraryVizPanel({
-    title: panel.title,
-    uid: panel.libraryPanel.uid,
-    name: panel.libraryPanel.name,
-    panelKey: getVizPanelKeyForPanelId(panel.id),
-  });
-
-  return new DashboardGridItem({
-    key: `grid-item-${panel.id}`,
-    y: panel.gridPos.y,
-    x: panel.gridPos.x,
-    width: panel.gridPos.w,
-    height: panel.gridPos.h,
-    itemHeight: panel.gridPos.h,
-    body,
-  });
-}
-
 export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
   const repeatDirection: RepeatDirection = panel.repeatDirection === 'h' ? 'h' : 'v';
   const repeatOptions = panel.repeat
@@ -471,6 +427,7 @@ export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
     hoverHeaderOffset: (panel.gridPos?.y ?? 0) === 0 ? 0 : undefined,
     $data: createPanelDataProvider(panel),
     titleItems,
+    $behaviors: panel.libraryPanel && panel.libraryPanel.uid && panel.libraryPanel?.name ? [new LibraryPanelBehavior({uid: panel.libraryPanel.uid, name: panel.libraryPanel.name})] : undefined,
 
     extendPanelContext: setDashboardPanelContext,
     _UNSAFE_customMigrationHandler: getAngularPanelMigrationHandler(panel),

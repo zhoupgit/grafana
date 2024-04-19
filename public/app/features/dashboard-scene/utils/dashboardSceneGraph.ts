@@ -87,10 +87,7 @@ export function getNextPanelId(dashboard: DashboardScene): number {
       const vizPanel = child.state.body;
 
       if (vizPanel) {
-        const panelId =
-          vizPanel instanceof LibraryVizPanel
-            ? getPanelIdForLibraryVizPanel(vizPanel)
-            : getPanelIdForVizPanel(vizPanel);
+        const panelId = getPanelIdForVizPanel(vizPanel);
 
         if (panelId > max) {
           max = panelId;

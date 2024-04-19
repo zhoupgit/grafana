@@ -15,6 +15,9 @@ import {
   LibraryElementsSearchResult,
   PanelModelWithLibraryPanel,
 } from '../types';
+import { VizPanel } from '@grafana/scenes';
+import { getLibraryPanelBehaviour } from 'app/features/dashboard-scene/utils/utils';
+import { VizPanelManager } from 'app/features/dashboard-scene/panel-edit/VizPanelManager';
 
 export interface GetLibraryPanelsOptions {
   searchString?: string;
@@ -169,6 +172,58 @@ export function libraryVizPanelToSaveModel(libraryPanel: LibraryVizPanel) {
 
 export async function updateLibraryVizPanel(libraryPanel: LibraryVizPanel): Promise<LibraryElementDTO> {
   const { uid, folderUID, name, model, version, kind } = libraryVizPanelToSaveModel(libraryPanel);
+
+  console.log('updateLibraryVizPanel', model);
+  const { result } = await getBackendSrv().patch(`/api/library-elements/${uid}`, {
+    folderUID,
+    name,
+    model,
+    version,
+    kind,
+  });
+  return result;
+}
+
+export function libraryVizPanelToSaveModel2(vizPanel: VizPanel) {
+  const libraryPanel = getLibraryPanelBehaviour(vizPanel);
+  console.log(vizPanel, libraryPanel)
+
+  const { uid, name, _loadedPanel } = libraryPanel!.state;
+
+  let gridItem = vizPanel.parent;
+
+  if (gridItem instanceof VizPanelManager) {
+    gridItem = gridItem.state.sourcePanel.resolve().parent as DashboardGridItem;
+  }
+
+  if (!gridItem || !(gridItem instanceof DashboardGridItem)) {
+    throw new Error("ASD")
+  }
+
+  const saveModel = {
+    uid,
+    folderUID: _loadedPanel?.folderUid,
+    name,
+    version: _loadedPanel?.version || 0,
+    type: vizPanel.state.pluginId,
+    model: vizPanelToPanel(
+      vizPanel,
+      {
+        x: gridItem.state.x ?? 0,
+        y: gridItem.state.y ?? 0,
+        w: gridItem.state.width ?? 0,
+        h: gridItem.state.height ?? 0,
+      },
+      false,
+      gridItem
+    ),
+    kind: LibraryElementKind.Panel,
+  };
+  return saveModel;
+}
+
+export async function updateLibraryVizPanel2(vizPanel: VizPanel): Promise<LibraryElementDTO> {
+  const { uid, folderUID, name, model, version, kind } = libraryVizPanelToSaveModel2(vizPanel);
 
   console.log('updateLibraryVizPanel', model);
   const { result } = await getBackendSrv().patch(`/api/library-elements/${uid}`, {

@@ -26,6 +26,7 @@ import { OptionsPaneItemDescriptor } from './OptionsPaneItemDescriptor';
 import { getOptionOverrides } from './state/getOptionOverrides';
 import { OptionPaneRenderProps } from './types';
 import { setOptionImmutably, updateDefaultFieldConfigValue } from './utils';
+import { getLibraryPanelBehaviour } from 'app/features/dashboard-scene/utils/utils';
 
 type categoryGetter = (categoryNames?: string[]) => OptionsPaneCategoryDescriptor;
 
@@ -151,13 +152,15 @@ export function getVisualizationOptions(props: OptionPaneRenderProps): OptionsPa
   return Object.values(categoryIndex);
 }
 
-export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel): OptionsPaneCategoryDescriptor {
+export function getLibraryVizPanelOptionsCategory(vizPanel: VizPanel): OptionsPaneCategoryDescriptor {
+  const libraryPanel = getLibraryPanelBehaviour(vizPanel)
   const descriptor = new OptionsPaneCategoryDescriptor({
     title: 'Library panel options',
     id: 'Library panel options',
     isOpenDefault: true,
   });
 
+  console.log(libraryPanel);
   descriptor
     .addItem(
       new OptionsPaneItemDescriptor({
@@ -169,8 +172,8 @@ export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel)
             <Input
               id="LibraryPanelFrameName"
               data-testid="library panel name input"
-              defaultValue={libraryPanel.state.name}
-              onBlur={(e) => libraryPanel.setState({ name: e.currentTarget.value })}
+              defaultValue={libraryPanel!.state.name}
+              onBlur={(e) => { libraryPanel!.setState({ name: e.currentTarget.value }); console.log(libraryPanel)}}
             />
           );
         },
@@ -180,7 +183,7 @@ export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel)
       new OptionsPaneItemDescriptor({
         title: 'Information',
         render: function renderLibraryPanelInformation() {
-          return <LibraryVizPanelInfo libraryPanel={libraryPanel} />;
+          return <LibraryVizPanelInfo libraryPanel={libraryPanel!} />;
         },
       })
     );

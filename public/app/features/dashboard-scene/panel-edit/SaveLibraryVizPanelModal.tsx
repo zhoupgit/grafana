@@ -6,9 +6,10 @@ import { getConnectedDashboards } from 'app/features/library-panels/state/api';
 import { getModalStyles } from 'app/features/library-panels/styles';
 
 import { LibraryVizPanel } from '../scene/LibraryVizPanel';
+import { LibraryPanelBehavior } from '../scene/LibraryPanelBehaviour';
 
 interface Props {
-  libraryPanel: LibraryVizPanel;
+  libraryPanel: LibraryPanelBehavior;
   isUnsavedPrompt?: boolean;
   onConfirm: () => void;
   onDismiss: () => void;
