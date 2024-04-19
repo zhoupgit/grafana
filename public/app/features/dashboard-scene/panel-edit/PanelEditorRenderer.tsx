@@ -7,11 +7,12 @@ import { Button, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { NavToolbarActions } from '../scene/NavToolbarActions';
 import { UnlinkModal } from '../scene/UnlinkModal';
-import { getDashboardSceneFor, getLibraryPanel } from '../utils/utils';
+import { getDashboardSceneFor } from '../utils/utils';
 
 import { PanelEditor } from './PanelEditor';
 import { SaveLibraryVizPanelModal } from './SaveLibraryVizPanelModal';
 import { useSnappingSplitter } from './splitter/useSnappingSplitter';
+import { DashboardGridItem } from '../scene/DashboardGridItem';
 
 export function PanelEditorRenderer({ model }: SceneComponentProps<PanelEditor>) {
   const dashboard = getDashboardSceneFor(model);
@@ -61,7 +62,12 @@ function VizAndDataPane({ model }: SceneComponentProps<PanelEditor>) {
   const dashboard = getDashboardSceneFor(model);
   const { vizManager, dataPane, showLibraryPanelSaveModal, showLibraryPanelUnlinkModal } = model.useState();
   const { sourcePanel } = vizManager.useState();
-  const libraryPanel = getLibraryPanel(sourcePanel.resolve());
+  const gridItem = sourcePanel.resolve().parent;
+  // todo vic
+  if (!(gridItem instanceof DashboardGridItem)) {
+    return;
+  }
+  const libraryPanel = gridItem.state.libraryPanel!;
   const { controls, scopes } = dashboard.useState();
   const styles = useStyles2(getStyles);
 

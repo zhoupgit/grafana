@@ -20,6 +20,7 @@ import {
   defaultTimePickerConfig,
   FieldConfigSource,
   GridPos,
+  LibraryPanel,
   Panel,
   RowPanel,
   TimePickerConfig,
@@ -34,7 +35,6 @@ import { GrafanaQueryType } from 'app/plugins/datasource/grafana/types';
 import { DashboardDataLayerSet } from '../scene/DashboardDataLayerSet';
 import { DashboardGridItem } from '../scene/DashboardGridItem';
 import { DashboardScene } from '../scene/DashboardScene';
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { PanelTimeRange } from '../scene/PanelTimeRange';
 import { RowRepeaterBehavior } from '../scene/RowRepeaterBehavior';
 import { dashboardSceneGraph } from '../utils/dashboardSceneGraph';
@@ -153,18 +153,18 @@ export function transformSceneToSaveModel(scene: DashboardScene, isSnapshot = fa
   return sortedDeepCloneWithoutNulls(dashboard);
 }
 
-export function libraryVizPanelToPanel(libPanel: LibraryVizPanel, gridPos: GridPos): Panel {
-  if (!libPanel.state.panel) {
+export function libraryVizPanelToPanel(libPanel: VizPanel, libraryPanelData: LibraryPanel, gridPos: GridPos): Panel {
+  if (!libPanel && !libraryPanelData) {
     throw new Error('Library panel has no panel');
   }
 
   return {
-    id: getPanelIdForVizPanel(libPanel.state.panel),
+    id: getPanelIdForVizPanel(libPanel),
     title: libPanel.state.title,
     gridPos: gridPos,
     libraryPanel: {
-      name: libPanel.state.name,
-      uid: libPanel.state.uid,
+      name: libraryPanelData.name,
+      uid: libraryPanelData.uid,
     },
   } as Panel;
 }
@@ -175,16 +175,6 @@ export function gridItemToPanel(gridItem: DashboardGridItem, isSnapshot = false)
     y = 0,
     w = 0,
     h = 0;
-
-  // Handle library panels, early exit
-  if (gridItem.state.body instanceof LibraryVizPanel) {
-    x = gridItem.state.x ?? 0;
-    y = gridItem.state.y ?? 0;
-    w = gridItem.state.width ?? 0;
-    h = gridItem.state.height ?? 0;
-
-    return libraryVizPanelToPanel(gridItem.state.body, { x, y, w, h });
-  }
 
   if (!(gridItem.state.body instanceof VizPanel)) {
     throw new Error('DashboardGridItem body expected to be VizPanel');
@@ -252,6 +242,13 @@ export function vizPanelToPanel(
     }
     if (gridItem.state.repeatDirection) {
       panel.repeatDirection = gridItem.getRepeatDirection();
+    }
+
+    if (gridItem.state.libraryPanel) {
+      panel.libraryPanel = {
+        name: gridItem.state.libraryPanel.name!,
+        uid: gridItem.state.libraryPanel.uid!,
+      };
     }
   }
 
@@ -329,11 +326,6 @@ export function panelRepeaterToPanels(repeater: DashboardGridItem, isSnapshot = 
   if (!isSnapshot) {
     return [gridItemToPanel(repeater)];
   } else {
-    if (repeater.state.body instanceof LibraryVizPanel) {
-      const { x = 0, y = 0, width: w = 0, height: h = 0 } = repeater.state;
-      return [libraryVizPanelToPanel(repeater.state.body, { x, y, w, h })];
-    }
-
     // console.log('repeater.state', repeater.state);
     if (repeater.state.repeatedPanels) {
       const itemHeight = repeater.state.itemHeight ?? 10;
@@ -374,6 +366,14 @@ export function panelRepeaterToPanels(repeater: DashboardGridItem, isSnapshot = 
           },
           ...vizPanelDataToPanel(panel, isSnapshot),
         };
+
+        if (repeater.state.libraryPanel) {
+          result.libraryPanel = {
+            name: repeater.state.libraryPanel.name!,
+            uid: repeater.state.libraryPanel.uid!,
+          };
+        }
+
         return result;
       });
 

@@ -5,10 +5,10 @@ import { Button, Icon, Input, Modal, useStyles2 } from '@grafana/ui';
 import { getConnectedDashboards } from 'app/features/library-panels/state/api';
 import { getModalStyles } from 'app/features/library-panels/styles';
 
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
+import { LibraryPanelMeta } from '../scene/DashboardGridItem';
 
 interface Props {
-  libraryPanel: LibraryVizPanel;
+  libraryPanel: LibraryPanelMeta;
   isUnsavedPrompt?: boolean;
   onConfirm: () => void;
   onDismiss: () => void;
@@ -18,13 +18,13 @@ interface Props {
 export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDismiss, onConfirm, onDiscard }: Props) => {
   const [searchString, setSearchString] = useState('');
   const dashState = useAsync(async () => {
-    const searchHits = await getConnectedDashboards(libraryPanel.state.uid);
+    const searchHits = await getConnectedDashboards(libraryPanel.uid!);
     if (searchHits.length > 0) {
       return searchHits.map((dash) => dash.title);
     }
 
     return [];
-  }, [libraryPanel.state.uid]);
+  }, [libraryPanel.uid]);
 
   const [filteredDashboards, setFilteredDashboards] = useState<string[]>([]);
   useDebounce(
@@ -54,8 +54,8 @@ export const SaveLibraryVizPanelModal = ({ libraryPanel, isUnsavedPrompt, onDism
         <p className={styles.textInfo}>
           {'This update will affect '}
           <strong>
-            {libraryPanel.state._loadedPanel?.meta?.connectedDashboards}{' '}
-            {libraryPanel.state._loadedPanel?.meta?.connectedDashboards === 1 ? 'dashboard' : 'dashboards'}.
+            {libraryPanel._loadedPanel?.meta?.connectedDashboards}{' '}
+            {libraryPanel._loadedPanel?.meta?.connectedDashboards === 1 ? 'dashboard' : 'dashboards'}.
           </strong>
           The following dashboards using the panel will be affected:
         </p>

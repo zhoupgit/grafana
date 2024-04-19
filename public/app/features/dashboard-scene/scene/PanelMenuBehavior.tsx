@@ -26,9 +26,9 @@ import { getEditPanelUrl, getInspectUrl, getViewPanelUrl, tryGetExploreUrlForPan
 import { getDashboardSceneFor, getPanelIdForVizPanel, getQueryRunnerFor } from '../utils/utils';
 
 import { DashboardScene } from './DashboardScene';
-import { LibraryVizPanel } from './LibraryVizPanel';
 import { VizPanelLinks, VizPanelLinksMenu } from './PanelLinks';
 import { UnlinkLibraryPanelModal } from './UnlinkLibraryPanelModal';
+import { DashboardGridItem } from './DashboardGridItem';
 
 /**
  * Behavior is called when VizPanelMenu is activated (ie when it's opened).
@@ -110,14 +110,14 @@ export function panelMenuBehavior(menu: VizPanelMenu, isRepeat = false) {
     }
 
     if (dashboard.state.isEditing && !isRepeat && !isEditingPanel) {
-      if (parent instanceof LibraryVizPanel) {
+      if (parent instanceof DashboardGridItem && parent.state.libraryPanel) {
         moreSubMenu.push({
           text: t('panel.header-menu.unlink-library-panel', `Unlink library panel`),
           onClick: () => {
             DashboardInteractions.panelMenuItemClicked('unlinkLibraryPanel');
             dashboard.showModal(
               new UnlinkLibraryPanelModal({
-                panelRef: parent.getRef(),
+                panelRef: panel.getRef(),
               })
             );
           },

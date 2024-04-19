@@ -29,7 +29,6 @@ import { DynamicDashNavButtonModel, dynamicDashNavActions } from '../utils/regis
 
 import { DashboardScene } from './DashboardScene';
 import { GoToSnapshotOriginButton } from './GoToSnapshotOriginButton';
-import { LibraryVizPanel } from './LibraryVizPanel';
 
 interface Props {
   dashboard: DashboardScene;
@@ -573,7 +572,7 @@ function useEditingLibraryPanel(panelEditor?: PanelEditor) {
   useEffect(() => {
     if (panelEditor) {
       const unsub = panelEditor.state.vizManager.subscribeToState((vizManagerState) =>
-        setEditingLibraryPanel(vizManagerState.sourcePanel.resolve().parent instanceof LibraryVizPanel)
+        setEditingLibraryPanel(vizManagerState.libraryPanel !== undefined)
       );
       return () => {
         unsub.unsubscribe();

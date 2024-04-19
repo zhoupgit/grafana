@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import React, { useMemo } from 'react';
 import { Unsubscribable } from 'rxjs';
+import { LibraryPanel } from '@grafana/schema';
 
 import { config } from '@grafana/runtime';
 import {
@@ -21,12 +22,24 @@ import {
 } from '@grafana/scenes';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN } from 'app/core/constants';
 
-import { getMultiVariableValues } from '../utils/utils';
+import { getMultiVariableValues, getPanelIdForVizPanel, getVizPanelKeyForPanelId } from '../utils/utils';
 
 import { AddLibraryPanelDrawer } from './AddLibraryPanelDrawer';
 import { LibraryVizPanel } from './LibraryVizPanel';
-import { repeatPanelMenuBehavior } from './PanelMenuBehavior';
+import { panelLinksBehavior, panelMenuBehavior, repeatPanelMenuBehavior } from './PanelMenuBehavior';
 import { DashboardRepeatsProcessedEvent } from './types';
+import { PanelModel } from 'app/features/dashboard/state';
+import { createPanelDataProvider } from '../utils/createPanelDataProvider';
+import { VizPanelLinks, VizPanelLinksMenu } from './PanelLinks';
+import { PanelNotices } from './PanelNotices';
+import { getLibraryPanel } from 'app/features/library-panels/state/api';
+
+export interface LibraryPanelMeta {
+  uid?: string;
+  name?: string;
+  isLoaded?: boolean;
+  _loadedPanel?: LibraryPanel;
+}
 
 interface DashboardGridItemState extends SceneGridItemStateLike {
   body: VizPanel | LibraryVizPanel | AddLibraryPanelDrawer;
@@ -35,6 +48,7 @@ interface DashboardGridItemState extends SceneGridItemStateLike {
   itemHeight?: number;
   repeatDirection?: RepeatDirection;
   maxPerRow?: number;
+  libraryPanel?: LibraryPanelMeta;
 }
 
 export type RepeatDirection = 'v' | 'h';
@@ -58,21 +72,22 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
       this._performRepeat();
     }
 
+    if (this.state.libraryPanel && !this.state.libraryPanel?.isLoaded) {
+      this.loadLibraryPanelFromPanelModel();
+      this.setupLibraryPanelChangeSubscription(this.state.body as VizPanel, this.state.libraryPanel);
+    }
+
     // Subscriptions that handles body updates, i.e. VizPanel -> LibraryVizPanel, AddLibPanelWidget -> LibraryVizPanel
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.body !== prevState.body) {
-          if (newState.body instanceof LibraryVizPanel) {
-            this.setupLibraryPanelChangeSubscription(newState.body);
+          console.log(newState)
+          if (newState.libraryPanel) {
+            this.setupLibraryPanelChangeSubscription(newState.body as VizPanel, newState.libraryPanel);
           }
         }
       })
     );
-
-    // Initial setup of the lbrary panel subscription. Lib panels are lazy laded, so only then we can subscribe to the repeat config changes
-    if (this.state.body instanceof LibraryVizPanel) {
-      this.setupLibraryPanelChangeSubscription(this.state.body);
-    }
 
     return () => {
       this._libPanelSubscription?.unsubscribe();
@@ -80,19 +95,24 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     };
   }
 
-  private setupLibraryPanelChangeSubscription(panel: LibraryVizPanel) {
+  private setupLibraryPanelChangeSubscription(panel: VizPanel, libraryPanel: LibraryPanelMeta) {
     if (this._libPanelSubscription) {
       this._libPanelSubscription.unsubscribe();
       this._libPanelSubscription = undefined;
     }
 
     this._libPanelSubscription = panel.subscribeToState((newState) => {
-      if (newState._loadedPanel?.model.repeat) {
-        this._variableDependency.setVariableNames([newState._loadedPanel.model.repeat]);
+      console.log("libPanelSub", libraryPanel)
+      this.setState({
+        libraryPanel
+      })
+
+      if (libraryPanel._loadedPanel?.model.repeat) {
+        this._variableDependency.setVariableNames([libraryPanel._loadedPanel.model.repeat]);
         this.setState({
-          variableName: newState._loadedPanel.model.repeat,
-          repeatDirection: newState._loadedPanel.model.repeatDirection,
-          maxPerRow: newState._loadedPanel.model.maxPerRow,
+          variableName: libraryPanel._loadedPanel.model.repeat,
+          repeatDirection: libraryPanel._loadedPanel.model.repeatDirection,
+          maxPerRow: libraryPanel._loadedPanel.model.maxPerRow,
         });
         this._performRepeat();
       }
@@ -102,6 +122,63 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
   private _onVariableUpdateCompleted(): void {
     if (this.state.variableName) {
       this._performRepeat();
+    }
+  }
+
+  public setPanelFromLibPanel(libPanel: LibraryPanel) {
+    if (this.state.libraryPanel!._loadedPanel?.version === libPanel.version) {
+      return;
+    }
+
+    const libPanelModel = new PanelModel(libPanel.model);
+
+    const panelId = getPanelIdForVizPanel(this.state.body);
+
+    const vizPanelState: VizPanelState = {
+      title: libPanelModel.title,
+      key: getVizPanelKeyForPanelId(panelId),
+      options: libPanelModel.options ?? {},
+      fieldConfig: libPanelModel.fieldConfig,
+      pluginId: libPanelModel.type,
+      pluginVersion: libPanelModel.pluginVersion,
+      displayMode: libPanelModel.transparent ? 'transparent' : undefined,
+      description: libPanelModel.description,
+      $data: createPanelDataProvider(libPanelModel),
+      menu: new VizPanelMenu({ $behaviors: [panelMenuBehavior] }),
+      titleItems: [
+        new VizPanelLinks({
+          rawLinks: libPanelModel.links,
+          menu: new VizPanelLinksMenu({ $behaviors: [panelLinksBehavior] }),
+        }),
+        new PanelNotices(),
+      ],
+    };
+
+    const panel = new VizPanel(vizPanelState);
+
+    this.setState({ 
+      body: panel,
+      libraryPanel: { uid: libPanel.uid,  _loadedPanel: libPanel, isLoaded: true, name: libPanel.name }
+    });
+  }
+
+  private async loadLibraryPanelFromPanelModel() {
+    let vizPanel = this.state.body;
+
+    try {
+      const libPanel = await getLibraryPanel(this.state.libraryPanel!.uid!, true);
+      this.setPanelFromLibPanel(libPanel);
+      if (this.parent instanceof DashboardGridItem) {
+        this.parent.setState({
+          variableName: libPanel.model.repeat,
+          repeatDirection: libPanel.model.repeatDirection === 'h' ? 'h' : 'v',
+          maxPerRow: libPanel.model.maxPerRow,
+        });
+      }
+    } catch (err) {
+      vizPanel.setState({
+        _pluginLoadError: `Unable to load library panel: ${this.state.libraryPanel!.uid}`,
+      });
     }
   }
 

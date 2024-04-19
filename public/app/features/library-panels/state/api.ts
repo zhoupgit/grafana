@@ -3,7 +3,6 @@ import { lastValueFrom } from 'rxjs';
 import { defaultDashboard } from '@grafana/schema';
 import { DashboardModel } from 'app/features/dashboard/state';
 import { DashboardGridItem } from 'app/features/dashboard-scene/scene/DashboardGridItem';
-import { LibraryVizPanel } from 'app/features/dashboard-scene/scene/LibraryVizPanel';
 import { vizPanelToPanel } from 'app/features/dashboard-scene/serialization/transformSceneToSaveModel';
 
 import { getBackendSrv } from '../../../core/services/backend_srv';
@@ -15,6 +14,7 @@ import {
   LibraryElementsSearchResult,
   PanelModelWithLibraryPanel,
 } from '../types';
+import { VizPanel } from '@grafana/scenes';
 
 export interface GetLibraryPanelsOptions {
   searchString?: string;
@@ -137,18 +137,14 @@ export async function getConnectedDashboards(uid: string): Promise<DashboardSear
   return searchHits;
 }
 
-export function libraryVizPanelToSaveModel(libraryPanel: LibraryVizPanel) {
-  const { panel, uid, name, _loadedPanel } = libraryPanel.state;
-
-  const gridItem = libraryPanel.parent;
-
-  if (!gridItem || !(gridItem instanceof DashboardGridItem)) {
-    throw new Error('LibraryVizPanel must be a child of DashboardGridItem');
-  }
+//todo vic
+export function libraryVizPanelToSaveModel2(gridItem: DashboardGridItem) {
+  const { uid, name, _loadedPanel } = gridItem.state.libraryPanel!;
+  const panel = gridItem.state.body as VizPanel;
 
   const saveModel = {
     uid,
-    folderUID: _loadedPanel?.folderUid,
+    folderUid: _loadedPanel?.folderUid,
     name,
     version: _loadedPanel?.version || 0,
     model: vizPanelToPanel(
@@ -167,12 +163,13 @@ export function libraryVizPanelToSaveModel(libraryPanel: LibraryVizPanel) {
   return saveModel;
 }
 
-export async function updateLibraryVizPanel(libraryPanel: LibraryVizPanel): Promise<LibraryElementDTO> {
-  const { uid, folderUID, name, model, version, kind } = libraryVizPanelToSaveModel(libraryPanel);
+export async function updateLibraryVizPanel2(gridItem: DashboardGridItem): Promise<LibraryElementDTO> {
+  const { uid, folderUid, name, model, version } = libraryVizPanelToSaveModel2(gridItem);
+  const kind = LibraryElementKind.Panel
 
   console.log('updateLibraryVizPanel', model);
   const { result } = await getBackendSrv().patch(`/api/library-elements/${uid}`, {
-    folderUID,
+    folderUid,
     name,
     model,
     version,

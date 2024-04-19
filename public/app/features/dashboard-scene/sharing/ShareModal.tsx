@@ -8,7 +8,6 @@ import { t } from 'app/core/internationalization';
 import { isPublicDashboardsEnabled } from 'app/features/dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 
 import { DashboardScene } from '../scene/DashboardScene';
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { DashboardInteractions } from '../utils/interactions';
 import { getDashboardSceneFor } from '../utils/utils';
 
@@ -19,6 +18,7 @@ import { SharePanelEmbedTab } from './SharePanelEmbedTab';
 import { ShareSnapshotTab } from './ShareSnapshotTab';
 import { SharePublicDashboardTab } from './public-dashboards/SharePublicDashboardTab';
 import { ModalSceneObjectLike, SceneShareTab, SceneShareTabState } from './types';
+import { DashboardGridItem } from '../scene/DashboardGridItem';
 
 interface ShareModalState extends SceneObjectState {
   dashboardRef: SceneObjectRef<DashboardScene>;
@@ -67,7 +67,7 @@ export class ShareModal extends SceneObjectBase<ShareModalState> implements Moda
     if (panelRef) {
       tabs.push(new SharePanelEmbedTab({ panelRef, dashboardRef }));
       const panel = panelRef.resolve();
-      const isLibraryPanel = panel.parent instanceof LibraryVizPanel;
+      const isLibraryPanel = panel.parent instanceof DashboardGridItem && panel.parent.state.libraryPanel !== undefined;
       if (panel instanceof VizPanel) {
         if (!isLibraryPanel) {
           tabs.push(new ShareLibraryPanelTab({ panelRef, dashboardRef, modalRef }));

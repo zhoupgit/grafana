@@ -38,7 +38,6 @@ import repeatingRowsAndPanelsDashboardJson from './testfiles/repeating_rows_and_
 import snapshotableDashboardJson from './testfiles/snapshotable_dashboard.json';
 import snapshotableWithRowsDashboardJson from './testfiles/snapshotable_with_rows.json';
 import {
-  buildGridItemForLibPanel,
   buildGridItemForPanel,
   transformSaveModelToScene,
 } from './transformSaveModelToScene';
@@ -1024,9 +1023,9 @@ describe('transformSceneToSaveModel', () => {
 });
 
 export function buildGridItemFromPanelSchema(panel: Partial<Panel>) {
-  if (panel.libraryPanel) {
-    return buildGridItemForLibPanel(new PanelModel(panel))!;
-  }
+  // if (panel.libraryPanel) {
+  //   return buildGridItemForLibPanel(new PanelModel(panel))!;
+  // }
 
   return buildGridItemForPanel(new PanelModel(panel));
 }

@@ -4,10 +4,10 @@ import React from 'react';
 import { GrafanaTheme2, dateTimeFormat } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
+import { DashboardGridItem } from '../scene/DashboardGridItem';
 
 interface Props {
-  libraryPanel: LibraryVizPanel;
+  libraryPanel: DashboardGridItem;
 }
 
 export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
@@ -15,7 +15,7 @@ export const LibraryVizPanelInfo = ({ libraryPanel }: Props) => {
 
   const libraryPanelState = libraryPanel.useState();
   const tz = libraryPanelState.$timeRange?.getTimeZone();
-  const meta = libraryPanelState._loadedPanel?.meta;
+  const meta = libraryPanelState.libraryPanel?._loadedPanel?.meta;
   if (!meta) {
     return null;
   }

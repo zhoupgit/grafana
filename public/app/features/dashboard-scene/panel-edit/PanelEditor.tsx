@@ -106,7 +106,8 @@ export class PanelEditor extends SceneObjectBase<PanelEditorState> {
     const sourcePanelParent = sourcePanel!.parent;
     const isLibraryPanel = sourcePanelParent instanceof LibraryVizPanel;
 
-    const gridItem = isLibraryPanel ? sourcePanelParent.parent : sourcePanelParent;
+    // todo vic
+    const gridItem = sourcePanelParent;
 
     if (isLibraryPanel) {
       // Library panels handled separately

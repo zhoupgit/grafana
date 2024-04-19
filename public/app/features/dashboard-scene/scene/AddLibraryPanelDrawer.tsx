@@ -10,10 +10,9 @@ import {
 } from 'app/features/library-panels/components/LibraryPanelsSearch/LibraryPanelsSearch';
 
 import { dashboardSceneGraph } from '../utils/dashboardSceneGraph';
-import { NEW_PANEL_HEIGHT, NEW_PANEL_WIDTH, getDashboardSceneFor, getVizPanelKeyForPanelId } from '../utils/utils';
+import { NEW_PANEL_HEIGHT, NEW_PANEL_WIDTH, getDashboardSceneFor, getDefaultVizPanel } from '../utils/utils';
 
 import { DashboardGridItem } from './DashboardGridItem';
-import { LibraryVizPanel } from './LibraryVizPanel';
 
 export interface AddLibraryPanelDrawerState extends SceneObjectState {}
 
@@ -32,20 +31,17 @@ export class AddLibraryPanelDrawer extends SceneObjectBase<AddLibraryPanelDrawer
 
     const panelId = dashboardSceneGraph.getNextPanelId(dashboard);
 
-    const body = new LibraryVizPanel({
-      title: 'Panel Title',
-      uid: panelInfo.uid,
-      name: panelInfo.name,
-      panelKey: getVizPanelKeyForPanelId(panelId),
-    });
-
     const newGridItem = new DashboardGridItem({
       height: NEW_PANEL_HEIGHT,
       width: NEW_PANEL_WIDTH,
       x: 0,
       y: 0,
-      body: body,
+      body: getDefaultVizPanel(dashboard),
       key: `grid-item-${panelId}`,
+      libraryPanel: {
+        uid: panelInfo.uid,
+        name: panelInfo.name,
+      },
     });
 
     layout.setState({ children: [newGridItem, ...layout.state.children] });

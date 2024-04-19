@@ -32,7 +32,6 @@ import { PanelEditor } from '../panel-edit/PanelEditor';
 import { DashboardSceneChangeTracker } from '../saving/DashboardSceneChangeTracker';
 import { SaveDashboardDrawer } from '../saving/SaveDashboardDrawer';
 import {
-  buildGridItemForLibPanel,
   buildGridItemForPanel,
   transformSaveModelToScene,
 } from '../serialization/transformSaveModelToScene';
@@ -41,7 +40,7 @@ import { DecoratedRevisionModel } from '../settings/VersionsEditView';
 import { DashboardEditView } from '../settings/utils';
 import { historySrv } from '../settings/version-history';
 import { DashboardModelCompatibilityWrapper } from '../utils/DashboardModelCompatibilityWrapper';
-import { dashboardSceneGraph, getLibraryVizPanelFromVizPanel } from '../utils/dashboardSceneGraph';
+import { dashboardSceneGraph } from '../utils/dashboardSceneGraph';
 import { djb2Hash } from '../utils/djb2Hash';
 import { getDashboardUrl } from '../utils/urlBuilders';
 import {
@@ -62,7 +61,6 @@ import { DashboardControls } from './DashboardControls';
 import { DashboardGridItem } from './DashboardGridItem';
 import { DashboardSceneRenderer } from './DashboardSceneRenderer';
 import { DashboardSceneUrlSync } from './DashboardSceneUrlSync';
-import { LibraryVizPanel } from './LibraryVizPanel';
 import { ScopesScene } from './ScopesScene';
 import { ViewPanelScene } from './ViewPanelScene';
 import { setupKeyboardShortcuts } from './keyboardShortcuts';
@@ -511,9 +509,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
       return;
     }
 
-    const libraryPanel = getLibraryVizPanelFromVizPanel(vizPanel);
-
-    const gridItem = libraryPanel ? libraryPanel.parent : vizPanel.parent;
+    const gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
       console.error('Trying to duplicate a panel in a layout that is not DashboardGridItem');
@@ -525,41 +521,25 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     let newGridItem;
     const newPanelId = dashboardSceneGraph.getNextPanelId(this);
 
-    if (libraryPanel) {
-      const gridItemToDuplicateState = sceneUtils.cloneSceneObjectState(gridItem.state);
-
-      newGridItem = new DashboardGridItem({
-        x: gridItemToDuplicateState.x,
-        y: gridItemToDuplicateState.y,
-        width: gridItemToDuplicateState.width,
-        height: gridItemToDuplicateState.height,
-        body: new LibraryVizPanel({
-          title: libraryPanel.state.title,
-          uid: libraryPanel.state.uid,
-          name: libraryPanel.state.name,
-          panelKey: getVizPanelKeyForPanelId(newPanelId),
-        }),
-      });
+    if (gridItem instanceof DashboardGridItem) {
+      panelState = sceneUtils.cloneSceneObjectState(gridItem.state.body.state);
+      panelData = sceneGraph.getData(gridItem.state.body).clone();
     } else {
-      if (gridItem instanceof DashboardGridItem) {
-        panelState = sceneUtils.cloneSceneObjectState(gridItem.state.body.state);
-        panelData = sceneGraph.getData(gridItem.state.body).clone();
-      } else {
-        panelState = sceneUtils.cloneSceneObjectState(vizPanel.state);
-        panelData = sceneGraph.getData(vizPanel).clone();
-      }
-
-      // when we duplicate a panel we don't want to clone the alert state
-      delete panelData.state.data?.alertState;
-
-      newGridItem = new DashboardGridItem({
-        x: gridItem.state.x,
-        y: gridItem.state.y,
-        height: NEW_PANEL_HEIGHT,
-        width: NEW_PANEL_WIDTH,
-        body: new VizPanel({ ...panelState, $data: panelData, key: getVizPanelKeyForPanelId(newPanelId) }),
-      });
+      panelState = sceneUtils.cloneSceneObjectState(vizPanel.state);
+      panelData = sceneGraph.getData(vizPanel).clone();
     }
+
+    // when we duplicate a panel we don't want to clone the alert state
+    delete panelData.state.data?.alertState;
+
+    newGridItem = new DashboardGridItem({
+      x: gridItem.state.x,
+      y: gridItem.state.y,
+      height: NEW_PANEL_HEIGHT,
+      width: NEW_PANEL_WIDTH,
+      body: new VizPanel({ ...panelState, $data: panelData, key: getVizPanelKeyForPanelId(newPanelId) }),
+      libraryPanel: gridItem.state.libraryPanel
+    });
 
     if (!(this.state.body instanceof SceneGridLayout)) {
       console.error('Trying to duplicate a panel in a layout that is not SceneGridLayout ');
@@ -592,16 +572,6 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
 
     let gridItem = vizPanel.parent;
 
-    if (vizPanel.parent instanceof LibraryVizPanel) {
-      const libraryVizPanel = vizPanel.parent;
-
-      if (!libraryVizPanel.parent) {
-        return;
-      }
-
-      gridItem = libraryVizPanel.parent;
-    }
-
     if (!(gridItem instanceof DashboardGridItem)) {
       console.error('Trying to copy a panel that is not DashboardGridItem child');
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
@@ -622,9 +592,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     const jsonData = store.get(LS_PANEL_COPY_KEY);
     const jsonObj = JSON.parse(jsonData);
     const panelModel = new PanelModel(jsonObj);
-    const gridItem = !panelModel.libraryPanel
-      ? buildGridItemForPanel(panelModel)
-      : buildGridItemForLibPanel(panelModel);
+    const gridItem = buildGridItemForPanel(panelModel)
 
     const sceneGridLayout = this.state.body;
 
@@ -633,26 +601,14 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     }
 
     const panelId = dashboardSceneGraph.getNextPanelId(this);
-
-    if (gridItem instanceof DashboardGridItem && gridItem.state.body instanceof LibraryVizPanel) {
-      const panelKey = getVizPanelKeyForPanelId(panelId);
-
-      gridItem.state.body.setState({ panelKey });
-
-      const vizPanel = gridItem.state.body.state.panel;
-
-      if (vizPanel instanceof VizPanel) {
-        vizPanel.setState({ key: panelKey });
-      }
-    } else if (gridItem instanceof DashboardGridItem && gridItem.state.body) {
-      gridItem.state.body.setState({
-        key: getVizPanelKeyForPanelId(panelId),
-      });
-    } else if (gridItem instanceof DashboardGridItem) {
-      gridItem.state.body.setState({
-        key: getVizPanelKeyForPanelId(panelId),
-      });
+  
+    if (!(gridItem instanceof DashboardGridItem)) {
+      return;
     }
+      
+    gridItem.state.body.setState({
+      key: getVizPanelKeyForPanelId(panelId),
+    });
 
     gridItem.setState({
       height: NEW_PANEL_HEIGHT,
@@ -672,7 +628,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
 
   public removePanel(panel: VizPanel) {
     const panels: SceneObject[] = [];
-    const key = panel.parent instanceof LibraryVizPanel ? panel.parent.parent?.state.key : panel.parent?.state.key;
+    const key = panel.parent?.state.key;
 
     if (!key) {
       return;
@@ -713,7 +669,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     }
   }
 
-  public unlinkLibraryPanel(panel: LibraryVizPanel) {
+  public unlinkLibraryPanel(panel: VizPanel) {
     if (!panel.parent) {
       return;
     }
@@ -726,7 +682,8 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> {
     }
 
     gridItem?.setState({
-      body: panel.state.panel?.clone(),
+      body: panel.clone(),
+      libraryPanel: undefined,
     });
   }
 

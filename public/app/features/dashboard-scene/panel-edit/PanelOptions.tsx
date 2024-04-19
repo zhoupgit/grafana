@@ -8,10 +8,9 @@ import {
   getVisualizationOptions2,
 } from 'app/features/dashboard/components/PanelEditor/getVisualizationOptions';
 
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
-
 import { VizPanelManager } from './VizPanelManager';
 import { getPanelFrameCategory2 } from './getPanelFrameOptions';
+import { DashboardGridItem } from '../scene/DashboardGridItem';
 
 interface Props {
   vizManager: VizPanelManager;
@@ -48,7 +47,7 @@ export const PanelOptions = React.memo<Props>(({ vizManager, searchQuery, listMo
   }, [panel, options, fieldConfig]);
 
   const libraryPanelOptions = useMemo(() => {
-    if (parent instanceof LibraryVizPanel) {
+    if (parent instanceof DashboardGridItem && parent.state.libraryPanel) {
       return getLibraryVizPanelOptionsCategory(parent);
     }
     return;

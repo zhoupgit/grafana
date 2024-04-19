@@ -18,7 +18,6 @@ import {
 import { VizPanel } from '@grafana/scenes';
 import { Input } from '@grafana/ui';
 import { LibraryVizPanelInfo } from 'app/features/dashboard-scene/panel-edit/LibraryVizPanelInfo';
-import { LibraryVizPanel } from 'app/features/dashboard-scene/scene/LibraryVizPanel';
 import { getDataLinksVariableSuggestions } from 'app/features/panel/panellinks/link_srv';
 
 import { OptionsPaneCategoryDescriptor } from './OptionsPaneCategoryDescriptor';
@@ -26,6 +25,7 @@ import { OptionsPaneItemDescriptor } from './OptionsPaneItemDescriptor';
 import { getOptionOverrides } from './state/getOptionOverrides';
 import { OptionPaneRenderProps } from './types';
 import { setOptionImmutably, updateDefaultFieldConfigValue } from './utils';
+import { DashboardGridItem } from 'app/features/dashboard-scene/scene/DashboardGridItem';
 
 type categoryGetter = (categoryNames?: string[]) => OptionsPaneCategoryDescriptor;
 
@@ -151,7 +151,7 @@ export function getVisualizationOptions(props: OptionPaneRenderProps): OptionsPa
   return Object.values(categoryIndex);
 }
 
-export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel): OptionsPaneCategoryDescriptor {
+export function getLibraryVizPanelOptionsCategory(gridItem: DashboardGridItem): OptionsPaneCategoryDescriptor {
   const descriptor = new OptionsPaneCategoryDescriptor({
     title: 'Library panel options',
     id: 'Library panel options',
@@ -162,15 +162,15 @@ export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel)
     .addItem(
       new OptionsPaneItemDescriptor({
         title: 'Name',
-        value: libraryPanel,
+        value: gridItem.state.body,
         popularRank: 1,
         render: function renderName() {
           return (
             <Input
               id="LibraryPanelFrameName"
               data-testid="library panel name input"
-              defaultValue={libraryPanel.state.name}
-              onBlur={(e) => libraryPanel.setState({ name: e.currentTarget.value })}
+              defaultValue={gridItem.state.libraryPanel?.name!}
+              onBlur={(e) => gridItem.setState({ libraryPanel: { ...gridItem.state.libraryPanel, name: e.currentTarget.value }})}
             />
           );
         },
@@ -180,7 +180,7 @@ export function getLibraryVizPanelOptionsCategory(libraryPanel: LibraryVizPanel)
       new OptionsPaneItemDescriptor({
         title: 'Information',
         render: function renderLibraryPanelInformation() {
-          return <LibraryVizPanelInfo libraryPanel={libraryPanel} />;
+          return <LibraryVizPanelInfo libraryPanel={gridItem} />;
         },
       })
     );

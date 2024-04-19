@@ -40,7 +40,6 @@ import { DashboardDataLayerSet } from '../scene/DashboardDataLayerSet';
 import { DashboardGridItem, RepeatDirection } from '../scene/DashboardGridItem';
 import { registerDashboardMacro } from '../scene/DashboardMacro';
 import { DashboardScene } from '../scene/DashboardScene';
-import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { VizPanelLinks, VizPanelLinksMenu } from '../scene/PanelLinks';
 import { panelLinksBehavior, panelMenuBehavior } from '../scene/PanelMenuBehavior';
 import { PanelNotices } from '../scene/PanelNotices';
@@ -111,18 +110,6 @@ export function createSceneObjectsForPanels(oldPanels: PanelModel[]): SceneGridI
           currentRowPanels = [];
         }
       }
-    } else if (panel.libraryPanel?.uid && !('model' in panel.libraryPanel)) {
-      const gridItem = buildGridItemForLibPanel(panel);
-
-      if (!gridItem) {
-        continue;
-      }
-
-      if (currentRow) {
-        currentRowPanels.push(gridItem);
-      } else {
-        panels.push(gridItem);
-      }
     } else {
       // when rendering a snapshot created with the legacy Dashboards convert data to new snapshot format to be compatible with Scenes
       if (panel.snapshotData) {
@@ -155,16 +142,6 @@ function createRowFromPanelModel(row: PanelModel, content: SceneGridItemLike[]):
         // Collapsed panels are not actually PanelModel instances
         if (!(saveModel instanceof PanelModel)) {
           saveModel = new PanelModel(saveModel);
-        }
-
-        if (saveModel.libraryPanel?.uid && !('model' in saveModel.libraryPanel)) {
-          const gridItem = buildGridItemForLibPanel(saveModel);
-
-          if (!gridItem) {
-            throw new Error('Failed to build grid item for library panel');
-          }
-
-          return gridItem;
         }
 
         return buildGridItemForPanel(saveModel);
@@ -414,29 +391,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
   }
 }
 
-export function buildGridItemForLibPanel(panel: PanelModel) {
-  if (!panel.libraryPanel) {
-    return null;
-  }
-
-  const body = new LibraryVizPanel({
-    title: panel.title,
-    uid: panel.libraryPanel.uid,
-    name: panel.libraryPanel.name,
-    panelKey: getVizPanelKeyForPanelId(panel.id),
-  });
-
-  return new DashboardGridItem({
-    key: `grid-item-${panel.id}`,
-    y: panel.gridPos.y,
-    x: panel.gridPos.x,
-    width: panel.gridPos.w,
-    height: panel.gridPos.h,
-    itemHeight: panel.gridPos.h,
-    body,
-  });
-}
-
 export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
   const repeatDirection: RepeatDirection = panel.repeatDirection === 'h' ? 'h' : 'v';
   const repeatOptions = panel.repeat
@@ -445,6 +399,11 @@ export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
         repeatDirection,
       }
     : {};
+
+  const libraryPanel = {
+    uid: panel.libraryPanel?.uid!,
+    name: panel.libraryPanel?.name!,
+  };
 
   const titleItems: SceneObject[] = [];
 
@@ -503,6 +462,7 @@ export function buildGridItemForPanel(panel: PanelModel): DashboardGridItem {
     maxPerRow: panel.maxPerRow,
     ...repeatOptions,
     $behaviors: [hoverHeaderOffsetBehavior],
+    libraryPanel: panel.libraryPanel?.uid ? libraryPanel : undefined,
   });
 }
 
