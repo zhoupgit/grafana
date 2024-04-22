@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/grafana/grafana-plugin-sdk-go/experimental/apis/data/v0alpha1"
 	apimodels "github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	ngmodels "github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/ngalert/store"
@@ -44,6 +45,14 @@ func validateRuleNode(
 		return nil, fmt.Errorf("not Grafana managed alert rule")
 	}
 
+	if ruleNode.GrafanaManagedAlert.Condition == "" && ruleNode.GrafanaManagedAlert.RecordFrom == "" {
+		return nil, errors.New("unable to determine if this is an alerting rule or recording rule. one of Condition or RecordFrom must be specified")
+	}
+	if ruleNode.GrafanaManagedAlert.Condition != "" && ruleNode.GrafanaManagedAlert.RecordFrom != "" {
+		return nil, errors.New("rule must be either a recording rule or alerting rule - exactly one of Condition or RecordFrom must be specified")
+	}
+	isRecordingRule := ruleNode.GrafanaManagedAlert.RecordFrom != ""
+
 	// if UID is specified then we can accept partial model. Therefore, some validation can be skipped as it will be patched later
 	canPatch := ruleNode.GrafanaManagedAlert.UID != ""
 
@@ -59,6 +68,9 @@ func validateRuleNode(
 	if ruleNode.GrafanaManagedAlert.NoDataState == "" && canPatch {
 		noDataState = ""
 	}
+	if isRecordingRule {
+		noDataState = ""
+	}
 
 	if ruleNode.GrafanaManagedAlert.NoDataState != "" {
 		noDataState, err = ngmodels.NoDataStateFromString(string(ruleNode.GrafanaManagedAlert.NoDataState))
@@ -71,6 +83,9 @@ func validateRuleNode(
 
 	if ruleNode.GrafanaManagedAlert.ExecErrState == "" && canPatch {
 		errorState = ""
+	}
+	if isRecordingRule {
+		noDataState = ""
 	}
 
 	if ruleNode.GrafanaManagedAlert.ExecErrState != "" {
@@ -88,11 +103,30 @@ func validateRuleNode(
 		} else {
 			return nil, fmt.Errorf("%w: no queries or expressions are found", ngmodels.ErrAlertRuleFailedValidation)
 		}
+	}
+
+	if isRecordingRule {
+		err = validateCondition(ruleNode.GrafanaManagedAlert.RecordFrom, ruleNode.GrafanaManagedAlert.Data)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ngmodels.ErrAlertRuleFailedValidation, err.Error())
+		}
 	} else {
 		err = validateCondition(ruleNode.GrafanaManagedAlert.Condition, ruleNode.GrafanaManagedAlert.Data)
 		if err != nil {
 			return nil, fmt.Errorf("%w: %s", ngmodels.ErrAlertRuleFailedValidation, err.Error())
 		}
+	}
+
+	var recordTo *v0alpha1.DataSourceRef
+	if isRecordingRule {
+		if ruleNode.ApiRuleNode.Record == "" {
+			return nil, fmt.Errorf("record must be supplied for recording rules")
+		}
+		rt, err := validateRecordTo(ruleNode.GrafanaManagedAlert.RecordTo)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ngmodels.ErrAlertRuleFailedValidation, err.Error())
+		}
+		recordTo = rt
 	}
 
 	queries := AlertQueriesFromApiAlertQueries(ruleNode.GrafanaManagedAlert.Data)
@@ -108,6 +142,9 @@ func validateRuleNode(
 		RuleGroup:       groupName,
 		NoDataState:     noDataState,
 		ExecErrState:    errorState,
+		Record:          ruleNode.Record,
+		RecordFrom:      ruleNode.GrafanaManagedAlert.RecordFrom,
+		RecordTo:        recordTo,
 	}
 
 	if ruleNode.GrafanaManagedAlert.NotificationSettings != nil {
@@ -117,9 +154,13 @@ func validateRuleNode(
 		}
 	}
 
-	newAlertRule.For, err = validateForInterval(ruleNode)
-	if err != nil {
-		return nil, err
+	if isRecordingRule {
+		newAlertRule.For = 0
+	} else {
+		newAlertRule.For, err = validateForInterval(ruleNode)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if ruleNode.ApiRuleNode != nil {
@@ -136,6 +177,22 @@ func validateRuleNode(
 		}
 	}
 	return &newAlertRule, nil
+}
+
+func validateRecordTo(dsr *apimodels.DataSourceRef) (*v0alpha1.DataSourceRef, error) {
+	if dsr == nil {
+		return nil, fmt.Errorf("record_to must be supplied for recording rules")
+	}
+	if dsr.Type == "" {
+		return nil, fmt.Errorf("datasource type must be supplied")
+	}
+	if dsr.UID == "" {
+		return nil, fmt.Errorf("datasource uid must be supplied")
+	}
+	return &v0alpha1.DataSourceRef{
+		Type: dsr.Type,
+		UID:  dsr.UID,
+	}, nil
 }
 
 func validateLabels(l map[string]string) error {

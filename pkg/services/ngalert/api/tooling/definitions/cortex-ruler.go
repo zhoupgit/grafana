@@ -466,7 +466,7 @@ type PostableGrafanaRule struct {
 	Data                 []AlertQuery                   `json:"data" yaml:"data"`
 	UID                  string                         `json:"uid" yaml:"uid"`
 	RecordFrom           string                         `json:"record_from" yaml:"record_from"`
-	RecordTo             DataSourceRef                  `json:"record_to" yaml:"record_to"`
+	RecordTo             *DataSourceRef                 `json:"record_to" yaml:"record_to"`
 	NoDataState          NoDataState                    `json:"no_data_state" yaml:"no_data_state"`
 	ExecErrState         ExecutionErrorState            `json:"exec_err_state" yaml:"exec_err_state"`
 	IsPaused             *bool                          `json:"is_paused" yaml:"is_paused"`
