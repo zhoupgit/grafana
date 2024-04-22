@@ -7,6 +7,7 @@ func AddRecordingRuleColumns(mg *migrator.Migrator) {
 		Name:     "record",
 		Type:     migrator.DB_NVarchar,
 		Length:   DefaultFieldMaxLength,
+		Default:  "''",
 		Nullable: false,
 	}))
 
@@ -14,6 +15,7 @@ func AddRecordingRuleColumns(mg *migrator.Migrator) {
 		Name:     "record_from",
 		Type:     migrator.DB_NVarchar,
 		Length:   DefaultFieldMaxLength,
+		Default:  "''",
 		Nullable: false,
 	}))
 

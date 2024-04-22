@@ -465,6 +465,8 @@ type PostableGrafanaRule struct {
 	Condition            string                         `json:"condition" yaml:"condition"`
 	Data                 []AlertQuery                   `json:"data" yaml:"data"`
 	UID                  string                         `json:"uid" yaml:"uid"`
+	RecordFrom           string                         `json:"record_from" yaml:"record_from"`
+	RecordTo             DataSourceRef                  `json:"record_to" yaml:"record_to"`
 	NoDataState          NoDataState                    `json:"no_data_state" yaml:"no_data_state"`
 	ExecErrState         ExecutionErrorState            `json:"exec_err_state" yaml:"exec_err_state"`
 	IsPaused             *bool                          `json:"is_paused" yaml:"is_paused"`
@@ -484,6 +486,9 @@ type GettableGrafanaRule struct {
 	UID                  string                         `json:"uid" yaml:"uid"`
 	NamespaceUID         string                         `json:"namespace_uid" yaml:"namespace_uid"`
 	RuleGroup            string                         `json:"rule_group" yaml:"rule_group"`
+	Record               string                         `json:"record" yaml:"record"`
+	RecordFrom           string                         `json:"record_from" yaml:"record_from"`
+	RecordTo             DataSourceRef                  `json:"record_to" yaml:"record_to"`
 	NoDataState          NoDataState                    `json:"no_data_state" yaml:"no_data_state"`
 	ExecErrState         ExecutionErrorState            `json:"exec_err_state" yaml:"exec_err_state"`
 	Provenance           Provenance                     `json:"provenance,omitempty" yaml:"provenance,omitempty"`
@@ -564,4 +569,10 @@ type UpdateRuleGroupResponse struct {
 	Created []string `json:"created,omitempty"`
 	Updated []string `json:"updated,omitempty"`
 	Deleted []string `json:"deleted,omitempty"`
+}
+
+// swagger:model
+type DataSourceRef struct {
+	Type string `json:"type"`
+	UID  string `json:"uid"`
 }
