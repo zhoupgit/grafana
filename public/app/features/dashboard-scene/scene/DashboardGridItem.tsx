@@ -1,7 +1,6 @@
 import { css } from '@emotion/css';
 import React, { useMemo } from 'react';
 import { Unsubscribable } from 'rxjs';
-import { LibraryPanel } from '@grafana/schema';
 
 import { config } from '@grafana/runtime';
 import {
@@ -20,19 +19,20 @@ import {
   VizPanelMenu,
   VizPanelState,
 } from '@grafana/scenes';
+import { LibraryPanel } from '@grafana/schema';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN } from 'app/core/constants';
+import { PanelModel } from 'app/features/dashboard/state';
+import { getLibraryPanel } from 'app/features/library-panels/state/api';
 
+import { createPanelDataProvider } from '../utils/createPanelDataProvider';
 import { getMultiVariableValues, getPanelIdForVizPanel, getVizPanelKeyForPanelId } from '../utils/utils';
 
 import { AddLibraryPanelDrawer } from './AddLibraryPanelDrawer';
 import { LibraryVizPanel } from './LibraryVizPanel';
-import { panelLinksBehavior, panelMenuBehavior, repeatPanelMenuBehavior } from './PanelMenuBehavior';
-import { DashboardRepeatsProcessedEvent } from './types';
-import { PanelModel } from 'app/features/dashboard/state';
-import { createPanelDataProvider } from '../utils/createPanelDataProvider';
 import { VizPanelLinks, VizPanelLinksMenu } from './PanelLinks';
+import { panelLinksBehavior, panelMenuBehavior, repeatPanelMenuBehavior } from './PanelMenuBehavior';
 import { PanelNotices } from './PanelNotices';
-import { getLibraryPanel } from 'app/features/library-panels/state/api';
+import { DashboardRepeatsProcessedEvent } from './types';
 
 export interface LibraryPanelMeta {
   uid?: string;
@@ -81,7 +81,7 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     this._subs.add(
       this.subscribeToState((newState, prevState) => {
         if (newState.body !== prevState.body) {
-          console.log(newState)
+          console.log(newState);
           if (newState.libraryPanel) {
             this.setupLibraryPanelChangeSubscription(newState.body as VizPanel, newState.libraryPanel);
           }
@@ -102,11 +102,6 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     }
 
     this._libPanelSubscription = panel.subscribeToState((newState) => {
-      console.log("libPanelSub", libraryPanel)
-      this.setState({
-        libraryPanel
-      })
-
       if (libraryPanel._loadedPanel?.model.repeat) {
         this._variableDependency.setVariableNames([libraryPanel._loadedPanel.model.repeat]);
         this.setState({
@@ -156,9 +151,9 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
 
     const panel = new VizPanel(vizPanelState);
 
-    this.setState({ 
+    this.setState({
       body: panel,
-      libraryPanel: { uid: libPanel.uid,  _loadedPanel: libPanel, isLoaded: true, name: libPanel.name }
+      libraryPanel: { uid: libPanel.uid, _loadedPanel: libPanel, isLoaded: true, name: libPanel.name },
     });
   }
 
@@ -166,6 +161,7 @@ export class DashboardGridItem extends SceneObjectBase<DashboardGridItemState> i
     let vizPanel = this.state.body;
 
     try {
+      console.log('CALLS');
       const libPanel = await getLibraryPanel(this.state.libraryPanel!.uid!, true);
       this.setPanelFromLibPanel(libPanel);
       if (this.parent instanceof DashboardGridItem) {

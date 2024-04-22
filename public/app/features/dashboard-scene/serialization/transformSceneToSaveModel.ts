@@ -201,6 +201,18 @@ export function vizPanelToPanel(
   isSnapshot = false,
   gridItem?: SceneGridItemLike
 ) {
+  if (gridItem instanceof DashboardGridItem && gridItem.state.libraryPanel) {
+    return {
+      id: getPanelIdForVizPanel(vizPanel),
+      title: vizPanel.state.title,
+      gridPos: gridPos,
+      libraryPanel: {
+        name: gridItem.state.libraryPanel.name!,
+        uid: gridItem.state.libraryPanel.uid!,
+      },
+    } as Panel;
+  }
+
   const panel: Panel = {
     id: getPanelIdForVizPanel(vizPanel),
     type: vizPanel.state.pluginId,

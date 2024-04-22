@@ -1,5 +1,6 @@
 import { lastValueFrom } from 'rxjs';
 
+import { VizPanel } from '@grafana/scenes';
 import { defaultDashboard } from '@grafana/schema';
 import { DashboardModel } from 'app/features/dashboard/state';
 import { DashboardGridItem } from 'app/features/dashboard-scene/scene/DashboardGridItem';
@@ -14,7 +15,6 @@ import {
   LibraryElementsSearchResult,
   PanelModelWithLibraryPanel,
 } from '../types';
-import { VizPanel } from '@grafana/scenes';
 
 export interface GetLibraryPanelsOptions {
   searchString?: string;
@@ -138,9 +138,9 @@ export async function getConnectedDashboards(uid: string): Promise<DashboardSear
 }
 
 //todo vic
-export function libraryVizPanelToSaveModel2(gridItem: DashboardGridItem) {
+export function libraryVizPanelToSaveModel2(gridItem: DashboardGridItem, panel: VizPanel) {
   const { uid, name, _loadedPanel } = gridItem.state.libraryPanel!;
-  const panel = gridItem.state.body as VizPanel;
+  const grid = gridItem.clone({ libraryPanel: undefined });
 
   const saveModel = {
     uid,
@@ -156,16 +156,19 @@ export function libraryVizPanelToSaveModel2(gridItem: DashboardGridItem) {
         h: gridItem.state.height ?? 0,
       },
       false,
-      gridItem
+      grid
     ),
     kind: LibraryElementKind.Panel,
   };
   return saveModel;
 }
 
-export async function updateLibraryVizPanel2(gridItem: DashboardGridItem): Promise<LibraryElementDTO> {
-  const { uid, folderUid, name, model, version } = libraryVizPanelToSaveModel2(gridItem);
-  const kind = LibraryElementKind.Panel
+export async function updateLibraryVizPanel2(
+  gridItem: DashboardGridItem,
+  vizPanel: VizPanel
+): Promise<LibraryElementDTO> {
+  const { uid, folderUid, name, model, version } = libraryVizPanelToSaveModel2(gridItem, vizPanel);
+  const kind = LibraryElementKind.Panel;
 
   console.log('updateLibraryVizPanel', model);
   const { result } = await getBackendSrv().patch(`/api/library-elements/${uid}`, {
@@ -176,4 +179,13 @@ export async function updateLibraryVizPanel2(gridItem: DashboardGridItem): Promi
     kind,
   });
   return result;
+}
+
+export async function saveLibPanel(vizPanel: VizPanel, gridItem: DashboardGridItem) {
+  // we need the gridItem for access to libPanel info
+  // we need the panel in vizManager and not the old one in gridItem
+  // so we can update the library panel
+  const p = await updateLibraryVizPanel2(gridItem, vizPanel);
+
+  gridItem.setPanelFromLibPanel(p);
 }

@@ -30,7 +30,7 @@ import { useStyles2 } from '@grafana/ui';
 import { getPluginVersion } from 'app/features/dashboard/state/PanelModel';
 import { getLastUsedDatasourceFromStorage } from 'app/features/dashboard/utils/dashboard';
 import { storeLastUsedDataSourceInLocalStorage } from 'app/features/datasources/components/picker/utils';
-import { updateLibraryVizPanel2 } from 'app/features/library-panels/state/api';
+import { saveLibPanel, updateLibraryVizPanel2 } from 'app/features/library-panels/state/api';
 import { updateQueries } from 'app/features/query/state/updateQueries';
 import { GrafanaQuery } from 'app/plugins/datasource/grafana/types';
 import { QueryGroupOptions } from 'app/types';
@@ -77,7 +77,7 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
   public static createFor(sourcePanel: VizPanel) {
     let repeatOptions: Pick<VizPanelManagerState, 'repeat' | 'repeatDirection' | 'maxPerRow'> = {};
 
-    const gridItem = sourcePanel.parent
+    const gridItem = sourcePanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
       console.error('VizPanel is not a child of a dashboard grid item');
@@ -390,19 +390,19 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
 
     // TODO Do we need 2 commits? This one seems to be called from lib panel context
     // commiteChangesTo is called by everything else. I moved this code below here
-    // because transformSceneToSaveModel:69 calls commitChangesTo when entering panel edit 
+    // because transformSceneToSaveModel:69 calls commitChangesTo when entering panel edit
     // twice, which updates the library panel twice with wrong version, thus throwing.
     // Deffo can be written better
     const gridItem = sourcePanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      return
+      return;
     }
 
     if (gridItem.state.libraryPanel && gridItem.state.libraryPanel.isLoaded) {
       console.log(gridItem.state.body);
       // console.log(this.state.libraryPanel, gridItem.state.libraryPanel);
-      updateLibraryVizPanel2(gridItem);
+      saveLibPanel(this.state.panel, gridItem);
     }
   }
 
@@ -430,7 +430,7 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
    */
   public getPanelSaveModel(): Panel | object {
     const sourcePanel = this.state.sourcePanel.resolve();
-    const gridItem =  sourcePanel.parent;
+    const gridItem = sourcePanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
       return { error: 'Unsupported panel parent' };
