@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	alertingModels "github.com/grafana/alerting/models"
+	"github.com/grafana/grafana-plugin-sdk-go/experimental/apis/data/v0alpha1"
 
 	"github.com/grafana/grafana/pkg/services/quota"
 	"github.com/grafana/grafana/pkg/setting"
@@ -240,13 +241,18 @@ type AlertRule struct {
 	PanelID         *int64  `xorm:"panel_id"`
 	RuleGroup       string
 	RuleGroupIndex  int `xorm:"rule_group_idx"`
-	NoDataState     NoDataState
-	ExecErrState    ExecutionErrorState
+	Annotations     map[string]string
+	Labels          map[string]string
+	// Recording rule specific fields
+	Record     string
+	RecordFrom string
+	RecordTo   *v0alpha1.DataSourceRef
+	// Alert rule specific fields
+	NoDataState  NoDataState
+	ExecErrState ExecutionErrorState
 	// ideally this field should have been apimodels.ApiDuration
 	// but this is currently not possible because of circular dependencies
 	For                  time.Duration
-	Annotations          map[string]string
-	Labels               map[string]string
 	IsPaused             bool
 	NotificationSettings []NotificationSettings `xorm:"notification_settings"` // we use slice to workaround xorm mapping that does not serialize a struct to JSON unless it's a slice
 }
