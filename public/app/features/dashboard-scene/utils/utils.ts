@@ -15,6 +15,7 @@ import { initialIntervalVariableModelState } from 'app/features/variables/interv
 
 import { DashboardDatasourceBehaviour } from '../scene/DashboardDatasourceBehaviour';
 import { DashboardScene } from '../scene/DashboardScene';
+import { DashboardVizPanel } from '../scene/DashboardVizPanel';
 import { LibraryVizPanel } from '../scene/LibraryVizPanel';
 import { VizPanelLinks, VizPanelLinksMenu } from '../scene/PanelLinks';
 import { panelMenuBehavior } from '../scene/PanelMenuBehavior';
@@ -208,10 +209,10 @@ export function isPanelClone(key: string) {
   return key.includes('clone');
 }
 
-export function getDefaultVizPanel(dashboard: DashboardScene): VizPanel {
+export function getDefaultVizPanel(dashboard: DashboardScene): DashboardVizPanel {
   const panelId = dashboardSceneGraph.getNextPanelId(dashboard);
 
-  return new VizPanel({
+  return new DashboardVizPanel({
     title: 'Panel Title',
     key: getVizPanelKeyForPanelId(panelId),
     pluginId: 'timeseries',
@@ -227,6 +228,9 @@ export function getDefaultVizPanel(dashboard: DashboardScene): VizPanel {
       }),
       transformations: [],
     }),
+    meta: {
+      isLoaded: true,
+    },
   });
 }
 

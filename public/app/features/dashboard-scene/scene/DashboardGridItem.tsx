@@ -24,12 +24,13 @@ import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN } from 'app/core/constants';
 import { getMultiVariableValues } from '../utils/utils';
 
 import { AddLibraryPanelDrawer } from './AddLibraryPanelDrawer';
+import { DashboardVizPanel } from './DashboardVizPanel';
 import { LibraryVizPanel } from './LibraryVizPanel';
 import { repeatPanelMenuBehavior } from './PanelMenuBehavior';
 import { DashboardRepeatsProcessedEvent } from './types';
 
 interface DashboardGridItemState extends SceneGridItemStateLike {
-  body: VizPanel | LibraryVizPanel | AddLibraryPanelDrawer;
+  body: VizPanel | LibraryVizPanel | DashboardVizPanel | AddLibraryPanelDrawer;
   repeatedPanels?: VizPanel[];
   variableName?: string;
   itemHeight?: number;
