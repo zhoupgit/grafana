@@ -93,7 +93,7 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
         $timeRange: undefined,
       }),
       $data: sourcePanel.state.$data?.clone(),
-      $timeRange: sourcePanel.state.$timeRange,
+      $timeRange: sourcePanel.state.$timeRange?.clone(),
       sourcePanel: sourcePanel.getRef(),
       ...repeatOptions,
     });
