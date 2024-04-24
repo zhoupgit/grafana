@@ -9,8 +9,10 @@ import (
 	"github.com/benbjohnson/clock"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
+	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	"github.com/grafana/grafana/pkg/services/ngalert/eval"
 	"github.com/grafana/grafana/pkg/services/ngalert/metrics"
@@ -78,8 +80,11 @@ type schedule struct {
 
 	metrics *metrics.Scheduler
 
-	alertsSender    AlertsSender
-	minRuleInterval time.Duration
+	alertsSender       AlertsSender
+	minRuleInterval    time.Duration
+	dsCache            datasources.CacheService
+	dsDecryptFn        func(*datasources.DataSource) (map[string]string, error)
+	httpClientProvider httpclient.Provider
 
 	// schedulableAlertRules contains the alert rules that are considered for
 	// evaluation in the current tick. The evaluation of an alert rule in the
@@ -103,6 +108,9 @@ type SchedulerCfg struct {
 	RuleStore            RulesStore
 	Metrics              *metrics.Scheduler
 	AlertSender          AlertsSender
+	DSCache              datasources.CacheService
+	DSDecryptFn          func(*datasources.DataSource) (map[string]string, error)
+	HTTPClientProvider   httpclient.Provider
 	Tracer               tracing.Tracer
 	Log                  log.Logger
 }
@@ -131,6 +139,9 @@ func NewScheduler(cfg SchedulerCfg, stateManager *state.Manager) *schedule {
 		minRuleInterval:       cfg.MinRuleInterval,
 		schedulableAlertRules: alertRulesRegistry{rules: make(map[ngmodels.AlertRuleKey]*ngmodels.AlertRule)},
 		alertsSender:          cfg.AlertSender,
+		dsCache:               cfg.DSCache,
+		dsDecryptFn:           cfg.DSDecryptFn,
+		httpClientProvider:    cfg.HTTPClientProvider,
 		tracer:                cfg.Tracer,
 	}
 
@@ -243,6 +254,9 @@ func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.
 		sch.stateManager,
 		sch.evaluatorFactory,
 		&sch.schedulableAlertRules,
+		sch.dsCache,
+		sch.dsDecryptFn,
+		sch.httpClientProvider,
 		sch.clock,
 		sch.metrics,
 		sch.log,
@@ -252,7 +266,7 @@ func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.
 	)
 	for _, item := range alertRules {
 		key := item.GetKey()
-		ruleRoutine, newRoutine := sch.registry.getOrCreate(ctx, key, ruleFactory)
+		ruleRoutine, newRoutine := sch.registry.getOrCreate(ctx, item, ruleFactory)
 
 		// enforce minimum evaluation interval
 		if item.IntervalSeconds < int64(sch.minRuleInterval.Seconds()) {

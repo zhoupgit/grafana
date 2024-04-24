@@ -57,6 +57,8 @@ func NoDataStateFromString(state string) (NoDataState, error) {
 		return OK, nil
 	case string(KeepLast):
 		return KeepLast, nil
+	case "":
+		return "", nil
 	default:
 		return "", fmt.Errorf("unknown NoData state option %s", state)
 	}
@@ -246,7 +248,7 @@ type AlertRule struct {
 	// Recording rule specific fields
 	Record     string
 	RecordFrom string
-	RecordTo   *v0alpha1.DataSourceRef
+	RecordTo   *DataSourceRef
 	// Alert rule specific fields
 	NoDataState  NoDataState
 	ExecErrState ExecutionErrorState
@@ -255,6 +257,16 @@ type AlertRule struct {
 	For                  time.Duration
 	IsPaused             bool
 	NotificationSettings []NotificationSettings `xorm:"notification_settings"` // we use slice to workaround xorm mapping that does not serialize a struct to JSON unless it's a slice
+}
+
+type DataSourceRef v0alpha1.DataSourceRef // TODO: probably make our own model, eventually
+
+func (dsr *DataSourceRef) FromDB(b []byte) error {
+	return json.Unmarshal(b, dsr)
+}
+
+func (dsr *DataSourceRef) ToDB() ([]byte, error) {
+	return json.Marshal(dsr)
 }
 
 // AlertRuleWithOptionals This is to avoid having to pass in additional arguments deep in the call stack. Alert rule
@@ -336,6 +348,13 @@ func (alertRule *AlertRule) GetLabels(opts ...LabelOption) map[string]string {
 	}
 
 	return labels
+}
+
+func (alertRule *AlertRule) GetRecordingCondition() Condition {
+	return Condition{
+		Condition: alertRule.RecordFrom,
+		Data:      alertRule.Data,
+	}
 }
 
 func (alertRule *AlertRule) GetEvalCondition() Condition {

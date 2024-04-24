@@ -1,0 +1,79 @@
+POST http://localhost:3001/api/ruler/grafana/api/v1/rules/f505d519-3479-440b-8be3-42465084184a
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+   "name":"test_slo_for_Alex:p30wftnkmc7i4s78y4ril",
+   "interval":"1m",
+   "rules":[
+      {
+         "grafana_alert":{
+            "title":"grafana_slo_info",
+            "record_from":"A",
+            "record": "grafana_slo_info",
+            "record_to": {
+                "type": "prometheus",
+                "uid": "fdjjc4s1iv4sgd"
+            },
+            "data":[
+               {
+                  "refId":"A",
+                  "datasourceUid":"fdjjc4s1iv4sgd",
+                  "queryType":"",
+                  "relativeTimeRange":{
+                     "from":600,
+                     "to":0
+                  },
+                  "model":{
+                     "refId":"A",
+                     "expr":"vector(1)",
+                     "range":false,
+                     "instant":true,
+                     "editorMode":"code",
+                     "legendFormat":"__auto"
+                  }
+               }
+            ],
+            "is_paused":false
+         },
+         "labels":{
+            "grafana_slo_name": "test slo for Alex",
+            "grafana_slo_uuid": "p30wftnkmc7i4s78y4ril"
+         }
+      },
+      {
+         "grafana_alert":{
+            "title":"grafana_slo_sli_5m",
+            "record_from":"A",
+            "record": "grafana_slo_sli_5m",
+            "record_to": {
+                "type": "prometheus",
+                "uid": "fdjjc4s1iv4sgd"
+            },
+            "data":[
+               {
+                  "refId":"A",
+                  "datasourceUid":"fdjjc4s1iv4sgd",
+                  "queryType":"",
+                  "relativeTimeRange":{
+                     "from":360,
+                     "to":0
+                  },
+                  "model":{
+                     "refId":"A",
+                     "expr":"(sum by (engine) (rate(prometheus_engine_query_duration_seconds_count{slice=\"result_sort\"}[5m] offset 2m))) / (sum by (engine) (rate(prometheus_engine_query_duration_seconds_count{slice=\"queue_time\"}[5m] offset 2m)))",
+                     "range":false,
+                     "instant":true,
+                     "editorMode":"code",
+                     "legendFormat":"__auto"
+                  }
+               }
+            ],
+            "is_paused":false
+         },
+         "labels":{
+            "grafana_slo_uuid": "p30wftnkmc7i4s78y4ril"
+         }
+      }
+   ]
+}

@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/grafana/pkg/events"
 	"github.com/grafana/grafana/pkg/expr"
 	"github.com/grafana/grafana/pkg/infra/db"
+	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/infra/kvstore"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
@@ -58,6 +59,7 @@ func ProvideService(
 	kvStore kvstore.KVStore,
 	expressionService *expr.Service,
 	dataProxy *datasourceproxy.DataSourceProxyService,
+	httpClientProvider httpclient.Provider,
 	quotaService quota.Service,
 	secretsService secrets.Service,
 	notificationService notifications.Service,
@@ -83,6 +85,7 @@ func ProvideService(
 		KVStore:              kvStore,
 		ExpressionService:    expressionService,
 		DataProxy:            dataProxy,
+		HTTPClientProvider:   httpClientProvider,
 		QuotaService:         quotaService,
 		SecretsService:       secretsService,
 		Metrics:              m,
@@ -122,6 +125,7 @@ type AlertNG struct {
 	KVStore             kvstore.KVStore
 	ExpressionService   *expr.Service
 	DataProxy           *datasourceproxy.DataSourceProxyService
+	HTTPClientProvider  httpclient.Provider
 	QuotaService        quota.Service
 	SecretsService      secrets.Service
 	Metrics             *metrics.NGAlert
@@ -263,6 +267,9 @@ func (ng *AlertNG) init() error {
 		AppURL:               appUrl,
 		EvaluatorFactory:     evalFactory,
 		RuleStore:            ng.store,
+		DSCache:              ng.DataSourceCache,
+		DSDecryptFn:          ng.decryptDS,
+		HTTPClientProvider:   ng.HTTPClientProvider,
 		Metrics:              ng.Metrics.GetSchedulerMetrics(),
 		AlertSender:          alertsRouter,
 		Tracer:               ng.tracer,
@@ -429,6 +436,14 @@ func (ng *AlertNG) IsDisabled() bool {
 // is invoked after all other middleware is invoked (authentication, instrumentation).
 func (ng *AlertNG) GetHooks() *api.Hooks {
 	return ng.api.Hooks
+}
+
+func (ng *AlertNG) decryptDS(ds *datasources.DataSource) (map[string]string, error) {
+	decryptedJsonData, err := ng.DataSourceService.DecryptedValues(context.Background(), ds)
+	if err != nil {
+		log.New("ngalert").Error("Failed to decrypt secure json data", "error", err)
+	}
+	return decryptedJsonData, err
 }
 
 type Historian interface {

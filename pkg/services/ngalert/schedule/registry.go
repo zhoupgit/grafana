@@ -18,7 +18,7 @@ import (
 var errRuleDeleted = errors.New("rule deleted")
 
 type ruleFactory interface {
-	new(context.Context) Rule
+	new(ctx context.Context, ruleDef *models.AlertRule) Rule
 }
 
 type ruleRegistry struct {
@@ -32,13 +32,14 @@ func newRuleRegistry() ruleRegistry {
 
 // getOrCreate gets rule routine from registry by the key. If it does not exist, it creates a new one.
 // Returns a pointer to the rule routine and a flag that indicates whether it is a new struct or not.
-func (r *ruleRegistry) getOrCreate(context context.Context, key models.AlertRuleKey, factory ruleFactory) (Rule, bool) {
+func (r *ruleRegistry) getOrCreate(context context.Context, ruleDef *models.AlertRule, factory ruleFactory) (Rule, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	key := ruleDef.GetKey()
 	rule, ok := r.rules[key]
 	if !ok {
-		rule = factory.new(context)
+		rule = factory.new(context, ruleDef)
 		r.rules[key] = rule
 	}
 	return rule, !ok

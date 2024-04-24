@@ -465,6 +465,7 @@ type PostableGrafanaRule struct {
 	Condition            string                         `json:"condition" yaml:"condition"`
 	Data                 []AlertQuery                   `json:"data" yaml:"data"`
 	UID                  string                         `json:"uid" yaml:"uid"`
+	Record               string                         `json:"record" yaml:"record"`
 	RecordFrom           string                         `json:"record_from" yaml:"record_from"`
 	RecordTo             *DataSourceRef                 `json:"record_to" yaml:"record_to"`
 	NoDataState          NoDataState                    `json:"no_data_state" yaml:"no_data_state"`

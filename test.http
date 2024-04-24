@@ -1,0 +1,44 @@
+POST http://localhost:3001/api/ruler/grafana/api/v1/rules/f505d519-3479-440b-8be3-42465084184a
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+   "name":"isoutsidrange",
+   "interval":"1m",
+   "rules":[
+      {
+         "grafana_alert":{
+            "title":"test-asdfasdfsasffasdasdf",
+            "record_from":"A",
+            "record": "my_recording_rule_value",
+            "record_to": {
+                "type": "prometheus",
+                "uid": "fdjjc4s1iv4sgd"
+            },
+            "data":[
+               {
+                  "refId":"A",
+                  "datasourceUid":"fdjjc4s1iv4sgd",
+                  "queryType":"",
+                  "relativeTimeRange":{
+                     "from":600,
+                     "to":0
+                  },
+                  "model":{
+                     "refId":"A",
+                     "expr":"vector(1)",
+                     "range":false,
+                     "instant":true,
+                     "editorMode":"code",
+                     "legendFormat":"__auto"
+                  }
+               }
+            ],
+            "is_paused":false
+         },
+         "labels":{
+            "some": "label"
+         }
+      }
+   ]
+}

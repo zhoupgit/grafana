@@ -489,6 +489,8 @@ func toGettableExtendedRuleNode(r ngmodels.AlertRule, provenanceRecords map[stri
 		provenance = prov
 	}
 
+	isRecordingRule := r.RecordFrom != ""
+
 	gettableExtendedRuleNode := apimodels.GettableExtendedRuleNode{
 		GrafanaManagedAlert: &apimodels.GettableGrafanaRule{
 			ID:                   r.ID,
@@ -502,15 +504,20 @@ func toGettableExtendedRuleNode(r ngmodels.AlertRule, provenanceRecords map[stri
 			UID:                  r.UID,
 			NamespaceUID:         r.NamespaceUID,
 			RuleGroup:            r.RuleGroup,
-			NoDataState:          apimodels.NoDataState(r.NoDataState),
-			ExecErrState:         apimodels.ExecutionErrorState(r.ExecErrState),
+			NoDataState:          "",
+			ExecErrState:         "",
 			Provenance:           apimodels.Provenance(provenance),
 			IsPaused:             r.IsPaused,
 			NotificationSettings: AlertRuleNotificationSettingsFromNotificationSettings(r.NotificationSettings),
 		},
 	}
+	if !isRecordingRule {
+		gettableExtendedRuleNode.GrafanaManagedAlert.NoDataState = apimodels.NoDataState(r.NoDataState)
+		gettableExtendedRuleNode.GrafanaManagedAlert.ExecErrState = apimodels.ExecutionErrorState(r.ExecErrState)
+	}
 	forDuration := model.Duration(r.For)
 	gettableExtendedRuleNode.ApiRuleNode = &apimodels.ApiRuleNode{
+		Record:      r.Record,
 		For:         &forDuration,
 		Annotations: r.Annotations,
 		Labels:      r.Labels,
@@ -554,7 +561,11 @@ func verifyProvisionedRulesNotAffected(ctx context.Context, provenanceStore prov
 func validateQueries(ctx context.Context, groupChanges *store.GroupDelta, validator ConditionValidator, user identity.Requester) error {
 	if len(groupChanges.New) > 0 {
 		for _, rule := range groupChanges.New {
-			err := validator.Validate(eval.NewContext(ctx, user), rule.GetEvalCondition())
+			cond := rule.GetEvalCondition()
+			if rule.RecordFrom != "" {
+				cond.Condition = rule.RecordFrom
+			}
+			err := validator.Validate(eval.NewContext(ctx, user), cond)
 			if err != nil {
 				return fmt.Errorf("%w '%s': %s", ngmodels.ErrAlertRuleFailedValidation, rule.Title, err.Error())
 			}
@@ -565,7 +576,11 @@ func validateQueries(ctx context.Context, groupChanges *store.GroupDelta, valida
 			if !shouldValidate(upd) {
 				continue
 			}
-			err := validator.Validate(eval.NewContext(ctx, user), upd.New.GetEvalCondition())
+			cond := upd.New.GetEvalCondition()
+			if upd.New.RecordFrom != "" {
+				cond.Condition = upd.New.RecordFrom
+			}
+			err := validator.Validate(eval.NewContext(ctx, user), cond)
 			if err != nil {
 				return fmt.Errorf("%w '%s' (UID: %s): %s", ngmodels.ErrAlertRuleFailedValidation, upd.New.Title, upd.New.UID, err.Error())
 			}

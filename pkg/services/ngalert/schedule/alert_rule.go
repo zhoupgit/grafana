@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/grafana/grafana/pkg/infra/httpclient"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/datasources"
@@ -36,10 +37,10 @@ type Rule interface {
 	Update(lastVersion RuleVersionAndPauseStatus) bool
 }
 
-type ruleFactoryFunc func(context.Context) Rule
+type ruleFactoryFunc func(ctx context.Context, ruleDef *ngmodels.AlertRule) Rule
 
-func (f ruleFactoryFunc) new(ctx context.Context) Rule {
-	return f(ctx)
+func (f ruleFactoryFunc) new(ctx context.Context, ruleDef *ngmodels.AlertRule) Rule {
+	return f(ctx, ruleDef)
 }
 
 func newRuleFactory(
@@ -50,6 +51,9 @@ func newRuleFactory(
 	stateManager *state.Manager,
 	evalFactory eval.EvaluatorFactory,
 	ruleProvider ruleProvider,
+	dsCache datasources.CacheService,
+	dsDecryptFn func(*datasources.DataSource) (map[string]string, error),
+	httpClientProvider httpclient.Provider,
 	clock clock.Clock,
 	met *metrics.Scheduler,
 	logger log.Logger,
@@ -57,7 +61,10 @@ func newRuleFactory(
 	evalAppliedHook evalAppliedFunc,
 	stopAppliedHook stopAppliedFunc,
 ) ruleFactoryFunc {
-	return func(ctx context.Context) Rule {
+	return func(ctx context.Context, ruleDef *ngmodels.AlertRule) Rule {
+		if ruleDef.RecordFrom != "" {
+			return newRecordingRule(ctx, evalFactory, dsCache, dsDecryptFn, httpClientProvider, logger)
+		}
 		return newAlertRule(
 			ctx,
 			appURL,

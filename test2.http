@@ -1,0 +1,113 @@
+POST http://localhost:3001/api/ruler/grafana/api/v1/rules/f505d519-3479-440b-8be3-42465084184a
+Authorization: Basic admin:admin
+Content-Type: application/json
+
+{
+   "name":"mem-per-goroutine-recording-rule",
+   "interval":"1m",
+   "rules":[
+      {
+         "grafana_alert":{
+            "title":"mem-per-goroutine-recording-rule",
+            "record_from":"B",
+            "record": "recorded_avg_mem_per_goroutine",
+            "record_to": {
+                "type": "prometheus",
+                "uid": "fdjjc4s1iv4sgd"
+            },
+            "data":[
+                {
+                    "datasourceUid":"gdev-prometheus",
+                    "model":{
+                    "datasource":{
+                        "type":"prometheus",
+                        "uid":"gdev-prometheus"
+                    },
+                    "editorMode":"code",
+                    "expr":"sum by (job) (go_goroutines{})",
+                    "hide":false,
+                    "instant":true,
+                    "legendFormat":"__auto",
+                    "range":false,
+                    "refId":"A"
+                    },
+                    "queryType":"",
+                    "refId":"A",
+                    "relativeTimeRange":{
+                    "from":600,
+                    "to":0
+                    }
+                },
+                {
+                    "datasourceUid":"gdev-prometheus",
+                    "model":{
+                    "datasource":{
+                        "type":"prometheus",
+                        "uid":"gdev-prometheus"
+                    },
+                    "editorMode":"code",
+                    "expr":"sum by (job) (go_memstats_alloc_bytes{})",
+                    "hide":false,
+                    "instant":true,
+                    "legendFormat":"__auto",
+                    "range":false,
+                    "refId":"D"
+                    },
+                    "queryType":"",
+                    "refId":"D",
+                    "relativeTimeRange":{
+                    "from":600,
+                    "to":0
+                    }
+                },
+                {
+                    "datasourceUid":"__expr__",
+                    "model":{
+                    "conditions":[
+                        {
+                            "evaluator":{
+                                "params":[
+                                0,
+                                0
+                                ],
+                                "type":"gt"
+                            },
+                            "operator":{
+                                "type":"and"
+                            },
+                            "query":{
+                                "params":[
+                                
+                                ]
+                            },
+                            "reducer":{
+                                "params":[
+                                
+                                ],
+                                "type":"avg"
+                            },
+                            "type":"query"
+                        }
+                    ],
+                    "datasource":{
+                        "name":"Expression",
+                        "type":"__expr__",
+                        "uid":"__expr__"
+                    },
+                    "expression":"$D / $A",
+                    "hide":false,
+                    "refId":"B",
+                    "type":"math"
+                    },
+                    "queryType":"",
+                    "refId":"B"
+                }
+            ],
+            "is_paused":false
+         },
+         "labels":{
+            "some": "label"
+         }
+      }
+   ]
+}

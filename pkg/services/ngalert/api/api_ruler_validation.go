@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grafana/grafana-plugin-sdk-go/experimental/apis/data/v0alpha1"
 	apimodels "github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	ngmodels "github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/ngalert/store"
@@ -117,9 +116,9 @@ func validateRuleNode(
 		}
 	}
 
-	var recordTo *v0alpha1.DataSourceRef
+	var recordTo *ngmodels.DataSourceRef
 	if isRecordingRule {
-		if ruleNode.ApiRuleNode.Record == "" {
+		if ruleNode.GrafanaManagedAlert.Record == "" {
 			return nil, fmt.Errorf("record must be supplied for recording rules")
 		}
 		rt, err := validateRecordTo(ruleNode.GrafanaManagedAlert.RecordTo)
@@ -142,7 +141,7 @@ func validateRuleNode(
 		RuleGroup:       groupName,
 		NoDataState:     noDataState,
 		ExecErrState:    errorState,
-		Record:          ruleNode.Record,
+		Record:          ruleNode.GrafanaManagedAlert.Record,
 		RecordFrom:      ruleNode.GrafanaManagedAlert.RecordFrom,
 		RecordTo:        recordTo,
 	}
@@ -179,7 +178,7 @@ func validateRuleNode(
 	return &newAlertRule, nil
 }
 
-func validateRecordTo(dsr *apimodels.DataSourceRef) (*v0alpha1.DataSourceRef, error) {
+func validateRecordTo(dsr *apimodels.DataSourceRef) (*ngmodels.DataSourceRef, error) {
 	if dsr == nil {
 		return nil, fmt.Errorf("record_to must be supplied for recording rules")
 	}
@@ -189,7 +188,7 @@ func validateRecordTo(dsr *apimodels.DataSourceRef) (*v0alpha1.DataSourceRef, er
 	if dsr.UID == "" {
 		return nil, fmt.Errorf("datasource uid must be supplied")
 	}
-	return &v0alpha1.DataSourceRef{
+	return &ngmodels.DataSourceRef{
 		Type: dsr.Type,
 		UID:  dsr.UID,
 	}, nil
@@ -227,7 +226,7 @@ func validateCondition(condition string, queries []apimodels.AlertQuery) error {
 			ids = append(ids, id)
 		}
 		sort.Strings(ids)
-		return fmt.Errorf("condition %s does not exist, must be one of [%s]", condition, strings.Join(ids, ","))
+		return fmt.Errorf("asdfasdf condition %s does not exist, must be one of [%s]", condition, strings.Join(ids, ","))
 	}
 	return nil
 }
