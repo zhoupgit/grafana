@@ -2,7 +2,7 @@
 aliases:
   - ../../panels/visualizations/bar-chart/
   - ../../visualizations/bar-chart/
-description: Configure options for Grafana's bar chart visualization
+description: Bar chart visualization
 keywords:
   - grafana
   - docs
@@ -16,6 +16,22 @@ labels:
     - oss
 title: Bar chart
 weight: 100
+refs:
+  standard-options-definitions:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#max
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#max
+  standard-calculations:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
+  add-a-field-override:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
 ---
 
 # Bar chart
@@ -129,19 +145,13 @@ Transparency of the gradient is calculated based on the values on the y-axis. Op
 
 Gradient color is generated based on the hue of the line color.
 
-## Tooltip options
-
-{{< docs/shared lookup="visualizations/tooltip-options-1.md" source="grafana" version="<GRAFANA_VERSION>" >}}
-
-## Legend options
-
-Legend options control the series names and statistics that appear under or to the right of the graph.
+{{< docs/shared lookup="visualizations/tooltip-mode.md" source="grafana" version="<GRAFANA VERSION>" >}}
 
 {{< docs/shared lookup="visualizations/legend-mode.md" source="grafana" version="<GRAFANA VERSION>" >}}
 
 ### Legend calculations
 
-Choose which of the [standard calculations][] to show in the legend. You can have more than one.
+Choose which of the [standard calculations](ref:standard-calculations) to show in the legend. You can have more than one.
 
 For more information about the legend, refer to [Configure a legend](../configure-legend/).
 
@@ -175,7 +185,7 @@ Display all Y-axes on the right side.
 
 Hide all axes.
 
-To selectively hide axes, [Add a field override][] that targets specific fields.
+To selectively hide axes, [Add a field override](ref:add-a-field-override) that targets specific fields.
 
 ### Label
 
@@ -195,21 +205,7 @@ Set a **Soft min** or **soft max** option for better control of Y-axis limits. B
 
 **Soft min** and **soft max** settings can prevent blips from turning into mountains when the data is mostly flat, and hard min or max derived from standard min and max field options can prevent intermittent spikes from flattening useful detail by clipping the spikes past a defined point.
 
-You can set standard min/max options to define hard limits of the Y-axis. For more information, refer to [Standard options definitions][].
+You can set standard min/max options to define hard limits of the Y-axis. For more information, refer to [Standard options definitions](ref:standard-options-definitions).
 
-{{< docs/shared lookup="visualizations/multiple-y-axes.md" source="grafana" version="<GRAFANA_VERSION>" leveloffset="+2" >}}
+{{< docs/shared lookup="visualizations/multiple-y-axes.md" source="grafana" version="<GRAFANA VERSION>" leveloffset="+2" >}}
 
-## Value mappings
-
-{{< docs/shared lookup="visualizations/value-mappings-options.md" source="grafana" version="<GRAFANA_VERSION>" >}}
-
-{{% docs/reference %}}
-[Add a field override]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides#add-a-field-override"
-[Add a field override]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides#add-a-field-override"
-
-[standard calculations]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types"
-[standard calculations]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types"
-
-[Standard options definitions]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options#max"
-[Standard options definitions]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options#max"
-{{% /docs/reference %}}

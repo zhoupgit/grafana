@@ -12,7 +12,6 @@ labels:
     - cloud
     - enterprise
     - oss
-description: Configure options for Grafana's flame graph visualization
 title: Flame graph
 weight: 100
 ---

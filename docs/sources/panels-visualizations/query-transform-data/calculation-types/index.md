@@ -10,7 +10,6 @@ labels:
     - enterprise
     - oss
 title: Calculation types
-description: Learn about the calculations you can apply to your data
 weight: 1100
 ---
 

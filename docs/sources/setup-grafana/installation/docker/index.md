@@ -117,10 +117,10 @@ docker run -d -p 3000:3000 --name=grafana \
 Grafana supports specifying custom configuration settings using [environment variables]({{< relref "../../../setup-grafana/configure-grafana#override-configuration-with-environment-variables" >}}).
 
 ```bash
-# enable debug logs
+# enabling public dashboard feature
 
 docker run -d -p 3000:3000 --name=grafana \
-  -e "GF_LOG_LEVEL=debug" \
+  -e "GF_FEATURE_TOGGLES_ENABLE=publicDashboards" \
   grafana/grafana-enterprise
 ```
 

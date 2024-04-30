@@ -20,8 +20,6 @@ weight: 50
 Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud](/docs/grafana-cloud).
 {{% /admonition %}}
 
-{{< table-of-contents >}}
-
 This section includes instructions for how to view permissions associated with roles, create custom roles, and update and delete roles.
 
 The following example includes the base64 username:password Basic Authorization. You cannot use authorization tokens in the request.
@@ -106,7 +104,7 @@ Create a custom role when basic roles and fixed roles do not meet your permissio
 
 ### Create custom roles using provisioning
 
-[File-based provisioning]({{< relref "./rbac-grafana-provisioning" >}}) is one method you can use to create custom roles.
+File-based provisioning is one method you can use to create custom roles.
 
 1. Open the YAML configuration file and locate the `roles` section.
 

@@ -1,5 +1,5 @@
 ---
-description: Learn about new and updated features in Grafana v10.2
+description: Feature and improvement highlights for Grafana v10.2
 keywords:
   - grafana
   - new
@@ -19,7 +19,7 @@ weight: -39
 
 Welcome to Grafana 10.2! Read on to learn about changes to dashboards and visualizations, data sources, security and authentication, and more. We’re particularly excited about the addition of generative AI features for dashboards, a new kind of basic role, and improvements to visualization transformations.
 
-For even more detail about all the changes in this release, refer to the [changelog](https://github.com/grafana/grafana/blob/main/CHANGELOG.md). For the specific steps we recommend when you upgrade to v10.2, check out our [Upgrade Guide](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/upgrade-guide/upgrade-v10.2/).
+For even more detail about all the changes in this release, refer to the [changelog](https://github.com/grafana/grafana/blob/master/CHANGELOG.md). For the specific steps we recommend when you upgrade to v10.2, check out our [Upgrade Guide](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/upgrade-guide/upgrade-v10.2/).
 
 <!-- Template below
 
@@ -327,7 +327,7 @@ The **Add field from calculation** transformation has been updated.
 - **Floor (floor)** - Returns the largest integer less than or equal to a given expression.
 - **Ceiling (ceil)** - Returns the smallest integer greater than or equal to a given expression.
 
-{{< figure src="/media/docs/grafana/transformations/unary-operation.png" alt="Unary operation options" >}}
+{{< figure src="/media/docs/grafana/transformations/unary-operation.png" >}}
 
 Also, **Row index** can now show the index as a percentage.
 

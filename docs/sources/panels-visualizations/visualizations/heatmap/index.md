@@ -2,7 +2,7 @@
 aliases:
   - ../../features/panels/heatmap/
   - ../../visualizations/heatmap/
-description: Configure options for Grafana's heatmap visualization
+description: Heatmap visualization documentation
 keywords:
   - grafana
   - heatmap
@@ -15,6 +15,12 @@ labels:
     - oss
 title: Heatmap
 weight: 100
+refs:
+  introduction-to-histograms-and-heatmaps:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-histograms/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-histograms/
 ---
 
 # Heatmap
@@ -150,25 +156,9 @@ Use these settings to refine your visualization.
 
 ### Tooltip
 
-#### Tooltip mode
-
-When you hover your cursor over the visualization, Grafana can display tooltips. Choose how tooltips behave.
-
-- **Single -** The hover tooltip shows only a single series, the one that you are hovering over on the visualization.
-- **All -** The hover tooltip shows all series in the visualization. Grafana highlights the series that you are hovering over in bold in the series list in the tooltip.
-- **Hidden -** Do not display the tooltip when you interact with the visualization.
-
-Use an override to hide individual series from the tooltip.
-
-#### Show histogram (Y axis)
-
-When you set the **Tooltip mode** to **Single**, this option is displayed. This option controls whether or not the tooltip includes a histogram representing the y-axis.
-
-#### Show color scale
-
-When you set the **Tooltip mode** to **Single**, this option is displayed. This option controls whether or not the tooltip includes the color scale that's also represented in the legend. When the color scale is included in the tooltip, it shows the hovered value on the scale:
-
-![Heatmap with a tooltip displayed showing the hovered value reflected in the color scale](/media/docs/grafana/panels-visualizations/screenshot-heatmap-tooltip-color-scale-v11.0.png)
+- **Show tooltip -** Show heatmap tooltip.
+- **Show Histogram -** Show a Y-axis histogram on the tooltip. A histogram represents the distribution of the bucket values for a specific timestamp.
+- **Show color scale -** Show a color scale on the tooltip. The color scale represents the mapping between bucket value and color. This option is configurable when you enable the `newVizTooltips` feature flag.
 
 ### Legend
 
@@ -178,7 +168,3 @@ Choose whether you want to display the heatmap legend on the visualization.
 
 Set the color used to show exemplar data.
 
-{{% docs/reference %}}
-[Introduction to histograms and heatmaps]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-histograms"
-[Introduction to histograms and heatmaps]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-histograms"
-{{% /docs/reference %}}

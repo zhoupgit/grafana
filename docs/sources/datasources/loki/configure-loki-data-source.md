@@ -12,6 +12,12 @@ keywords:
 menuTitle: Configure Loki
 title: Configure the Loki data source
 weight: 200
+refs:
+  log-details:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#labels-and-detected-fields
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#labels-and-detected-fields
 ---
 
 # Loki data source
@@ -91,10 +97,10 @@ To troubleshoot configuration and other issues, check the log file located at `/
 
 ### Derived fields
 
-Derived Fields are used to extract new fields from your logs and create a link from the value of the field.
+Derived Fields are used to extract new fields from a log message and create a link from the value of the field.
 
-For example, you can link to your tracing backend directly from your logs, or link to a user profile page if the log line contains a corresponding `userId`.
-These links appear in the [log details][].
+For example, you can link to your tracing backend directly from your logs, or link to a user profile page if the log line contains a corresponding userId.
+These links appear in the [log details](ref:log-details).
 
 You can add multiple derived fields.
 
@@ -106,11 +112,7 @@ Each derived field consists of the following:
 
 - **Name** - Sets the field name. Displayed as a label in the log details.
 
-- **Type** - Defines the type of the derived field. It can be either:
-
-  - **Regex**: A regular expression to parse a part of the log message and capture it as the value of the new field. Can contain only one capture group.
-
-  - **Label**: A label from the selected log line. This can be any type of label - indexed, parsed or structured metadata. The label's value will be used as the value of the derived field.
+- **Regex** - Defines a regular expression to parse a part of the log message and capture it as the value of the new field. Can contain only one capture group.
 
 - **URL/query** Sets the full link URL if the link is external, or a query for the target data source if the link is internal. You can interpolate the value from the field with the `${__value.raw}` macro.
 
@@ -133,7 +135,3 @@ The new field with the link shown in log details:
 
 {{< figure src="/static/img/docs/explore/data-link-9-4.png" max-width="800px" caption="Data link in Explore" >}}
 
-{{% docs/reference %}}
-[log details]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/explore/logs-integration#labels-and-detected-fields"
-[log details]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/explore/logs-integration#labels-and-detected-fields"
-{{% /docs/reference %}}

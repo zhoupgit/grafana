@@ -1,22 +1,57 @@
 ---
 canonical: https://grafana.com/docs/grafana/latest/alerting/manage-notifications/
-description: Detect and respond for day-to-day triage and analysis of what’s going on and action you need to take
+description: Manage alert notifications
 keywords:
   - grafana
-  - detect
-  - respond
+  - alert
+  - notifications
 labels:
   products:
     - cloud
     - enterprise
     - oss
-menuTitle: Detect and respond
-title: Detect and respond
+menuTitle: Manage
+title: Manage your alerts
 weight: 130
+refs:
+  view-alert-rules:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/view-alert-rules/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/view-alert-rules/
+  create-silence:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/create-silence/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/create-silence/
+  mute-timings:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/mute-timings/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/mute-timings/
+  view-state-health:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/view-state-health/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/view-state-health/
+  declare-incident-from-firing-alert:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/declare-incident-from-alert/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/declare-incident-from-alert/
 ---
 
-# Detect and respond
+# Manage your alerts
 
-Use Grafana Alerting to track and generate alerts and send notifications, providing an efficient way for engineers to monitor, respond, and triage issues within their services.
+Once you have set up your alert rules, contact points, and notification policies, you can use Grafana Alerting to:
 
-Alerts and alert notifications provide a lot of value as key indicators to issues during the triage process, providing engineers with the information they need to understand what is going on in their system or service.
+[Create silences](ref:create-silence)
+
+[Create mute timings](ref:mute-timings)
+
+[Declare incidents from firing alerts](ref:declare-incident-from-firing-alert)
+
+[View the state and health of alert rules](ref:view-state-health)
+
+[View and filter alert rules](ref:view-alert-rules)
+

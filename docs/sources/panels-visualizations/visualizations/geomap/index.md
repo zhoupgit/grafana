@@ -21,7 +21,7 @@ aliases:
   - ../../panels/visualizations/geomap/osm/
   - ../../panels/visualizations/geomap/zyx/
   - ../../visualizations/geomap/
-description: Configure options for Grafana's geomap visualization
+description: Geomap visualization documentation
 keywords:
   - grafana
   - Geomap
@@ -34,6 +34,17 @@ labels:
     - oss
 title: Geomap
 weight: 100
+refs:
+  data-format-supported-by-the-node-graph-visualization:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/#data-api
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/#data-api
+  provisioning-docs-page:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/
 ---
 
 # Geomap
@@ -43,8 +54,6 @@ Geomaps allow you to view and customize the world map using geospatial data. You
 > We would love your feedback on geomaps. Please check out the [open Github issues](https://github.com/grafana/grafana/issues?page=1&q=is%3Aopen+is%3Aissue+label%3Aarea%2Fpanel%2Fgeomap) and [submit a new feature request](https://github.com/grafana/grafana/issues/new?assignees=&labels=type%2Ffeature-request,area%2Fpanel%2Fgeomap&title=Geomap:&projects=grafana-dataviz&template=1-feature_requests.md) as needed.
 
 {{< figure src="/static/img/docs/geomap-panel/geomap-example-8-1-0.png" max-width="1200px" caption="Geomap panel" >}}
-
-Pan the map, while it's in focus, by using the arrow keys. Zoom in and out by using the `+` and `-` keys.
 
 The following video provides beginner steps for creating geomap visualizations. You'll learn the data requirements and caveats, special customizations, preconfigured displays and much more:
 
@@ -174,7 +183,7 @@ The default base layer uses the [CARTO](#carto-layer) map. You can define custom
 
 #### Configure the default base layer with provisioning
 
-You can configure the default base map using config files with Grafana’s provisioning system. For more information on all the settings, refer to the [provisioning docs page][].
+You can configure the default base map using config files with Grafana’s provisioning system. For more information on all the settings, refer to the [provisioning docs page](ref:provisioning-docs-page).
 
 Use the JSON configuration option `default_baselayer_config` to define the default base map. There are currently four base map options to choose from: `carto`, `esri-xyz`, `osm-standard`, `xyz`. Here are some provisioning examples for each base map option.
 
@@ -288,26 +297,6 @@ The GeoJSON layer allows you to select and load a static GeoJSON file from the f
 - **Add style rule** creates additional style rules.
 - **Display tooltip** allows you to toggle tooltips for the layer.
 
-{{% admonition type="note" %}}
-Styles can be set within the "properties" object of the GeoJSON with support for the following geometries:
-
-- Polygon, MultiPolygon
-
-  - **"fill"** - The color of the interior of the polygon(s)
-  - **"fill-opacity"** - The opacity of the interior of the polygon(s)
-  - **"stroke-width"** - The width of the line component of the polygon(s)
-
-- Point, MultiPoint
-
-  - **"marker-color"** - The color of the point(s)
-  - **"marker-size"** - The size of the point(s)
-
-- LineString, MultiLineString
-  - **"stroke"** - The color of the line(s)
-  - **"stroke-width"** - The width of the line(s)
-
-{{% /admonition %}}
-
 ## Night / Day layer
 
 The Night / Day layer displays night and day regions based on the current time range.
@@ -395,7 +384,7 @@ The Photos layer renders a photo at each data point.
 The Network layer is currently in [public preview](/docs/release-life-cycle/). Grafana Labs offers limited support, and breaking changes might occur prior to the feature being made generally available.
 {{% /admonition %}}
 
-The Network layer renders a network graph. This layer supports the same [data format supported by the node graph visualization][] with the addition of [geospatial data]({{< relref "#location">}}) included in the nodes data. The geospatial data is used to locate and render the nodes on the map.
+The Network layer renders a network graph. This layer supports the same [data format supported by the node graph visualization](ref:data-format-supported-by-the-node-graph-visualization) with the addition of [geospatial data]({{< relref "#location">}}) included in the nodes data. The geospatial data is used to locate and render the nodes on the map.
 
 {{< figure src="/media/docs/grafana/screenshot-grafana-10-1-geomap-network-layer-v2.png" max-width="750px" caption="Geomap network layer" >}}
 {{< video-embed src="/media/docs/grafana/screen-recording-10-1-geomap-network-layer-from-node-graph.mp4" max-width="750px" caption="Node graph to Geomap network layer" >}}
@@ -483,7 +472,7 @@ A map from a collaborative free geographic world database.
 
 ### More Information
 
-- [**About Open Street Map**](https://www.openstreetmap.org/about)
+- [**About Open Street Map**](https://www.openstreetmap.org/about)\
 
 ## ArcGIS layer
 
@@ -562,7 +551,7 @@ Displays measure tools in the upper right corner. Measurements appear only when 
 - **Double-click** to end measurement
 
 {{% admonition type="note" %}}
-When you change measurement type or units, the previous measurement is removed from the map. If the control is closed and then re-opened, the most recent measurement is displayed. A measurement can be modified by clicking and dragging on it.
+<br /- When you change measurement type or units, the previous measurement is removed from the map. <br /- If the control is closed and then re-opened, the most recent measurement is displayed. <br /- A measurement can be modified by clicking and dragging on it.
 {{% /admonition %}}
 
 #### Length
@@ -603,14 +592,3 @@ Displays debug information in the upper right corner. This can be useful for deb
 - **None** displays tooltips only when a data point is clicked.
 - **Details** displays tooltips when a mouse pointer hovers over a data point.
 
-## Value mappings
-
-{{< docs/shared lookup="visualizations/value-mappings-options.md" source="grafana" version="<GRAFANA_VERSION>" >}}
-
-{{% docs/reference %}}
-[provisioning docs page]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/administration/provisioning"
-[provisioning docs page]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/administration/provisioning"
-
-[data format supported by the node graph visualization]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph#data-api"
-[data format supported by the node graph visualization]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph#data-api"
-{{% /docs/reference %}}

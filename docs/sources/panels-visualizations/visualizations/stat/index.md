@@ -5,7 +5,7 @@ aliases:
   - ../../panels/visualizations/stat-panel/
   - ../../reference/singlestat/
   - ../../visualizations/stat-panel/
-description: Configure options for Grafana's stat visualization
+description: Stat panel documentation
 keywords:
   - grafana
   - docs
@@ -17,6 +17,12 @@ labels:
     - oss
 title: Stat
 weight: 100
+refs:
+  calculation-types:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
 ---
 
 # Stat
@@ -52,7 +58,7 @@ Alternatively, refer to this blog post on [how to easily retrieve values from a 
 The stat visualization supports a variety of formats for displaying data. Supported formats include:
 
 - **Single values** - The most common format and can be numerical, strings, or boolean values.
-- **Time-series data** - [Calculation types][] can be applied to your time-series data to display single values over a specified time range.
+- **Time-series data** - [Calculation types](ref:calculation-types) can be applied to your time-series data to display single values over a specified time range.
 
 ### Examples
 
@@ -108,7 +114,7 @@ Display a single value per column or series, or show values for each row.
 
 Display a calculated value based on all rows.
 
-- **Calculation -** Select a reducer function that Grafana will use to reduce many fields to a single value. For a list of available calculations, refer to [Calculation types][].
+- **Calculation -** Select a reducer function that Grafana will use to reduce many fields to a single value. For a list of available calculations, refer to [Calculation types](ref:calculation-types).
 - **Fields -** Select the fields display in the visualization.
 
 #### All values
@@ -174,14 +180,6 @@ Choose an alignment mode.
 - **Auto -** If only a single value is shown (no repeat), then the value is centered. If multiple series or rows are shown, then the value is left-aligned.
 - **Center -** Stat value is centered.
 
-### Show percent change
-
-Set whether percent change is displayed or not. Disabled by default.
-
-{{% admonition type="note" %}}
-This option is not applicable when the **Show** setting, under **Value options**, is set to **All values**.
-{{% /admonition %}}
-
 ## Text size
 
 Adjust the sizes of the gauge text.
@@ -189,11 +187,3 @@ Adjust the sizes of the gauge text.
 - **Title -** Enter a numeric value for the gauge title size.
 - **Value -** Enter a numeric value for the gauge value size.
 
-## Value mappings
-
-{{< docs/shared lookup="visualizations/value-mappings-options.md" source="grafana" version="<GRAFANA_VERSION>" >}}
-
-{{% docs/reference %}}
-[Calculation types]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types"
-[Calculation types]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types"
-{{% /docs/reference %}}

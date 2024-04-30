@@ -1,7 +1,6 @@
 ---
 aliases:
   - ../basics/timeseries/
-  - /docs/grafana-cloud/introduction/timeseries/
 description: Introduction to time series
 keywords:
   - grafana

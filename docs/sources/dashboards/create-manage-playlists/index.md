@@ -14,7 +14,6 @@ labels:
     - oss
 menuTitle: Manage playlists
 title: Manage playlists
-description: Create and manage dashboard playlists
 weight: 9
 ---
 
