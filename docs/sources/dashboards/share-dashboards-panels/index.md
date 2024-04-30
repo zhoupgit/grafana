@@ -34,16 +34,16 @@ title: Share dashboards and panels
 description: Share Grafana dashboards and panels within your organization and publicly
 weight: 85
 refs:
-  image-rendering:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/image-rendering/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/image-rendering/
   grafana-enterprise:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/introduction/grafana-enterprise/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/introduction/grafana-enterprise/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
+  image-rendering:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/image-rendering/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/image-rendering/
 ---
 
 # Share dashboards and panels
@@ -75,7 +75,7 @@ If you change a dashboard, ensure that you save the changes before sharing.
 
 1. Click **Dashboards** in the left-side menu.
 1. Click the dashboard you want to share.
-1. Click the share icon at the top of the screen.
+1. Click the **Share** button at the top right of the screen.
 
    The share dialog opens and shows the Link tab.
 
@@ -143,7 +143,7 @@ You can generate and save PDF files of any dashboard.
 
 1. Click **Dashboards** in the left-side menu.
 1. Click the dashboard you want to share.
-1. Click the share icon at the top of the screen.
+1. Click the **Share** button at the top right of the screen.
 1. On the PDF tab, select a layout option for the exported dashboard: **Portrait** or **Landscape**.
 1. Click **Save as PDF** to render the dashboard as a PDF file.
 

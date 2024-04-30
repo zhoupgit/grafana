@@ -22,21 +22,21 @@ title: Use dashboards
 description: Learn about the features of a Grafana dashboard
 weight: 1
 refs:
-  dashboard-settings:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/modify-dashboard-settings/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/modify-dashboard-settings/
   repeating-rows:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
   dashboard-analytics:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/assess-dashboard-usage/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/assess-dashboard-usage/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/
+  dashboard-settings:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/modify-dashboard-settings/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/modify-dashboard-settings/
 ---
 
 # Use dashboards
@@ -154,7 +154,7 @@ Hover your cursor over the field to see the exact time stamps in the range and t
 
 Click the current time range to change it. You can change the current time using a _relative time range_, such as the last 15 minutes, or an _absolute time range_, such as `2020-05-14 00:00:00 to 2020-05-15 23:59:59`.
 
-<img class="no-shadow" src="/media/docs/grafana/dashboards/screenshot-change-current-time-range.png" max-width="900px">
+<img class="no-shadow" src="/media/docs/grafana/dashboards/screenshot-change-current-time-range-10.3.png" max-width="900px">
 
 #### Relative time range
 
@@ -205,6 +205,15 @@ If you wanted to track the progress of something during business hours, you coul
 This is equivalent to the **Today so far** time range preset, but it starts at 8:00am instead of 12:00am by appending +8h to the periodic start time.
 
 Using a semi-relative time range, as time progresses, your dashboard will automatically and progressively zoom out to show more history and fewer details. At the same rate, as high data resolution decreases, historical trends over the entire time period will become more clear.
+
+#### Copy and paste time range
+
+You can copy and paste the time range from a dashboard to **Explore** and vice versa, or from one dashboard to another.
+Click the **Copy time range to clipboard** icon to copy the current time range to the clipboard. Then paste the time range into **Explore** or another dashboard.
+
+<img class="no-shadow" src="/media/docs/grafana/dashboards/screenshot-copy-paste-time-range.png" max-width="900">
+
+You can also copy and paste a time range using the keyboard shortcuts `t+c` and `t+v` respectively.
 
 #### Zoom out (Cmd+Z or Ctrl+Z)
 

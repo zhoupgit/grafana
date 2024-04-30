@@ -22,21 +22,21 @@ title: Manage dashboards
 description: Learn about dashboard management and generative AI features for dashboards
 weight: 8
 refs:
-  build-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/
-  dashboard-permissions:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/roles-and-permissions/#dashboard-permissions
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/roles-and-permissions/#dashboard-permissions
   grafana-llm-plugin-documentation:
     - pattern: /docs/grafana/
       destination: /docs/grafana-cloud/alerting-and-irm/machine-learning/configure/llm-plugin/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/machine-learning/configure/llm-plugin/
+  dashboard-permissions:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/#dashboard-permissions
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/#dashboard-permissions
+  build-dashboards:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/
 ---
 
 # Manage dashboards
@@ -61,6 +61,12 @@ On the **Dashboards** page, you can browse and manage folders and dashboards. Th
 
 The page lists all the dashboards to which you have access, grouped into folders. Dashboards without a folder are displayed at the top level alongside folders.
 
+### Shared with me
+
+The **Shared with me** section displays folders and dashboards that are directly shared with you. These folders and dashboards aren't shown in the main list because you don't have access to one or more of their parent folders.
+
+If you have permission to view all folders, you won't see a **Shared with me**.
+
 ## Create a dashboard folder
 
 Folders help you organize and group dashboards, which is useful when you have many dashboards or multiple teams using the same Grafana instance.
@@ -69,11 +75,17 @@ Folders help you organize and group dashboards, which is useful when you have ma
 
 **To create a dashboard folder:**
 
-1. Click **Dashboards** in the main menu.
-1. On the **Dashboards** page, click **New** and select **New folder** in the drop-down.
+1. Click **Dashboards** in the primary menu.
+1. Do one of the following:
+
+   - On the **Dashboards** page, click **New** and select **New folder** in the drop-down.
+   - Click an existing folder and on the folder’s page, click **New** and select **New folder** in the drop-down.
+
 1. Enter a unique name and click **Create**.
 
-When you save a dashboard, you can either select a folder for the dashboard to be saved in or create a new folder.
+When you nest folders, you can do so up to four levels deep.
+
+When you save a dashboard, you can optionally select a folder to save the dashboard in.
 
 {{% admonition type="note" %}}
 Alerts can't be placed in folders with slashes (\ /) in the name. If you wish to place alerts in the folder, don't use slashes in the folder name.

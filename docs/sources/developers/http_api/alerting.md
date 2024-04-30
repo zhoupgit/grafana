@@ -16,16 +16,16 @@ labels:
     - oss
 title: Legacy Alerting API
 refs:
-  grafana-alerting-alerts-documentation:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/
   admin-api:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/http_api/admin/#pause-all-alerts
+      destination: /docs/grafana/<GRAFANA VERSION>/developers/http_api/admin/#pause-all-alerts
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/http_api/admin/#pause-all-alerts
+      destination: /docs/grafana/<GRAFANA VERSION>/developers/http_api/admin/#pause-all-alerts
+  grafana-alerting-alerts-documentation:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
 ---
 
 # Legacy Alerting API

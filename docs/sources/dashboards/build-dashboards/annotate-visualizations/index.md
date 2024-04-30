@@ -17,16 +17,16 @@ title: Annotate visualizations
 weight: 600
 description: Annotate dashboard visualizations to mark points with rich events
 refs:
-  data-source:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
   annotations-api:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/http_api/annotations/
+      destination: /docs/grafana/<GRAFANA VERSION>/developers/http_api/annotations/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/http_api/annotations/
+      destination: /docs/grafana/<GRAFANA VERSION>/developers/http_api/annotations/
+  data-source:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/
 ---
 
 # Annotate visualizations

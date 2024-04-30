@@ -10,16 +10,16 @@ labels:
 title: Upgrade Alerting
 weight: 150
 refs:
-  special_alert:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/alert-rules/state-and-health/#special-alerts-for-nodata-and-error
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/alert-rules/state-and-health/#special-alerts-for-nodata-and-error
   alerting_config_error_handling:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/alerting-rules/create-grafana-managed-rule/#configure-no-data-and-error-handling
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules/create-grafana-managed-rule/#configure-no-data-and-error-handling
+  special_alert:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/alert-rules/state-and-health/#special-alerts-for-nodata-and-error
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/alert-rules/state-and-health/#special-alerts-for-nodata-and-error
 ---
 
 # Upgrade Alerting
@@ -48,8 +48,8 @@ When upgrading with either method, your legacy dashboard alerts and notification
 | **Stakeholder Involvement** | ☑️ Collaboration and review of adjusted alerts                                      | ❌ Review only available after upgrade               |
 | **Provisioning Support**    | ☑️ Configure new as-code before upgrading, simultaneous provisioning                | ❌ No built-in provisioning support                  |
 | **Simplicity**              | ❌ May take longer to complete                                                      | ☑️ Fast, one-step process                            |
-| **Technical Requirements**  | Feature flag enabled, Grafana v10.3.0+                                              | Grafana v9.0.0+                                      |
 | **Suited for:**             | ☑️ Complex setups, risk-averse environments, collaborative teams, heavy as-code use | ☑️ Simple setups, testing environments, large fleets |
+| **Version**                 | Grafana v10.3.0+                                                                    | Grafana v9.0.0+                                      |
 
 ## Upgrade with Preview (Recommended)
 
@@ -57,7 +57,7 @@ When upgrading with either method, your legacy dashboard alerts and notification
 
 - Grafana `v10.3.0 or later`.
 - Grafana administrator access.
-- Enable `alertingPreviewUpgrade` [feature toggle]({{< relref "../../../setup-grafana/configure-grafana/feature-toggles" >}}).
+- Enable `alertingPreviewUpgrade` [feature toggle]({{< relref "../../../setup-grafana/configure-grafana/feature-toggles" >}}) (enabled by default in v10.4.0 or later).
 
 ### Suited for
 
@@ -70,7 +70,7 @@ When upgrading with either method, your legacy dashboard alerts and notification
 
 In **Alerts & IRM**, the **Alerting** section provides a preview of Grafana Alerting where you can review and modify your upgraded alerts before finalizing the upgrade.
 
-In the **Alerting (legacy) -> Alerting upgrade** section, you can initiate the process to automatically upgrade your existing alert rules and notification channels, and view a summary of the upgrade to Grafana Alerting.
+In the **Alerting (legacy) -> Alerting upgrade** section, you can upgrade your existing alert rules and notification channels, and view a summary of the upgrade to Grafana Alerting.
 
 Finalize your upgrade by restarting Grafana with the `[unified_alerting]` section enabled in your configuration.
 

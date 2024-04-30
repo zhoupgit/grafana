@@ -35,16 +35,16 @@ labels:
 title: Geomap
 weight: 100
 refs:
-  data-format-supported-by-the-node-graph-visualization:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/node-graph/#data-api
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/node-graph/#data-api
   provisioning-docs-page:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/provisioning/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/provisioning/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/
+  data-format-supported-by-the-node-graph-visualization:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/#data-api
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/#data-api
 ---
 
 # Geomap
@@ -297,6 +297,26 @@ The GeoJSON layer allows you to select and load a static GeoJSON file from the f
 - **Add style rule** creates additional style rules.
 - **Display tooltip** allows you to toggle tooltips for the layer.
 
+{{% admonition type="note" %}}
+Styles can be set within the "properties" object of the GeoJSON with support for the following geometries:
+
+- Polygon, MultiPolygon
+
+  - **"fill"** - The color of the interior of the polygon(s)
+  - **"fill-opacity"** - The opacity of the interior of the polygon(s)
+  - **"stroke-width"** - The width of the line component of the polygon(s)
+
+- Point, MultiPoint
+
+  - **"marker-color"** - The color of the point(s)
+  - **"marker-size"** - The size of the point(s)
+
+- LineString, MultiLineString
+  - **"stroke"** - The color of the line(s)
+  - **"stroke-width"** - The width of the line(s)
+
+{{% /admonition %}}
+
 ## Night / Day layer
 
 The Night / Day layer displays night and day regions based on the current time range.
@@ -472,7 +492,7 @@ A map from a collaborative free geographic world database.
 
 ### More Information
 
-- [**About Open Street Map**](https://www.openstreetmap.org/about)\
+- [**About Open Street Map**](https://www.openstreetmap.org/about)
 
 ## ArcGIS layer
 
@@ -551,7 +571,7 @@ Displays measure tools in the upper right corner. Measurements appear only when 
 - **Double-click** to end measurement
 
 {{% admonition type="note" %}}
-<br /- When you change measurement type or units, the previous measurement is removed from the map. <br /- If the control is closed and then re-opened, the most recent measurement is displayed. <br /- A measurement can be modified by clicking and dragging on it.
+When you change measurement type or units, the previous measurement is removed from the map. If the control is closed and then re-opened, the most recent measurement is displayed. A measurement can be modified by clicking and dragging on it.
 {{% /admonition %}}
 
 #### Length

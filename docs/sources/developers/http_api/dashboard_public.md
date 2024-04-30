@@ -17,9 +17,9 @@ title: Public Dashboard HTTP API
 refs:
   role-based-access-control-permissions:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/roles-and-permissions/access-control/custom-role-actions-scopes/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/access-control/custom-role-actions-scopes/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/roles-and-permissions/access-control/custom-role-actions-scopes/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/access-control/custom-role-actions-scopes/
 ---
 
 # Public Dashboard API
@@ -117,7 +117,9 @@ Content-Length: 107
 
 ## Update a public dashboard
 
-`PATCH /api/dashboards/uid/:uid/public-dashboards/`
+`PATCH /api/dashboards/uid/:uid/public-dashboards/:publicDashboardUid`
+
+Will update the public dashboard given the specified unique identifier (uid).
 
 **Required permissions**
 
@@ -130,7 +132,7 @@ See note in the [introduction](#public-dashboard-api) for an explanation.
 **Example Request for updating a public dashboard**:
 
 ```http
-PATCH /api/dashboards/uid/xCpsVuc4z/public-dashboards/ HTTP/1.1
+PATCH /api/dashboards/uid/xCpsVuc4z/public-dashboards/cd56d9fd-f3d4-486d-afba-a21760e2acbe HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
@@ -211,7 +213,7 @@ See note in the [introduction](#public-dashboard-api) for an explanation.
 **Example Request**:
 
 ```http
-GET /api/dashboards/uid/xCpsVuc4z HTTP/1.1
+GET /api/dashboards/uid/xCpsVuc4z/public-dashboards/ HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk

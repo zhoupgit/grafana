@@ -19,26 +19,6 @@ labels:
 title: Configure Grafana-managed alert rules
 weight: 100
 refs:
-  expression-queries:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries/
-  alerting-on-numeric-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
-  add-a-query:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
-  annotation-label:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label/
   fundamentals:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/
@@ -49,6 +29,26 @@ refs:
       destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards/#time-units-and-relative-ranges
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards/#time-units-and-relative-ranges
+  annotation-label:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label/
+  add-a-query:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
+  expression-queries:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries/
+  alerting-on-numeric-data:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
 ---
 
 # Configure Grafana-managed alert rules
@@ -142,46 +142,27 @@ To do this, you need to make sure that your alert rule is in the right evaluatio
 
 1. Turn on pause alert notifications, if required.
 
-   {{< admonition type="note" >}}
-   You can pause alert rule evaluation to prevent noisy alerting while tuning your alerts.
-   Pausing stops alert rule evaluation and doesn't create any alert instances.
-   This is different to mute timings, which stop notifications from being delivered, but still allows for alert rule evaluation and the creation of alert instances.
-   {{< /admonition >}}
+   **Note**:
+
+   Pause alert rule evaluation to prevent noisy alerting while tuning your alerts. Pausing stops alert rule evaluation and does not create any alert instances. This is different to mute timings, which stop notifications from being delivered, but still allow for alert rule evaluation and the creation of alert instances.
+
+   You can pause alert rule evaluation to prevent noisy alerting while tuning your alerts. Pausing stops alert rule evaluation and does not create any alert instances. This is different to mute timings, which stop notifications from being delivered, but still allow for alert rule evaluation and the creation of alert instances.
 
 1. In **Configure no data and error handling**, configure alerting behavior in the absence of data.
 
    Use the guidelines in [No data and error handling](#configure-no-data-and-error-handling).
 
-## Add annotations
-
-Add [annotations](ref:annotation-label). to provide more context on the alert in your alert notifications.
-
-Annotations add metadata to provide more information on the alert in your alert notifications. For example, add a **Summary** annotation to tell you which value caused the alert to fire or which server it happened on.
-
-1.[Optional][] Add a summary.
-
-   Short summary of what happened and why.
-
-2.[Optional][] Add a description.
-
-   Description of what the alert rule does.
-
-3.[Optional][] Add a Runbook URL.
-
-   Webpage where you keep your runbook for the alert
-
-4.[Optional][] Add a custom annotation
-5.[Optional][] Add a dashboard and panel link.
-
-   Links alerts to panels in a dashboard.
-
 ## Configure notifications
 
-Add labels to your alert rules to set which notification policy should handle your firing alert instances.
+{{< admonition type="note" >}}
+To try out a simplified version of routing your alerts, enable the alertingSimplifiedRouting feature toggle and refer to the following section Configure notifications (simplified).
+{{< /admonition >}}
 
-All alert rules and instances, irrespective of their labels, match the default notification policy. If there are no nested policies, or no nested policies match the labels in the alert rule or alert instance, then the default notification policy is the matching policy.
+1. Add labels to your alert rules to set which notification policy should handle your firing alert instances.
 
-1. Add labels if you want to change the way your notifications are routed.
+   All alert rules and instances, irrespective of their labels, match the default notification policy. If there are no nested policies, or no nested policies match the labels in the alert rule or alert instance, then the default notification policy is the matching policy.
+
+   Add labels if you want to change the way your notifications are routed.
 
    Add custom labels by selecting existing key-value pairs from the drop down, or add new labels by entering the new key or value.
 
@@ -191,7 +172,79 @@ All alert rules and instances, irrespective of their labels, match the default n
 
    Expand each notification policy below to view more details.
 
-1. Click **See details** to view alert routing details and an email preview.
+1. Click See details to view alert routing details and an email preview.
+
+1. Click **Save rule**.
+
+## Configure notifications (simplified)
+
+{{< admonition type="note" >}}
+To try this out, enable the alertingSimplifiedRouting feature toggle.
+
+This feature is currently not available for Grafana Cloud.
+{{< /admonition >}}
+
+In the **Labels** section, you can optionally choose whether to add labels to organize your alert rules, make searching easier, as well as set which notification policy should handle your firing alert instance.
+
+In the **Configure notifications** section, you can choose to select a contact point directly from the alert rule form or choose to use notification policy routing as well as set up mute timings and groupings.
+
+Complete the following steps to set up labels and notifications.
+
+1. Add labels, if required.
+
+   Add custom labels by selecting existing key-value pairs from the drop down, or add new labels by entering the new key or value.
+
+2. Configure who receives a notification when an alert rule fires by either choosing **Select contact point** or **Use notification policy**.
+
+   **Select contact point**
+
+   1. Choose this option to select an existing contact point.
+
+      All notifications for this alert rule are sent to this contact point automatically and notification policies are not used.
+
+   2. You can also optionally select a mute timing as well as groupings and timings to define when not to send notifications.
+
+      {{% admonition type="note" %}}
+      An auto-generated notification policy is generated. Only admins can view these auto-generated policies from the **Notification policies** list view. Any changes have to be made in the alert rules form. {{% /admonition %}}
+
+   **Use notification policy**
+
+   3. Choose this option to use the notification policy tree to direct your notifications.
+
+      {{% admonition type="note" %}}
+      All alert rules and instances, irrespective of their labels, match the default notification policy. If there are no nested policies, or no nested policies match the labels in the alert rule or alert instance, then the default notification policy is the matching policy.
+      {{% /admonition %}}
+
+   4. Preview your alert instance routing set up.
+
+      Based on the labels added, alert instances are routed to the following notification policies displayed.
+
+   5. Expand each notification policy below to view more details.
+
+   6. Click **See details** to view alert routing details and an email preview.
+
+## Add annotations
+
+Add [annotations](ref:annotation-label). to provide more context on the alert in your alert notification message.
+
+Annotations add metadata to provide more information on the alert in your alert notification message. For example, add a **Summary** annotation to tell you which value caused the alert to fire or which server it happened on.
+
+1.[Optional][] Add a summary.
+
+   Short summary of what happened and why.
+
+1.[Optional][] Add a description.
+
+   Description of what the alert rule does.
+
+1.[Optional][] Add a Runbook URL.
+
+   Webpage where you keep your runbook for the alert
+
+1.[Optional][] Add a custom annotation
+1.[Optional][] Add a dashboard and panel link.
+
+   Links alerts to panels in a dashboard.
 
 1. Click **Save rule**.
 

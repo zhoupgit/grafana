@@ -19,26 +19,31 @@ labels:
 title: Assess dashboard usage
 weight: 200
 refs:
+  enabled:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#public_dashboards
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#public_dashboards
   export-logs-of-usage-insights:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-security/export-logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-security/export-logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
   configuration:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
   export-logs-of-usage-insights:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-security/export-logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-security/export-logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
   grafana-enterprise:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/introduction/grafana-enterprise/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/introduction/grafana-enterprise/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
 ---
 
 # Assess dashboard usage
@@ -81,11 +86,7 @@ Dashboard insights show the following information:
 
 {{< figure src="/static/img/docs/enterprise/dashboard_insights_stats.png" max-width="400px" class="docs-image--no-shadow" alt="Stats tab" >}}{{< figure src="/static/img/docs/enterprise/dashboard_insights_users.png" max-width="400px" class="docs-image--no-shadow" alt="Users and activity tab" >}}
 
-{{% admonition type="note" %}}
-
-If public dashboards are [enabled]({{< relref "../../setup-grafana/configure-grafana/#public_dashboards" >}}), you'll also see a **Public dashboards** tab in your analytics.
-
-{{% /admonition %}}
+If public dashboards are [enabled](ref:enabled), you'll also see a **Public dashboards** tab in your analytics.
 
 ### Data source insights
 
