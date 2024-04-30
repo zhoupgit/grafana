@@ -6,194 +6,43 @@ aliases:
   - ../reference/graph/
   - ../visualizations/
   - ../visualizations/graph-panel/
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Visualizations
-description: Apply visualizations to your data
-weight: 10
-refs:
-  time-series:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/time-series/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/time-series/
-  trend:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/trend/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/trend/
-  bar-chart:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/bar-chart/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/bar-chart/
-  table:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/table/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/table/
-  candlestick:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/candlestick/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/candlestick/
-  logs:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/logs/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/logs/
-  geomap:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/geomap/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/geomap/
-  status-history:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/status-history/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/status-history/
-  heatmap:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/heatmap/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/heatmap/
-  pie-chart:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/pie-chart/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/pie-chart/
-  gauge:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/gauge/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/gauge/
-  node-graph:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/node-graph/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/node-graph/
-  histogram:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/histogram/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/histogram/
-  datagrid:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/datagrid/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/datagrid/
-  canvas:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/canvas/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/canvas/
-  alert-list:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/alert-list/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/alert-list/
-  bar-gauge:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/bar-gauge/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/bar-gauge/
-  traces:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/traces/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/traces/
-  dashboard-list:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/dashboard-list/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/dashboard-list/
-  annotations-list:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/annotations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/annotations/
-  state-timeline:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/state-timeline/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/state-timeline/
-  news:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/news/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/news/
-  flame-graph:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/flame-graph/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/flame-graph/
-  heatmap:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/heatmap/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/heatmap/
-  text:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/text/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/text/
-  stat:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/stat/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/stat/
+weight: 75
 ---
 
 # Visualizations
 
-Grafana offers a variety of visualizations to support different use cases. This section of the documentation highlights the built-in visualizations, their options and typical usage.
+Grafana offers a variety of visualizations to support different use cases. This section of the documentation highlights the built-in panels, their options and typical usage.
 
-{{< youtube id="JwF6FgeotaU" >}}
-
-{{% admonition type="note" %}}
-If you are unsure which visualization to pick, Grafana can provide visualization suggestions based on the panel query. When you select a visualization, Grafana will show a preview with that visualization applied.
-{{% /admonition %}}
+> **Note:** If you are unsure which visualization to pick, Grafana can provide visualization suggestions based on the panel query. When you select a visualization, Grafana will show a preview with that visualization applied.
 
 - Graphs & charts
-  - [Time series](ref:time-series) is the default and main Graph visualization.
-  - [State timeline](ref:state-timeline) for state changes over time.
-  - [Status history](ref:status-history) for periodic state over time.
-  - [Bar chart](ref:bar-chart) shows any categorical data.
-  - [Histogram](ref:histogram) calculates and shows value distribution in a bar chart.
-  - [Heatmap](ref:heatmap) visualizes data in two dimensions, used typically for the magnitude of a phenomenon.
-  - [Pie chart](ref:pie-chart) is typically used where proportionality is important.
-  - [Candlestick](ref:candlestick) is typically for financial data where the focus is price/data movement.
-  - [Gauge](ref:gauge) is the traditional rounded visual showing how far a single metric is from a threshold.
-  - [Trend](ref:trend) for datasets that have a sequential, numeric x that is not time.
+  - [Time series]({{< relref "time-series/" >}}) is the default and main Graph visualization.
+  - [State timeline]({{< relref "state-timeline/" >}}) for state changes over time.
+  - [Status history]({{< relref "status-history/" >}}) for periodic state over time.
+  - [Bar chart]({{< relref "bar-chart/" >}}) shows any categorical data.
+  - [Histogram]({{< relref "histogram/" >}}) calculates and shows value distribution in a bar chart.
+  - [Heatmap]({{< relref "heatmap/" >}}) visualizes data in two dimensions, used typically for the magnitude of a phenomenon.
+  - [Pie chart]({{< relref "pie-chart/" >}}) is typically used where proportionality is important.
+  - [Candlestick]({{< relref "candlestick/" >}}) is typically for financial data where the focus is price/data movement.
 - Stats & numbers
-  - [Stat](ref:stat) for big stats and optional sparkline.
-  - [Bar gauge](ref:bar-gauge) is a horizontal or vertical bar gauge.
+  - [Stat]({{< relref "stat/" >}}) for big stats and optional sparkline.
+  - [Bar gauge]({{< relref "bar-gauge/" >}}) is a horizontal or vertical bar gauge.
 - Misc
-  - [Table](ref:table) is the main and only table visualization.
-  - [Logs](ref:logs) is the main visualization for logs.
-  - [Node graph](ref:node-graph) for directed graphs or networks.
-  - [Traces](ref:traces) is the main visualization for traces.
-  - [Flame graph](ref:flame-graph) is the main visualization for profiling.
-  - [Canvas](ref:canvas) allows you to explicitly place elements within static and dynamic layouts.
-  - [Geomap](ref:geomap) helps you visualize geospatial data.
-  - [Datagrid](ref:datagrid) allows you to create and manipulate data, and act as data source for other panels.
+  - [Table]({{< relref "table/" >}}) is the main and only table visualization.
+  - [Logs]({{< relref "logs/" >}}) is the main visualization for logs.
+  - [Node Graph]({{< relref "node-graph/" >}}) for directed graphs or networks.
+  - [Traces]({{< relref "traces/" >}}) is the main visualization for traces.
+  - [Flame Graph]({{< relref "flame-graph/" >}}) is the main visualization for profiling.
 - Widgets
-  - [Dashboard list](ref:dashboard-list) can list dashboards.
-  - [Alert list](ref:alert-list) can list alerts.
-  - [Annotations list](ref:annotations-list) can list available annotations.
-  - [Text](ref:text) can show markdown and html.
-  - [News](ref:news) can show RSS feeds.
-
-The following video shows you how to create gauge, time series line graph, stats, logs, and node graph visualizations:
-
-{{< youtube id="yNRnLyVntUw" >}}
+  - [Dashboard list]({{< relref "dashboard-list/" >}}) can list dashboards.
+  - [Alert list]({{< relref "alert-list/" >}}) can list alerts.
+  - [Text panel]({{< relref "text/" >}}) can show markdown and html.
+  - [News panel]({{< relref "news/" >}}) can show RSS feeds.
 
 ## Get more
 
-You can add more visualization types by installing [panel plugins](https://grafana.com/grafana/plugins/?type=panel).
+You can add more visualization types by installing panel [panel plugins](https://grafana.com/grafana/plugins/?type=panel).
 
 ## Examples
 
@@ -201,51 +50,50 @@ Below you can find some good examples for how all the visualizations in Grafana 
 
 ### Graphs
 
-For time based line, area and bar charts we recommend the default [time series][] visualization. [This public demo dashboard](https://play.grafana.org/d/000000016/1-time-series-graphs?orgId=1) contains many different examples for how this visualization can be configured and styled.
+For time based line, area and bar charts we recommend the default [Time series]({{< relref "time-series/" >}}) visualization. [This public demo dashboard](https://play.grafana.org/d/000000016/1-time-series-graphs?orgId=1) contains many different examples for how this visualization can be configured and styled.
 
 {{< figure src="/static/img/docs/time-series-panel/time_series_small_example.png" max-width="700px" caption="Time series" >}}
 
-For categorical data use a [bar chart][].
+For categorical data use the [Bar chart]({{< relref "bar-chart/" >}}) visualization.
 
 {{< figure src="/static/img/docs/bar-chart-panel/barchart_small_example.png" max-width="700px" caption="Bar chart" >}}
 
 ### Big numbers & stats
 
-A [stat][] shows one large stat value with an optional graph sparkline. You can control the background or value color using thresholds or color scales.
+The [Stat]({{< relref "stat/" >}}) visualization shows one large stat value with an optional graph sparkline. You can control the background or value color using thresholds or color scales.
 
-{{< figure src="/static/img/docs/v66/stat_panel_dark3.png" max-width="1025px" caption="Stat" >}}
+{{< figure src="/static/img/docs/v66/stat_panel_dark3.png" max-width="1025px" caption="Stat panel" >}}
 
 ### Gauge
 
-If you want to present a value as it relates to a min and max value you have two options. First a standard radial [gauge][] shown below.
+If you want to present a value as it relates to a min and max value you have two options. First a standard [Radial Gauge]({{< relref "gauge/" >}}) shown below.
 
-{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="700px" alt="A gauge visualization" >}}
+{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="700px" >}}
 
-Secondly Grafana also has a horizontal or vertical [bar gauge][] with three different distinct display modes.
+Secondly Grafana also has a horizontal or vertical [Bar gauge]({{< relref "bar-gauge/" >}}) with three different distinct display modes.
 
-{{< figure src="/static/img/docs/v66/bar_gauge_lcd.png" max-width="700px" alt="A bar gauge visualization" >}}
+{{< figure src="/static/img/docs/v66/bar_gauge_lcd.png" max-width="700px" >}}
 
 ### Table
 
-To show data in a table layout, use a [table][].
+To show data in a table layout, use the [Table]({{< relref "table/" >}}) visualization.
 
 {{< figure src="/static/img/docs/tables/table_visualization.png" max-width="700px" lightbox="true" caption="Table visualization" >}}
 
 ### Pie chart
 
-To display reduced series, or values in a series, from one or more queries, as they relate to each other, use a [pie chart][].
+Grafana now ships with an included [Pie chart]({{< relref "pie-chart/" >}}) visualization.
 
-{{< figure src="/static/img/docs/pie-chart-panel/pie-chart-example.png" max-width="700px" lightbox="true" caption="Pie chart" >}}
+{{< figure src="/static/img/docs/pie-chart-panel/pie-chart-example.png" max-width="700px" lightbox="true" caption="Pie chart visualization" >}}
 
 ### Heatmaps
 
-To show value distribution over, time use a [heatmap](ref:heatmap).
+To show value distribution over, time use the [heatmap]({{< relref "heatmap/" >}}) visualization.
 
 {{< figure src="/static/img/docs/v43/heatmap_panel_cover.jpg" max-width="1000px" lightbox="true" caption="Heatmap" >}}
 
 ### State timeline
 
-A state timeline shows discrete state changes over time. When used with time series, the thresholds are used to turn the numerical values into discrete state regions.
+The state timeline panel visualization shows discrete state changes over time. When used with time series, the thresholds are used to turn the numerical values into discrete state regions.
 
-{{< figure src="/static/img/docs/v8/state_timeline_strings.png" max-width="700px" caption="State timeline with string states" >}}
-
+{{< figure src="/static/img/docs/v8/state_timeline_strings.png" max-width="700px" caption="state timeline with string states" >}}

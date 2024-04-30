@@ -1,15 +1,10 @@
 ---
 description: Includes topics for setting up a Grafana instance.
-labels:
-  products:
-    - enterprise
-    - oss
-menuTitle: Set up
-title: Set up Grafana
+title: Setup
 weight: 10
 ---
 
-# Set up Grafana
+# Setup
 
 This section includes information that helps you get Grafana up and running.
 

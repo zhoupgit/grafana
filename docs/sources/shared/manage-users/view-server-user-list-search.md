@@ -1,8 +1,4 @@
 ---
-labels:
-  products:
-    - enterprise
-    - oss
 title: View user list and search - list format
 ---
 

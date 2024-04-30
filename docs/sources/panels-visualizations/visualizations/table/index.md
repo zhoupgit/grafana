@@ -5,8 +5,7 @@ aliases:
   - ../../reference/table/
   - ../../visualizations/table/
   - ../../visualizations/table/filter-table-columns/
-  - /docs/grafana/next/panels/visualizations/table/table-field-options/
-description: Configure options for Grafana's table visualization
+description: Learn about table panel visualization features.
 keywords:
   - grafana
   - dashboard
@@ -16,58 +15,30 @@ keywords:
   - format tables
   - table filter
   - filter columns
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
+menuTitle: Table
 title: Table
-weight: 100
-refs:
-  configuration-file:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#configuration-file-location
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#configuration-file-location
-  time-series-to-table:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/transform-data/#time-series-to-table-transform
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/transform-data/#time-series-to-table-transform
-  calculations:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/calculation-types/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
+weight: 1000
 ---
 
 # Table
 
-Tables are very flexible, supporting multiple modes for time series and for tables, annotation, and raw JSON data. This visualization also provides date formatting, value formatting, and coloring options.
+The table panel visualization is very flexible, supporting multiple modes for time series and for tables, annotation, and raw JSON data. This panel also provides date formatting, value formatting, and coloring options.
 
 {{< figure src="/static/img/docs/tables/table_visualization.png" max-width="1200px" lightbox="true" caption="Table visualization" >}}
 
-The following video provides a visual walkthrough of the options you can set in a table visualization. If you want to see a configuration in action, check out the video:
+## Annotation support
 
-{{< youtube id="PCY7O8EJeJY" >}}
-
-{{< docs/play title="Table Visualizations in Grafana" url="https://play.grafana.org/d/OhR1ID6Mk/" >}}
-
-## Annotation and alert support
-
-Annotations and alerts are not currently supported in tables.
+Annotations are not currently supported in the new table panel. This might be added back in a future release.
 
 ## Sort column
 
-Click a column title to change the sort order from default to descending to ascending. Each time you click, the sort order changes to the next option in the cycle. You can sort multiple columns by holding the `shift` key and clicking the column name.
+Click a column title to change the sort order from default to descending to ascending. Each time you click, the sort order changes to the next option in the cycle. You can only sort by one column at a time.
 
 ![Sort descending](/static/img/docs/tables/sort-descending.png 'Sort descending')
 
 ## Table options
 
-{{% admonition type="note" %}}
-If you are using a table created before Grafana 7.0, then you need to migrate to the new table version in order to see these options. To migrate, on the Panel tab, click **Table** visualization. Grafana updates the table version and you can then access all table options.
-{{% /admonition %}}
+> **Note:** If you are using a table visualization created before Grafana 7.0, then you need to migrate to the new table version in order to see these options. To migrate, on the Panel tab, click **Table** visualization. Grafana updates the table version and you can then access all table options.
 
 ### Show header
 
@@ -81,11 +52,11 @@ For example, if you enter `100` in the field, then when you click outside the fi
 
 ## Minimum column width
 
-By default, the minimum width of the table column is 150 pixels. This field option can override that default and will define the new minimum column width for the table in pixels.
+By default, the minimum width of the table column is 150 pixels. This field option can override that default and will define the new minimum column width for the table panel in pixels.
 
 For example, if you enter `75` in the field, then when you click outside the field, all the columns will scale to no smaller than 75 pixels wide.
 
-For small-screen devices, such as smartphones or tablets, reduce the default `150` pixel value to`50` to allow table-based panels to render correctly in dashboards.
+For small-screen devices, such as smartphones or tablets, reduce the default `150` pixel value to`50` to allow table based panels to render correctly in dashboards.
 
 ## Column alignment
 
@@ -96,13 +67,11 @@ Choose how Grafana should align cell contents:
 - Center
 - Right
 
-## Cell type
+## Cell display mode
 
-By default, Grafana automatically chooses display settings. You can override the settings by choosing one of the following options to set the default for all fields. Additional configuration is available for some cell types.
+By default, Grafana automatically chooses display settings. You can override the settings by choosing one of the following options to change all fields.
 
-{{% admonition type="note" %}}
-If you set these in the Field tab, then the type will apply to all fields, including the time field. Many options will work best if you set them in the Override tab so that they can be restricted to one or more fields.
-{{% /admonition %}}
+> **Note:** If you set these in the Field tab, then the display modes will apply to all fields, including the time field. Many options will work best if you set them in the Override tab.
 
 ### Color text
 
@@ -116,43 +85,17 @@ If thresholds are set, then the field background is displayed in the appropriate
 
 {{< figure src="/static/img/docs/tables/color-background.png" max-width="500px" caption="Color background" class="docs-image--no-shadow" >}}
 
-### Gauge
-
-Cells can be displayed as a graphical gauge, with several different presentation types.
-
-#### Basic
-
-The basic mode will show a simple gauge with the threshold levels defining the color of gauge.
-
-{{< figure src="/static/img/docs/tables/basic-gauge.png" max-width="500px" caption="Gradient gauge" class="docs-image--no-shadow" >}}
-
-#### Gradient
+### Gradient gauge
 
 The threshold levels define a gradient.
 
 {{< figure src="/static/img/docs/tables/gradient-gauge.png" max-width="500px" caption="Gradient gauge" class="docs-image--no-shadow" >}}
 
-#### LCD
+### LCD gauge
 
 The gauge is split up in small cells that are lit or unlit.
 
 {{< figure src="/static/img/docs/tables/lcd-gauge.png" max-width="500px" caption="LCD gauge" class="docs-image--no-shadow" >}}
-
-#### Label Options
-
-Additionally, labels displayed alongside of the gauges can be set to be colored by value, match the theme text color, or be hidden.
-
-**Value Color**
-
-{{< figure src="/static/img/docs/tables/value-color-mode.png" max-width="500px" caption="Color Label by Value" class="docs-image--no-shadow" >}}
-
-**Text Color**
-
-{{< figure src="/static/img/docs/tables/text-color-mode.png" max-width="500px" caption="Color Label by theme color" class="docs-image--no-shadow" >}}
-
-**Hidden**
-
-{{< figure src="/static/img/docs/tables/hidden-mode.png" max-width="500px" caption="Hide Label" class="docs-image--no-shadow" >}}
 
 ### JSON view
 
@@ -168,23 +111,15 @@ If you have a field value that is an image URL or a base64 encoded image you can
 
 {{< figure src="/static/img/docs/v73/table_hover.gif" max-width="900px" caption="Table hover" >}}
 
-### Sparkline
-
-Shows value rendered as a sparkline. Requires [time series to table](ref:time-series-to-table) data transform.
-
-{{< figure src="/static/img/docs/tables/sparkline2.png" max-width="500px" caption="Sparkline" class="docs-image--no-shadow" >}}
-
 ## Cell value inspect
 
 Enables value inspection from table cell. The raw value is presented in a modal window.
 
-{{% admonition type="note" %}}
-Cell value inspection is only available when cell display mode is set to Auto, Color text, Color background or JSON View.
-{{% /admonition %}}
+> **Note:** Cell value inspection is only available when cell display mode is set to Auto, Color text, Color background or JSON View.
 
 ## Column filter
 
-You can temporarily change how column data is displayed. For example, you can order values from highest to lowest or hide specific values. For more information, refer to [Filter table columns](#filter-table-columns).
+You can temporarily change how column data is displayed. For example, you can order values from highest to lowest or hide specific values. For more information, refer to [Filter table columns]({{< relref "#filter-table-columns" >}}).
 
 ## Pagination
 
@@ -213,14 +148,6 @@ To filter column values, click the filter (funnel) icon next to a column title. 
 
 Click the check box next to the values that you want to display. Enter text in the search field at the top to show those values in the display so that you can select them rather than scroll to find them.
 
-Choose from several operators to display column values:
-
-- **Contains** - Matches a regex pattern (operator by default).
-- **Expression** - Evaluates a boolean expression. The character `$` represents the column value in the expression (for example, "$ >= 10 && $ <= 12").
-- The typical comparison operators: `=`, `!=`, `<`, `<=`, `>`, `>=`.
-
-Click the check box above the **Ok** and **Cancel** buttons to add or remove all displayed values to/from the filter.
-
 ### Clear column filters
 
 Columns with filters applied have a blue funnel displayed next to the title.
@@ -228,19 +155,3 @@ Columns with filters applied have a blue funnel displayed next to the title.
 {{< figure src="/static/img/docs/tables/filtered-column.png" max-width="500px" caption="Filtered column" class="docs-image--no-shadow" >}}
 
 To remove the filter, click the blue funnel icon and then click **Clear filter**.
-
-## Table footer
-
-You can use the table footer to show [calculations](ref:calculations) on fields.
-
-After you enable the table footer:
-
-1. Select the **Calculation**
-2. Select the **Fields** that you want to calculate
-
-The system applies the calculation to all numeric fields if you do not select a field.
-
-### Count rows
-
-If you want to show the number of rows in the dataset instead of the number of values in the selected fields, select the **Count** calculation and enable **Count rows**.
-

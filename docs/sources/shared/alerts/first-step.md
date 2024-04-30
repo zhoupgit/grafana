@@ -1,9 +1,5 @@
 ---
-labels:
-  products:
-    - enterprise
-    - oss
-title: TBD
+title: TBD...
 ---
 
 ## TBD

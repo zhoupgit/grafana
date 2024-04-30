@@ -4,10 +4,6 @@ keywords:
   - documentation
   - developers
   - resources
-labels:
-  products:
-    - enterprise
-    - oss
 title: Contribute to Grafana
 weight: 300
 ---

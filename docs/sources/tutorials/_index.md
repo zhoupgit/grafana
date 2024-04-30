@@ -1,11 +1,7 @@
 ---
-description: Grafana tutorials
-labels:
-  products:
-    - enterprise
-    - oss
-menuTitle: Tutorials
-title: Tutorials
+title: 'Tutorials'
+menuTitle: 'Tutorials'
+description: 'Grafana tutorials'
 ---
 
 # Tutorials

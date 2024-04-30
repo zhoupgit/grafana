@@ -2,75 +2,26 @@
 aliases:
   - ../../features/panels/heatmap/
   - ../../visualizations/heatmap/
-description: Configure options for Grafana's heatmap visualization
+description: Heatmap visualization documentation
 keywords:
   - grafana
   - heatmap
   - panel
   - documentation
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Heatmap
-weight: 100
-refs:
-  introduction-to-histograms-and-heatmaps:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/fundamentals/intro-histograms/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/fundamentals/intro-histograms/
+weight: 600
 ---
 
 # Heatmap
 
-Heatmaps allow you to view [histograms](https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/histogram/) over time. While histograms display the data distribution that falls in a specific value range, heatmaps allow you to identify patterns in the histogram data distribution over time. For more information about heatmaps, refer to [Introduction to histograms and heatmaps](https://grafana.com/docs/grafana/latest/fundamentals/intro-histograms/).
+The Heatmap panel visualization allows you to view histograms over time. For more information about histograms, refer to [Introduction to histograms and heatmaps]({{< relref "../../../fundamentals/intro-histograms/" >}}).
 
-For example, if you want to understand the temperature changes for the past few years, you can use a heatmap visualization to identify trends in your data:
+![](/static/img/docs/v43/heatmap_panel_cover.jpg)
 
-{{< figure src="/static/img/docs/heatmap-panel/temperature_heatmap.png" max-width="1025px" alt="A heatmap visualization showing the random walk distribution over time" >}}
+## Calculate from data
 
-You can use a heatmap visualization if you need to:
-
-- Visualize a large density of your data distribution.
-- Condense large amounts of data through various color schemes that are easier to interpret.
-- Identify any outliers in your data distribution.
-- Provide statistical analysis to see how values or trends change over time.
-
-## Configure a heatmap visualization
-
-Once you’ve created a [dashboard](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/create-dashboard/), the following video shows you how to configure a heatmap visualization:
-
-{{< youtube id="SGWBzQ54koE" >}}
-
-## Supported data formats
-
-Heatmaps support time series data.
-
-### Example
-
-The table below is a simplified output of random walk distribution over time:
-
-| Time                | Walking (km) |
-| ------------------- | ------------ |
-| 2023-06-25 21:13:09 | 10           |
-| 2023-08-25 21:13:10 | 8            |
-| 2023-08-30 21:13:10 | 10           |
-| 2023-10-08 21:13:11 | 12           |
-| 2023-12-25 21:13:11 | 14           |
-| 2024-01-05 21:13:12 | 13           |
-| 2024-02-22 21:13:13 | 10           |
-
-The data is converted as follows:
-
-{{< figure src="/static/img/docs/heatmap-panel/heatmap.png" max-width="1025px" alt="A heatmap visualization showing the random walk distribution over time" >}}
-
-## Heatmap options
-
-### Calculate from data
-
-This setting determines if the data is already a calculated heatmap (from the data source/transformer), or one that should be calculated in the panel.
+This setting determines if the data is already a calculated heatmap (from the data source/transformer), or one that should be
+calculated in the panel.
 
 ### X Bucket
 
@@ -87,7 +38,6 @@ Select one of the following Y-axis value scales:
 - **linear -** Linear scale.
 - **log (base 2) -** Logarithmic scale with base 2.
 - **log (base 10) -** Logarithmic scale with base 10.
-- **symlog -** Symlog scale.
 
 ## Y Axes
 
@@ -111,19 +61,9 @@ This setting determines decimal configuration.
 
 This setting configures the axis range.
 
-### Axis width
-
-This setting configures the width for the axis.
-
-### Axis value
-
-This setting configures the axis value.
-
 ### Reverse
 
 When selected, the axis appears in reverse order.
-
-{{< docs/shared lookup="visualizations/multiple-y-axes.md" source="grafana" version="<GRAFANA_VERSION>" leveloffset="+2" >}}
 
 ## Colors
 
@@ -158,7 +98,6 @@ Use these settings to refine your visualization.
 
 - **Show tooltip -** Show heatmap tooltip.
 - **Show Histogram -** Show a Y-axis histogram on the tooltip. A histogram represents the distribution of the bucket values for a specific timestamp.
-- **Show color scale -** Show a color scale on the tooltip. The color scale represents the mapping between bucket value and color. This option is configurable when you enable the `newVizTooltips` feature flag.
 
 ### Legend
 
@@ -167,4 +106,3 @@ Choose whether you want to display the heatmap legend on the visualization.
 ### Exemplars
 
 Set the color used to show exemplar data.
-

@@ -1,11 +1,6 @@
 ---
 _build:
   list: false
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Release notes for Grafana 7.3.0
 ---
 
@@ -61,7 +56,7 @@ title: Release notes for Grafana 7.3.0
 
 ### Breaking changes
 
-- **CloudWatch**: The AWS CloudWatch data source's authentication scheme has changed.
+- **CloudWatch**: The AWS CloudWatch data source's authentication scheme has changed. See the [upgrade notes]{{< relref "../setup-grafana/upgrade-grafana/#upgrading-to-v73" >}}) for details and how this may affect you.
 
 ### Features and enhancements
 

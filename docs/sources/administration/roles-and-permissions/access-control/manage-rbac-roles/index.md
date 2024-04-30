@@ -5,10 +5,6 @@ aliases:
   - ../../../enterprise/access-control/provisioning/
 description: Learn how to view permissions associated with roles, create custom roles,
   and update and delete roles in Grafana.
-labels:
-  products:
-    - cloud
-    - enterprise
 menuTitle: Manage RBAC roles
 title: Manage Grafana RBAC roles
 weight: 50
@@ -16,9 +12,7 @@ weight: 50
 
 # Manage RBAC roles
 
-{{% admonition type="note" %}}
-Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud](/docs/grafana-cloud).
-{{% /admonition %}}
+> **Note:** Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud Advanced](/docs/grafana-cloud).
 
 This section includes instructions for how to view permissions associated with roles, create custom roles, and update and delete roles.
 
@@ -32,7 +26,6 @@ To see the permissions associated with basic roles, refer to the following basic
 
 | Basic role      | UID                   |
 | --------------- | --------------------- |
-| `None`          | `basic_none`          |
 | `Viewer`        | `basic_viewer`        |
 | `Editor`        | `basic_editor`        |
 | `Admin`         | `basic_admin`         |
@@ -199,9 +192,7 @@ roles:
 
 The following examples show you how to create a custom role using the Grafana HTTP API. For more information about the HTTP API, refer to [Create a new custom role]({{< relref "../../../../developers/http_api/access_control/#create-a-new-custom-role" >}}).
 
-{{% admonition type="note" %}}
-You cannot create a custom role with permissions that you do not have. For example, if you only have `users:create` permissions, then you cannot create a role that includes other permissions.
-{{% /admonition %}}
+> **Note:** You cannot create a custom role with permissions that you do not have. For example, if you only have `users:create` permissions, then you cannot create a role that includes other permissions.
 
 The following example creates a `custom:users:admin` role and assigns the `users:create` action to it.
 
@@ -258,10 +249,6 @@ If the default basic role definitions do not meet your requirements, you can cha
 
 - Determine the permissions you want to add or remove from a basic role. For more information about the permissions associated with basic roles, refer to [RBAC role definitions]({{< relref "./rbac-fixed-basic-role-definitions/#basic-role-assignments" >}}).
 
-{{% admonition type="note" %}}
-You cannot modify the `No Basic Role` permissions.
-{{% /admonition %}}
-
 **To change permissions from a basic role:**
 
 1. Open the YAML configuration file and locate the `roles` section.
@@ -314,38 +301,14 @@ roles:
         scope: 'folder:*'
 ```
 
-{{% admonition type="note" %}}
-You can add multiple `fixed`, `basic` or `custom` roles to the `from` section. Their permissions will be copied and added to the basic role.
-Make sure to **increment** the role version for the changes to be accounted for.
-{{% /admonition %}}
+> **Note**: You can add multiple `fixed`, `basic` or `custom` roles to the `from` section. Their permissions will be copied and added to the basic role.
+> <br/> **Note**: Make sure to **increment** the role version for the changes to be accounted for.
 
 You can also change basic roles' permissions using the API. Refer to the [RBAC HTTP API]({{< relref "../../../../developers/http_api/access_control/#update-a-role" >}}) for more details.
 
 ## Reset basic roles to their default
 
-This section describes how to reset the basic roles to their default.
-
-You have two options to reset the basic roles permissions to their default.
-
-### Use the configuration option
-
-> **Note**: Available as of Grafana Enterprise 9.4.
-
-> Warning: If this option is left to true, permissions will be reset on every boot.
-
-Use the [reset_basic_roles]({{< relref "../configure-rbac/#configure-rbac-in-grafana" >}}) option to reset
-basic roles permissions to their default on Grafana instance boot up.
-
-1. Open you configuration file and update the rbac section as follow:
-
-```bash
-[rbac]
-reset_basic_roles = true
-```
-
-### Use the http endpoint
-
-An alternative to the configuration option is to use the HTTP endpoint.
+This section describes how to reset the basic roles to their default:
 
 1. Open the YAML configuration file and locate the `roles` section.
 
@@ -363,7 +326,7 @@ An alternative to the configuration option is to use the HTTP endpoint.
        permissions:
          # Permission allowing to reset basic roles
          - action: 'roles:write'
-           scope: 'permissions:type:escalate'
+          scope: 'permissions:type:escalate'
    ```
 
 1. As a `Grafana Admin`, call the API endpoint to reset the basic roles to their default. Refer to the [RBAC HTTP API]({{< relref "../../../../developers/http_api/access_control/#reset-basic-roles-to-their-default" >}}) for more details.

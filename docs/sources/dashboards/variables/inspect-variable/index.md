@@ -9,34 +9,15 @@ keywords:
   - guide
   - template
   - variable
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Inspect variables
-description: Review and manage your dashboard variables
 weight: 200
-refs:
-  add:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/
-  manage-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#manage-variables
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#manage-variables
 ---
 
 # Inspect variables
 
-The variables page lets you easily identify whether a variable is being referenced (or used) in other variables or dashboard. In addition, you can also [add](ref:add) and [manage variables](ref:manage-variables) on this page.
+The variables page lets you easily identify whether a variable is being referenced (or used) in other variables or dashboard. In addition, you can also [add]({{< relref "./add-template-variables/" >}}) and [manage variables]({{< relref "./add-template-variables/#manage-variables" >}}) on this page.
 
-{{% admonition type="note" %}}
-This feature is available in Grafana 7.4 and later versions.
-{{% /admonition %}}
+> **Note:** This feature is available in Grafana 7.4 and later versions.
 
 ![Variables list](/static/img/docs/variables-templates/variables-list-7-4.png)
 
@@ -47,4 +28,3 @@ Any variable that is referenced or used has a green check mark next to it, while
 In addition, all referenced variables have a dependency icon next to the green check mark. You can click on the icon to view the dependency map. The dependency map can be moved. You can zoom in out with mouse wheel or track pad equivalent.
 
 ![Variables list](/static/img/docs/variables-templates/dependancy-map-7-4.png)
-

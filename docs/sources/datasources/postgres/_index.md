@@ -7,77 +7,22 @@ keywords:
   - grafana
   - postgresql
   - guide
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 menuTitle: PostgreSQL
 title: PostgreSQL data source
 weight: 1200
-refs:
-  add-template-variables-interval:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#__interval
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#__interval
-  variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/
-  provisioning-data-sources:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/provisioning/#datasources
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/provisioning/#datasources
-  variable-syntax-advanced-variable-format-options:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-  add-template-variables-interval-ms:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#__interval_ms
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/#__interval_ms
-  data-source-management:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/data-source-management/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/administration/data-source-management/
-  configure-standard-options-display-name:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#display-name
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#display-name
-  annotate-visualizations:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/annotate-visualizations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/annotate-visualizations/
 ---
 
 # PostgreSQL data source
 
 Grafana ships with a built-in PostgreSQL data source plugin that allows you to query and visualize data from a PostgreSQL compatible database.
 
-For instructions on how to add a data source to Grafana, refer to the [administration documentation](ref:data-source-management).
+For instructions on how to add a data source to Grafana, refer to the [administration documentation]({{< relref "../../administration/data-source-management/" >}}).
 Only users with the organization administrator role can add data sources.
-Administrators can also [configure the data source via YAML](#provision-the-data-source) with Grafana's provisioning system.
+Administrators can also [configure the data source via YAML]({{< relref "#provision-the-data-source" >}}) with Grafana's provisioning system.
 
 ## PostgreSQL settings
 
-To configure basic settings for the data source, complete the following steps:
-
-1.  Click **Connections** in the left-side menu.
-1.  Under Your connections, click **Data sources**.
-1.  Enter `PostgreSQL` in the search bar.
-1.  Select **PostgreSQL**.
-
-    The **Settings** tab of the data source is displayed.
-
-1.  Set the data source's basic configuration options:
+To access PostgreSQL settings, hover your mouse over the **Configuration** (gear) icon, then click **Data Sources**, and then click the PostgreSQL data source.
 
 | Name                        | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -90,16 +35,15 @@ To configure basic settings for the data source, complete the following steps:
 | **SSL Mode**                | Determines whether or with what priority a secure SSL TCP/IP connection will be negotiated with the server. When SSL Mode is disabled, SSL Method and Auth Details would not be visible.                                                                                                                                                                                                                                |
 | **SSL Auth Details Method** | Determines whether the SSL Auth details will be configured as a file path or file content. Grafana v7.5+                                                                                                                                                                                                                                                                                                                |
 | **SSL Auth Details Value**  | File path or file content of SSL root certificate, client certificate and client key                                                                                                                                                                                                                                                                                                                                    |
-| **Max open**                | The maximum number of open connections to the database, default `100` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                                  |
-| **Max idle**                | The maximum number of connections in the idle connection pool, default `100` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                           |
-| **Auto (max idle)**         | If set will set the maximum number of idle connections to the number of maximum open connections (Grafana v9.5.1+). Default is `true`.                                                                                                                                                                                                                                                                                  |
+| **Max open**                | The maximum number of open connections to the database, default `unlimited` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                            |
+| **Max idle**                | The maximum number of connections in the idle connection pool, default `2` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                             |
 | **Max lifetime**            | The maximum amount of time in seconds a connection may be reused, default `14400`/4 hours (Grafana v5.4+).                                                                                                                                                                                                                                                                                                              |
 | **Version**                 | Determines which functions are available in the query builder (only available in Grafana 5.3+).                                                                                                                                                                                                                                                                                                                         |
 | **TimescaleDB**             | A time-series database built as a PostgreSQL extension. When enabled, Grafana uses `time_bucket` in the `$__timeGroup` macro to display TimescaleDB specific aggregate functions in the query builder (only available in Grafana 5.3+). For more information, see [TimescaleDB documentation](https://docs.timescale.com/timescaledb/latest/tutorials/grafana/grafana-timescalecloud/#connect-timescaledb-and-grafana). |
 
 ### Min time interval
 
-A lower limit for the [`$__interval`](ref:add-template-variables-interval) and [`$__interval_ms`](ref:add-template-variables-interval-ms) variables.
+A lower limit for the [$__interval]({{< relref "../../dashboards/variables/add-template-variables/#__interval" >}}) and [$__interval_ms]({{< relref "../../dashboards/variables/add-template-variables/#__interval_ms" >}}) variables.
 Recommended to be set to write frequency, for example `1m` if your data is written every minute.
 This option can also be overridden/configured in a dashboard panel under data source options. It's important to note that this value **needs** to be formatted as a
 number followed by a valid time identifier, e.g. `1m` (1 minute) or `30s` (30 seconds). The following time identifiers are supported:
@@ -134,7 +78,7 @@ Make sure the user does not get any unwanted privileges from the public role.
 
 ## Query builder
 
-{{< figure src="/static/img/docs/screenshot-postgres-query-editor.png" class="docs-image--no-shadow" caption="PostgreSQL query builder" >}}
+{{< figure src="/static/img/docs/v92/postgresql_query_builder.png" class="docs-image--no-shadow" caption="PostgreSQL query builder" >}}
 
 The PostgreSQL query builder is available when editing a panel using a PostgreSQL data source. The built query can be run by pressing the `Run query` button in the top right corner of the editor.
 
@@ -142,10 +86,10 @@ The PostgreSQL query builder is available when editing a panel using a PostgreSQ
 
 The response from PostgreSQL can be formatted as either a table or as a time series. To use the time series format one of the columns must be named `time`.
 
-### Dataset and table selection
+### Dataset and Table selection
 
-The dataset dropdown will be populated with the configured database to which the user has access.
-The table dropdown is populated with the tables that are available within that database.
+In the dataset dropdown, choose the PostgreSQL database to query. The dropdown is be populated with the databases that the user has access to.
+When the dataset is selected, the table dropdown is populated with the tables that are available.
 
 ### Columns and Aggregation functions (SELECT)
 
@@ -155,17 +99,10 @@ Add further value columns by clicking the plus button and another column dropdow
 
 ### Filter data (WHERE)
 
-To add a filter, toggle the **Filter** switch at the top of the editor.
-This reveals a **Filter by column value** section with two dropdown selectors.
+To add a filter, flip the switch at the top of the editor.
+Using the first dropdown, select if all the filters need to match (AND) or if only one of the filters needs to match (OR).
 
-Use the first dropdown to choose whether all of the filters need to match (`AND`), or if only one of the filters needs to match (`OR`).
-Use the second dropdown to choose a filter.
-
-To filter on more columns, click the plus (`+`) button to the right of the condition dropdown.
-
-To remove a filter, click the `x` button next to that filter's dropdown.
-
-After selecting a date type column, you can choose Macros from the operators list and select timeFilter which will add the $\_\_timeFilter macro to the query with the selected date column.
+To add more columns to filter on use the plus button.
 
 ### Group By
 
@@ -177,7 +114,7 @@ By flipping the preview switch at the top of the editor, you can get a preview o
 
 ### Provision the data source
 
-It's now possible to configure data sources using config files with Grafana's provisioning system. You can read more about how it works and all the settings you can set for data sources on the [provisioning docs page](ref:provisioning-data-sources).
+It's now possible to configure data sources using config files with Grafana's provisioning system. You can read more about how it works and all the settings you can set for data sources on the [provisioning docs page]({{< relref "../../administration/provisioning#datasources" >}}).
 
 #### Provisioning example
 
@@ -188,23 +125,20 @@ datasources:
   - name: Postgres
     type: postgres
     url: localhost:5432
+    database: grafana
     user: grafana
     secureJsonData:
       password: 'Password!'
     jsonData:
-      database: grafana
       sslmode: 'disable' # disable/require/verify-ca/verify-full
-      maxOpenConns: 100 # Grafana v5.4+
-      maxIdleConns: 100 # Grafana v5.4+
-      maxIdleConnsAuto: true # Grafana v9.5.1+
+      maxOpenConns: 0 # Grafana v5.4+
+      maxIdleConns: 2 # Grafana v5.4+
       connMaxLifetime: 14400 # Grafana v5.4+
       postgresVersion: 903 # 903=9.3, 904=9.4, 905=9.5, 906=9.6, 1000=10
       timescaledb: false
 ```
 
-{{% admonition type="note" %}}
-In the above code, the `postgresVersion` value of `10` refers to version PostgreSQL 10 and above.
-{{% /admonition %}}
+> **Note:** In the above code, the `postgresVersion` value of `10` refers to version PostgreSQL 10 and above.
 
 #### Troubleshoot provisioning
 
@@ -284,13 +218,13 @@ A time series query result is returned in a [wide data frame format](https://gra
 
 > For backward compatibility, there's an exception to the above rule for queries that return three columns including a string column named metric. Instead of transforming the metric column into field labels, it becomes the field name, and then the series name is formatted as the value of the metric column. See the example with the metric column below.
 
-To optionally customize the default series name formatting, refer to [Standard options definitions](ref:configure-standard-options-display-name).
+To optionally customize the default series name formatting, refer to [Standard options definitions]({{< relref "../../panels-visualizations/configure-standard-options#display-name" >}}).
 
 **Example with `metric` column:**
 
 ```sql
 SELECT
-  $__timeGroupAlias("time_date_time",'5m'),
+  $__timeGroup("time_date_time",'5m'),
   min("value_double"),
   'min' as metric
 FROM test_data
@@ -312,11 +246,11 @@ Data frame result:
 +---------------------+-----------------+
 ```
 
-**Example using the fill parameter in the $\_\_timeGroupAlias macro to convert null values to be zero instead:**
+**Example using the fill parameter in the $\_\_timeGroup macro to convert null values to be zero instead:**
 
 ```sql
 SELECT
-  $__timeGroupAlias("createdAt",'5m',0),
+  $__timeGroup("createdAt",'5m',0),
   sum(value) as value,
   hostname
 FROM test_data
@@ -326,7 +260,7 @@ GROUP BY time, hostname
 ORDER BY time
 ```
 
-Given the data frame result in the following example and using the graph panel, you will get two series named _value 10.0.1.1_ and _value 10.0.1.2_. To render the series with a name of _10.0.1.1_ and _10.0.1.2_ , use a [Standard options definitions](ref:configure-standard-options-display-name) display value of `${__field.labels.hostname}`.
+Given the data frame result in the following example and using the graph panel, you will get two series named _value 10.0.1.1_ and _value 10.0.1.2_. To render the series with a name of _10.0.1.1_ and _10.0.1.2_ , use a [Standard options definitions]({{< relref "../../panels-visualizations/configure-standard-options#display-name" >}}) display value of `${__field.labels.hostname}`.
 
 Data frame result:
 
@@ -345,7 +279,7 @@ Data frame result:
 
 ```sql
 SELECT
-  $__timeGroupAlias("time_date_time",'5m'),
+  $__timeGroup("time_date_time",'5m'),
   min("value_double") as "min_value",
   max("value_double") as "max_value"
 FROM test_data
@@ -371,7 +305,7 @@ Data frame result:
 
 Instead of hard-coding things like server, application and sensor name in your metric queries you can use variables in their place. Variables are shown as dropdown select boxes at the top of the dashboard. These dropdowns make it easy to change the data being displayed in your dashboard.
 
-Refer to [Templates and variables](ref:variables) for an introduction to the templating feature and the different types of template variables.
+Refer to [Templates and variables]({{< relref "../../dashboards/variables" >}}) for an introduction to the templating feature and the different types of template variables.
 
 ### Query variable
 
@@ -464,11 +398,11 @@ Grafana automatically creates a quoted, comma-separated string for multi-value v
 
 `${servers:csv}`
 
-Read more about variable formatting options in the [Variables](ref:variable-syntax-advanced-variable-format-options) documentation.
+Read more about variable formatting options in the [Variables]({{< relref "../../dashboards/variables/variable-syntax#advanced-variable-format-options" >}}) documentation.
 
 ## Annotations
 
-[Annotations](ref:annotate-visualizations) allow you to overlay rich event information on top of graphs. You add annotation queries via the Dashboard menu / Annotations view.
+[Annotations]({{< relref "../../dashboards/build-dashboards/annotate-visualizations" >}}) allow you to overlay rich event information on top of graphs. You add annotation queries via the Dashboard menu / Annotations view.
 
 **Example query using time column with epoch values:**
 
@@ -523,4 +457,3 @@ WHERE
 
 Time series queries should work in alerting conditions. Table formatted queries are not yet supported in alert rule
 conditions.
-

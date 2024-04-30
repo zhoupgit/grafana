@@ -2,45 +2,22 @@
 aliases:
   - ../../panels/visualizations/bar-chart/
   - ../../visualizations/bar-chart/
-description: Configure options for Grafana's bar chart visualization
+description: Bar chart visualization
 keywords:
   - grafana
   - docs
   - bar chart
   - panel
   - barchart
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Bar chart
-weight: 100
-refs:
-  add-a-field-override:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
-  standard-calculations:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/calculation-types/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
-  standard-options-definitions:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#max
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#max
+weight: 170
 ---
 
 # Bar chart
 
-Bar charts allow you to graph categorical data.
+This panel visualization allows you to graph categorical data.
 
 {{< figure src="/static/img/docs/bar-chart-panel/barchart_small_example.png" max-width="1000px" caption="Bar chart" >}}
-
-{{< docs/play title="Grafana Bar Charts and Pie Charts" url="https://play.grafana.org/d/ktMs4D6Mk/" >}}
 
 ## Supported data formats
 
@@ -53,7 +30,7 @@ Example:
 | Chrome  | 50           |
 | IE      | 17.5         |
 
-If you have more than one numerical field the visualization will show grouped bars.
+If you have more than one numerical field the panel will show grouped bars.
 
 ### Visualizing time series or multiple result sets
 
@@ -72,17 +49,13 @@ Use these options to refine your visualization.
 - **Horizontal** - Will make the X axis the category axis.
 - **Vertical** - Will make the Y axis the category axis.
 
-### Rotate x-axis tick labels
+### Rotate bar labels
 
-When the graph is vertically oriented, this setting rotates the labels under the bars. This setting is useful when bar chart labels are long and overlap.
+When the graph is in vertical orientation you can use this setting to rotate the labels under the bars. Useful if the labels are long and overlap.
 
-### X-axis tick label maximum length
+### Bar label max length
 
-Sets the maximum length of bar chart labels. Labels longer than the maximum length are truncated, and appended with `...`.
-
-### Bar labels minimum spacing
-
-Sets the minimum spacing between bar labels.
+Sets the max length of the bar label. Labels longer than the max length will be truncated and `...` will be appended to the end.
 
 ### Show values
 
@@ -92,14 +65,6 @@ This controls whether values are shown on top or to the left of bars.
 - **Always** Always show values.
 - **Never** Never show values.
 
-### Stacking
-
-Controls bar chart stacking.
-
-- **Off**: Bars will not be stacked.
-- **Normal**: Bars will be stacked on each other.
-- **Percent**: Bars will be stacked on each other, and the height of each bar is the percentage of the total height of the stack.
-
 ### Group width
 
 Controls the width of groups. 1 = max with, 0 = min width.
@@ -107,17 +72,6 @@ Controls the width of groups. 1 = max with, 0 = min width.
 ### Bar width
 
 Controls the width of bars. 1 = Max width, 0 = Min width.
-
-### Bar radius
-
-Controls the radius of the bars.
-
-- 0 = Minimum radius
-- 0.5 = Maximum radius
-
-### Highlight full area on cover
-
-Controls if the entire surrounding area of the bar is highlighted when you hover over the bar.
 
 ### Line width
 
@@ -145,13 +99,13 @@ Transparency of the gradient is calculated based on the values on the y-axis. Op
 
 Gradient color is generated based on the hue of the line color.
 
-{{< docs/shared lookup="visualizations/tooltip-mode.md" source="grafana" version="<GRAFANA_VERSION>" >}}
+{{< docs/shared lookup="visualizations/tooltip-mode.md" source="grafana" version="<GRAFANA VERSION>" >}}
 
-{{< docs/shared lookup="visualizations/legend-mode.md" source="grafana" version="<GRAFANA_VERSION>" >}}
+{{< docs/shared lookup="visualizations/legend-mode.md" source="grafana" version="<GRAFANA VERSION>" >}}
 
 ### Legend calculations
 
-Choose which of the [standard calculations](ref:standard-calculations) to show in the legend. You can have more than one.
+Choose which of the [standard calculations]({{< relref "../../calculation-types/" >}}) to show in the legend. You can have more than one.
 
 For more information about the legend, refer to [Configure a legend](../configure-legend/).
 
@@ -185,7 +139,7 @@ Display all Y-axes on the right side.
 
 Hide all axes.
 
-To selectively hide axes, [Add a field override](ref:add-a-field-override) that targets specific fields.
+To selectively hide axes, [Add a field override]({{< relref "../../configure-overrides#add-a-field-override" >}}) that targets specific fields.
 
 ### Label
 
@@ -205,7 +159,4 @@ Set a **Soft min** or **soft max** option for better control of Y-axis limits. B
 
 **Soft min** and **soft max** settings can prevent blips from turning into mountains when the data is mostly flat, and hard min or max derived from standard min and max field options can prevent intermittent spikes from flattening useful detail by clipping the spikes past a defined point.
 
-You can set standard min/max options to define hard limits of the Y-axis. For more information, refer to [Standard options definitions](ref:standard-options-definitions).
-
-{{< docs/shared lookup="visualizations/multiple-y-axes.md" source="grafana" version="<GRAFANA_VERSION>" leveloffset="+2" >}}
-
+You can set standard min/max options to define hard limits of the Y-axis. For more information, refer to [Standard options definitions]({{< relref "../../configure-standard-options/#max" >}}).

@@ -9,10 +9,6 @@ keywords:
   - documentation
   - api
   - playlist
-labels:
-  products:
-    - enterprise
-    - oss
 title: 'Playlist HTTP API '
 ---
 
@@ -74,6 +70,7 @@ Content-Type: application/json
   "uid" : "1",
   "name": "my playlist",
   "interval": "5m",
+  "orgId": "my org",
   "items": [
     {
       "id": 1,
@@ -128,6 +125,38 @@ Content-Type: application/json
     "value": "myTag",
     "order": 2,
     "title":"my other dashboard"
+  }
+]
+```
+
+## Get Playlist dashboards
+
+`GET /api/playlists/:uid/dashboards`
+
+**Example Request**:
+
+```http
+GET /api/playlists/1/dashboards HTTP/1.1
+Accept: application/json
+Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
+```
+
+**Example Response**:
+
+```http
+HTTP/1.1 200
+Content-Type: application/json
+[
+  {
+    "id": 3,
+    "title": "my third dashboard",
+    "order": 1,
+  },
+  {
+    "id": 5,
+    "title":"my other dashboard"
+    "order": 2,
+
   }
 ]
 ```
@@ -217,6 +246,7 @@ Content-Type: application/json
   "uid" : "1",
   "name": "my playlist",
   "interval": "5m",
+  "orgId": "my org",
   "items": [
     {
       "id": 1,

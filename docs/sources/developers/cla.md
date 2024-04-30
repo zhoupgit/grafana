@@ -3,10 +3,6 @@ aliases:
   - ../project/cla/
   - /docs/contributing/cla.html/
 description: Contributor License Agreement (CLA)
-labels:
-  products:
-    - enterprise
-    - oss
 title: Contributor License Agreement (CLA)
 weight: 400
 ---

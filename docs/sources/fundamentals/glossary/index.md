@@ -9,11 +9,6 @@ keywords:
   - intro
   - glossary
   - dictionary
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: Glossary
 weight: 850
 ---

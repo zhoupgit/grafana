@@ -1,7 +1,6 @@
 ---
 aliases:
   - ../basics/timeseries/
-  - /docs/grafana-cloud/introduction/prometheus/
 description: Introduction to Prometheus
 keywords:
   - grafana
@@ -9,31 +8,26 @@ keywords:
   - Prometheus
   - metrics
   - time series
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: What is Prometheus?
 weight: 300
 refs:
   prometheus:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/
   build-dashboards:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
 ---
 
 # What is Prometheus?
 
-Observability focuses on understanding the internal state of your systems based on the data they produce, which helps determine if your infrastructure is healthy. Prometheus is a core technology for monitoring and observability of systems, but the term "Prometheus" can be confusing because it is used in different contexts. Understanding Prometheus basics, why it’s valuable for system observability, and how users use it in practice will both help you better understand it and help you use Grafana.
+Observability focuses on understanding the internal state of your systems based on the data they produce, which helps determine if your infrastructure is healthy. Prometheus is a core technology for system observability, but the term "Prometheus" can be confusing because it is used in different contexts. Understanding Prometheus basics, why it’s valuable for system observability, and how people use it in practice will both help you better understand it and help you use Grafana.
 
-Prometheus began in 2012 at SoundCloud because existing technologies were insufficient for their observability needs. Prometheus offers both a robust data model and a query language. Prometheus is also simple and scalable. In 2018, Prometheus graduated from Cloud Native Computing Foundation (CNCF) incubation, and today has a thriving community.
+Prometheus began in 2012 at SoundCloud because existing technologies were insufficient for their observability needs. Prometheus offers both a robust data model and a query language, which are discussed on this page. Prometheus is also simple and scalable. In 2018, Prometheus graduated from Cloud Native Computing Foundation (CNCF) incubation, and today has a thriving community.
 
 ## Prometheus as data
 
@@ -48,7 +42,7 @@ Prometheus is a technology that collects and stores time series data. Time serie
 - _metrics_ that consist of a _timestamp_ and a _sample_, which is the numeric value, such as how many disk bytes have been read or a stock price
 - a set of labels called _dimensions_, for example, `job` and `device`
 
-You can store time series data in any relational database, however, these systems are not developed to store and query large volumes of time series data. Prometheus and similar software provide tools to compact and optimize time series data.
+You can store time series data in any relational database, but these kinds of systems are not developed to store and query large volumes of time series data. Prometheus and similar software provide tools to compact and optimize time series data.
 
 ### Simple dashboard using PromQL
 
@@ -76,7 +70,7 @@ The following gauge visualization displays the total RAM usage on a computer.
 
 The third metric type is called a `histogram`, which counts observations and organizes them into configurable groups. The following example displays floating-point numbers grouped into ranges that display how frequently each occurred.
 
-{{< figure src="/media/docs/grafana/intro-prometheus/histogram-example.png" max-width="750px" caption="Histogram visualization" >}}
+{{< figure src="/media/docs/grafana/intro-prometheus/histogram-example.png" max-width="750px" caption="Historgram visualization" >}}
 
 These core concepts of time series, metrics, labels, and aggregation functions are foundational to Grafana and observability.
 

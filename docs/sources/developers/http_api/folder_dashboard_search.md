@@ -11,10 +11,6 @@ keywords:
   - search
   - folder
   - dashboard
-labels:
-  products:
-    - enterprise
-    - oss
 title: Folder/Dashboard Search HTTP API
 ---
 
@@ -24,7 +20,7 @@ title: Folder/Dashboard Search HTTP API
 
 `GET /api/search/`
 
-> Note: When using [Role-based access control]({{< relref "/docs/grafana/latest/administration/roles-and-permissions/access-control" >}}), search results will contain only dashboards and folders which you have access to.
+> Note: When using [Role-based access control]({{< relref "../../administration/roles-and-permissions/access-control/" >}}), search results will contain only dashboards and folders which you have access to.
 
 Query parameters:
 
@@ -34,21 +30,21 @@ Query parameters:
 - **dashboardIds** – List of dashboard id's to search for
 - **dashboardUID** - List of dashboard uid's to search for, It is deprecated since Grafana v9.1, please use dashboardUIDs instead
 - **dashboardUIDs** – List of dashboard uid's to search for
-- **folderUIDs** – List of folder UIDs to search in
+- **folderIds** – List of folder id's to search in for dashboards
 - **starred** – Flag indicating if only starred Dashboards should be returned
 - **limit** – Limit the number of returned results (max is 5000; default is 1000)
 - **page** – Use this parameter to access hits beyond limit. Numbering starts at 1. limit param acts as page size. Only available in Grafana v6.2+.
 
-**Example request for retrieving folders and dashboards at the root level**:
+**Example request for retrieving folders and dashboards of the general folder**:
 
 ```http
-GET /api/search?query=&starred=false HTTP/1.1
+GET /api/search?folderIds=0&query=&starred=false HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJrIjoiT0tTcG1pUlY2RnVKZTFVaDFsNFZXdE9ZWmNrMkZYbk
 ```
 
-**Example response for retrieving folders and dashboards at the root level**:
+**Example response for retrieving folders and dashboards of the general folder**:
 
 ```http
 HTTP/1.1 200

@@ -4,10 +4,6 @@ aliases:
   - ../../../enterprise/access-control/manage-role-assignments/manage-built-in-role-assignments/
   - ../../../enterprise/access-control/manage-role-assignments/manage-user-role-assignments/
 description: Learn how to assign RBAC roles to users and teams in Grafana.
-labels:
-  products:
-    - cloud
-    - enterprise
 menuTitle: Assign RBAC roles
 title: Assign Grafana RBAC roles
 weight: 40
@@ -15,9 +11,7 @@ weight: 40
 
 # Assign RBAC roles
 
-{{% admonition type="note" %}}
-Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud](/docs/grafana-cloud).
-{{% /admonition %}}
+> **Note:** Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud Advanced](/docs/grafana-cloud).
 
 In this topic you'll learn how to use the role picker, provisioning, and the HTTP API to assign fixed and custom roles to users and teams.
 
@@ -54,18 +48,16 @@ In both cases, the assignment applies only to the user, team or service account 
 
    For more information about switching organizations, refer to [Switch organizations]({{< relref "../../../user-management/user-preferences/_index.md#switch-organizations" >}}).
 
-3. In the left-side menu, click **Administration**, **Users and access**, and then **Users**, **Teams**, or **Service accounts**.
-4. In the **Role** column, select the fixed role that you want to assign to the user, team, or service account.
+3. Hover your cursor over **Configuration** (the gear icon) in the left navigation menu, and click **Users** or **Teams** or **Service Accounts**.
+4. In the **Role** column, select the fixed role that you want to assign to the user, team or service account.
 5. Click **Update**.
 
 **To assign a fixed role as a server administrator:**
 
-1. Sign in to Grafana as a server administrator.
-1. Click **Administration** in the left-side menu, **Users and access**, and then **Users**.
+1. Sign in to Grafana, hover your cursor over **Server Admin** (the shield icon) in the left navigation menu, and click **Users**.
 1. Click a user.
-1. In the Organizations section, click **Change role**.
-1. Select a role within an organization that you want to assign to the user.
-1. Click **Save**.
+1. In the **Organizations** section, select a role within an organization that you want to assign to the user.
+1. Click **Update**.
 
 ## Assign fixed or custom roles to a team using provisioning
 

@@ -3,24 +3,19 @@ aliases:
   - ../../enterprise/white-labeling/
   - ../enable-custom-branding/
 description: Change the look of Grafana to match your corporate brand.
-labels:
-  products:
-    - enterprise
 title: Configure custom branding
 weight: 300
 ---
 
 # Configure custom branding
 
-Custom branding enables you to replace the Grafana Labs brand and logo with your corporate brand and logo.
+Custom branding allows you to replace the Grafana brand and logo with your own corporate brand and logo.
 
-{{% admonition type="note" %}}
-Available in [Grafana Enterprise]({{< relref "../../../introduction/grafana-enterprise" >}}) and [Grafana Cloud](/docs/grafana-cloud). For Cloud Advanced and Enterprise customers, please provide custom elements and logos to our Support team. We will help you host your images and update your custom branding.
-{{% /admonition %}}
+> **Note:** Available in [Grafana Enterprise]({{< relref "../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud Advanced](/docs/grafana-cloud).
 
-The `grafana.ini` file includes Grafana Enterprise custom branding. As with all configuration options, you can use environment variables to set custom branding.
+Grafana Enterprise has custom branding options in the `grafana.ini` file. As with all configuration options, you can also set them with environment variables.
 
-With custom branding, you have the ability to modify the following elements:
+You can change the following elements:
 
 - Application title
 - Login background
@@ -37,7 +32,7 @@ With custom branding, you have the ability to modify the following elements:
 
 {{< figure src="/static/img/docs/v66/whitelabeling_1.png" max-width="800px" caption="Custom branding example" >}}
 
-The configuration file in Grafana Enterprise contains the following options. For more information about configuring Grafana, refer to [Configure Grafana]({{< relref "../../configure-grafana" >}}).
+The configuration file in Grafana Enterprise contains the following options. Each option is defined in the file. For more information about configuring Grafana, refer to [Configuration]({{< relref "../../configure-grafana/" >}}).
 
 ```ini
 # Enterprise only
@@ -72,12 +67,10 @@ The configuration file in Grafana Enterprise contains the following options. For
 
 # Set to complete URL to override loading logo
 ;loading_logo =
-
-# Set to `true` to remove the Grafana edition from appearing in the footer
-;hide_edition =
 ```
 
-You have the option of adding custom links in place of the default footer links (Documentation, Support, Community). Below is an example of how to replace the default footer and help links with custom links.
+You can replace the default footer links (Documentation, Support, Community) and even add your own custom links.
+An example follows for replacing the default footer and help links with new custom links.
 
 ```ini
 footer_links = support guides extracustom
@@ -89,7 +82,7 @@ footer_links_extracustom_text = Custom text
 footer_links_extracustom_url = http://your.custom.site
 ```
 
-The following example shows configuring custom branding using environment variables instead of the `custom.ini` or `grafana.ini` files.
+Here is the same example using environment variables instead of the custom.ini or grafana.ini file.
 
 ```
 GF_WHITE_LABELING_FOOTER_LINKS=support guides extracustom
@@ -101,16 +94,14 @@ GF_WHITE_LABELING_FOOTER_LINKS_EXTRACUSTOM_TEXT=Custom Text
 GF_WHITE_LABELING_FOOTER_LINKS_EXTRACUSTOM_URL=http://your.custom.site
 ```
 
-{{% admonition type="note" %}}
-The following two links are always present in the footer:
-{{% /admonition %}}
+> **Note:** The following two links are always present in the footer:
 
 - Grafana edition
 - Grafana version with build number
 
-If you specify `footer_links` or `GF_WHITE_LABELING_FOOTER_LINKS`, then all other default links are removed from the footer, and only what is specified is included.
+If you specify `footer_links` or `GF_WHITE_LABELING_FOOTER_LINKS`, then all other default links are removed from the footer and only what is specified is included.
 
-## Custom branding for public dashboards
+## Custom branding for Public Dashboards
 
 In addition to the customizations described below, you can customize the footer of your public dashboards.
 To customize the footer of a public dashboard, add the following section to the `grafana.ini` file.
@@ -118,22 +109,18 @@ To customize the footer of a public dashboard, add the following section to the 
 ```ini
 [white_labeling.public_dashboards]
 
-# Hides the footer for the public dashboards if set to `true`.
+# Hides the footer for the public dashboards if set to "true". If
 # example: footer_hide = "true"
 ;footer_hide =
 
 # Set to text shown in the footer
 ;footer_text =
 
-# Set to complete url to override public dashboard footer logo. Default is `grafana-logo` and will display the Grafana logo.
-# An empty value will hide the footer logo.
+# Set to complete url to override public dashboard footer logo
 ;footer_logo =
 
 # Set to link for the footer
 ;footer_link =
-
-# Set to `true` to hide the Grafana logo next to the title
-;header_logo_hide =
 ```
 
 If you specify `footer_hide` to `true`, all the other values are ignored because the footer will not be shown.

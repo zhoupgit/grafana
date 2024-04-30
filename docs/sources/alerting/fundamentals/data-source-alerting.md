@@ -1,129 +1,37 @@
 ---
-canonical: https://grafana.com/docs/grafana/latest/alerting/fundamentals/data-source-alerting/
-description: Learn about the data sources supported by Grafana Alerting
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
-title: Data sources and Grafana Alerting
+description: Data sources in Grafana Alerting
+title: Data sources
 weight: 100
-refs:
-  testdata:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
-  graphite:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
-  loki:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
-  jaeger:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/jaeger/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/jaeger/
-  microsoft-sql-server-(mssql):
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/mssql/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/mssql/
-  mysql:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/mysql/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/mysql/
-  tempo:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/tempo/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/tempo/
-  open-tsdb:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
-  prometheus:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
-  influxdb:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
-  azure-monitor:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
-  grafana-data-sources:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
-  aws-cloudwatch:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
-  elasticsearch:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
-  google-cloud-monitoring:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
-  zipkin:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
-  postgresql:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
 ---
 
-# Data sources and Grafana Alerting
+# Data sources
 
-There are a number of data sources that are compatible with Grafana Alerting. Each data source is supported by a plugin. You can use one of the built-in data sources listed below, use [external data source plugins](/grafana/plugins/?type=datasource), or create your own data source plugin.
+There are a number of data sources that are compatible with Grafana Alerting. Each data source is supported by a plugin. You can use one of the built-in data sources listed below, use [external data source plugins](https://grafana.com/grafana/plugins/?type=datasource), or create your own data source plugin.
 
 If you are creating your own data source plugin, make sure it is a backend plugin as Grafana Alerting requires this in order to be able to evaluate rules using the data source. Frontend data sources are not supported, because the evaluation engine runs on the backend.
 
-Specifying `{ "alerting": true, “backend”: true }` in the plugin.json file indicates that the data source plugin is compatible with Grafana Alerting and includes the backend data-fetching code. For more information, refer to [Build a data source backend plugin](/tutorials/build-a-data-source-backend-plugin/).
+Specifying { "alerting": true, “backend”: true } in the plugin.json file indicates that the data source plugin is compatible with Grafana Alerting and includes the backend data-fetching code. For more information, refer to [Build a data source backend plugin](https://grafana.com/tutorials/build-a-data-source-backend-plugin/).
 
 These are the data sources that are compatible with and supported by Grafana Alerting.
 
-- [AWS CloudWatch](ref:aws-cloudwatch)
-- [Azure Monitor](ref:azure-monitor)
-- [Elasticsearch](ref:elasticsearch)
-- [Google Cloud Monitoring](ref:google-cloud-monitoring)
-- [Graphite](ref:graphite)
-- [InfluxDB](ref:influxdb)
-- [Loki](ref:loki)
-- [Microsoft SQL Server (MSSQL)](ref:microsoft-sql-server-(mssql))
-- [MySQL](ref:mysql)
-- [Open TSDB](ref:open-tsdb)
-- [PostgreSQL](ref:postgresql)
-- [Prometheus](ref:prometheus)
-- [Jaeger](ref:jaeger)
-- [Zipkin](ref:zipkin)
-- [Tempo](ref:tempo)
-- [Testdata](ref:testdata)
+- [AWS CloudWatch](https://grafana.com/docs/grafana/latest/datasources/aws-cloudwatch/)
+- [Azure Monitor](https://grafana.com/docs/grafana/latest/datasources/azuremonitor/)
+- [Elasticsearch](https://grafana.com/docs/grafana/latest/datasources/elasticsearch/)
+- [Google Cloud Monitoring](https://grafana.com/docs/grafana/latest/datasources/google-cloud-monitoring/)
+- [Graphite](https://grafana.com/docs/grafana/latest/datasources/graphite/)
+- [InfluxDB](https://grafana.com/docs/grafana/latest/datasources/influxdb/)
+- [Loki](https://grafana.com/docs/grafana/latest/datasources/loki/)
+- [Microsoft SQL Server MSSQL](https://grafana.com/docs/grafana/latest/datasources/mssql/)
+- [MySQL](https://grafana.com/docs/grafana/latest/datasources/mysql/)
+- [Open TSDB](https://grafana.com/docs/grafana/latest/datasources/opentsdb/)
+- [PostgreSQL](https://grafana.com/docs/grafana/latest/datasources/postgres/)
+- [Prometheus](https://grafana.com/docs/grafana/latest/datasources/prometheus/)
+- [Jaeger](https://grafana.com/docs/grafana/latest/datasources/jaeger/)
+- [Zipkin](https://grafana.com/docs/grafana/latest/datasources/zipkin/)
+- [Tempo](https://grafana.com/docs/grafana/latest/datasources/tempo/)
+- [Testdata](https://grafana.com/docs/grafana/latest/datasources/testdata/)
 
 ## Useful links
 
-- [Grafana data sources](ref:grafana-data-sources)
-
+- [Grafana data sources](https://grafana.com/docs/grafana/latest/datasources/)
+- [Add a data source](https://grafana.com/docs/grafana/latest/datasources/add-a-data-source/)

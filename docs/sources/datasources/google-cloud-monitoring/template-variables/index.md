@@ -11,30 +11,9 @@ keywords:
   - queries
   - template
   - variable
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 menuTitle: Template variables
 title: Google Cloud Monitoring template variables
 weight: 300
-refs:
-  variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/
-  variable-syntax:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/variable-syntax/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/variable-syntax/
-  add-template-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/variables/add-template-variables/
 ---
 
 # Google Cloud Monitoring template variables
@@ -43,7 +22,7 @@ Instead of hard-coding details such as server, application, and sensor names in 
 Grafana lists these variables in dropdown select boxes at the top of the dashboard to help you change the data displayed in your dashboard.
 Grafana refers to such variables as template variables.
 
-For an introduction to templating and template variables, refer to the [Templating](ref:variables) and [Add and manage variables](ref:add-template-variables) documentation.
+For an introduction to templating and template variables, refer to the [Templating]({{< relref "../../../dashboards/variables" >}}) and [Add and manage variables]({{< relref "../../../dashboards/variables/add-template-variables" >}}) documentation.
 
 ## Use query variables
 
@@ -66,5 +45,4 @@ The Google Cloud Monitoring data source plugin provides the following **Query Ty
 ## Use variables in queries
 
 Use Grafana's variable syntax to include variables in queries.
-For details, refer to the [variable syntax documentation](ref:variable-syntax).
-
+For details, refer to the [variable syntax documentation]({{< relref "../../../dashboards/variables/variable-syntax" >}}).

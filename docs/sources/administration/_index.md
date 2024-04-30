@@ -1,9 +1,5 @@
 ---
 description: Administration
-labels:
-  products:
-    - enterprise
-    - oss
 title: Administration
 weight: 40
 ---

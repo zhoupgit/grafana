@@ -1,26 +1,19 @@
 ---
-_build:
-  list: false
 aliases:
-  - ./unified-alerting/difference-old-new/ # /docs/grafana/<GRAFANA_VERSION>/alerting/unified-alerting/difference-old-new/
-canonical: https://grafana.com/docs/grafana/latest/alerting/difference-old-new/
-description: Learn about how Grafana Alerting compares to legacy alerting
+  - unified-alerting/difference-old-new/
+description: What's New with Grafana alerts
+draft: true
 keywords:
   - grafana
   - alerting
   - guide
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
-title: Grafana Alerting vs Legacy dashboard alerting
+title: What's new in Grafana Alerting
 weight: 108
 ---
 
-# Grafana Alerting vs Legacy dashboard alerting
+# What's new in Grafana Alerting
 
-Introduced in Grafana 8.0, and the only system since Grafana 10.0, Grafana Alerting has several enhancements over legacy dashboard alerting.
+Grafana Alerting has several enhancements over legacy dashboard alerting.
 
 ## Multi-dimensional alerting
 

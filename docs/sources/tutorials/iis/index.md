@@ -1,22 +1,14 @@
 ---
-Feedback Link: https://github.com/grafana/tutorials/issues/new
-aliases:
-  - /docs/grafana/latest/tutorials/iis/
-authors:
-  - grafana_labs
-categories:
-  - administration
+title: Use IIS with URL Rewrite as a reverse proxy
+summary: Learn how to set up Grafana behind IIS with URL Rewrite.
 description: Learn how to set up Grafana behind IIS with URL Rewrite.
 id: iis
-labels:
-  products:
-    - enterprise
-    - oss
+categories: ['administration']
+tags: ['advanced']
 status: Published
-summary: Learn how to set up Grafana behind IIS with URL Rewrite.
-tags:
-  - advanced
-title: Use IIS with URL Rewrite as a reverse proxy
+authors: ['grafana_labs']
+Feedback Link: https://github.com/grafana/tutorials/issues/new
+aliases: ['/docs/grafana/latest/tutorials/iis/']
 ---
 
 # Use IIS with URL Rewrite as a reverse proxy

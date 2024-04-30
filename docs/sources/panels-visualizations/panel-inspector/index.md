@@ -4,14 +4,8 @@ aliases:
   - ../panels/query-a-data-source/inspect-query-performance/
   - ../panels/query-a-data-source/inspect-request-and-response-data/
   - ../panels/working-with-panels/navigate-inspector-panel/
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 title: The panel inspect view
-description: Inspect the raw data of your panels to understand and troubleshoot them
-weight: 30
+weight: 1200
 ---
 
 # The panel inspect view

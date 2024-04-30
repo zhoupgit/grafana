@@ -1,22 +1,14 @@
 ---
-Feedback Link: https://github.com/grafana/tutorials/issues/new
-aliases:
-  - /docs/grafana/latest/installation/behind_proxy/
-authors:
-  - grafana_labs
-categories:
-  - administration
+title: Run Grafana behind a reverse proxy
+summary: Learn how to run Grafana behind a reverse proxy
 description: Learn how to run Grafana behind a reverse proxy
 id: run-grafana-behind-a-proxy
-labels:
-  products:
-    - enterprise
-    - oss
+categories: ['administration']
+tags: ['advanced']
 status: Published
-summary: Learn how to run Grafana behind a reverse proxy
-tags:
-  - advanced
-title: Run Grafana behind a reverse proxy
+authors: ['grafana_labs']
+Feedback Link: https://github.com/grafana/tutorials/issues/new
+aliases: ['/docs/grafana/latest/installation/behind_proxy/']
 ---
 
 ## Introduction
@@ -38,8 +30,8 @@ You can also serve Grafana behind a _sub path_, such as `http://example.com/graf
 
 To serve Grafana behind a sub path:
 
-1. Include the sub path at the end of the `root_url`.
-1. Set `serve_from_sub_path` to `true`. Or, let proxy rewrite the path for you (refer to examples below).
+- Include the sub path at the end of the `root_url`.
+- Set `serve_from_sub_path` to `true`.
 
 ```bash
 [server]
@@ -77,7 +69,7 @@ server {
     proxy_pass http://grafana;
   }
 
-# Proxy Grafana Live WebSocket connections.
+  # Proxy Grafana Live WebSocket connections.
   location /api/live/ {
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -114,12 +106,14 @@ server {
   index index.html index.htm;
 
   location /grafana/ {
+    rewrite  ^/grafana/(.*)  /$1 break;
     proxy_set_header Host $http_host;
     proxy_pass http://grafana;
   }
 
   # Proxy Grafana Live WebSocket connections.
   location /grafana/api/live/ {
+    rewrite  ^/grafana/(.*)  /$1 break;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection $connection_upgrade;
@@ -128,16 +122,6 @@ server {
   }
 }
 ```
-
-If your Grafana configuration does not set `serve_from_sub_path` to true then you need to add a rewrite rule to each location block:
-
-```
- rewrite  ^/grafana/(.*)  /$1 break;
-```
-
-{{% admonition type="note" %}}
-If Grafana is being served from behind a NGINX proxy with TLS termination enabled, then the `root_url` should be set accordingly. For example, if Grafana is being served from `https://example.com/grafana` then the `root_url` should be set to `https://example.com/grafana/` or `https://%(domain)s/grafana/` (and the corresponding `domain` should be set to `example.com`) in the `server` section of the Grafana configuration file. The `protocol` setting should be set to `http`, because the TLS handshake is being handled by NGINX.
-{{% /admonition %}}
 
 ## Configure HAProxy
 
@@ -149,18 +133,11 @@ frontend http-in
   use_backend grafana_backend if { path /grafana } or { path_beg /grafana/ }
 
 backend grafana_backend
-  server grafana localhost:3000
-```
+  # Requires haproxy >= 1.6
+  http-request set-path %[path,regsub(^/grafana/?,/)]
 
-If your Grafana configuration doesn't set `server.serve_from_sub_path` to `true`, then you must add a rewrite rule to the `backend grafana_backend` block:
-
-```diff
-backend grafana_backend
-+  # Requires haproxy >= 1.6
-+  http-request set-path %[path,regsub(^/grafana/?,/)]
-
-+  # Works for haproxy < 1.6
-+  # reqrep ^([^\ ]*\ /)grafana[/]?(.*) \1\2
+  # Works for haproxy < 1.6
+  # reqrep ^([^\ ]*\ /)grafana[/]?(.*) \1\2
 
   server grafana localhost:3000
 ```

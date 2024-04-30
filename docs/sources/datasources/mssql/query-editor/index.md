@@ -10,35 +10,9 @@ keywords:
   - guide
   - Azure SQL Database
   - queries
-labels:
-  products:
-    - cloud
-    - enterprise
-    - oss
 menuTitle: Query editor
 title: Microsoft SQL Server query editor
 weight: 300
-refs:
-  query-transform-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/
-  annotate-visualizations:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/annotate-visualizations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/annotate-visualizations/
-  configure-standard-options-display-name:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#display-name
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/configure-standard-options/#display-name
-  table:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/table/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/visualizations/table/
 ---
 
 # Microsoft SQL Server query editor
@@ -46,14 +20,14 @@ refs:
 You can create queries with the Microsoft SQL Server data source's query editor when editing a panel that uses a MS SQL data source.
 
 This topic explains querying specific to the MS SQL data source.
-For general documentation on querying data sources in Grafana, see [Query and transform data](ref:query-transform-data).
+For general documentation on querying data sources in Grafana, see [Query and transform data]({{< relref "../../../panels-visualizations/query-transform-data" >}}).
 
 ## Choose a query editing mode
 
 You can switch the query editor between two modes:
 
-- [Code mode](#code-mode), which provides a feature-rich editor for writing queries
-- [Builder mode](#builder-mode), which provides a visual query designer
+- [Code mode]({{< relref "#code-mode" >}}), which provides a feature-rich editor for writing queries
+- [Builder mode]({{< relref "#builder-mode" >}}), which provides a visual query designer
 
 To switch between the editor modes, select the corresponding **Builder** and **Code** tabs above the editor.
 
@@ -61,9 +35,9 @@ To run a query, select **Run query** located at the top right corner of the edit
 
 The query editor also provides:
 
-- [Macros](#use-macros)
-- [Annotations](#apply-annotations)
-- [Stored procedures](#use-stored-procedures)
+- [Macros]){{< relref "#use-macros" >}}
+- [Annotations]){{< relref "#apply-annotations" >}}
+- [Stored procedures]){{< relref "#use-stored-procedures" >}}
 
 ## Configure common options
 
@@ -78,7 +52,7 @@ To choose a response format, select either the **Table** or **Time series** form
 To use the time series format, you must name one of the MS SQL columns `time`.
 You can use time series queries, but not table queries, in alerting conditions.
 
-For details about using these formats, refer to [Use table queries](#use-table-queries) and [Use time series queries](#use-time-series-queries).
+For details about using these formats, refer to [Use table queries]({{< relref "#use-table-queries" >}}) and [Use time series queries]({{< relref "#use-time-series-queries" >}}).
 
 ## Code mode
 
@@ -113,14 +87,12 @@ Code mode supports autocompletion of tables, columns, SQL keywords, standard SQL
 
 In **Builder mode**, you can build queries using a visual interface.
 
-### Dataset and table selection
+### Select a dataset and table
 
-In the **Dataset** dropdown, select the MSSQL database to query. Grafana populates the dropdown with all databases that the user can access.
-Once you select a database, Grafana populates the dropdown with all available tables.
+In the **Dataset** dropdown, select the MS SQL database to query.
 
-**Note:** If a default database has been configured through the Data Source Configuration page (or through a provisioning configuration file), the user will only be able to use that single preconfigured database for querying.
-
-We don't include `tempdb`,`model`,`msdb`,`master` databases in the query editor dropdown.
+Grafana populates the dropdown with the databases that the configured user can access.
+When you select a dataset, Grafana populates the **Table** dropdown with available tables.
 
 ### Select columns and aggregation functions (SELECT)
 
@@ -140,8 +112,6 @@ Use the second dropdown to choose a filter.
 To filter on more columns, click the plus (`+`) button to the right of the condition dropdown.
 
 To remove a filter, click the `x` button next to that filter's dropdown.
-
-After selecting a date type column, you can choose Macros from the operators list and select timeFilter which will add the $\_\_timeFilter macro to the query with the selected date column.
 
 ### Group results
 
@@ -189,7 +159,7 @@ To display the raw interpolated SQL string that the data source executed, click 
 
 ## Use table queries
 
-If the **Format** query option is set to **Table** for a [Table panel](ref:table), you can enter any type of SQL query.
+If the **Format** query option is set to **Table** for a [Table panel]{{< relref "../../../panels-visualizations/visualizations/table/" >}}, you can enter any type of SQL query.
 The Table panel then displays the query results with whatever columns and rows are returned.
 
 **Example database table:**
@@ -250,7 +220,7 @@ The resulting table panel:
 If you set the **Format** setting in the query editor to **Time series**, then the query must have a column named `time` that returns either a SQL datetime or any numeric datatype representing Unix epoch in seconds.
 Result sets of time series queries must also be sorted by time for panels to properly visualize the result.
 
-A time series query result is returned in a [wide data frame format](/developers/plugin-tools/introduction/data-frames#wide-format).
+A time series query result is returned in a [wide data frame format](https://grafana.com/developers/plugin-tools/introduction/data-frames#wide-format).
 Any column except time or of type string transforms into value fields in the data frame query result.
 Any string column transforms into field labels in the data frame query result.
 
@@ -260,18 +230,18 @@ For backward compatibility, there's an exception to the above rule for queries t
 Instead of transforming the `metric` column into field labels, it becomes the field name, and then the series name is formatted as the value of the `metric` column.
 See the example with the `metric` column below.
 
-To optionally customize the default series name formatting, refer to [Standard options definitions](ref:configure-standard-options-display-name).
+To optionally customize the default series name formatting, refer to [Standard options definitions]({{< relref "../../../panels-visualizations/configure-standard-options#display-name" >}}).
 
 **Example with `metric` column:**
 
 ```sql
 SELECT
-  $__timeGroupAlias(time_date_time, '5m'),
+  $__timeGroup(time_date_time, '5m') as time,
   min("value_double"),
   'min' as metric
 FROM test_data
 WHERE $__timeFilter(time_date_time)
-GROUP BY time
+GROUP BY $__timeGroup(time_date_time, '5m')
 ORDER BY 1
 ```
 
@@ -290,23 +260,23 @@ Data frame result:
 
 ### Time series query examples
 
-**Using the fill parameter in the $\_\_timeGroupAlias macro to convert null values to be zero instead:**
+**Using the fill parameter in the $\_\_timeGroup macro to convert null values to be zero instead:**
 
 ```sql
 SELECT
-  $__timeGroupAlias(createdAt, '5m', 0),
+  $__timeGroup(createdAt, '5m', 0) as time,
   sum(value) as value,
   hostname
 FROM test_data
 WHERE
   $__timeFilter(createdAt)
 GROUP BY
-  time,
+  $__timeGroup(createdAt, '5m', 0),
   hostname
 ORDER BY 1
 ```
 
-Given the data frame result in the following example and using the graph panel, you will get two series named _value 10.0.1.1_ and _value 10.0.1.2_. To render the series with a name of _10.0.1.1_ and _10.0.1.2_ , use a [Standard options definitions](ref:configure-standard-options-display-name) display name value of `${__field.labels.hostname}`.
+Given the data frame result in the following example and using the graph panel, you will get two series named _value 10.0.1.1_ and _value 10.0.1.2_. To render the series with a name of _10.0.1.1_ and _10.0.1.2_ , use a [Standard options definitions]({{< relref "../../../panels-visualizations/configure-standard-options#display-name" >}}) display name value of `${__field.labels.hostname}`.
 
 Data frame result:
 
@@ -325,12 +295,12 @@ Data frame result:
 
 ```sql
 SELECT
-  $__timeGroupAlias(time_date_time, '5m'),
+  $__timeGroup(time_date_time, '5m'),
   min(value_double) as min_value,
   max(value_double) as max_value
 FROM test_data
 WHERE $__timeFilter(time_date_time)
-GROUP BY time
+GROUP BY $__timeGroup(time_date_time, '5m')
 ORDER BY 1
 ```
 
@@ -349,7 +319,7 @@ Data frame result:
 
 ## Apply annotations
 
-[Annotations](ref:annotate-visualizations) overlay rich event information on top of graphs.
+[Annotations]({{< relref "../../../dashboards/build-dashboards/annotate-visualizations" >}}) overlay rich event information on top of graphs.
 You can add annotation queries in the Dashboard menu's Annotations view.
 
 **Columns:**
@@ -371,7 +341,7 @@ CREATE TABLE [events] (
 )
 ```
 
-We also use the database table defined in [Time series queries](#time-series-queries).
+We also use the database table defined in [Time series queries]({{< relref "#time-series-queries" >}}).
 
 **Example query using time column with epoch values:**
 
@@ -567,4 +537,3 @@ DECLARE
 
 EXEC dbo.sp_test_datetime @from, @to
 ```
-

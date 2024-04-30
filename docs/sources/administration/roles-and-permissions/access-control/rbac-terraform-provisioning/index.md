@@ -3,10 +3,6 @@ aliases:
   - ../../../enterprise/access-control/rbac-provisioning/rbac-terraform-provisioning/
 description: Learn about RBAC Terraform provisioning and view an example of provisioning
   configuration for Grafana roles and role assignments.
-labels:
-  products:
-    - cloud
-    - enterprise
 menuTitle: Provisioning RBAC with Terraform
 title: Provisioning RBAC with Terraform
 weight: 60
@@ -14,9 +10,7 @@ weight: 60
 
 # Provisioning RBAC with Terraform
 
-{{% admonition type="note" %}}
-Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud](/docs/grafana-cloud).
-{{% /admonition %}}
+> **Note:** Available in [Grafana Enterprise]({{< relref "../../../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud Advanced](/docs/grafana-cloud).
 
 You can create, change or remove [Custom roles](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/role) and create or remove [basic and custom role assignments](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/role_assignment), by using [Terraform's Grafana provider](https://registry.terraform.io/providers/grafana/grafana/latest/docs).
 
