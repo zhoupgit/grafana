@@ -6,7 +6,7 @@ aliases:
   - ../../best-practices/common-observability-strategies/
   - ../../best-practices/dashboard-management-maturity-levels/
   - ../../getting-started/strategies/
-description: Best practices for working with Grafana
+description: Learn best practices for building and maintaining Grafana dashboards
 labels:
   products:
     - cloud
@@ -14,24 +14,24 @@ labels:
     - oss
 menuTitle: Best practices
 title: Grafana dashboard best practices
-weight: 100
+weight: 800
 refs:
   manage-dashboard-links:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/manage-dashboard-links/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/manage-dashboard-links/
-  text-panel:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
   usage-insights:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/
   text-panel-visualization:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
+  text-panel:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
     - pattern: /docs/grafana-cloud/

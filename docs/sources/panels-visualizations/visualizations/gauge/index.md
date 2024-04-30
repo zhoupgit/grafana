@@ -3,7 +3,7 @@ aliases:
   - ../../features/panels/gauge/
   - ../../panels/visualizations/gauge-panel/
   - ../../visualizations/gauge-panel/
-description: Gauge panel docs
+description: Configure options for Grafana's gauge visualization
 keywords:
   - grafana
   - gauge
@@ -27,7 +27,7 @@ refs:
 
 Gauges are single-value visualizations that can repeat a gauge for every series, column or row.
 
-{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="1025px" >}}
+{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="1025px" alt="A gauge visualization">}}
 
 {{< docs/play title="Grafana Gauge Visualization" url="https://play.grafana.org/d/KIhkVD6Gk/" >}}
 

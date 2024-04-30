@@ -21,51 +21,51 @@ refs:
       destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/build-dashboards/annotate-visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/annotate-visualizations/
-  exemplars:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
-  configure-grafana:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
   provisioning-data-sources:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+  configure-grafana:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/
+  exemplars:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
   administration-documentation:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-  set-up-grafana-monitoring:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
   build-dashboards:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+  set-up-grafana-monitoring:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
   get-started-prometheus:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/getting-started/get-started-grafana-prometheus/#get-started-with-grafana-and-prometheus
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/getting-started/get-started-grafana-prometheus/#get-started-with-grafana-and-prometheus
-  intro-to-prometheus:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-to-prometheus/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-to-prometheus/
   configure-grafana-configuration-file-location:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#configuration-file-location
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#configuration-file-location
+  intro-to-prometheus:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-to-prometheus/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/intro-to-prometheus/
   explore:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/

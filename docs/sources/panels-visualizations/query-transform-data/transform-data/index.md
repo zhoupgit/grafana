@@ -39,6 +39,7 @@ labels:
     - enterprise
     - oss
 title: Transform data
+description: Use transformations to rename fields, join series data, apply mathematical operations, and more
 weight: 100
 refs:
   configuration-file:
@@ -46,21 +47,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#configuration-file-location
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#configuration-file-location
-  dashboard-variable:
+  heatmap-panel:
     - pattern: /docs/grafana/
-      destination: docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
     - pattern: /docs/grafana-cloud/
-      destination: docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-  calculation-types:
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
+  sparkline-cell-type:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/#sparkline
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
-  time-series-panel:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/#sparkline
   table-panel:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
@@ -71,16 +67,21 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
-  sparkline-cell-type:
+  calculation-types:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/#sparkline
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/#sparkline
-  heatmap-panel:
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
+  time-series-panel:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
+  dashboard-variable:
+    - pattern: /docs/grafana/
+      destination: docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+    - pattern: /docs/grafana-cloud/
+      destination: docs/grafana/<GRAFANA VERSION>/dashboards/variables/
 ---
 
 # Transform data
@@ -121,7 +122,7 @@ The following steps guide you in adding a transformation to data. This documenta
    For information about available calculations, refer to [Calculation types](ref:calculation-types).
 1. To apply another transformation, click **Add transformation**.
    This transformation acts on the result set returned by the previous transformation.
-   {{< figure src="/static/img/docs/transformations/transformations-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="The Transform tab in the panel editor" >}}
+   {{< figure src="/static/img/docs/transformations/transformations-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="Transform tab in the panel editor" >}}
 
 ## Debug a transformation
 
@@ -141,7 +142,9 @@ You can disable or hide one or more transformations by clicking on the eye icon 
 
 If your panel uses more than one query, you can filter these and apply the selected transformation to only one of the queries. To do this, click the filter icon on the top right of the transformation row. This opens a drop-down with a list of queries used on the panel. From here, you can select the query you want to transform.
 
-Note that the filter icon is always displayed if your panel has more than one query, but it may not work if previous transformations for merging the queries' outputs are applied. This is because one transformation takes the output of the previous one.
+You can also filter by annotations (which includes exemplars) to apply transformations to them. When you do so, the list of fields changes to reflect those in the annotation or exemplar tooltip.
+
+The filter icon is always displayed if your panel has more than one query or source of data (that is, panel or annotation data) but it may not work if previous transformations for merging the queries’ outputs are applied. This is because one transformation takes the output of the previous one.
 
 ## Delete a transformation
 
@@ -157,7 +160,7 @@ We recommend that you remove transformations that you don't need. When you delet
 1. Click the **Transform** tab.
 1. Click the trash icon next to the transformation you want to delete.
 
-{{< figure src="/static/img/docs/transformations/screenshot-example-remove-transformation.png" class="docs-image--no-shadow" max-width= "1100px" alt="A transformation row with the Remove icon highlighted" >}}
+{{< figure src="/static/img/docs/transformations/screenshot-example-remove-transformation.png" class="docs-image--no-shadow" max-width= "1100px" alt="A transformation row with the remove transformation icon highlighted" >}}
 
 ## Transformation functions
 
@@ -194,7 +197,7 @@ Use this transformation to add a new field calculated from two other fields. Eac
 - **Alias** - (Optional) Enter the name of your new field. If you leave this blank, then the field will be named to match the calculation.
 - **Replace all fields** - (Optional) Select this option if you want to hide all other fields and display only your calculated field in the visualization.
 
-> **Note:** **Cumulative functions** and **Window functions** modes are experimental features. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. Enable the **addFieldFromCalculationStatFunctions** feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
+> **Note:** **Cumulative functions** and **Window functions** modes are currently in public preview. Grafana Labs offers limited support, and breaking changes might occur prior to the feature being made generally available. Enable the `addFieldFromCalculationStatFunctions` feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
 
 In the example below, we added two fields together and named them Sum.
 
@@ -530,15 +533,15 @@ Click and uncheck the field names to remove them from the result. Fields that ar
 
 Enable 'From variable' to let you select a dashboard variable that's used to include fields. By setting up a [dashboard variable](ref:dashboard-variable) with multiple choices, the same fields can be displayed across multiple visualizations.
 
-{{< figure src="/static/img/docs/transformations/filter-name-table-before-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="Filter fields by name1" >}}
+{{< figure src="/static/img/docs/transformations/filter-name-table-before-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="A table visualization with time, value, Min, and Max columns" >}}
 
 Here's the table after we applied the transformation to remove the Min field.
 
-{{< figure src="/static/img/docs/transformations/filter-name-table-after-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="Filter fields by name2" >}}
+{{< figure src="/static/img/docs/transformations/filter-name-table-after-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="A table visualization with time, value, and Max columns" >}}
 
 Here is the same query using a Stat visualization.
 
-{{< figure src="/static/img/docs/transformations/filter-name-stat-after-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="Filter fields by name3" >}}
+{{< figure src="/static/img/docs/transformations/filter-name-stat-after-7-0.png" class="docs-image--no-shadow" max-width= "1100px" alt="A stat visualization with value and Max fields" >}}
 
 This transformation provides flexibility in tailoring your query results to focus on the specific fields you need for effective analysis and visualization.
 
@@ -559,7 +562,7 @@ Use this transformation to customize the output of a string field. This transfor
 
 This transformation provides a convenient way to standardize and tailor the presentation of string data for better visualization and analysis.
 
-> **Note:** This transformation is an experimental feature. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. Enable the **formatString** feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
+> **Note:** This transformation is currently in public preview. Grafana Labs offers limited support, and breaking changes might occur prior to the feature being made generally available. Enable the `formatString` feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
 
 ### Format time
 
@@ -1316,11 +1319,11 @@ Use this transformation to create a new data frame containing values predicted b
 There are two different models:
 
 - **Linear regression** - Fits a linear function to the data.
-  {{< figure src="/static/img/docs/transformations/linear-regression.png" class="docs-image--no-shadow" max-width= "1100px" alt="Linear regression" >}}
+  {{< figure src="/static/img/docs/transformations/linear-regression.png" class="docs-image--no-shadow" max-width= "1100px" alt="A time series visualization with a straight line representing the linear function" >}}
 - **Polynomial regression** - Fits a polynomial function to the data.
-  {{< figure src="/static/img/docs/transformations/polynomial-regression.png" class="docs-image--no-shadow" max-width= "1100px" alt="Polynomial regression" >}}
+  {{< figure src="/static/img/docs/transformations/polynomial-regression.png" class="docs-image--no-shadow" max-width= "1100px" alt="A time series visualization with a curved line representing the polynomial function" >}}
 
-> **Note:** This transformation is an experimental feature. Engineering and on-call support is not available. Documentation is either limited or not provided outside of code comments. No SLA is provided. Enable the `regressionTransformation` feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
+> **Note:** This transformation is currently in public preview. Grafana Labs offers limited support, and breaking changes might occur prior to the feature being made generally available. Enable the `regressionTransformation` feature toggle in Grafana to use this feature. Contact Grafana Support to enable this feature in Grafana Cloud.
 
 
 [Data frames]: https://grafana.com/developers/plugin-tools/introduction/data-frames/

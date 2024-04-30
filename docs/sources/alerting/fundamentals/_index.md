@@ -3,7 +3,7 @@ aliases:
   - metrics/
   - unified-alerting/fundamentals/
 canonical: https://grafana.com/docs/grafana/latest/alerting/fundamentals/
-description: Intro to the key concepts in Alerting and how it works
+description: Learn about the fundamentals of Grafana Alerting as well as the key features it offers
 labels:
   products:
     - cloud
@@ -13,16 +13,16 @@ menuTitle: Introduction
 title: Introduction to Alerting
 weight: 100
 refs:
-  notification-policies:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/notification-policies/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/notification-policies/
   external-alertmanagers:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/set-up/configure-alertmanager/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/set-up/configure-alertmanager/
+  notification-policies:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/notification-policies/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/notification-policies/
 ---
 
 # Introduction to Alerting

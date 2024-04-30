@@ -2,7 +2,7 @@
 aliases:
   - ../unified-alerting/alerting-rules/create-grafana-managed-rule/
 canonical: https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-grafana-managed-rule/
-description: Configure Grafana-managed alert rules
+description: Configure Grafana-managed alert rules to create alerts that can act on data from any of our supported data sources
 keywords:
   - grafana
   - alerting
@@ -19,11 +19,6 @@ labels:
 title: Configure Grafana-managed alert rules
 weight: 100
 refs:
-  add-a-query:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
   expression-queries:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries/
@@ -34,6 +29,16 @@ refs:
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/evaluate-grafana-alerts/#alerting-on-numeric-data-1
+  add-a-query:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/#add-a-query
+  annotation-label:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label/
   fundamentals:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/
@@ -44,11 +49,6 @@ refs:
       destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards/#time-units-and-relative-ranges
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards/#time-units-and-relative-ranges
-  annotation-label:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label/
 ---
 
 # Configure Grafana-managed alert rules
@@ -102,6 +102,7 @@ Define a query to get the data you want to measure and a condition that needs to
    All alert rules are managed by Grafana by default. If you want to switch to a data source-managed alert rule, click **Switch to data source-managed alert rule**.
 
 1. Add one or more [expressions](ref:expression-queries).
+
    a. For each expression, select either **Classic condition** to create a single alert rule, or choose from the **Math**, **Reduce**, and **Resample** options to generate separate alert for each series.
 
    {{% admonition type="note" %}}
@@ -109,6 +110,14 @@ Define a query to get the data you want to measure and a condition that needs to
    {{% /admonition %}}
 
    b. Click **Preview** to verify that the expression is successful.
+
+{{% admonition type="note" %}}
+The recovery threshold feature is currently only available in OSS.
+{{% /admonition %}}
+
+1. To add a recovery threshold, turn the **Custom recovery threshold** toggle on and fill in a value for when your alert rule should stop firing.
+
+   You can only add one recovery threshold in a query and it must be the alert condition.
 
 1. Click **Set as alert condition** on the query or expression you want to set as your alert condition.
 

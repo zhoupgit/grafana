@@ -3,7 +3,7 @@ aliases:
   - ../notifications/mute-timings/
   - ../unified-alerting/notifications/mute-timings/
 canonical: https://grafana.com/docs/grafana/latest/alerting/manage-notifications/mute-timings/
-description: Mute timings
+description: Create mute timings to prevent alerts from firing during a specific and reoccurring period of time
 keywords:
   - grafana
   - alerting
@@ -19,16 +19,16 @@ labels:
 title: Create mute timings
 weight: 420
 refs:
-  fundamentals/alertmanager:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/alertmanager/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/alertmanager/
   datasources/alertmanager:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/datasources/alertmanager/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA_VERSION>/datasources/alertmanager/
+  fundamentals/alertmanager:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/alertmanager/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/alertmanager/
 ---
 
 # Create mute timings

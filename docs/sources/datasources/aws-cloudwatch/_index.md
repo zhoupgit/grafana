@@ -20,31 +20,6 @@ menuTitle: Amazon CloudWatch
 title: Amazon CloudWatch data source
 weight: 200
 refs:
-  explore:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
-  configure-grafana-aws:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#aws
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#aws
-  data-source-management:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-  logs:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
-  build-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
   provisioning-data-sources:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
@@ -55,6 +30,31 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/alerting/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/
+  build-dashboards:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+  logs:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
+  data-source-management:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+  explore:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
+  configure-grafana-aws:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#aws
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#aws
 ---
 
 # Amazon CloudWatch data source

@@ -8,13 +8,9 @@ labels:
     - enterprise
     - oss
 title: Public dashboards
+description: Make your Grafana dashboards public and share them with anyone
 weight: 8
 refs:
-  dashboard-insights-documentation:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/#dashboard-insights
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/#dashboard-insights
   caching:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#query-and-resource-caching
@@ -25,6 +21,11 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/configure-custom-branding/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/configure-custom-branding/
+  dashboard-insights-documentation:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/#dashboard-insights
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/assess-dashboard-usage/#dashboard-insights
   dashboard-sharing:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/share-dashboards-panels/
@@ -164,6 +165,7 @@ guaranteed because plugin developers can override this functionality. The follow
     <td>
       <ul>
         <li>ClickHouse</li>
+        <li>CloudWatch</li>
         <li>Elasticsearch</li>
         <li>Infinity</li>
         <li>InfluxDB</li>
@@ -191,7 +193,6 @@ guaranteed because plugin developers can override this functionality. The follow
   <tr>
     <td>
       <ul>
-        <li>CloudWatch</li>
         <li>Graphite</li>
       </ul>
     </td>

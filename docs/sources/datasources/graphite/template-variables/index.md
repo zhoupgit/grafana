@@ -17,6 +17,11 @@ menuTitle: Template variables
 title: Graphite template variables
 weight: 300
 refs:
+  variable-syntax-advanced-variable-format-options:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
   variables:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
@@ -27,11 +32,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
-  variable-syntax-advanced-variable-format-options:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
 ---
 
 # Graphite template variables

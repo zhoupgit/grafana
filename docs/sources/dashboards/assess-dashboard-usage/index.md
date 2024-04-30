@@ -19,11 +19,6 @@ labels:
 title: Assess dashboard usage
 weight: 200
 refs:
-  grafana-enterprise:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
   export-logs-of-usage-insights:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
@@ -39,6 +34,11 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-security/export-logs/
+  grafana-enterprise:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
 ---
 
 # Assess dashboard usage
@@ -72,18 +72,18 @@ For every dashboard and data source, you can access usage information.
 
 To see dashboard usage information, click the dashboard insights icon in the header.
 
-{{< figure src="/media/docs/grafana/dashboards/screenshot-dashboard-insights.png" max-width="400px" class="docs-image--no-shadow" >}}
+{{< figure src="/media/docs/grafana/dashboards/screenshot-dashboard-insights.png" max-width="400px" class="docs-image--no-shadow" alt="Dashboard insights icon" >}}
 
 Dashboard insights show the following information:
 
 - **Stats:** The number of daily queries and errors for the past 30 days.
 - **Users & activity:** The daily view count for the last 30 days; last activities on the dashboard and recent users (with a limit of 20).
 
-{{< figure src="/static/img/docs/enterprise/dashboard_insights_stats.png" max-width="400px" class="docs-image--no-shadow" >}}{{< figure src="/static/img/docs/enterprise/dashboard_insights_users.png" max-width="400px" class="docs-image--no-shadow" >}}
+{{< figure src="/static/img/docs/enterprise/dashboard_insights_stats.png" max-width="400px" class="docs-image--no-shadow" alt="Stats tab" >}}{{< figure src="/static/img/docs/enterprise/dashboard_insights_users.png" max-width="400px" class="docs-image--no-shadow" alt="Users and activity tab" >}}
 
 {{% admonition type="note" %}}
 
-If you've enabled the `publicDashboards` feature toggle, you'll also see a Public dashboards tab in your analytics.
+If public dashboards are [enabled]({{< relref "../../setup-grafana/configure-grafana/#public_dashboards" >}}), you'll also see a **Public dashboards** tab in your analytics.
 
 {{% /admonition %}}
 
@@ -102,7 +102,7 @@ To find data source insights:
 1. Click a data source.
 1. Click the **Insights** tab.
 
-{{< figure src="/media/docs/grafana/dashboards/screenshot-data-source-insights-9.5.png" max-width="650px" class="docs-image--no-shadow" >}}
+{{< figure src="/media/docs/grafana/dashboards/screenshot-data-source-insights-9.5.png" max-width="650px" class="docs-image--no-shadow" alt="Insights tab for a data source" >}}
 
 ## Presence indicator
 
@@ -110,7 +110,7 @@ When you are signed in and looking at a dashboard, you can know who is looking a
 
 When there are more active users on a dashboard than can fit within the presence indicator, click the **+X** icon. Doing so opens [dashboard insights](#dashboard-and-data-source-insights), which contains more details about recent user activity.
 
-{{< figure src="/static/img/docs/enterprise/presence_indicators.png" max-width="400px" class="docs-image--no-shadow" >}}
+{{< figure src="/static/img/docs/enterprise/presence_indicators.png" max-width="400px" class="docs-image--no-shadow" alt="Presence indicator icons" >}}
 
 To change _recent_ to something other than the past 10 minutes, edit the [configuration](ref:configuration) file:
 
@@ -144,7 +144,7 @@ You can sort the dashboards by:
 - Views total
 - Views 30 days (most and least)
 
-{{< figure src="/media/docs/grafana/dashboards/screenshot-dashboard-sort-9.5.png" max-width="650px" class="docs-image--no-shadow" >}}
+{{< figure src="/media/docs/grafana/dashboards/screenshot-dashboard-sort-9.5.png" max-width="650px" class="docs-image--no-shadow" alt="Open list of dashboard sort options" >}}
 
 ## Visualize usage insights data
 

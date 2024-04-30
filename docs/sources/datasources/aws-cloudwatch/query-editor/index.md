@@ -24,16 +24,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#navigate-the-query-tab
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#navigate-the-query-tab
-  query-transform-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
   explore:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
+  query-transform-data:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
 ---
 
 # Amazon CloudWatch query editor

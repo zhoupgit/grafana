@@ -6,7 +6,7 @@ aliases:
   - ../../linking/linking-overview/
   - ../../panels/working-with-panels/add-link-to-panel/
   - ../manage-dashboard-links/
-description: How to link Grafana dashboards.
+description: Add links to your Grafana dashboards to connect to other dashboards, panels, and websites
 keywords:
   - link
   - dashboard
@@ -24,21 +24,21 @@ menuTitle: Manage dashboard links
 title: Manage dashboard links
 weight: 500
 refs:
-  dashboard-url-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard-url-variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard-url-variables/
-  data-link-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-link-variables
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-link-variables
   data-links:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-links
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-links
+  data-link-variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-link-variables
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-data-links/#data-link-variables
+  dashboard-url-variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard-url-variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard-url-variables/
 ---
 
 # Manage dashboard links
@@ -135,7 +135,7 @@ Each panel can have its own set of links that are shown in the upper left of the
 
 Click the icon next to the panel title to see available panel links.
 
-{{< figure src="/media/docs/grafana/screenshot-panel-links.png" width="200px" >}}
+{{< figure src="/media/docs/grafana/screenshot-panel-links.png" width="200px" alt="List of panel links displayed" >}}
 
 ### Add a panel link
 

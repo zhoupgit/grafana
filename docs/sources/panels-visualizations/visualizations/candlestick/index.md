@@ -3,7 +3,7 @@ aliases:
   - ../../features/panels/candlestick/
   - ../../panels/visualizations/candlestick/
   - ../../visualizations/candlestick/
-description: Candlestick visualization documentation
+description: Configure options for Grafana's candlestick visualization
 keywords:
   - grafana
   - Candlestick
@@ -100,11 +100,7 @@ The **Up color** and **Down color** options select which colors are used when th
 
 ## Open, High, Low, Close
 
-The candlestick visualization will attempt to map fields to the appropriate dimension. The **Open**, **High**, **Low**, and **Close** options allow you to map your data to these dimensions if the panel is unable to do so.
-
-{{% admonition type="note" %}}
-These values are hidden from the legend.
-{{% /admonition %}}
+The candlestick visualization will attempt to map fields from your data to the appropriate dimension:
 
 - **Open** corresponds to the starting value of the given period.
 - **High** corresponds to the highest value of the given period.

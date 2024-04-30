@@ -24,16 +24,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
-  annotate-visualizations:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
   configure-standard-options-display-name:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#display-name
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#display-name
+  annotate-visualizations:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
   query-transform-data:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/

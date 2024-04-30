@@ -2,7 +2,7 @@
 aliases:
   - alerting/legacy-alerting-deprecation/
 canonical: https://grafana.com/docs/grafana/latest/alerting/set-up/migrating-alerts/legacy-alerting-deprecation/
-description: Legacy alerting deprecation notice
+description: Learn about legacy alerting deprecation
 keywords:
   - grafana
   - alerting
@@ -13,16 +13,16 @@ labels:
 title: Legacy alerting deprecation
 weight: 109
 refs:
-  angular_deprecation:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/angular_deprecation/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/developers/angular_deprecation/
   migrating-alerts:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/set-up/migrating-alerts/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/set-up/migrating-alerts/
+  angular_deprecation:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/developers/angular_deprecation/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/developers/angular_deprecation/
 ---
 
 # Legacy alerting deprecation

@@ -12,6 +12,7 @@ labels:
     - enterprise
     - oss
 title: Visualizations
+description: Apply visualizations to your data
 weight: 10
 refs:
   gauge:
@@ -34,26 +35,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
-  histogram:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/histogram/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/histogram/
   datagrid:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/datagrid/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/datagrid/
-  trend:
+  histogram:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/trend/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/histogram/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/trend/
-  time-series:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/time-series/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/histogram/
   table:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
@@ -64,36 +55,36 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-chart/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-chart/
-  status-history:
+  trend:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/status-history/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/trend/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/status-history/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/trend/
+  time-series:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/time-series/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/time-series/
   geomap:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/geomap/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/geomap/
-  logs:
+  status-history:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/status-history/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/status-history/
   candlestick:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/candlestick/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/candlestick/
-  state-timeline:
+  logs:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/state-timeline/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/state-timeline/
-  annotations-list:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/annotations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/annotations/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/logs/
   flame-graph:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/flame-graph/
@@ -104,6 +95,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/news/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/news/
+  state-timeline:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/state-timeline/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/state-timeline/
+  annotations-list:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/annotations/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/visualizations/annotations/
   text:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/text/
@@ -119,31 +120,31 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/heatmap/
-  canvas:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/canvas/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/canvas/
   alert-list:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/alert-list/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/alert-list/
+  canvas:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/canvas/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/canvas/
   traces:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/traces/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/traces/
-  bar-gauge:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-gauge/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-gauge/
   dashboard-list:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/dashboard-list/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/dashboard-list/
+  bar-gauge:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-gauge/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/bar-gauge/
 ---
 
 # Visualizations
@@ -218,11 +219,11 @@ A [stat][] shows one large stat value with an optional graph sparkline. You can 
 
 If you want to present a value as it relates to a min and max value you have two options. First a standard radial [gauge][] shown below.
 
-{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="700px" >}}
+{{< figure src="/static/img/docs/v66/gauge_panel_cover.png" max-width="700px" alt="A gauge visualization" >}}
 
 Secondly Grafana also has a horizontal or vertical [bar gauge][] with three different distinct display modes.
 
-{{< figure src="/static/img/docs/v66/bar_gauge_lcd.png" max-width="700px" >}}
+{{< figure src="/static/img/docs/v66/bar_gauge_lcd.png" max-width="700px" alt="A bar gauge visualization" >}}
 
 ### Table
 

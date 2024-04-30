@@ -14,16 +14,16 @@ menuTitle: Configure Tempo
 title: Configure the Tempo data source
 weight: 200
 refs:
-  explore:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
   explore-trace-integration:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+  explore:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
   node-graph:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/
@@ -39,16 +39,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-  configure-grafana-feature-toggles:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
-  variable-syntax:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
   provisioning-data-sources:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
@@ -59,6 +49,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
+  configure-grafana-feature-toggles:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
+  variable-syntax:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
 ---
 
 # Configure the Tempo data source
@@ -101,7 +101,7 @@ There are two ways to configure the trace to logs feature:
    You can also click **Open advanced data source picker** to see more options, including adding a data source.
 
 1. Set start and end time shift. As the logs timestamps may not exactly match the timestamps of the spans in trace it may be necessary to search in larger or shifted time range to find the desired logs.
-1. Select which tags to use in the logs query. The tags you configure must be present in the spans attributes or resources for a trace to logs span link to appear. You can optionally configure a new name for the tag. This is useful for example if the tag has dots in the name and the target data source does not allow using dots in labels. In that case you can for example remap `http.status` to `http_status`.
+1. Select which tags to use in the logs query. The tags you configure must be present in the span's attributes or resources for a trace to logs span link to appear. You can optionally configure a new name for the tag. This is useful, for example, if the tag has dots in the name and the target data source does not allow using dots in labels. In that case, you can for example remap `http.status` (the span attribute) to `http_status` (the data source field). "Data source" in this context can refer to Loki, or another log data source.
 1. Optionally switch on the **Filter by trace ID** and/or **Filter by span ID** setting to further filter the logs if your logs consistently contain trace or span IDs.
 
 ### Configure a custom query

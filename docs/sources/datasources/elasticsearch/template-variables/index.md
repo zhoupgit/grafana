@@ -22,16 +22,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#multi-value-variables
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#multi-value-variables
-  add-template-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
   variables:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+  add-template-variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
 ---
 
 # Elasticsearch template variables

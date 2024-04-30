@@ -17,6 +17,16 @@ menuTitle: Elasticsearch
 title: Elasticsearch data source
 weight: 325
 refs:
+  provisioning-grafana:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+  build-dashboards:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
   configuration:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#sigv4_auth_enabled
@@ -27,16 +37,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
-  build-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-  provisioning-grafana:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
 ---
 
 # Elasticsearch data source

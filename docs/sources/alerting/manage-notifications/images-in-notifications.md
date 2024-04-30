@@ -1,6 +1,6 @@
 ---
 canonical: https://grafana.com/docs/grafana/latest/alerting/manage-notifications/images-in-notifications/
-description: How to use images in notifications
+description: Use images in notifications to help users better understand why alerts are firing or have been resolved
 keywords:
   - grafana
   - alerting
@@ -14,16 +14,16 @@ labels:
 title: Use images in notifications
 weight: 405
 refs:
-  paths:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#paths
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#paths
   image-rendering:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/image-rendering/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/image-rendering/
+  paths:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#paths
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/#paths
 ---
 
 # Use images in notifications

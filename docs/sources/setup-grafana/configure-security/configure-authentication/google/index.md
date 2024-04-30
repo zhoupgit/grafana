@@ -66,6 +66,14 @@ automatically signed up.
 You may specify a domain to be passed as `hd` query parameter accepted by Google's
 OAuth 2.0 authentication API. Refer to Google's OAuth [documentation](https://developers.google.com/identity/openid-connect/openid-connect#hd-param).
 
+{{% admonition type="note" %}}
+The `hd` parameter retrieved from Google ID token is also used to determine the user's hosted domain. The Google Oauth `allowed_domains` configuration option is used to restrict access to users from a specific domain. If the `allowed_domains` configuration option is set, the `hd` parameter from the Google ID token must match the `allowed_domains` configuration option. If the `hd` parameter from the Google ID token does not match the `allowed_domains` configuration option, the user is denied access.
+
+When an account does not belong to a Google Workspace, the `hd` claim is not available.
+
+This validation will be enabled by default with Grafana 11.0. To disable this validation, set the `validate_hd` configuration option to `false`. The `allowed_domains` configuration option will use the email claim to validate the domain.
+{{% /admonition %}}
+
 ### PKCE
 
 IETF's [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)
@@ -79,17 +87,17 @@ interception attacks. PKCE will be required in [OAuth 2.1](https://datatracker.i
 
 > Available in Grafana v9.3 and later versions.
 
-> **Note:** This feature is behind the `accessTokenExpirationCheck` feature toggle.
-
 When a user logs in using an OAuth provider, Grafana verifies that the access token has not expired. When an access token expires, Grafana uses the provided refresh token (if any exists) to obtain a new access token.
 
 Grafana uses a refresh token to obtain a new access token without requiring the user to log in again. If a refresh token doesn't exist, Grafana logs the user out of the system after the access token has expired.
 
 By default, Grafana includes the `access_type=offline` parameter in the authorization request to request a refresh token.
 
-Refresh token fetching and access token expiration check is enabled by default for the Google provider since Grafana v10.1.0 if the `accessTokenExpirationCheck` feature toggle is enabled. If you would like to disable access token expiration check then set the `use_refresh_token` configuration value to `false`.
+Refresh token fetching and access token expiration check is enabled by default for the Google provider since Grafana v10.1.0. If you would like to disable access token expiration check then set the `use_refresh_token` configuration value to `false`.
 
-> **Note:** The `accessTokenExpirationCheck` feature toggle will be removed in Grafana v10.3.0 and the `use_refresh_token` configuration value will be used instead for configuring refresh token fetching and access token expiration check.
+{{% admonition type="note" %}}
+The `accessTokenExpirationCheck` feature toggle has been removed in Grafana v10.3.0 and the `use_refresh_token` configuration value will be used instead for configuring refresh token fetching and access token expiration check.
+{{% /admonition %}}
 
 ### Configure automatic login
 
@@ -186,4 +194,13 @@ All other users are granted the `Viewer` role.
 allow_assign_grafana_admin = true
 skip_org_role_sync = false
 role_attribute_path = email=='admin@company.com' && 'GrafanaAdmin' || 'Viewer'
+```
+
+#### Map one role to all users
+
+In this example, all users will be assigned `Viewer` role regardless of the user information received from the identity provider.
+
+```ini
+role_attribute_path = "'Viewer'"
+skip_org_role_sync = false
 ```

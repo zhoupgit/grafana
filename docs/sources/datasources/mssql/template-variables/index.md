@@ -20,21 +20,21 @@ menuTitle: Template variables
 title: Microsoft SQL Server template variables
 weight: 400
 refs:
-  variable-syntax-advanced-variable-format-options:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-  add-template-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
   variables:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+  add-template-variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
+  variable-syntax-advanced-variable-format-options:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
 ---
 
 # Microsoft SQL Server template variables

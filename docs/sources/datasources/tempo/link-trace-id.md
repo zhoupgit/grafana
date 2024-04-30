@@ -14,51 +14,51 @@ menuTitle: Link to a trace ID
 title: Link to a trace ID
 weight: 700
 refs:
-  provisioning-data-sources:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
-  exemplars:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
-  configure-grafana-feature-toggles:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
-  variable-syntax:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
-  build-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-  data-source-management:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
   node-graph:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/node-graph/
-  explore-trace-integration:
+  data-source-management:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
   explore:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
+  explore-trace-integration:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+  variable-syntax:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/
+  configure-grafana-feature-toggles:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/configure-grafana/#feature_toggles
+  exemplars:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/fundamentals/exemplars/
+  provisioning-data-sources:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+  build-dashboards:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
 ---
 
 # Link to a trace ID

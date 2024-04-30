@@ -16,26 +16,21 @@ menuTitle: MySQL
 title: MySQL data source
 weight: 1000
 refs:
-  add-template-variables-interval:
+  variable-syntax-advanced-variable-format-options:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval
-  variables:
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
+  data-source-management:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-  provisioning-data-sources:
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+  add-template-variables-interval-ms:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval_ms
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
-  query-transform-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval_ms
   configure-standard-options-display-name:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#display-name
@@ -46,21 +41,26 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
-  data-source-management:
+  query-transform-data:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-  variable-syntax-advanced-variable-format-options:
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
+  provisioning-data-sources:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#advanced-variable-format-options
-  add-template-variables-interval-ms:
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+  variables:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval_ms
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval_ms
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+  add-template-variables-interval:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#__interval
 ---
 
 # MySQL data source
@@ -96,7 +96,7 @@ Administrators can also [configure the data source via YAML](#provision-the-data
 | **Database**                  | Name of your MySQL database.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **User**                      | Database user's login/username                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Password**                  | Database user's password                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Session Timezone**          | Specifies the time zone used in the database session, such as `Europe/Berlin` or `+02:00`. Required if the timezone of the database (or the host of the database) is set to something other than UTC. Set the value used in the session with `SET time_zone='...'`. If you leave this field empty, then the time zone is not updated. For more information, refer to the [MySQL documentation](https://dev.mysql.com/doc/en/time-zone-support.html).                                                                                                                                                                                                      |
+| **Session Timezone**          | Specifies the timezone used in the database session, such as `Europe/Berlin` or `+02:00`. Required if the timezone of the database (or the host of the database) is set to something other than UTC. Set this to `+00:00` so Grafana can handle times properly. Set the value used in the session with `SET time_zone='...'`. If you leave this field empty, the timezone will not be updated. For more information, refer to [MySQL Server Time Zone Support](https://dev.mysql.com/doc/en/time-zone-support.html).                                                                                                                                      |
 | **Max open**                  | The maximum number of open connections to the database, default `100` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Max idle**                  | The maximum number of connections in the idle connection pool, default `100` (Grafana v5.4+).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Auto (max idle)**           | Toggle to set the maximum number of idle connections to the number of maximum open connections (available in Grafana v9.5.1+). Default is `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |

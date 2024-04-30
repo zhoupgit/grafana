@@ -17,11 +17,6 @@ menuTitle: Loki
 title: Configure the Loki data source
 weight: 800
 refs:
-  data-source-management:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
   logs-integration-labels-and-detected-fields:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#labels-and-detected-fields
@@ -32,16 +27,21 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/explore/
-  provisioning-data-sources:
+  data-source-management:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
   build-dashboards:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
+  provisioning-data-sources:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/provisioning/#data-sources
 ---
 
 # Loki data source

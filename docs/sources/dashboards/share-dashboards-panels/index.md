@@ -31,23 +31,19 @@ labels:
     - oss
 menuTitle: Sharing
 title: Share dashboards and panels
+description: Share Grafana dashboards and panels within your organization and publicly
 weight: 85
 refs:
-  grafana-enterprise:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
   image-rendering:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/image-rendering/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/image-rendering/
-  export-and-import-dashboards:
+  grafana-enterprise:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#export-and-import-dashboards
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#export-and-import-dashboards
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
 ---
 
 # Share dashboards and panels
@@ -118,9 +114,26 @@ To delete existing snapshots, follow these steps:
 
 The snapshot is immediately deleted. You may need to clear your browser cache or use a private or incognito browser to confirm this.
 
-### Dashboard export
+### Export a dashboard as JSON
 
-Grafana dashboards can easily be exported and imported. For more information, refer to [Export and import dashboards](ref:export-and-import-dashboards).
+The dashboard export action creates a Grafana JSON file that contains everything you need, including layout, variables, styles, data sources, queries, and so on, so that you can later import the dashboard.
+
+1. Click **Dashboards** in the main menu.
+1. Open the dashboard you want to export.
+1. Click the **Share** icon in the top navigation bar.
+1. Click **Export**.
+
+   If you're exporting the dashboard to use in another instance, with different data source UIDs, enable the **Export for sharing externally** switch.
+
+1. Click **Save to file**.
+
+Grafana downloads a JSON file to your local machine.
+
+#### Make a dashboard portable
+
+If you want to export a dashboard for others to use, you can add template variables for things like a metric prefix (use a constant variable) and server name.
+
+A template variable of the type `Constant` is automatically hidden in the dashboard, and is also added as a required input when the dashboard is imported.
 
 ## Export dashboard as PDF
 

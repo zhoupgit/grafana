@@ -19,11 +19,6 @@ menuTitle: Template variables
 title: InfluxDB template variables
 weight: 300
 refs:
-  variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
   add-template-variables-chained-variables:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#chained-variables
@@ -34,16 +29,21 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
-  add-template-variables-adds-a-query-variable:
+  variables:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-a-query-variable
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-a-query-variable
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
   add-template-variables-add-ad-hoc-filters:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-ad-hoc-filters
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-ad-hoc-filters
+  add-template-variables-adds-a-query-variable:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-a-query-variable
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#add-a-query-variable
 ---
 
 # InfluxDB template variables

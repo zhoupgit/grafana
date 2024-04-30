@@ -25,16 +25,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/setup-grafana/set-up-grafana-monitoring/
-  query-transform-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
   annotate-visualizations:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
+  query-transform-data:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
 ---
 
 # Graphite query editor
@@ -70,10 +70,6 @@ a function is selected, it will be added and your focus will be in the text box 
 Some functions like aliasByNode support an optional second argument. To add an argument, hover your mouse over the first argument and then click the `+` symbol that appears. To remove the second optional parameter, click on it and leave it blank and the editor will remove it.
 
 To learn more, refer to [Graphite's documentation on functions](https://graphite.readthedocs.io/en/latest/functions.html).
-
-{{% admonition type="warning" %}}
-Some functions take a second argument that may be a function that returns a series. If you are adding a second argument that is a function, it is suggested to use a series reference from a second query instead of the function itself. The query editor does not currently support parsing of a second argument that is a function when switching between the query editor and the code editor.
-{{% /admonition %}}
 
 ### Sort labels
 

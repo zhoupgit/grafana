@@ -29,6 +29,7 @@ labels:
     - cloud
     - enterprise
     - oss
+description: Configure options for Grafana's time series visualization
 title: Time series
 weight: 10
 refs:
@@ -37,16 +38,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#max
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#max
-  color-scheme:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
-  color-scheme:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
   configure-field-overrides:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/
@@ -57,6 +48,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/#add-a-field-override
+  color-scheme:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
+  color-scheme:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
 ---
 
 # Time series

@@ -12,63 +12,54 @@ labels:
     - oss
 menuTitle: Create a dashboard
 title: Create a dashboard
+description: Create and edit a dashboard
 weight: 1
 refs:
-  configure-thresholds:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-thresholds/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-thresholds/
-  set-up-generative-ai-features-for-dashboards-documentation:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
-  configure-standard-options:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/
-  built-in-special-data-sources:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
-  configure-repeating-panels:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-panel-options/#configure-repeating-panels
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-panel-options/#configure-repeating-panels
-  dashboard:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/connect-externally-hosted/data-sources/#special-data-sources
   visualization-specific-options:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/
-  configure-value-mappings:
+  dashboard:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
+      destination: /docs/grafana-cloud/connect-externally-hosted/data-sources/#special-data-sources
+  configure-repeating-panels:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-panel-options/#configure-repeating-panels
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-panel-options/#configure-repeating-panels
+  built-in-special-data-sources:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/#special-data-sources
+  configure-standard-options:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/
   override-field-values:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-overrides/
-  about-users-and-permissions:
+  configure-value-mappings:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
   visualizations-options:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/
+  about-users-and-permissions:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/
   add-a-data-source:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#add-a-data-source
@@ -79,6 +70,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
+  set-up-generative-ai-features-for-dashboards-documentation:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
+  configure-thresholds:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-thresholds/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-thresholds/
 ---
 
 ## Create a dashboard

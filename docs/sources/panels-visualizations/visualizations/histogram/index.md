@@ -3,7 +3,7 @@ aliases:
   - ../../features/panels/histogram/
   - ../../panels/visualizations/histogram/
   - ../../visualizations/histogram/
-description: Histogram visualization
+description: Configure options for Grafana's histogram visualization
 keywords:
   - grafana
   - docs
@@ -18,16 +18,16 @@ labels:
 title: Histogram
 weight: 100
 refs:
-  color-scheme:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
   standard-calculations:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/calculation-types/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/calculation-types/
+  color-scheme:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
 ---
 
 # Histogram

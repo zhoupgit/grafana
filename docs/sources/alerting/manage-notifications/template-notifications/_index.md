@@ -1,6 +1,6 @@
 ---
 canonical: https://grafana.com/docs/grafana/latest/alerting/manage-notifications/template-notifications/
-description: How to customize your notifications using templating
+description: Customize your notifications using notification templates
 keywords:
   - grafana
   - alerting
@@ -14,21 +14,21 @@ labels:
 title: Customize notifications
 weight: 400
 refs:
-  using-go-templating-language:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/template-notifications/using-go-templating-language/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/template-notifications/using-go-templating-language/
-  use-notification-templates:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/template-notifications/use-notification-templates/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/template-notifications/use-notification-templates/
   reference:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/template-notifications/reference/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/template-notifications/reference/
+  use-notification-templates:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/template-notifications/use-notification-templates/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/template-notifications/use-notification-templates/
+  using-go-templating-language:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/alerting/manage-notifications/template-notifications/using-go-templating-language/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/manage-notifications/template-notifications/using-go-templating-language/
 ---
 
 # Customize notifications

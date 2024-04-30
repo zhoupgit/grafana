@@ -12,8 +12,14 @@ labels:
     - oss
 menuTitle: Modify dashboard settings
 title: Modify dashboard settings
+description: Manage and edit your dashboard settings
 weight: 8
 refs:
+  variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
   data-source:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
@@ -24,11 +30,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/view-dashboard-json-model/#json-fields
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/view-dashboard-json-model/#json-fields
-  variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
 ---
 
 # Modify dashboard settings

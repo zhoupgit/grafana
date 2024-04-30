@@ -17,21 +17,21 @@ menuTitle: Configure Elasticsearch
 title: Configure the Elasticsearch data source
 weight: 200
 refs:
-  query-and-transform-data:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/
-  supported-expressions:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#log-level
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#log-level
   administration-documentation:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+  supported-expressions:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#log-level
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/logs-integration/#log-level
+  query-and-transform-data:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/
 ---
 
 # Configure the Elasticsearch data source

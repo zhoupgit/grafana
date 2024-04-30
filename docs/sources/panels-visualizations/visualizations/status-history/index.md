@@ -2,7 +2,7 @@
 aliases:
   - ../../panels/visualizations/status-history/
   - ../../visualizations/status-history/
-description: Status history visualization
+description: Configure options for Grafana's status history visualization
 keywords:
   - grafana
   - docs
@@ -16,16 +16,16 @@ labels:
 title: Status history
 weight: 100
 refs:
-  color-scheme:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
   value-mappings:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-value-mappings/
+  color-scheme:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-standard-options/#color-scheme
 ---
 
 # Status history

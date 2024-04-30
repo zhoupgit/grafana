@@ -8,72 +8,78 @@ labels:
     - oss
 title: Dashboards
 weight: 70
+description: Create and manage dashboards
 refs:
-  create-dashboard-folders:
+  import:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#create-a-dashboard-folder
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/import-dashboards/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#create-a-dashboard-folder
-  panels:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/
-  build-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
-  use-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/use-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/use-dashboards/
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/import-dashboards/
   annotations:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/annotate-visualizations/
-  json-model:
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/annotate-visualizations/
+  create-dashboard-folders:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/view-dashboard-json-model/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#create-a-dashboard-folder
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/view-dashboard-json-model/
-  playlist:
+      destination: /docs/grafana-cloud/visualizations/dashboards/manage-dashboards/#create-a-dashboard-folder
+  panels:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/create-manage-playlists/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/create-manage-playlists/
-  export-and-import:
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/
+  build-dashboards:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#export-and-import-dashboards
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#export-and-import-dashboards
-  version-history:
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/
+  use-dashboards:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/manage-version-history/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/use-dashboards/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/manage-version-history/
-  manage-dashboards:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/
+      destination: /docs/grafana-cloud/visualizations/dashboards/use-dashboards/
   data-source:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/
+      destination: /docs/grafana-cloud/connect-externally-hosted/data-sources/
+  export-and-share:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/share-dashboards-panels/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/share-dashboards-panels/
   public-dashboards:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/dashboard-public/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/dashboard-public/
+      destination: /docs/grafana-cloud/visualizations/dashboards/dashboard-public/
   reporting:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/create-reports/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/create-reports/
+      destination: /docs/grafana-cloud/visualizations/dashboards/create-reports/
+  json-model:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/view-dashboard-json-model/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/view-dashboard-json-model/
+  playlist:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/create-manage-playlists/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/create-manage-playlists/
+  version-history:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/manage-version-history/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/build-dashboards/manage-version-history/
+  manage-dashboards:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/dashboards/manage-dashboards/
 ---
 
 # Dashboards
@@ -93,6 +99,7 @@ Before you begin, ensure that you have configured a data source. See also:
 - [Playlist](ref:playlist)
 - [Reporting](ref:reporting)
 - [Version history](ref:version-history)
-- [Export and import](ref:export-and-import)
+- [Import](ref:import)
+- [Export and share](ref:export-and-share)
 - [JSON model](ref:json-model)
 

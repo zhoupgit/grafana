@@ -3,7 +3,7 @@ aliases:
   - ../unified-alerting/alerting-rules/create-cortex-loki-managed-recording-rule/
   - ../unified-alerting/alerting-rules/create-mimir-loki-managed-recording-rule/
 canonical: https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-mimir-loki-managed-recording-rule/
-description: Configure recording rules
+description: Configure recording rules for an external Grafana Mimir or Loki instance
 keywords:
   - grafana
   - alerting
@@ -19,16 +19,16 @@ labels:
 title: Configure recording rules
 weight: 300
 refs:
-  configure-grafana:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
   annotation-label:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label/
+  configure-grafana:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/
 ---
 
 # Configure recording rules

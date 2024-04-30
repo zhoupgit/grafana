@@ -19,6 +19,7 @@ labels:
     - oss
 menuTitle: Configure panel options
 title: Configure panel options
+description: Add titles, descriptions, repeating rows and panel links
 weight: 50
 refs:
   set-up-generative-ai-features-for-dashboards-documentation:
@@ -26,26 +27,26 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/visualizations/dashboards/manage-dashboards/#set-up-generative-ai-features-for-dashboards
-  variables-you-have-defined:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
-  global-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#global-variables
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#global-variables
-  configure-repeating-rows:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
   grafana-llm-plugin:
     - pattern: /docs/grafana/
       destination: /docs/grafana-cloud/alerting-and-irm/machine-learning/configure/llm-plugin/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana-cloud/alerting-and-irm/machine-learning/configure/llm-plugin/
+  configure-repeating-rows:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/build-dashboards/create-dashboard/#configure-repeating-rows
+  global-variables:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#global-variables
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/#global-variables
+  variables-you-have-defined:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
 ---
 
 # Configure panel options
@@ -97,7 +98,7 @@ Add a title and description to a panel to share with users any important informa
 
    You can use [variables you have defined](ref:variables-you-have-defined) in the **Title** and **Description** field, but not [global variables](ref:global-variables).
 
-   ![](/static/img/docs/panels/panel-options-8-0.png)
+   ![Panel editor pane with Panel options section expanded](/static/img/docs/panels/panel-options-8-0.png)
 
 ## View a panel JSON model
 

@@ -24,18 +24,9 @@ labels:
     - oss
 menuTitle: Panel editor overview
 title: Panel editor overview
+description: Learn about the features of the panel editor
 weight: 20
 refs:
-  create-a-grafana-managed-alert:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/alerting/alerting-rules/create-grafana-managed-rule/#create-alerts-from-panels
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules/create-grafana-managed-rule/#create-alerts-from-panels
-  add-a-query:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#add-a-query
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#add-a-query
   transform-data:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/transform-data/
@@ -46,16 +37,26 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/alerting/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/alerting/
-  share-the-same-query-results-across-panels:
+  add-a-query:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/share-query/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#add-a-query
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/share-query/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/#add-a-query
+  create-a-grafana-managed-alert:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/alerting/alerting-rules/create-grafana-managed-rule/#create-alerts-from-panels
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules/create-grafana-managed-rule/#create-alerts-from-panels
   table:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/visualizations/table/
+  share-the-same-query-results-across-panels:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/share-query/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/visualizations/panels-visualizations/query-transform-data/share-query/
 ---
 
 # Panel editor overview

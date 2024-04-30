@@ -42,6 +42,7 @@ labels:
     - oss
 menuTitle: Manage variables
 title: Add and manage variables
+description: Learn about the types of variables you can add to dashboards and how
 weight: 100
 refs:
   raw-format:
@@ -49,21 +50,11 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#raw
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#raw
-  add:
+  inspect:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/inspect-variable/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
-  add-a-data-source:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#add-a-data-source
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#add-a-data-source
-  prometheus-query-variables:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/template-variables/#use-**rate_interval
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/template-variables/#use-**rate_interval
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/inspect-variable/
   raw-variable-format:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/variable-syntax/#raw
@@ -74,11 +65,21 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/datasources/
-  inspect:
+  prometheus-query-variables:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/inspect-variable/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/template-variables/#use-**rate_interval
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/inspect-variable/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/prometheus/template-variables/#use-**rate_interval
+  add-a-data-source:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#add-a-data-source
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/#add-a-data-source
+  add:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/add-template-variables/
 ---
 
 # Add and manage variables

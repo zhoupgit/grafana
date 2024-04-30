@@ -1,6 +1,6 @@
 ---
 canonical: https://grafana.com/docs/grafana/latest/alerting/fundamentals/data-source-alerting/
-description: Data sources in Grafana Alerting
+description: Learn about the data sources supported by Grafana Alerting
 labels:
   products:
     - cloud
@@ -9,56 +9,21 @@ labels:
 title: Data sources and Grafana Alerting
 weight: 100
 refs:
-  elasticsearch:
+  testdata:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
-  aws-cloudwatch:
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
+  graphite:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
-  postgresql:
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
+  loki:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
-  zipkin:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
-  google-cloud-monitoring:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
-  open-tsdb:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
-  prometheus:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
-  grafana-data-sources:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
-  azure-monitor:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
-  influxdb:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
   jaeger:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA_VERSION>/datasources/jaeger/
@@ -79,21 +44,56 @@ refs:
       destination: /docs/grafana/<GRAFANA_VERSION>/datasources/tempo/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA_VERSION>/datasources/tempo/
-  testdata:
+  open-tsdb:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/testdata/
-  graphite:
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/opentsdb/
+  prometheus:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/graphite/
-  loki:
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/prometheus/
+  influxdb:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/loki/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/influxdb/
+  azure-monitor:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/azure-monitor/
+  grafana-data-sources:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/
+  aws-cloudwatch:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/aws-cloudwatch/
+  elasticsearch:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/elasticsearch/
+  google-cloud-monitoring:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/google-cloud-monitoring/
+  zipkin:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/zipkin/
+  postgresql:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA_VERSION>/datasources/postgres/
 ---
 
 # Data sources and Grafana Alerting

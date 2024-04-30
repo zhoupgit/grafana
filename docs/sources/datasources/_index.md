@@ -11,6 +11,14 @@ labels:
 title: Data sources
 weight: 60
 refs:
+  grafana-enterprise:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
+  alerts:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
   organization-roles:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/roles-and-permissions/#organization-roles
@@ -21,14 +29,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/
-  alerts:
+  data-source-management:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
     - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/alerting/
-  grafana-enterprise:
+      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
+  explore:
     - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/introduction/grafana-enterprise/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/
   plugin-management:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/administration/plugin-management/
@@ -39,16 +49,6 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/
-  explore:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/
-  data-source-management:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/administration/data-source-management/
 ---
 
 # Grafana data sources

@@ -12,9 +12,19 @@ labels:
     - cloud
     - enterprise
     - oss
+description: Configure options for Grafana's traces visualization
 title: Traces
 weight: 100
 refs:
+  tempo-data-source:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana-cloud/connect-externally-hosted/data-sources/tempo/
   configure-panel-options-documentation:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/configure-panel-options/
@@ -25,25 +35,16 @@ refs:
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/panel-editor-overview/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/panels-visualizations/panel-editor-overview/
-  tempo-data-source:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/datasources/tempo/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana-cloud/connect-externally-hosted/data-sources/tempo/
-  tracing-in-explore:
-    - pattern: /docs/grafana/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
-    - pattern: /docs/grafana-cloud/
-      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
   variables-documentation:
     - pattern: /docs/grafana/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
     - pattern: /docs/grafana-cloud/
       destination: /docs/grafana/<GRAFANA VERSION>/dashboards/variables/
+  tracing-in-explore:
+    - pattern: /docs/grafana/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
+    - pattern: /docs/grafana-cloud/
+      destination: /docs/grafana/<GRAFANA VERSION>/explore/trace-integration/
 ---
 
 # Traces
