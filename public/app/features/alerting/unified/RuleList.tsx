@@ -12,12 +12,7 @@ import { AlertingFeature } from './features';
 
 const RuleList = (props: GrafanaRouteComponentProps): JSX.Element => (
   <AlertingPageWrapper pageId="alert-list" isLoading={false}>
-    <Enable feature={AlertingFeature.AlertListViewV2}>
-      <RuleListViewV2 {...props} />
-    </Enable>
-    <Disable feature={AlertingFeature.AlertListViewV2}>
-      <RuleListViewV1 {...props} />
-    </Disable>
+    <RuleListViewV2 {...props} />
   </AlertingPageWrapper>
 );
 

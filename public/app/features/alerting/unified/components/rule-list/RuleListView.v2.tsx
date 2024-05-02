@@ -18,6 +18,7 @@ import {
   Menu,
   Pagination,
   Text,
+  TextLink,
   Tooltip,
   useStyles2,
 } from '@grafana/ui';
@@ -559,103 +560,89 @@ const AlertRuleListItem = (props: AlertRuleListItemProps) => {
 
   return (
     <li className={styles.alertListItemContainer} role="treeitem" aria-selected="false">
-      <Stack direction="row" alignItems={'start'} gap={1} wrap={false}>
+      <Stack direction="row" alignItems="start" gap={1} wrap={false}>
         <Text color={state ? color[state] : 'secondary'}>
           <Icon name={state ? icons[state] : 'circle'} size="lg" />
         </Text>
-        <Stack direction="row" alignItems="flex-start" gap={1} flexGrow={1} wrap={false}>
-          <Stack direction="column" gap={0.5}>
-            <div>
-              <Stack direction="column" gap={0}>
-                <Stack direction="row" alignItems="center" gap={1}>
-                  <Link href={href}>
-                    <Text truncate variant="body" color="link" weight="bold">
-                      {name}
-                    </Text>
-                  </Link>
-                  {/* <AlertLabels
-                    size="sm"
-                    labels={{
-                      team: 'sysops',
-                      type: 'network',
-                      vendor: 'ubiquity',
-                    }}
-                  /> */}
-                </Stack>
-                {summary && (
-                  <Text variant="bodySmall" color="secondary">
-                    {summary}
+        <Stack direction="column" gap={0.5} flexGrow={1}>
+          <div>
+            <Stack direction="column" gap={0}>
+              <TextLink href={href} variant="body" color="link" weight="bold">
+                {name}
+              </TextLink>
+              {summary && (
+                <Text variant="bodySmall" color="secondary">
+                  {summary}
+                </Text>
+              )}
+            </Stack>
+          </div>
+          <div>
+            <Stack direction="row" gap={1}>
+              {error ? (
+                <>
+                  {/* TODO we might need an error variant for MetaText, dito for success */}
+                  {/* TODO show error details on hover or elsewhere */}
+                  <Text color="error" variant="bodySmall" weight="bold">
+                    <Stack direction="row" alignItems={'center'} gap={0.5}>
+                      <Tooltip
+                        content={
+                          'failed to send notification to email addresses: gilles.demey@grafana.com: dial tcp 192.168.1.21:1025: connect: connection refused'
+                        }
+                      >
+                        <span>
+                          <Icon name="exclamation-circle" /> Last delivery attempt failed
+                        </span>
+                      </Tooltip>
+                    </Stack>
                   </Text>
-                )}
-              </Stack>
-            </div>
-            <div>
-              <Stack direction="row" gap={1}>
-                {error ? (
-                  <>
-                    {/* TODO we might need an error variant for MetaText, dito for success */}
-                    {/* TODO show error details on hover or elsewhere */}
-                    <Text color="error" variant="bodySmall" weight="bold">
-                      <Stack direction="row" alignItems={'center'} gap={0.5}>
-                        <Tooltip
-                          content={
-                            'failed to send notification to email addresses: gilles.demey@grafana.com: dial tcp 192.168.1.21:1025: connect: connection refused'
-                          }
-                        >
-                          <span>
-                            <Icon name="exclamation-circle" /> Last delivery attempt failed
-                          </span>
-                        </Tooltip>
-                      </Stack>
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <MetaText icon="clock-nine">
-                      Firing for <Strong>2m 34s</Strong>
-                    </MetaText>
-                    <MetaText icon="hourglass">
-                      Next evaluation in <Strong>34s</Strong>
-                    </MetaText>
-                  </>
-                )}
-              </Stack>
-            </div>
-          </Stack>
-          <Spacer />
-          <Stack direction="row" alignItems="center" gap={1} wrap={false}>
-            <MetaText icon="layer-group">9</MetaText>
+                </>
+              ) : (
+                <>
+                  <MetaText icon="clock-nine">
+                    Firing for <Strong>2m 34s</Strong>
+                  </MetaText>
+                  <MetaText icon="hourglass">
+                    Next evaluation in <Strong>34s</Strong>
+                  </MetaText>
+                </>
+              )}
+            </Stack>
+          </div>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" gap={1} wrap={false}>
+          <MetaText icon="layer-group">9</MetaText>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon="edit"
+            type="button"
+            disabled={isProvisioned}
+            aria-label="edit-rule-action"
+            data-testid="edit-rule-action"
+          >
+            Edit
+          </Button>
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item label="Silence" icon="bell-slash" />
+                <Menu.Divider />
+                <Menu.Item label="Export" disabled={isProvisioned} icon="download-alt" />
+                <Menu.Item label="Delete" disabled={isProvisioned} icon="trash-alt" destructive />
+              </Menu>
+            }
+          >
             <Button
               variant="secondary"
               size="sm"
-              icon="edit"
+              icon="ellipsis-h"
               type="button"
-              disabled={isProvisioned}
-              aria-label="edit-rule-action"
-              data-testid="edit-rule-action"
-            >
-              Edit
-            </Button>
-            <Dropdown
-              overlay={
-                <Menu>
-                  <Menu.Item label="Silence" icon="bell-slash" />
-                  <Menu.Divider />
-                  <Menu.Item label="Export" disabled={isProvisioned} icon="download-alt" />
-                  <Menu.Item label="Delete" disabled={isProvisioned} icon="trash-alt" destructive />
-                </Menu>
-              }
-            >
-              <Button
-                variant="secondary"
-                size="sm"
-                icon="ellipsis-h"
-                type="button"
-                aria-label="more-rule-actions"
-                data-testid="more-rule-actions"
-              />
-            </Dropdown>
-          </Stack>
+              aria-label="more-rule-actions"
+              data-testid="more-rule-actions"
+            />
+          </Dropdown>
         </Stack>
       </Stack>
     </li>
@@ -725,7 +712,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   rulesTree: css({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1.5),
+    gap: theme.spacing(1),
   }),
   groupWrapper: css({
     display: 'flex',
@@ -772,7 +759,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
     display: 'flex',
     flexDirection: 'column',
 
-    gap: theme.spacing(1.5),
+    gap: theme.spacing(1),
   }),
   namespaceTitle: css({
     padding: `${theme.spacing(1)} ${theme.spacing(1.5)}`,
