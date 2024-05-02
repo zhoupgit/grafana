@@ -79,6 +79,7 @@
     "panel_tests_bar_gauge2": (import '../dev-dashboards/panel-bargauge/panel_tests_bar_gauge2.json'),
     "panel_tests_flame_graph": (import '../dev-dashboards/panel-flamegraph/panel_tests_flame_graph.json'),
     "panels_without_title": (import '../dev-dashboards/panel-common/panels_without_title.json'),
+    "pascals-triangle": (import '../dev-dashboards/panel-node-graph/pascals-triangle.json'),
     "polystat_test": (import '../dev-dashboards/panel-polystat/polystat_test.json'),
     "postgres_fakedata": (import '../dev-dashboards/datasource-postgres/postgres_fakedata.json'),
     "postgres_unittest": (import '../dev-dashboards/datasource-postgres/postgres_unittest.json'),
