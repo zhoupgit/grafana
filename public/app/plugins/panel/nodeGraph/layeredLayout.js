@@ -29,7 +29,7 @@ export function layout(nodes, edges) {
     gn.boundaryCurve = CurveFactory.mkCircle(50, new Point(0, 0));
   }
   geomGraph.layoutSettings = new SugiyamaLayoutSettings();
-  geomGraph.layoutSettings.layerDirection = LayerDirectionEnum.LR;
+  geomGraph.layoutSettings.layerDirection = LayerDirectionEnum.BT;
   geomGraph.layoutSettings.LayerSeparation = 60;
   geomGraph.layoutSettings.commonSettings.NodeSeparation = 40;
   layoutGeomGraph(geomGraph);
