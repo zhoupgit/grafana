@@ -13,46 +13,62 @@ Grafana uses [Docker](https://docker.com) to make the task of setting up databas
 
 ## Developer dashboards and data sources
 
-To setup developer dashboards and data sources
+To set up developer dashboards and data sources, run the following command:
+
 ```bash
 ./setup.sh
 ```
 
-To remove the setup developer dashboards and data sources
+To remove the setup developer dashboards and data sources, run:
+
 ```bash
 ./setup.sh undev
 ```
 
-After restarting the Grafana server, there should be a number of data sources named `gdev-<type>` provisioned as well as
-a dashboard folder named `gdev dashboards`. This folder contains dashboard and panel features tests dashboards. 
+After restarting the Grafana server, there should be a number of data sources named `gdev-<TYPE>` provisioned as well as a dashboard folder named `gdev dashboards`.
+This folder contains dashboard and panel features tests dashboards.
 
-Please update these dashboards or make new ones as new panels and dashboards features are developed or new bugs are
-found. The dashboards are located in the `devenv/dev-dashboards` folder. 
+Update these dashboards or make new ones as you develop new panels and dashboards features or if new bugs are found.
+You can find the dashboards in the [`dev-dashboards`](./dev-dashboards) directory.
 
-## docker-compose with databases
+## Docker Compose with databases
 
-This command creates a docker-compose file with specified databases configured and ready to run. Each database has
-a prepared image with some fake data ready to use. For available databases, see `docker/blocks` directory. Notice that
-for some databases there are multiple images with different versions. Some blocks such as `slow_proxy_mac` or `apache_proxy_mac` are specifically for Macs.  
+The `make devenv` command creates a Docker Compose file with specified databases configured and ready to run.
+Each database has a prepared image with some fake data ready to use.
+For available databases, see the [`docker/blocks`](./docker/blocks) directory.
+
+Note that for some databases there are multiple images with different versions.
+Some blocks such as `slow_proxy_mac` or `apache_proxy_mac` are specifically for Macs.
+
+To generate a development environment with InfluxDB, Prometheus, and Elastic databases,
+run the following command from the root of the repository:
 
 ```bash
 make devenv sources=influxdb,prometheus,elastic5
 ```
 
-Some of the blocks support dynamic change of the image version used in the Docker file. The signature looks like this: 
+Some of the blocks support overriding the image version used in the Docker Compose file.
+To override a block's image, provide a `<BLOCK>_version=<VERSION>` argument to `make devenv`.
+- _`BLOCK`_ is the name of the block provided in the `sources` list.
+- _`VERSION`_ is the version of that image you want to use.
+
+The following example runs the `postgres` block at version `9.2`, the `grafana` block at version `6.7.0-beta1`, and the `auth/openldap` block at the default version:
 
 ```bash
 make devenv sources=postgres,auth/openldap,grafana postgres_version=9.2 grafana_version=6.7.0-beta1
 ```
 
-
 ### Notes per block
 
 #### Grafana
-The grafana block is pre-configured with the dev-datasources and dashboards.
+
+The `grafana` block is pre-configured with the dev-datasources and dashboards.
 
 #### Tempo
-The tempo block runs loki and prometheus as well and should not be ran with prometheus as a separate source. You need to install a docker plugin for the self logging to work, without it the container won't start. See https://grafana.com/docs/loki/latest/clients/docker-driver/#installing for installation instructions.
+
+The Tempo block runs Loki and Prometheus as well and shouldn't be ran with Prometheus as a separate source.
+You need to install a Docker plugin for the self logging to work, without it the container won't start.
+For installation instructions, refer to the Loki [Install the Docker driver client](https://grafana.com/docs/loki/latest/send-data/docker-driver/#install-the-docker-driver-client) documentation.
 
 #### Jaeger
 Jaeger block runs both Jaeger and Loki container. Loki container sends traces to Jaeger and also logs its own logs into itself so it is possible to setup derived field for traceID from Loki to Jaeger. You need to install a docker plugin for the self logging to work, without it the container won't start. See https://grafana.com/docs/loki/latest/clients/docker-driver/#installing for installation instructions.
