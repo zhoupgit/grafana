@@ -1,3 +1,4 @@
+import { LayerDirectionEnum } from '@msagl/core';
 import { css } from '@emotion/css';
 import cx from 'classnames';
 import React, { memo, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -110,15 +111,19 @@ const defaultNodeCountLimit = 200;
 interface Props {
   dataFrames: DataFrame[];
   getLinks: (dataFrame: DataFrame, rowIndex: number) => LinkModel[];
+  layerDirection?: LayerDirectionEnum;
   nodeLimit?: number;
   panelId?: string;
 }
-export function NodeGraph({ getLinks, dataFrames, nodeLimit, panelId }: Props) {
+export function NodeGraph({ getLinks, dataFrames, layerDirection, nodeLimit, panelId }: Props) {
   const nodeCountLimit = nodeLimit || defaultNodeCountLimit;
   const { edges: edgesDataFrames, nodes: nodesDataFrames } = useCategorizeFrames(dataFrames);
 
   const [measureRef, { width, height }] = useMeasure();
-  const [config, setConfig] = useState<Config>(defaultConfig);
+  const [config, setConfig] = useState<Config>({
+    ...defaultConfig,
+    layerDirection: layerDirection ?? defaultConfig.layerDirection,
+  });
 
   const firstNodesDataFrame = nodesDataFrames[0];
   const firstEdgesDataFrame = edgesDataFrames[0];

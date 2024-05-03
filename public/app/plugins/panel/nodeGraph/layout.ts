@@ -1,3 +1,4 @@
+import { LayerDirectionEnum } from '@msagl/core';
 import { fromPairs } from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useUnmount } from 'react-use';
@@ -12,6 +13,7 @@ import { useNodeLimit } from './useNodeLimit';
 import { graphBounds } from './utils';
 
 export interface Config {
+  layerDirection: LayerDirectionEnum;
   linkDistance: number;
   linkStrength: number;
   forceX: number;
@@ -36,6 +38,7 @@ export const defaultConfig: Config = {
   forceXStrength: 0.02,
   forceCollide: 100,
   tick: 300,
+  layerDirection: LayerDirectionEnum.RL,
   gridLayout: false,
 };
 
@@ -92,7 +95,7 @@ export function useLayout(
     setLoading(true);
     // This is async but as I wanted to still run the sync grid layout, and you cannot return promise from effect so
     // having callback seems ok here.
-    const cancel = layout(rawNodes, rawEdges, layoutType, ({ nodes, edges }) => {
+    const cancel = layout(rawNodes, rawEdges, layoutType, config, ({ nodes, edges }) => {
       if (isMounted()) {
         setNodesGraph(nodes);
         setEdgesGraph(edges as EdgeDatumLayout[]);
@@ -155,6 +158,7 @@ function layout(
   nodes: NodeDatum[],
   edges: EdgeDatum[],
   engine: 'default' | 'layered',
+  config: Config,
   done: (data: { nodes: NodeDatum[]; edges: EdgeDatum[] }) => void
 ) {
   const worker = engine === 'default' ? createWorker() : createMsaglWorker();
@@ -179,7 +183,7 @@ function layout(
       incoming: n.incoming,
     })),
     edges,
-    config: defaultConfig,
+    config,
   });
 
   return () => {

@@ -26,6 +26,7 @@ export const NodeGraphPanel = ({ width, height, data, options }: PanelProps<Node
     <div style={{ width, height }}>
       <NodeGraph
         dataFrames={memoizedGetNodeGraphDataFrames(data.series, options)}
+        layerDirection={options.graph.layerDirection}
         getLinks={getLinks}
         panelId={panelId}
       />

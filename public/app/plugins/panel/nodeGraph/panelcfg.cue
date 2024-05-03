@@ -44,6 +44,7 @@ composableKinds: PanelCfg: {
 					secondaryStatUnit?: string
 				}
 				Options: {
+					graph?: GraphOptions
 					nodes?: NodeOptions
 					edges?: EdgeOptions
 				} @cuetsy(kind="interface")

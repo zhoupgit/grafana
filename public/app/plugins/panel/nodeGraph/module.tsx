@@ -1,3 +1,4 @@
+import { LayerDirectionEnum } from '@msagl/core';
 import { PanelPlugin } from '@grafana/data';
 
 import { NodeGraphPanel } from './NodeGraphPanel';
@@ -16,12 +17,13 @@ export const plugin = new PanelPlugin<NodeGraphOptions>(NodeGraphPanel)
           name: 'Layer direction',
           settings: {
             options: [
-              { value: 'TB', label: 'Top to bottom' },
-              { value: 'LR', label: 'Left to right' },
-              { value: 'BT', label: 'Bottom to top' },
-              { value: 'RL', label: 'Right to left' },
+              { value: LayerDirectionEnum.TB, label: 'Top to bottom' },
+              { value: LayerDirectionEnum.LR, label: 'Left to right' },
+              { value: LayerDirectionEnum.BT, label: 'Bottom to top' },
+              { value: LayerDirectionEnum.RL, label: 'Right to left' },
             ],
           },
+          defaultValue: LayerDirectionEnum.LR,
         });
       },
     });

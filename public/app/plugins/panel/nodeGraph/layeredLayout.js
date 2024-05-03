@@ -14,7 +14,7 @@ import { parseDot } from '@msagl/parser';
  * Use d3 force layout to lay the nodes in a sensible way. This function modifies the nodes adding the x,y positions
  * and also fills in node references in edges instead of node ids.
  */
-export function layout(nodes, edges, options) {
+export function layout(nodes, edges, config) {
   const { mappedEdges, DOTToIdMap } = createMappings(nodes, edges);
 
   const dot = graphToDOT(mappedEdges, DOTToIdMap);
@@ -29,8 +29,8 @@ export function layout(nodes, edges, options) {
     gn.boundaryCurve = CurveFactory.mkCircle(50, new Point(0, 0));
   }
   geomGraph.layoutSettings = new SugiyamaLayoutSettings();
-  geomGraph.layoutSettings.layerDirection = options?.graph?.layerDirection ?? LayerDirectionEnum.BT;
-  geomGraph.layoutSettings.LayerSeparation = 60;
+  geomGraph.layoutSettings.layerDirection = config.layerDirection;
+  geomGraph.layoutSettings.layerSeparation = 60;
   geomGraph.layoutSettings.commonSettings.NodeSeparation = 40;
   layoutGeomGraph(geomGraph);
 
