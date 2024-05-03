@@ -8,6 +8,24 @@ import { NodeGraphOptions } from './types';
 export const plugin = new PanelPlugin<NodeGraphOptions>(NodeGraphPanel)
   .setPanelOptions((builder, context) => {
     builder.addNestedOptions({
+      category: ['Graph'],
+      path: 'graph',
+      build: (builder) => {
+        builder.addSelect({
+          path: 'layerDirection',
+          name: 'Layer direction',
+          settings: {
+            options: [
+              { value: 'TB', label: 'Top to bottom' },
+              { value: 'LR', label: 'Left to right' },
+              { value: 'BT', label: 'Bottom to top' },
+              { value: 'RL', label: 'Right to left' },
+            ],
+          },
+        });
+      },
+    });
+    builder.addNestedOptions({
       category: ['Nodes'],
       path: 'nodes',
       build: (builder) => {
