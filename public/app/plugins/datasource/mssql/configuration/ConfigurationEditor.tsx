@@ -30,6 +30,8 @@ import { useMigrateDatabaseFields } from 'app/features/plugins/sql/components/co
 
 import { MSSQLAuthenticationType, MSSQLEncryptOptions, MssqlOptions } from '../types';
 
+import { KerberosConfig, KerberosAdvancedSettings } from './Kerberos';
+
 export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<MssqlOptions>) => {
   const { options, onOptionsChange } = props;
   const styles = useStyles2(getStyles);
@@ -59,7 +61,13 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
     onOptionsChange({
       ...options,
       ...{
-        jsonData: { ...jsonData, ...{ authenticationType: value.value } },
+        jsonData: {
+          ...jsonData,
+          ...{ authenticationType: value.value },
+          keytabFilePath: undefined,
+          credentialCache: undefined,
+          credentialCacheLookupFile: undefined,
+        },
         secureJsonData: { ...options.secureJsonData, ...{ password: '' } },
         secureJsonFields: { ...options.secureJsonFields, ...{ password: false } },
         user: '',
@@ -74,6 +82,10 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
   const authenticationOptions: Array<SelectableValue<MSSQLAuthenticationType>> = [
     { value: MSSQLAuthenticationType.sqlAuth, label: 'SQL Server Authentication' },
     { value: MSSQLAuthenticationType.windowsAuth, label: 'Windows Authentication' },
+    { value: MSSQLAuthenticationType.kerberosRaw, label: 'Windows AD: Username + password' },
+    { value: MSSQLAuthenticationType.kerberosKeytab, label: 'Windows AD: Keytab file' },
+    { value: MSSQLAuthenticationType.kerberosCredentialCache, label: 'Windows AD: Credential cache' },
+    { value: MSSQLAuthenticationType.kerberosCredentialCacheLookupFile, label: 'Windows AD: Credential cache file' },
   ];
 
   const encryptOptions: Array<SelectableValue<string>> = [
@@ -123,6 +135,21 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
                 <i>Windows Authentication</i> Windows Integrated Security - single sign on for users who are already
                 logged onto Windows and have enabled this option for MS SQL Server.
               </li>
+              <li>
+                <i>Windows AD: Username + password</i> Windows Active Directory - Sign on for domain user via
+                username/password.
+              </li>
+              <li>
+                <i>Windows AD: Keytab</i> Windows Active Directory - Sign on for domain user via keytab file.
+              </li>
+              <li>
+                <i>Windows AD: Credential cache</i> Windows Active Directory - Sign on for domain user via credential
+                cache.
+              </li>
+              <li>
+                <i>Windows AD: Credential cache file</i> Windows Active Directory - Sign on for domain user via
+                credential cache file.
+              </li>
             </ul>
           }
         >
@@ -133,13 +160,19 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
             onChange={onAuthenticationMethodChanged}
           ></Select>
         </InlineField>
-        {jsonData.authenticationType === MSSQLAuthenticationType.windowsAuth ? null : (
+
+        <KerberosConfig {...props} />
+
+        {(jsonData.authenticationType === MSSQLAuthenticationType.sqlAuth ||
+          jsonData.authenticationType === MSSQLAuthenticationType.kerberosRaw) && (
           <InlineFieldRow>
             <InlineField labelWidth={shortWidth} label="User">
               <Input
                 width={shortWidth}
                 value={options.user || ''}
-                placeholder="user"
+                placeholder={
+                  jsonData.authenticationType === MSSQLAuthenticationType.kerberosRaw ? 'name@EXAMPLE.COM' : 'user'
+                }
                 onChange={onDSOptionChanged('user')}
               ></Input>
             </InlineField>
@@ -281,6 +314,8 @@ export const ConfigurationEditor = (props: DataSourcePluginOptionsEditorProps<Ms
         </Link>{' '}
         for more information.
       </Alert>
+
+      <KerberosAdvancedSettings {...props} />
     </>
   );
 };

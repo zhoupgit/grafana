@@ -10,7 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	mssql "github.com/grafana/go-mssqldb"
+	mssql "github.com/microsoft/go-mssqldb"
+	_ "github.com/microsoft/go-mssqldb/integratedauth/krb5"
+
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
@@ -20,6 +22,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/setting"
+	"github.com/grafana/grafana/pkg/tsdb/mssql/kerberos"
 	"github.com/grafana/grafana/pkg/tsdb/sqleng"
 	"github.com/grafana/grafana/pkg/tsdb/sqleng/proxyutil"
 	"github.com/grafana/grafana/pkg/util"
@@ -30,6 +33,14 @@ var logger = log.New("tsdb.mssql")
 type Service struct {
 	im instancemgmt.InstanceManager
 }
+
+const (
+	sqlServerAuthentication     = "SQL Server Authentication"
+	kerberosRaw                 = "Windows AD: Username + password"
+	kerberosKeytab              = "Windows AD: Keytab"
+	kerberosCredentialCache     = "Windows AD: Credential cache"      // #nosec G101
+	kerberosCredentialCacheFile = "Windows AD: Credential cache file" // #nosec G101
+)
 
 func ProvideService(cfg *setting.Cfg) *Service {
 	return &Service{
@@ -64,8 +75,12 @@ func newInstanceSettings(cfg *setting.Cfg) datasource.InstanceFactoryFunc {
 			ConnectionTimeout: 0,
 			SecureDSProxy:     false,
 		}
+		kerberosAuth, err := kerberos.GetKerberosSettings(settings)
+		if err != nil {
+			return nil, fmt.Errorf("error getting kerberos settings: %w", err)
+		}
 
-		err := json.Unmarshal(settings.JSONData, &jsonData)
+		err = json.Unmarshal(settings.JSONData, &jsonData)
 		if err != nil {
 			return nil, fmt.Errorf("error reading settings: %w", err)
 		}
@@ -85,7 +100,7 @@ func newInstanceSettings(cfg *setting.Cfg) datasource.InstanceFactoryFunc {
 			UID:                     settings.UID,
 			DecryptedSecureJSONData: settings.DecryptedSecureJSONData,
 		}
-		cnnstr, err := generateConnectionString(dsInfo)
+		cnnstr, err := generateConnectionString(dsInfo, kerberosAuth)
 		if err != nil {
 			return nil, err
 		}
@@ -141,7 +156,7 @@ func ParseURL(u string) (*url.URL, error) {
 	}, nil
 }
 
-func generateConnectionString(dsInfo sqleng.DataSourceInfo) (string, error) {
+func generateConnectionString(dsInfo sqleng.DataSourceInfo, kerberosAuth kerberos.KerberosAuth) (string, error) {
 	const dfltPort = "0"
 	var addr util.NetworkAddress
 	if dsInfo.URL != "" {
@@ -172,12 +187,17 @@ func generateConnectionString(dsInfo sqleng.DataSourceInfo) (string, error) {
 	tlsSkipVerify := dsInfo.JsonData.TlsSkipVerify
 	hostNameInCertificate := dsInfo.JsonData.Servername
 	certificate := dsInfo.JsonData.RootCertFile
-	connStr := fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;",
+	connStr := fmt.Sprintf("server=%s;database=%s;",
 		addr.Host,
 		dsInfo.Database,
-		dsInfo.User,
-		dsInfo.DecryptedSecureJSONData["password"],
 	)
+
+	switch dsInfo.JsonData.AuthenticationType {
+	case kerberosRaw, kerberosKeytab, kerberosCredentialCacheFile, kerberosCredentialCache:
+		connStr = kerberos.Krb5ParseAuthCredentials(addr.Host, addr.Port, dsInfo.Database, dsInfo.User, dsInfo.DecryptedSecureJSONData["password"], kerberosAuth)
+	default:
+		connStr += fmt.Sprintf("user id=%s;password=%s;", dsInfo.User, dsInfo.DecryptedSecureJSONData["password"])
+	}
 	// Port number 0 means to determine the port automatically, so we can let the driver choose
 	if addr.Port != "0" {
 		connStr += fmt.Sprintf("port=%s;", addr.Port)
