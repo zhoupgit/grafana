@@ -175,6 +175,11 @@ export const ConnectionSVG = ({
           const radius = strokeRadius;
           // Create vertex path and populate array of add vertex controls
           const addVertices: ConnectionCoordinates[] = [];
+          const controlPointsA: ConnectionCoordinates[] = [];
+          const controlPointsB: ConnectionCoordinates[] = [];
+          const controlPointsC: ConnectionCoordinates[] = [];
+          const controlPointsR: number[] = [];
+          let controlPointsPath: string[] = [];
           let pathString = `M${x1} ${y1} `;
           if (vertices?.length) {
             vertices.map((vertex, index) => {
@@ -348,6 +353,18 @@ export const ConnectionSVG = ({
                 // Add arc if applicable
                 pathString += `Q ${X} ${Y} ${xb} ${yb} `;
               }
+
+              // Render control points
+              const theta = angle2 - angle1; //radians
+              const radiusNew = Math.abs(lHalfArc / Math.tan(theta / 2));
+              controlPointsR.push(radiusNew);
+              const phiB = Math.atan((yb - Y) / (xb - X));
+              const xc = xb - radiusNew * Math.sin(phiB);
+              const yc = yb - radiusNew * Math.cos(phiB);
+              controlPointsA.push({ x: xa, y: ya });
+              controlPointsB.push({ x: xb, y: yb });
+              controlPointsC.push({ x: xc, y: yc });
+              controlPointsPath.push(`M ${X} ${Y} L ${xa} ${ya} L ${xc} ${yc} L ${X} ${Y} L ${xb} ${yb} L ${xc} ${yc}`);
             });
             // Add last segment
             pathString += `L${x2} ${y2}`;
@@ -470,6 +487,204 @@ export const ConnectionSVG = ({
                           })}
                       </g>
                     )}
+                    {vertices.map((value, index) => {
+                      return (
+                        <circle
+                          id={CONNECTION_VERTEX_ID}
+                          data-index={index}
+                          key={`${CONNECTION_VERTEX_ID}${index}_${idx}`}
+                          cx={value.x * xDist + xStart}
+                          cy={value.y * yDist + yStart}
+                          r={5}
+                          stroke={strokeColor}
+                          className={styles.vertex}
+                          cursor={'crosshair'}
+                          pointerEvents="auto"
+                        />
+                      );
+                    })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsA.map((value, index) => {
+                        return (
+                          <circle
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            cx={value.x}
+                            cy={value.y}
+                            r={4}
+                            stroke={strokeColor}
+                            className={styles.addVertexA}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsA.map((value, index) => {
+                        return (
+                          <text
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            x={value.x}
+                            y={value.y}
+                            stroke={strokeColor}
+                            className={styles.addVertexA}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          >
+                            <tspan dx="5" dy="-5">
+                              a
+                            </tspan>
+                          </text>
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsB.map((value, index) => {
+                        return (
+                          <circle
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            cx={value.x}
+                            cy={value.y}
+                            r={4}
+                            stroke={strokeColor}
+                            className={styles.addVertexB}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsB.map((value, index) => {
+                        return (
+                          <text
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            x={value.x}
+                            y={value.y}
+                            stroke={strokeColor}
+                            className={styles.addVertexB}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          >
+                            <tspan dx="5" dy="-5">
+                              b
+                            </tspan>
+                          </text>
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsC.map((value, index) => {
+                        return (
+                          <circle
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            cx={value.x}
+                            cy={value.y}
+                            r={4}
+                            stroke={strokeColor}
+                            className={styles.addVertexC}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsC.map((value, index) => {
+                        return (
+                          <circle
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            cx={value.x}
+                            cy={value.y}
+                            r={controlPointsR[index]}
+                            stroke={'black'}
+                            className={styles.addVertexC}
+                            strokeDasharray="10,10"
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsC.map((value, index) => {
+                        return (
+                          <circle
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            cx={value.x}
+                            cy={value.y}
+                            r={radius}
+                            className={styles.addVertexCR}
+                            strokeDasharray="10,10"
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsC.map((value, index) => {
+                        return (
+                          <text
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            x={value.x}
+                            y={value.y}
+                            stroke={strokeColor}
+                            className={styles.addVertexCR}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          >
+                            <tspan dx={radius * 0.8} dy={radius * 0.8}>
+                              R
+                            </tspan>
+                          </text>
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsC.map((value, index) => {
+                        return (
+                          <text
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            x={value.x}
+                            y={value.y}
+                            stroke={strokeColor}
+                            className={styles.addVertexC}
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          >
+                            <tspan dx="5" dy="-5">
+                              c
+                            </tspan>
+                          </text>
+                        );
+                      })}
+                    {vertices.length < maximumVertices &&
+                      controlPointsPath.map((value, index) => {
+                        return (
+                          <path
+                            id={`${CONNECTION_VERTEX_ADD_ID}__CONTROL`}
+                            data-index={index}
+                            key={`${CONNECTION_VERTEX_ADD_ID}_CONTROL_${index}_${idx}`}
+                            d={value}
+                            stroke={strokeColor}
+                            className={styles.addVertexPath}
+                            strokeDasharray="5,5"
+                            cursor={'crosshair'}
+                            pointerEvents="auto"
+                          />
+                        );
+                      })}
                   </g>
                 ) : (
                   <g>
@@ -590,5 +805,30 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fill: '#44aaff',
     opacity: 0.5,
     strokeWidth: 1,
+  }),
+  addVertexA: css({
+    fill: 'red',
+    opacity: 0.5,
+    strokeWidth: 1,
+  }),
+  addVertexB: css({
+    fill: 'green',
+    opacity: 0.5,
+    strokeWidth: 1,
+  }),
+  addVertexC: css({
+    fill: 'rgba(200,200,200,0.2)',
+    strokeWidth: 1,
+    stroke: 'black',
+  }),
+  addVertexCR: css({
+    fill: 'rgba(200,200,200,0.2)',
+    strokeWidth: 1,
+    stroke: 'rgba(0,0,0,0.2)',
+  }),
+  addVertexPath: css({
+    fill: 'none',
+    strokeWidth: 1,
+    stroke: 'black',
   }),
 });
