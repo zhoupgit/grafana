@@ -305,6 +305,21 @@ build-docker-full: ## Build Docker image for development.
 	--tag grafana/grafana$(TAG_SUFFIX):dev \
 	$(DOCKER_BUILD_ARGS)
 
+.PHONY: build-docker-full-arm
+build-docker-full-mac: ## Build Docker image for development.
+	PLATFORM=linux/arm64
+	@echo "build docker container"
+	tar -ch . | \
+	docker buildx build - \
+	--platform $(PLATFORM) \
+	--build-arg BINGO=false \
+	--build-arg GO_BUILD_TAGS=$(GO_BUILD_TAGS) \
+	--build-arg WIRE_TAGS=$(WIRE_TAGS) \
+	--build-arg COMMIT_SHA=$$(git rev-parse HEAD) \
+	--build-arg BUILD_BRANCH=$$(git rev-parse --abbrev-ref HEAD) \
+	--tag grafana/grafana$(TAG_SUFFIX):dev \
+	$(DOCKER_BUILD_ARGS)
+
 .PHONY: build-docker-full-ubuntu
 build-docker-full-ubuntu: ## Build Docker image based on Ubuntu for development.
 	@echo "build docker container"
