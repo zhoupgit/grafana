@@ -306,7 +306,7 @@ build-docker-full: ## Build Docker image for development.
 	$(DOCKER_BUILD_ARGS)
 
 .PHONY: build-docker-full-arm
-build-docker-full-mac: ## Build linux/arm64 Docker image for development.
+build-docker-full-arm: ## Build linux/arm64 Docker image for development.
 	PLATFORM=linux/arm64
 	@echo "build docker container"
 	tar -ch . | \
