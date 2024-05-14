@@ -10,6 +10,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/tracing"
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
 	"github.com/grafana/grafana/pkg/services/dashboards"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
@@ -40,8 +41,9 @@ func setupBenchEnv(b *testing.B, folderCount, dashboardsPerFolder int) (*Standar
 	orgSvc := &orgtest.FakeOrgService{
 		ExpectedOrgs: []*org.OrgDTO{{ID: 1}},
 	}
+	authChecker := accesscontrol.ProvideChecker(&actest.FakeActionResolver{}, features)
 	searchService, ok := ProvideService(cfg, sqlStore, store.NewDummyEntityEventsService(), actest.FakeService{},
-		tracing.InitializeTracerForTest(), features, orgSvc, nil, nil).(*StandardSearchService)
+		tracing.InitializeTracerForTest(), features, orgSvc, nil, nil, authChecker).(*StandardSearchService)
 	require.True(b, ok)
 
 	err = runSearchService(searchService)

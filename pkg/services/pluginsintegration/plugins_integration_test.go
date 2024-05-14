@@ -17,6 +17,8 @@ import (
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/plugins/backendplugin/coreplugin"
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
+	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginstore"
 	"github.com/grafana/grafana/pkg/services/searchV2"
@@ -90,7 +92,8 @@ func TestIntegrationPluginManager(t *testing.T) {
 	my := mysql.ProvideService()
 	ms := mssql.ProvideService(cfg)
 	db := db.InitTestDB(t, sqlstore.InitTestDBOpt{Cfg: cfg})
-	sv2 := searchV2.ProvideService(cfg, db, nil, nil, tracer, features, nil, nil, nil)
+	authChecker := accesscontrol.ProvideChecker(&actest.FakeActionResolver{}, features)
+	sv2 := searchV2.ProvideService(cfg, db, nil, nil, tracer, features, nil, nil, nil, authChecker)
 	graf := grafanads.ProvideService(sv2, nil)
 	pyroscope := pyroscope.ProvideService(hcp)
 	parca := parca.ProvideService(hcp)

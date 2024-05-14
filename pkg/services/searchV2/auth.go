@@ -26,10 +26,11 @@ type simpleAuthService struct {
 	ac            accesscontrol.Service
 	folderService folder.Service
 	logger        log.Logger
+	checker       accesscontrol.Checker
 }
 
 func (a *simpleAuthService) GetDashboardReadFilter(ctx context.Context, orgID int64, user *user.SignedInUser) (ResourceFilter, error) {
-	canReadDashboard, canReadFolder := accesscontrol.Checker(user, dashboards.ActionDashboardsRead), accesscontrol.Checker(user, dashboards.ActionFoldersRead)
+	canReadDashboard, canReadFolder := a.checker.Get(ctx, user, dashboards.ActionDashboardsRead), a.checker.Get(ctx, user, dashboards.ActionFoldersRead)
 	return func(kind entityKind, uid, parent string) bool {
 		if kind == entityKindFolder {
 			scopes, err := dashboards.GetInheritedScopes(ctx, orgID, uid, a.folderService)

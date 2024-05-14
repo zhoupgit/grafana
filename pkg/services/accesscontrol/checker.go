@@ -1,16 +1,46 @@
 package accesscontrol
 
 import (
+	"context"
+
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/user"
 )
 
-func Checker(user *user.SignedInUser, action string) func(scopes ...string) bool {
+type Checker interface {
+	Get(ctx context.Context, user *user.SignedInUser, action string) func(scopes ...string) bool
+}
+
+func ProvideChecker(actionResolver ActionResolver, features featuremgmt.FeatureToggles) Checker {
+	return &checker{
+		actionResolver: actionResolver,
+		features:       features,
+	}
+}
+
+type checker struct {
+	actionResolver ActionResolver
+	features       featuremgmt.FeatureToggles
+}
+
+func (c *checker) Get(ctx context.Context, user *user.SignedInUser, action string) func(scopes ...string) bool {
 	if user.Permissions == nil || user.Permissions[user.OrgID] == nil {
 		return func(scopes ...string) bool { return false }
 	}
 
-	userScopes, ok := user.Permissions[user.OrgID][action]
-	if !ok {
+	actions := []string{action}
+	if c.features.IsEnabled(ctx, featuremgmt.FlagAccessActionSets) {
+		actionSets := c.actionResolver.Resolve(action)
+		actions = append(actions, actionSets...)
+	}
+
+	var userScopes []string
+	for _, a := range actions {
+		if scopes, ok := user.Permissions[user.OrgID][a]; ok {
+			userScopes = append(userScopes, scopes...)
+		}
+	}
+	if len(userScopes) == 0 {
 		return func(scopes ...string) bool { return false }
 	}
 

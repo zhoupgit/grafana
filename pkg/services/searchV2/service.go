@@ -83,7 +83,7 @@ func (s *StandardSearchService) IsReady(ctx context.Context, orgId int64) IsSear
 
 func ProvideService(cfg *setting.Cfg, sql db.DB, entityEventStore store.EntityEventsService,
 	ac accesscontrol.Service, tracer tracing.Tracer, features featuremgmt.FeatureToggles, orgService org.Service,
-	userService user.Service, folderService folder.Service) SearchService {
+	userService user.Service, folderService folder.Service, checker accesscontrol.Checker) SearchService {
 	extender := &NoopExtender{}
 	logger := log.New("searchV2")
 	s := &StandardSearchService{
@@ -95,6 +95,7 @@ func ProvideService(cfg *setting.Cfg, sql db.DB, entityEventStore store.EntityEv
 			ac:            ac,
 			folderService: folderService,
 			logger:        logger,
+			checker:       checker,
 		},
 		dashboardIndex: newSearchIndex(
 			newSQLDashboardLoader(sql, tracer, cfg.Search),

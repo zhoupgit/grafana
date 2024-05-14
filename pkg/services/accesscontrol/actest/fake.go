@@ -156,3 +156,12 @@ func (f *FakePermissionsService) DeleteResourcePermissions(ctx context.Context, 
 func (f *FakePermissionsService) MapActions(permission accesscontrol.ResourcePermission) string {
 	return f.ExpectedMappedAction
 }
+
+type FakeActionResolver struct {
+	ExpectedErr     error
+	ExpectedActions []string
+}
+
+func (f *FakeActionResolver) Resolve(action string) []string {
+	return f.ExpectedActions
+}

@@ -52,15 +52,17 @@ type dashboardSqlAccess struct {
 	namespacer   request.NamespaceMapper
 	dashStore    dashboards.Store
 	provisioning provisioning.ProvisioningService
+	checker      accesscontrol.Checker
 }
 
-func NewDashboardAccess(sql db.DB, namespacer request.NamespaceMapper, dashStore dashboards.Store, provisioning provisioning.ProvisioningService) DashboardAccess {
+func NewDashboardAccess(sql db.DB, namespacer request.NamespaceMapper, dashStore dashboards.Store, provisioning provisioning.ProvisioningService, checker accesscontrol.Checker) DashboardAccess {
 	return &dashboardSqlAccess{
 		sql:          sql,
 		sess:         sql.GetSqlxSession(),
 		namespacer:   namespacer,
 		dashStore:    dashStore,
 		provisioning: provisioning,
+		checker:      checker,
 	}
 }
 
@@ -218,7 +220,7 @@ func (a *dashboardSqlAccess) doQuery(ctx context.Context, query string, args ...
 		rows: rows,
 		a:    a,
 		// This looks up rules from the permissions on a user
-		canReadDashboard: accesscontrol.Checker(user, dashboards.ActionDashboardsRead),
+		canReadDashboard: a.checker.Get(ctx, user, dashboards.ActionDashboardsRead),
 	}, err
 }
 

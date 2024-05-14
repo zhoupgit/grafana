@@ -1,11 +1,15 @@
-package accesscontrol
+package accesscontrol_test
 
 import (
+	"context"
 	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
+	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/user"
 )
 
@@ -35,9 +39,11 @@ func generateTestData() []testData {
 func Test_Checker(t *testing.T) {
 	data := generateTestData()
 	type testCase struct {
-		desc        string
-		user        *user.SignedInUser
-		expectedLen int
+		desc               string
+		user               *user.SignedInUser
+		expectedActionSets []string
+		actionSetsEnabled  bool
+		expectedLen        int
 	}
 	tests := []testCase{
 		{
@@ -57,7 +63,7 @@ func Test_Checker(t *testing.T) {
 			expectedLen: len(data),
 		},
 		{
-			desc: "should only pass for for 3 scopes",
+			desc: "should only pass for 3 scopes",
 			user: &user.SignedInUser{
 				OrgID:       1,
 				Permissions: map[int64]map[string][]string{1: {"dashboards:read": {"dashboards:uid:4", "dashboards:uid:50", "dashboards:uid:99"}}},
@@ -96,10 +102,35 @@ func Test_Checker(t *testing.T) {
 			},
 			expectedLen: 0,
 		},
+		{
+			desc: "should resolve actions to action sets",
+			user: &user.SignedInUser{
+				OrgID:       1,
+				Permissions: map[int64]map[string][]string{1: {"dashboards:view": {"dashboards:uid:1", "dashboards:uid:2"}}},
+			},
+			expectedActionSets: []string{"dashboards:view"},
+			actionSetsEnabled:  true,
+			expectedLen:        2,
+		},
+		{
+			desc: "should not resolve actions to action sets if feature toggle is disabled",
+			user: &user.SignedInUser{
+				OrgID:       1,
+				Permissions: map[int64]map[string][]string{1: {"dashboards:view": {"dashboards:uid:1", "dashboards:uid:2"}}},
+			},
+			expectedActionSets: []string{"dashboards:view"},
+			actionSetsEnabled:  false,
+			expectedLen:        0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			check := Checker(tt.user, "dashboards:read")
+			features := featuremgmt.WithFeatures()
+			if tt.actionSetsEnabled {
+				features = featuremgmt.WithFeatures(featuremgmt.FlagAccessActionSets)
+			}
+			checker := accesscontrol.ProvideChecker(&actest.FakeActionResolver{ExpectedActions: tt.expectedActionSets}, features)
+			check := checker.Get(context.Background(), tt.user, "dashboards:read")
 			numPasses := 0
 			for _, d := range data {
 				if ok := check(d.Scopes()...); ok {
