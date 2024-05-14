@@ -63,6 +63,14 @@ const alertingConfig = {
   testRegex: '(.*/app/features/alerting/.*)(\\.|/)(test)\\.(jsx?|tsx?)$',
   modulePathIgnorePatterns: [],
   setupFilesAfterEnv: [...coreConfig.setupFilesAfterEnv, './public/app/features/alerting/setupTests.ts'],
+  coverageThreshold: {
+    global: {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100,
+    },
+  },
 };
 
 module.exports = {

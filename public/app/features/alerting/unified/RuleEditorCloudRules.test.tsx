@@ -12,7 +12,7 @@ import { searchFolders } from '../../manage-dashboards/state/actions';
 
 import { fetchRulerRules, fetchRulerRulesGroup, fetchRulerRulesNamespace, setRulerRuleGroup } from './api/ruler';
 import { ExpressionEditorProps } from './components/rule-editor/ExpressionEditor';
-import { mockApi, mockFeatureDiscoveryApi, setupMswServer } from './mockApi';
+import server, { mockApi, mockFeatureDiscoveryApi } from './mockApi';
 import { grantUserPermissions, labelsPluginMetaMock, mockDataSource } from './mocks';
 import { emptyExternalAlertmanagersResponse, mockAlertmanagersResponse } from './mocks/alertmanagerApi';
 import { fetchRulerRulesIfNotFetchedYet } from './state/actions';
@@ -46,9 +46,6 @@ jest.mock('app/core/components/AppChrome/AppChromeUpdate', () => ({
 }));
 
 setupDataSources(dataSources.default);
-
-const server = setupMswServer();
-
 mockFeatureDiscoveryApi(server).discoverDsFeatures(dataSources.default, buildInfoResponse.mimir);
 mockAlertmanagersResponse(server, emptyExternalAlertmanagersResponse);
 mockApi(server).plugins.getPluginSettings({ ...labelsPluginMetaMock, enabled: false });

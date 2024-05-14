@@ -1,3 +1,3 @@
-beforeEach(() => {
-  // Do a thing in here, only for alerting
-});
+import { setupMswServer } from 'app/features/alerting/unified/mockApi';
+
+setupMswServer();
