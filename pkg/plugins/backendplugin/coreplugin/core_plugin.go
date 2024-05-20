@@ -127,10 +127,16 @@ func (cp *corePlugin) RunStream(ctx context.Context, req *backend.RunStreamReque
 	return plugins.ErrMethodNotImplemented
 }
 
-func (cp *corePlugin) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (cp *corePlugin) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	if cp.InstanceSettingsHandler != nil {
-		ctx = backend.WithGrafanaConfig(ctx, req.PluginContext.GrafanaConfig)
-		return cp.InstanceSettingsHandler.ProcessInstanceSettings(ctx, req)
+		return cp.InstanceSettingsHandler.CreateInstanceSettings(ctx, req)
+	}
+	return nil, plugins.ErrMethodNotImplemented
+}
+
+func (cp *corePlugin) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if cp.InstanceSettingsHandler != nil {
+		return cp.InstanceSettingsHandler.UpdateInstanceSettings(ctx, req)
 	}
 	return nil, plugins.ErrMethodNotImplemented
 }

@@ -332,12 +332,20 @@ func (p *Plugin) CheckHealth(ctx context.Context, req *backend.CheckHealthReques
 	return pluginClient.CheckHealth(ctx, req)
 }
 
-func (p *Plugin) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (p *Plugin) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	pluginClient, ok := p.Client()
 	if !ok {
 		return nil, ErrPluginUnavailable
 	}
-	return pluginClient.ProcessInstanceSettings(ctx, req)
+	return pluginClient.CreateInstanceSettings(ctx, req)
+}
+
+func (p *Plugin) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	pluginClient, ok := p.Client()
+	if !ok {
+		return nil, ErrPluginUnavailable
+	}
+	return pluginClient.UpdateInstanceSettings(ctx, req)
 }
 
 func (p *Plugin) CollectMetrics(ctx context.Context, req *backend.CollectMetricsRequest) (*backend.CollectMetricsResult, error) {

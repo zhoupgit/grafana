@@ -68,7 +68,12 @@ func (m *PluginRequestMetaMiddleware) RunStream(ctx context.Context, req *backen
 	return m.next.RunStream(ctx, req, sender)
 }
 
-func (m *PluginRequestMetaMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (m *PluginRequestMetaMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	ctx = m.withDefaultPluginRequestMeta(ctx)
-	return m.next.ProcessInstanceSettings(ctx, req)
+	return m.next.CreateInstanceSettings(ctx, req)
+}
+
+func (m *PluginRequestMetaMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	ctx = m.withDefaultPluginRequestMeta(ctx)
+	return m.next.UpdateInstanceSettings(ctx, req)
 }

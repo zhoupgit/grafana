@@ -259,8 +259,6 @@ func (s *Service) AddDataSource(ctx context.Context, cmd *datasources.AddDataSou
 
 // This will valid validate the instance settings and mutate the cmd with the processed values
 func (s *Service) prepareAdd(ctx context.Context, cmd *datasources.AddDataSourceCommand) error {
-	operation := backend.InstanceSettingsOperationCREATE
-
 	if len(cmd.Name) > maxDatasourceNameLen {
 		return datasources.ErrDataSourceNameInvalid.Errorf("max length is %d", maxDatasourceNameLen)
 	}
@@ -279,7 +277,7 @@ func (s *Service) prepareAdd(ctx context.Context, cmd *datasources.AddDataSource
 		return fmt.Errorf("plugin '%s' not found", cmd.Type)
 	}
 
-	// When the APIVersion is set, the client must also implement ProcessInstanceSettings
+	// When the APIVersion is set, the client must also implement Create+UpdateInstanceSettings
 	if p.APIVersion == "" {
 		if cmd.APIVersion != "" {
 			return fmt.Errorf("invalid request apiVersion (datasource does not have one configured)")
@@ -289,30 +287,25 @@ func (s *Service) prepareAdd(ctx context.Context, cmd *datasources.AddDataSource
 
 	jd, err := cmd.JsonData.ToDB()
 	if err != nil {
-		return fmt.Errorf("invalid jsonData (%v)", operation)
+		return fmt.Errorf("invalid jsonData")
 	}
 
-	rsp, err := s.pluginClient.ProcessInstanceSettings(ctx, &backend.ProcessInstanceSettingsRequest{
-		PluginContext: backend.PluginContext{
-			OrgID:    cmd.OrgID,
-			PluginID: cmd.Type,
-			DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{
-				UID:                     cmd.UID,
-				Name:                    cmd.Name,
-				URL:                     cmd.URL,
-				Database:                cmd.Database,
-				Updated:                 time.Now(),
-				JSONData:                jd,
-				DecryptedSecureJSONData: cmd.SecureJsonData,
-				Type:                    cmd.Type,
-				User:                    cmd.User,
-				BasicAuthEnabled:        cmd.BasicAuth,
-				BasicAuthUser:           cmd.BasicAuthUser,
-				APIVersion:              cmd.APIVersion,
-			},
+	rsp, err := s.pluginClient.CreateInstanceSettings(ctx, &backend.CreateInstanceSettingsRequest{
+		PluginID: cmd.Type,
+		DataSourceInstanceSettings: &backend.DataSourceInstanceSettings{
+			UID:                     cmd.UID,
+			Name:                    cmd.Name,
+			URL:                     cmd.URL,
+			Database:                cmd.Database,
+			Updated:                 time.Now(),
+			JSONData:                jd,
+			DecryptedSecureJSONData: cmd.SecureJsonData,
+			Type:                    cmd.Type,
+			User:                    cmd.User,
+			BasicAuthEnabled:        cmd.BasicAuth,
+			BasicAuthUser:           cmd.BasicAuthUser,
+			APIVersion:              cmd.APIVersion,
 		},
-		Operation:   operation,
-		CheckHealth: false, // we have never checked in the past, should we start?
 	})
 	if err != nil {
 		if errors.Is(err, plugins.ErrMethodNotImplemented) {
@@ -320,7 +313,7 @@ func (s *Service) prepareAdd(ctx context.Context, cmd *datasources.AddDataSource
 		}
 	}
 	if rsp == nil {
-		return fmt.Errorf("expected response (%v)", operation)
+		return fmt.Errorf("expected response")
 	}
 	settings := rsp.DataSourceInstanceSettings
 	if !rsp.Allowed || settings == nil {
@@ -347,8 +340,6 @@ func (s *Service) prepareAdd(ctx context.Context, cmd *datasources.AddDataSource
 
 // identical to prepareAdd -- but the types do not overlap :(
 func (s *Service) prepareUpdate(ctx context.Context, cmd *datasources.UpdateDataSourceCommand) error {
-	operation := backend.InstanceSettingsOperationUPDATE
-
 	if len(cmd.Name) > maxDatasourceNameLen {
 		return datasources.ErrDataSourceNameInvalid.Errorf("max length is %d", maxDatasourceNameLen)
 	}
@@ -377,10 +368,10 @@ func (s *Service) prepareUpdate(ctx context.Context, cmd *datasources.UpdateData
 
 	jd, err := cmd.JsonData.ToDB()
 	if err != nil {
-		return fmt.Errorf("invalid jsonData (%v)", operation)
+		return fmt.Errorf("invalid jsonData")
 	}
 
-	rsp, err := s.pluginClient.ProcessInstanceSettings(ctx, &backend.ProcessInstanceSettingsRequest{
+	rsp, err := s.pluginClient.UpdateInstanceSettings(ctx, &backend.UpdateInstanceSettingsRequest{
 		PluginContext: backend.PluginContext{
 			OrgID:    cmd.OrgID,
 			PluginID: cmd.Type,
@@ -399,8 +390,6 @@ func (s *Service) prepareUpdate(ctx context.Context, cmd *datasources.UpdateData
 				APIVersion:              cmd.APIVersion,
 			},
 		},
-		Operation:   operation,
-		CheckHealth: false, // we have never checked in the past, should we start?
 	})
 	if err != nil {
 		if errors.Is(err, plugins.ErrMethodNotImplemented) {
@@ -408,7 +397,7 @@ func (s *Service) prepareUpdate(ctx context.Context, cmd *datasources.UpdateData
 		}
 	}
 	if rsp == nil {
-		return fmt.Errorf("expected response (%v)", operation)
+		return fmt.Errorf("expected response")
 	}
 	settings := rsp.DataSourceInstanceSettings
 	if !rsp.Allowed || settings == nil {

@@ -20,14 +20,15 @@ import (
 
 type TestClient struct {
 	plugins.Client
-	QueryDataFunc       backend.QueryDataHandlerFunc
-	CallResourceFunc    backend.CallResourceHandlerFunc
-	CheckHealthFunc     backend.CheckHealthHandlerFunc
-	CollectMetricsFunc  backend.CollectMetricsHandlerFunc
-	SubscribeStreamFunc func(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error)
-	PublishStreamFunc   func(ctx context.Context, req *backend.PublishStreamRequest) (*backend.PublishStreamResponse, error)
-	ProcessSettingsFunc func(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error)
-	RunStreamFunc       func(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender) error
+	QueryDataFunc              backend.QueryDataHandlerFunc
+	CallResourceFunc           backend.CallResourceHandlerFunc
+	CheckHealthFunc            backend.CheckHealthHandlerFunc
+	CollectMetricsFunc         backend.CollectMetricsHandlerFunc
+	SubscribeStreamFunc        func(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error)
+	PublishStreamFunc          func(ctx context.Context, req *backend.PublishStreamRequest) (*backend.PublishStreamResponse, error)
+	RunStreamFunc              func(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender) error
+	CreateInstanceSettingsFunc backend.CreateInstanceSettingsFunc
+	UpdateInstanceSettingsFunc backend.UpdateInstanceSettingsFunc
 }
 
 func (c *TestClient) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
@@ -78,14 +79,6 @@ func (c *TestClient) SubscribeStream(ctx context.Context, req *backend.Subscribe
 	return nil, nil
 }
 
-func (c *TestClient) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
-	if c.ProcessSettingsFunc != nil {
-		return c.ProcessSettingsFunc(ctx, req)
-	}
-
-	return nil, nil
-}
-
 func (c *TestClient) RunStream(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender) error {
 	if c.RunStreamFunc != nil {
 		return c.RunStreamFunc(ctx, req, sender)
@@ -93,15 +86,32 @@ func (c *TestClient) RunStream(ctx context.Context, req *backend.RunStreamReques
 	return nil
 }
 
+func (c *TestClient) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if c.CreateInstanceSettingsFunc != nil {
+		return c.CreateInstanceSettings(ctx, req)
+	}
+
+	return nil, nil
+}
+
+func (c *TestClient) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if c.UpdateInstanceSettingsFunc != nil {
+		return c.UpdateInstanceSettings(ctx, req)
+	}
+
+	return nil, nil
+}
+
 type MiddlewareScenarioContext struct {
-	QueryDataCallChain               []string
-	CallResourceCallChain            []string
-	CollectMetricsCallChain          []string
-	CheckHealthCallChain             []string
-	SubscribeStreamCallChain         []string
-	PublishStreamCallChain           []string
-	RunStreamCallChain               []string
-	ProcessInstanceSettingsCallChain []string
+	QueryDataCallChain              []string
+	CallResourceCallChain           []string
+	CollectMetricsCallChain         []string
+	CheckHealthCallChain            []string
+	SubscribeStreamCallChain        []string
+	PublishStreamCallChain          []string
+	RunStreamCallChain              []string
+	CreateInstanceSettingsCallChain []string
+	UpdateInstanceSettingsCallChain []string
 }
 
 func (ctx *MiddlewareScenarioContext) NewMiddleware(name string) plugins.ClientMiddleware {
@@ -141,10 +151,17 @@ func (m *TestMiddleware) CollectMetrics(ctx context.Context, req *backend.Collec
 	return res, err
 }
 
-func (m *TestMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
-	m.sCtx.CollectMetricsCallChain = append(m.sCtx.ProcessInstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
-	res, err := m.next.ProcessInstanceSettings(ctx, req)
-	m.sCtx.CollectMetricsCallChain = append(m.sCtx.ProcessInstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
+func (m *TestMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	m.sCtx.CreateInstanceSettingsCallChain = append(m.sCtx.CreateInstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
+	res, err := m.next.CreateInstanceSettings(ctx, req)
+	m.sCtx.CreateInstanceSettingsCallChain = append(m.sCtx.CreateInstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
+	return res, err
+}
+
+func (m *TestMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	m.sCtx.UpdateInstanceSettingsCallChain = append(m.sCtx.UpdateInstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
+	res, err := m.next.UpdateInstanceSettings(ctx, req)
+	m.sCtx.UpdateInstanceSettingsCallChain = append(m.sCtx.UpdateInstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
 	return res, err
 }
 

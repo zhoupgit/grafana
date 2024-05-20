@@ -71,7 +71,12 @@ func (m *ContextualLoggerMiddleware) RunStream(ctx context.Context, req *backend
 	return m.next.RunStream(ctx, req, sender)
 }
 
-func (m *ContextualLoggerMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (m *ContextualLoggerMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	//ctx = instrumentContext(ctx, endpointProcessSettings, req.PluginContext)
+	return m.next.CreateInstanceSettings(ctx, req)
+}
+
+func (m *ContextualLoggerMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	ctx = instrumentContext(ctx, endpointProcessSettings, req.PluginContext)
-	return m.next.ProcessInstanceSettings(ctx, req)
+	return m.next.UpdateInstanceSettings(ctx, req)
 }

@@ -147,14 +147,15 @@ func (c *TestClient) CheckHealth(ctx context.Context, req *backend.CheckHealthRe
 }
 
 type MiddlewareScenarioContext struct {
-	QueryDataCallChain        []string
-	CallResourceCallChain     []string
-	CollectMetricsCallChain   []string
-	CheckHealthCallChain      []string
-	SubscribeStreamCallChain  []string
-	PublishStreamCallChain    []string
-	RunStreamCallChain        []string
-	InstanceSettingsCallChain []string
+	QueryDataCallChain              []string
+	CallResourceCallChain           []string
+	CollectMetricsCallChain         []string
+	CheckHealthCallChain            []string
+	SubscribeStreamCallChain        []string
+	PublishStreamCallChain          []string
+	RunStreamCallChain              []string
+	CreateInstanceSettingsCallChain []string
+	UpdateInstanceSettingsCallChain []string
 }
 
 func (ctx *MiddlewareScenarioContext) NewMiddleware(name string) plugins.ClientMiddleware {
@@ -222,10 +223,17 @@ func (m *TestMiddleware) RunStream(ctx context.Context, req *backend.RunStreamRe
 	return err
 }
 
-func (m *TestMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
-	m.sCtx.InstanceSettingsCallChain = append(m.sCtx.InstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
-	res, err := m.next.ProcessInstanceSettings(ctx, req)
-	m.sCtx.InstanceSettingsCallChain = append(m.sCtx.InstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
+func (m *TestMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	m.sCtx.CreateInstanceSettingsCallChain = append(m.sCtx.CreateInstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
+	res, err := m.next.CreateInstanceSettings(ctx, req)
+	m.sCtx.CreateInstanceSettingsCallChain = append(m.sCtx.CreateInstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
+	return res, err
+}
+
+func (m *TestMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	m.sCtx.UpdateInstanceSettingsCallChain = append(m.sCtx.UpdateInstanceSettingsCallChain, fmt.Sprintf("before %s", m.Name))
+	res, err := m.next.UpdateInstanceSettings(ctx, req)
+	m.sCtx.UpdateInstanceSettingsCallChain = append(m.sCtx.UpdateInstanceSettingsCallChain, fmt.Sprintf("after %s", m.Name))
 	return res, err
 }
 

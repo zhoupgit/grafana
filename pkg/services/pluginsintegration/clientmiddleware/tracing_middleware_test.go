@@ -387,7 +387,11 @@ func (m *alwaysErrorFuncMiddleware) RunStream(ctx context.Context, req *backend.
 	return m.f()
 }
 
-func (m *alwaysErrorFuncMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (m *alwaysErrorFuncMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	return nil, m.f()
+}
+
+func (m *alwaysErrorFuncMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	return nil, m.f()
 }
 

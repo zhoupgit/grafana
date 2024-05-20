@@ -270,21 +270,40 @@ func (c *ClientV2) RunStream(ctx context.Context, req *backend.RunStreamRequest,
 	}
 }
 
-func (c *ClientV2) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (c *ClientV2) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	if c.InstanceSettingsClient == nil {
 		return nil, plugins.ErrMethodNotImplemented
 	}
 
-	protoReq := backend.ToProto().ProcessInstanceSettingsRequest(req)
-	protoResp, err := c.InstanceSettingsClient.ProcessInstanceSettings(ctx, protoReq)
+	protoReq := backend.ToProto().CreateInstanceSettingsRequest(req)
+	protoResp, err := c.InstanceSettingsClient.CreateInstanceSettings(ctx, protoReq)
 
 	if err != nil {
 		if status.Code(err) == codes.Unimplemented {
 			return nil, plugins.ErrMethodNotImplemented
 		}
 
-		return nil, fmt.Errorf("%v: %w", "Failed to process instance settings", err)
+		return nil, fmt.Errorf("%v: %w", "Failed to create instance settings", err)
 	}
 
-	return backend.FromProto().ProcessInstanceSettingsResponse(protoResp), nil
+	return backend.FromProto().InstanceSettingsResponse(protoResp), nil
+}
+
+func (c *ClientV2) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if c.InstanceSettingsClient == nil {
+		return nil, plugins.ErrMethodNotImplemented
+	}
+
+	protoReq := backend.ToProto().UpdateInstanceSettingsRequest(req)
+	protoResp, err := c.InstanceSettingsClient.UpdateInstanceSettings(ctx, protoReq)
+
+	if err != nil {
+		if status.Code(err) == codes.Unimplemented {
+			return nil, plugins.ErrMethodNotImplemented
+		}
+
+		return nil, fmt.Errorf("%v: %w", "Failed to update instance settings", err)
+	}
+
+	return backend.FromProto().InstanceSettingsResponse(protoResp), nil
 }

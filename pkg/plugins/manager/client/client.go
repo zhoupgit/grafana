@@ -217,7 +217,20 @@ func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, 
 	return plugin.RunStream(ctx, req, sender)
 }
 
-func (s *Service) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (s *Service) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if req == nil {
+		return nil, errNilRequest
+	}
+
+	plugin, exists := s.plugin(ctx, req.PluginID, "") // req.PluginContext.PluginVersion)
+	if !exists {
+		return nil, plugins.ErrPluginNotRegistered
+	}
+
+	return plugin.CreateInstanceSettings(ctx, req)
+}
+
+func (s *Service) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	if req == nil {
 		return nil, errNilRequest
 	}
@@ -227,7 +240,7 @@ func (s *Service) ProcessInstanceSettings(ctx context.Context, req *backend.Proc
 		return nil, plugins.ErrPluginNotRegistered
 	}
 
-	return plugin.ProcessInstanceSettings(ctx, req)
+	return plugin.UpdateInstanceSettings(ctx, req)
 }
 
 // plugin finds a plugin with `pluginID` from the registry that is not decommissioned

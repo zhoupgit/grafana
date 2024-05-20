@@ -10,14 +10,24 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func (s *Service) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if req.AppInstanceSettings != nil {
+		return getBadRequest("not expecting app instance settings"), nil
+	}
+	return s.validateInstanceSettings(ctx, req.DataSourceInstanceSettings)
+}
+
+func (s *Service) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if req.AppInstanceSettings != nil {
+		return getBadRequest("not expecting app instance settings"), nil
+	}
+	return s.validateInstanceSettings(ctx, req.DataSourceInstanceSettings)
+}
+
 // Testdata has empty configuration
-func (s *Service) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
-	settings := req.PluginContext.DataSourceInstanceSettings
+func (s *Service) validateInstanceSettings(ctx context.Context, settings *backend.DataSourceInstanceSettings) (*backend.InstanceSettingsResponse, error) {
 	if settings == nil {
 		return getBadRequest("missing datasource settings"), nil
-	}
-	if req.PluginContext.AppInstanceSettings != nil {
-		return getBadRequest("not expecting app instance settings"), nil
 	}
 
 	switch settings.APIVersion {
@@ -39,14 +49,14 @@ func (s *Service) ProcessInstanceSettings(ctx context.Context, req *backend.Proc
 		return getBadRequest("found unsupported secure json fields"), nil
 	}
 
-	return &backend.ProcessInstanceSettingsResponse{
+	return &backend.InstanceSettingsResponse{
 		Allowed:                    true,
 		DataSourceInstanceSettings: settings,
 	}, nil
 }
 
-func getBadRequest(msg string) *backend.ProcessInstanceSettingsResponse {
-	return &backend.ProcessInstanceSettingsResponse{
+func getBadRequest(msg string) *backend.InstanceSettingsResponse {
+	return &backend.InstanceSettingsResponse{
 		Allowed: false,
 		Result: &backend.StatusResult{
 			Status:  "Failure",

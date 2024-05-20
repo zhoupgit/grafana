@@ -201,10 +201,18 @@ func (p *grpcPlugin) RunStream(ctx context.Context, req *backend.RunStreamReques
 	return pluginClient.RunStream(ctx, req, sender)
 }
 
-func (p *grpcPlugin) ProcessInstanceSettings(ctx context.Context, request *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (p *grpcPlugin) CreateInstanceSettings(ctx context.Context, request *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	pluginClient, ok := p.getPluginClient()
 	if !ok {
 		return nil, plugins.ErrPluginUnavailable
 	}
-	return pluginClient.ProcessInstanceSettings(ctx, request)
+	return pluginClient.CreateInstanceSettings(ctx, request)
+}
+
+func (p *grpcPlugin) UpdateInstanceSettings(ctx context.Context, request *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	pluginClient, ok := p.getPluginClient()
+	if !ok {
+		return nil, plugins.ErrPluginUnavailable
+	}
+	return pluginClient.UpdateInstanceSettings(ctx, request)
 }

@@ -99,13 +99,22 @@ func (d *Decorator) RunStream(ctx context.Context, req *backend.RunStreamRequest
 	return client.RunStream(ctx, req, sender)
 }
 
-func (d *Decorator) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (d *Decorator) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	if req == nil {
 		return nil, errNilRequest
 	}
 
 	client := clientFromMiddlewares(d.middlewares, d.client)
-	return client.ProcessInstanceSettings(ctx, req)
+	return client.CreateInstanceSettings(ctx, req)
+}
+
+func (d *Decorator) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if req == nil {
+		return nil, errNilRequest
+	}
+
+	client := clientFromMiddlewares(d.middlewares, d.client)
+	return client.UpdateInstanceSettings(ctx, req)
 }
 
 func clientFromMiddlewares(middlewares []plugins.ClientMiddleware, finalClient plugins.Client) plugins.Client {

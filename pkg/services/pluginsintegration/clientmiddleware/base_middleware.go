@@ -44,6 +44,10 @@ func (m *baseMiddleware) RunStream(ctx context.Context, req *backend.RunStreamRe
 	return m.next.RunStream(ctx, req, sender)
 }
 
-func (m *baseMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
-	return m.next.ProcessInstanceSettings(ctx, req)
+func (m *baseMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	return m.next.CreateInstanceSettings(ctx, req)
+}
+
+func (m *baseMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	return m.next.UpdateInstanceSettings(ctx, req)
 }

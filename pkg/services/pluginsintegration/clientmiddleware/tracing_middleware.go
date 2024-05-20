@@ -136,10 +136,18 @@ func (m *TracingMiddleware) RunStream(ctx context.Context, req *backend.RunStrea
 	return err
 }
 
-func (m *TracingMiddleware) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (m *TracingMiddleware) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	var err error
-	ctx, end := m.traceWrap(ctx, req.PluginContext, "processInstanceSettings")
+	ctx, end := m.traceWrap(ctx, backend.PluginContext{PluginID: req.PluginID}, "createInstanceSettings")
 	defer func() { end(err) }()
-	resp, err := m.next.ProcessInstanceSettings(ctx, req)
+	resp, err := m.next.CreateInstanceSettings(ctx, req)
+	return resp, err
+}
+
+func (m *TracingMiddleware) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	var err error
+	ctx, end := m.traceWrap(ctx, req.PluginContext, "updateInstanceSettings")
+	defer func() { end(err) }()
+	resp, err := m.next.UpdateInstanceSettings(ctx, req)
 	return resp, err
 }

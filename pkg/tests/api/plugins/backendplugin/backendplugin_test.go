@@ -934,9 +934,16 @@ func (tp *testPlugin) RunStream(ctx context.Context, req *backend.RunStreamReque
 	return plugins.ErrMethodNotImplemented
 }
 
-func (tp *testPlugin) ProcessInstanceSettings(ctx context.Context, req *backend.ProcessInstanceSettingsRequest) (*backend.ProcessInstanceSettingsResponse, error) {
+func (tp *testPlugin) CreateInstanceSettings(ctx context.Context, req *backend.CreateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
 	if tp.InstanceSettingsHandler != nil {
-		return tp.InstanceSettingsHandler.ProcessInstanceSettings(ctx, req)
+		return tp.InstanceSettingsHandler.CreateInstanceSettings(ctx, req)
+	}
+	return nil, plugins.ErrMethodNotImplemented
+}
+
+func (tp *testPlugin) UpdateInstanceSettings(ctx context.Context, req *backend.UpdateInstanceSettingsRequest) (*backend.InstanceSettingsResponse, error) {
+	if tp.InstanceSettingsHandler != nil {
+		return tp.InstanceSettingsHandler.UpdateInstanceSettings(ctx, req)
 	}
 	return nil, plugins.ErrMethodNotImplemented
 }
