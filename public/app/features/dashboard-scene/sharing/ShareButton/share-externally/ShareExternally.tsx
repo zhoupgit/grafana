@@ -5,6 +5,7 @@ import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { config, featureEnabled } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, SceneObjectRef, SceneObjectState } from '@grafana/scenes';
 import { Button, ClipboardButton, Divider, Spinner, Stack } from '@grafana/ui';
+import { useDrawerContext } from '@grafana/ui/src/components/Drawer/DrawerContext';
 import { contextSrv } from 'app/core/core';
 import {
   useDeletePublicDashboardMutation,
@@ -21,6 +22,8 @@ import {
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { AccessControlAction } from 'app/types';
+
+import { t } from '../../../../../core/internationalization';
 
 import { EmailSharing } from './EmailShare/EmailSharing';
 import { PublicSharing } from './PublicShare/PublicSharing';
@@ -48,6 +51,22 @@ export class ShareExternally extends SceneObjectBase<ShareExternallyDrawerState>
   }
 }
 
+const Body = ({ title }: { title?: string }) => {
+  return (
+    <p>
+      {title
+        ? t(
+            'public-dashboard.delete-modal.revoke-nonorphaned-body-text',
+            'Are you sure you want to revoke this URL? The dashboard will no longer be public.'
+          )
+        : t(
+            'public-dashboard.delete-modal.revoke-orphaned-body-text',
+            'Orphaned public dashboard will no longer be public.'
+          )}
+    </p>
+  );
+};
+
 function ShareExternallyDrawerRenderer({ model }: SceneComponentProps<ShareExternally>) {
   const [shareType, setShareType] = React.useState<SelectableValue<PublicDashboardShareType>>(options[0]);
   const dashboard = model.state.dashboardRef.resolve();
@@ -62,19 +81,19 @@ function ShareExternallyDrawerRenderer({ model }: SceneComponentProps<ShareExter
 
   const hasWritePermissions = contextSrv.hasPermission(AccessControlAction.DashboardsPublicWrite);
 
-  const onCancel = useCallback(() => {
+  const onClose = useCallback(() => {
     dashboard.closeModal();
   }, [dashboard]);
 
   const Config = useMemo(() => {
     if (shareType.value === PublicDashboardShareType.EMAIL && hasEmailSharingEnabled) {
-      return <EmailSharing dashboard={dashboard} onCancel={onCancel} />;
+      return <EmailSharing dashboard={dashboard} onCancel={onClose} />;
     }
     if (shareType.value === PublicDashboardShareType.PUBLIC) {
-      return <PublicSharing dashboard={dashboard} onCancel={onCancel} />;
+      return <PublicSharing dashboard={dashboard} onCancel={onClose} />;
     }
     return <></>;
-  }, [shareType, dashboard, onCancel]);
+  }, [shareType, dashboard, onClose]);
 
   if (isLoading) {
     return <Loader />;
@@ -97,6 +116,8 @@ function ShareExternallyDrawerRenderer({ model }: SceneComponentProps<ShareExter
 }
 
 function Actions({ dashboard, publicDashboard }: { dashboard: DashboardScene; publicDashboard: PublicDashboard }) {
+  const { setConfirmContent } = useDrawerContext();
+
   const [update, { isLoading: isUpdateLoading }] = useUpdatePublicDashboardMutation();
   const [deletePublicDashboard, { isLoading: isDeleteLoading }] = useDeletePublicDashboardMutation();
 
@@ -120,12 +141,25 @@ function Actions({ dashboard, publicDashboard }: { dashboard: DashboardScene; pu
     });
   };
 
-  const onDeleteClick = () => {
-    DashboardInteractions.revokePublicDashboardClicked();
-    deletePublicDashboard({
+  const translatedRevocationModalText = t('public-dashboard.delete-modal.revoke-title', 'Revoke public URL');
+
+  const onConfirmDeleteClick = async () => {
+    await deletePublicDashboard({
       dashboard,
       uid: publicDashboard!.uid,
       dashboardUid: dashboard.state.uid!,
+    }).unwrap();
+    dashboard.closeModal();
+  };
+
+  const onDeleteClick = () => {
+    DashboardInteractions.revokePublicDashboardClicked();
+    setConfirmContent!({
+      title: translatedRevocationModalText,
+      body: <Body title={dashboard.state.title} />,
+      confirmText: translatedRevocationModalText,
+      onConfirm: onConfirmDeleteClick,
+      onDismiss: () => {},
     });
   };
 
