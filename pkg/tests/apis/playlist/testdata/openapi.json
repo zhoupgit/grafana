@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.1.0",
   "info": {
     "title": "playlist.grafana.app/v0alpha1"
   },
@@ -38,7 +38,7 @@
           "Playlist"
         ],
         "description": "list objects of kind Playlist",
-        "operationId": "listNamespacedPlaylist",
+        "operationId": "listPlaylists",
         "parameters": [
           {
             "name": "allowWatchBookmarks",
@@ -175,7 +175,7 @@
           "Playlist"
         ],
         "description": "create a Playlist",
-        "operationId": "createNamespacedPlaylist",
+        "operationId": "createPlaylist",
         "parameters": [
           {
             "name": "dryRun",
@@ -312,7 +312,7 @@
           "Playlist"
         ],
         "description": "read the specified Playlist",
-        "operationId": "readNamespacedPlaylist",
+        "operationId": "readPlaylist",
         "responses": {
           "200": {
             "description": "OK",
@@ -347,7 +347,7 @@
           "Playlist"
         ],
         "description": "replace the specified Playlist",
-        "operationId": "replaceNamespacedPlaylist",
+        "operationId": "replacePlaylist",
         "parameters": [
           {
             "name": "dryRun",
@@ -441,7 +441,7 @@
           "Playlist"
         ],
         "description": "delete a Playlist",
-        "operationId": "deleteNamespacedPlaylist",
+        "operationId": "deletePlaylist",
         "parameters": [
           {
             "name": "dryRun",
@@ -543,7 +543,7 @@
           "Playlist"
         ],
         "description": "partially update the specified Playlist",
-        "operationId": "patchNamespacedPlaylist",
+        "operationId": "patchPlaylist",
         "parameters": [
           {
             "name": "dryRun",
@@ -840,6 +840,7 @@
   "components": {
     "schemas": {
       "com.github.grafana.grafana.pkg.apis.playlist.v0alpha1.Item": {
+        "title": "PlaylistItem",
         "description": "Item defines model for Item.",
         "type": "object",
         "required": [
@@ -865,6 +866,7 @@
         }
       },
       "com.github.grafana.grafana.pkg.apis.playlist.v0alpha1.Playlist": {
+        "title": "Playlist",
         "type": "object",
         "properties": {
           "apiVersion": {
@@ -907,6 +909,7 @@
         ]
       },
       "com.github.grafana.grafana.pkg.apis.playlist.v0alpha1.PlaylistList": {
+        "title": "PlaylistList",
         "type": "object",
         "properties": {
           "apiVersion": {
@@ -951,6 +954,7 @@
         ]
       },
       "com.github.grafana.grafana.pkg.apis.playlist.v0alpha1.Spec": {
+        "title": "PlaylistSpec",
         "description": "Spec defines model for Spec.",
         "type": "object",
         "required": [
@@ -983,6 +987,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.APIResource": {
+        "title": "K8sAPIResource",
         "description": "APIResource specifies the name of a resource and whether it is namespaced.",
         "type": "object",
         "required": [
@@ -1052,6 +1057,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.APIResourceList": {
+        "title": "K8sAPIResourceList",
         "description": "APIResourceList is a list of APIResource, it is used to expose the name of the resources supported in a specific group and version, and if the resource is namespaced.",
         "type": "object",
         "required": [
@@ -1094,6 +1100,7 @@
         ]
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.DeleteOptions": {
+        "title": "K8sDeleteOptions",
         "description": "DeleteOptions may be provided when deleting an API object.",
         "type": "object",
         "properties": {
@@ -1404,10 +1411,12 @@
         ]
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.FieldsV1": {
+        "title": "K8sFieldsV1",
         "description": "FieldsV1 stores a set of fields in a data structure like a Trie, in JSON format.\n\nEach key is either a '.' representing the field itself, and will always map to an empty set, or a string representing a sub-field or item. The string will follow one of these four formats: 'f:\u003cname\u003e', where \u003cname\u003e is the name of a field in a struct, or key in a map 'v:\u003cvalue\u003e', where \u003cvalue\u003e is the exact json formatted value of a list item 'i:\u003cindex\u003e', where \u003cindex\u003e is position of a item in a list 'k:\u003ckeys\u003e', where \u003ckeys\u003e is a map of  a list item's key fields to their unique values If a key maps to an empty Fields value, the field that key represents is part of the set.\n\nThe exact format is defined in sigs.k8s.io/structured-merge-diff",
         "type": "object"
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.ListMeta": {
+        "title": "ListMeta",
         "description": "ListMeta describes metadata that synthetic resources must have, including lists and various status objects. A resource may have only one of {ObjectMeta, ListMeta}.",
         "type": "object",
         "properties": {
@@ -1431,6 +1440,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.ManagedFieldsEntry": {
+        "title": "K8sManagedFieldsEntry",
         "description": "ManagedFieldsEntry is a workflow-id, a FieldSet and the group version of the resource that the fieldset applies to.",
         "type": "object",
         "properties": {
@@ -1473,14 +1483,53 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta": {
+        "title": "K8sObjectMeta",
         "description": "ObjectMeta is metadata that all persisted resources must have, which includes all objects users must create.",
         "type": "object",
         "properties": {
           "annotations": {
             "description": "Annotations is an unstructured key value map stored with a resource that may be set by external tools to store and retrieve arbitrary metadata. They are not queryable and should be preserved when modifying objects. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations",
             "type": "object",
+            "properties": {
+              "grafana.app/createdBy": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/updatedTimestamp": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/updatedBy": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/folder": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/slug": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/originName": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/originPath": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/originKey": {
+                "type": "string",
+                "optional": true
+              },
+              "grafana.app/originTimestamp": {
+                "type": "string",
+                "optional": true
+              }
+            },
             "additionalProperties": {
-              "type": "string",
+              "type": ["string", "null"],
               "default": ""
             }
           },
@@ -1580,6 +1629,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.OwnerReference": {
+        "title": "K8sOwnerReference",
         "description": "OwnerReference contains enough information to let you identify an owning object. An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.",
         "type": "object",
         "required": [
@@ -1621,10 +1671,12 @@
         "x-kubernetes-map-type": "atomic"
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.Patch": {
+        "title": "K8sPatch",
         "description": "Patch is provided to give a concrete name and type to the Kubernetes PATCH request body.",
         "type": "object"
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.Preconditions": {
+        "title": "K8sPreconditions",
         "description": "Preconditions must be fulfilled before an operation (update, delete, etc.) is carried out.",
         "type": "object",
         "properties": {
@@ -1639,6 +1691,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.Status": {
+        "title": "K8sStatus",
         "description": "Status is a return value for calls that don't return other objects.",
         "type": "object",
         "properties": {
@@ -1699,6 +1752,7 @@
         ]
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.StatusCause": {
+        "title": "K8sStatusCause",
         "description": "StatusCause provides more information about an api.Status failure, including cases when multiple errors are encountered.",
         "type": "object",
         "properties": {
@@ -1717,6 +1771,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.StatusDetails": {
+        "title": "K8sStatusDetails",
         "description": "StatusDetails is a set of additional properties that MAY be set by the server to provide additional information about a response. The Reason field of a Status object defines what attributes will be set. Clients must ignore fields that do not match the defined type of each attribute, and should assume that any attribute may be empty, invalid, or under defined.",
         "type": "object",
         "properties": {
@@ -1756,6 +1811,7 @@
         }
       },
       "io.k8s.apimachinery.pkg.apis.meta.v1.Time": {
+        "title": "K8sTime",
         "description": "Time is a wrapper around time.Time which supports correct marshaling to YAML and JSON.  Wrappers are provided for many of the factory methods that the time package offers.",
         "type": "string",
         "format": "date-time"
