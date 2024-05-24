@@ -69,7 +69,7 @@ export function getSearchFilterFromQuery(query: string): RulesFilter {
 
 // Reverse of the previous function
 // Describes how to map the object into an array of tokens and values
-export function applySearchFilterToQuery(query: string, filter: RulesFilter): string {
+export function applySearchFilterToQuery(query: string, filter: Partial<RulesFilter>): string {
   const filterStateArray: FilterExpr[] = [];
 
   // Convert filter object into an array

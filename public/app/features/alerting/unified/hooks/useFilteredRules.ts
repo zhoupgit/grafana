@@ -38,7 +38,7 @@ export function useRulesFilter() {
   const hasActiveFilters = useMemo(() => Object.values(filterState).some((filter) => !isEmpty(filter)), [filterState]);
 
   const updateFilters = useCallback(
-    (newFilter: RulesFilter) => {
+    (newFilter: Partial<RulesFilter>) => {
       const newSearchQuery = applySearchFilterToQuery(searchQuery, newFilter);
       updateQueryParams({ search: newSearchQuery });
     },
