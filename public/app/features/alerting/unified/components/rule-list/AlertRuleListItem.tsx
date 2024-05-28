@@ -4,7 +4,7 @@ import pluralize from 'pluralize';
 import React from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { useStyles2, Stack, Text, TextLink, Dropdown, Button, Menu, Alert } from '@grafana/ui';
+import { Alert, Button, Dropdown, Icon, Menu, Stack, Text, TextLink, useStyles2 } from '@grafana/ui';
 import { CombinedRule, RuleHealth } from 'app/types/unified-alerting';
 import { Labels, PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
@@ -18,6 +18,12 @@ import { Spacer } from '../Spacer';
 
 import { RuleListIcon } from './RuleListIcon';
 import { calculateNextEvaluationEstimate } from './util';
+
+interface Location {
+  // this may also be a JSON encoded Array of items when dealing with a Grafana nested folder
+  namespace: string;
+  group: string;
+}
 
 interface AlertRuleListItemProps {
   name: string;
@@ -35,6 +41,8 @@ interface AlertRuleListItemProps {
   instancesCount?: number;
   // used for alert rules that use simplified routing
   contactPoint?: string;
+  // if this is defined, show the location as a separate column in the list view
+  location?: Location;
 }
 
 export const AlertRuleListItem = (props: AlertRuleListItemProps) => {
@@ -52,12 +60,13 @@ export const AlertRuleListItem = (props: AlertRuleListItemProps) => {
     instancesCount = 0,
     contactPoint,
     labels,
+    location,
   } = props;
   const styles = useStyles2(getStyles);
 
   return (
     <li className={styles.alertListItemContainer} role="treeitem" aria-selected="false">
-      <Stack direction="row" alignItems="start" gap={1} wrap="nowrap">
+      <Stack direction="row" alignItems="start" gap={1}>
         <RuleListIcon state={state} health={health} isPaused={isPaused} />
         <Stack direction="column" gap={0.5} flex="1">
           <div>
@@ -66,6 +75,8 @@ export const AlertRuleListItem = (props: AlertRuleListItemProps) => {
                 <TextLink href={href} inline={false}>
                   {name}
                 </TextLink>
+                <Spacer />
+                {location && <LocationComponent {...location} />}
                 {/* let's not show labels for now, but maybe users would be interested later? Or maybe show them only in the list view? */}
                 {/* {labels && <AlertLabels labels={labels} size="xs" />} */}
               </Stack>
@@ -118,7 +129,6 @@ export const AlertRuleListItem = (props: AlertRuleListItemProps) => {
             </Stack>
           </div>
         </Stack>
-
         <Stack direction="row" alignItems="center" gap={1} wrap="nowrap">
           <Button variant="secondary" size="sm" icon="pen" type="button" disabled={isProvisioned}>
             Edit
@@ -178,6 +188,7 @@ interface RecordingRuleListItemProps {
   lastEvaluation?: string;
   evaluationInterval?: string;
   evaluationDuration?: number;
+  location?: Location;
 }
 
 // @TODO split in to smaller re-usable bits
@@ -191,67 +202,80 @@ export const RecordingRuleListItem = ({
   labels,
   lastEvaluation,
   evaluationInterval,
+  location,
 }: RecordingRuleListItemProps) => {
   const styles = useStyles2(getStyles);
 
   return (
     <li className={styles.alertListItemContainer} role="treeitem" aria-selected="false">
-      <Stack direction="row" alignItems="center" gap={1}>
-        <Stack direction="row" alignItems="start" gap={1} flex="1">
-          <RuleListIcon health={health} recording />
-          <Stack direction="column" gap={0.5}>
-            <Stack direction="column" gap={0}>
-              <Stack direction="row" alignItems="start">
-                <TextLink href={href} variant="body" weight="bold" inline={false}>
-                  {name}
-                </TextLink>
-                {/* {labels && <AlertLabels labels={labels} size="xs" />} */}
-              </Stack>
-              <Summary error={error} />
+      <Stack direction="row" alignItems="start" gap={1} wrap="nowrap">
+        <RuleListIcon health={health} recording />
+        <Stack direction="column" gap={0.5} flex="1">
+          <Stack direction="column" gap={0}>
+            <Stack direction="row" alignItems="start">
+              <TextLink href={href} variant="body" weight="bold" inline={false}>
+                {name}
+              </TextLink>
+              {/* {labels && <AlertLabels labels={labels} size="xs" />} */}
             </Stack>
-            <div>
-              <Stack direction="row" gap={1}>
-                <EvaluationMetadata
-                  lastEvaluation={lastEvaluation}
-                  evaluationInterval={evaluationInterval}
-                  health={health}
-                  state={state}
-                  error={error}
-                />
-                {!isEmpty(labels) && (
-                  <MetaText icon="tag-alt">
-                    <TextLink variant="bodySmall" color="primary" href={href} inline={false}>
-                      {pluralize('label', labelsSize(labels), true)}
-                    </TextLink>
-                  </MetaText>
-                )}
-              </Stack>
-            </div>
+            <Summary error={error} />
           </Stack>
-          <Spacer />
-          <Button
-            variant="secondary"
-            size="sm"
-            icon="pen"
-            type="button"
-            disabled={isProvisioned}
-            data-testid="edit-rule-action"
-          >
-            Edit
-          </Button>
-          <Dropdown
-            overlay={
-              <Menu>
-                <Menu.Item label="Export" disabled={isProvisioned} icon="download-alt" />
-                <Menu.Item label="Delete" disabled={isProvisioned} icon="trash-alt" destructive />
-              </Menu>
-            }
-          >
-            <MoreButton />
-          </Dropdown>
+          <div>
+            <Stack direction="row" gap={1}>
+              <EvaluationMetadata
+                lastEvaluation={lastEvaluation}
+                evaluationInterval={evaluationInterval}
+                health={health}
+                state={state}
+                error={error}
+              />
+              {!isEmpty(labels) && (
+                <MetaText icon="tag-alt">
+                  <TextLink variant="bodySmall" color="primary" href={href} inline={false}>
+                    {pluralize('label', labelsSize(labels), true)}
+                  </TextLink>
+                </MetaText>
+              )}
+            </Stack>
+          </div>
         </Stack>
+        {location && <LocationComponent {...location} />}
+        <Button
+          variant="secondary"
+          size="sm"
+          icon="pen"
+          type="button"
+          disabled={isProvisioned}
+          data-testid="edit-rule-action"
+        >
+          Edit
+        </Button>
+        <Dropdown
+          overlay={
+            <Menu>
+              <Menu.Item label="Export" disabled={isProvisioned} icon="download-alt" />
+              <Menu.Item label="Delete" disabled={isProvisioned} icon="trash-alt" destructive />
+            </Menu>
+          }
+        >
+          <MoreButton />
+        </Dropdown>
       </Stack>
     </li>
+  );
+};
+
+const LocationComponent = ({ group, namespace }: Location) => {
+  return (
+    <Text variant="bodySmall" color="secondary">
+      <Stack direction="row" alignItems="center" gap={0} wrap="nowrap">
+        <Button variant="secondary" onClick={() => {}} fill="text" size="sm" icon="folder">
+          {namespace}
+          <Icon name="angle-right" />
+          {group}
+        </Button>
+      </Stack>
+    </Text>
   );
 };
 

@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAsyncFn, useInterval } from 'react-use';
 
@@ -25,8 +25,9 @@ import { RuleStats } from '../rules/RuleStats';
 import RulesFilter from '../rules/RulesFilter';
 
 import { LoadingIndicator } from './LoadingIndicator';
-import { ViewAsList } from './ViewAsList';
-import { ViewByFolder } from './ViewByFolder';
+
+const ViewByFolder = lazy(() => import('./ViewByFolder'));
+const ViewAsList = lazy(() => import('./ViewAsList'));
 
 // make sure we ask for 1 more so we show the "show x more" button
 const LIMIT_ALERTS = INSTANCES_DISPLAY_LIMIT + 1;
@@ -127,8 +128,9 @@ const RuleList = withErrorBoundary(
           </>
         )}
         {hasNoAlertRulesCreatedYet && <NoRulesSplash />}
+        {/* @TODO some sort of skeleton loader for our views */}
         {hasAlertRulesCreated && (
-          <>
+          <Suspense fallback={<LoadingIndicator visible={loading} />}>
             <LoadingIndicator visible={loading} />
             {/* in case the user uses something other than "grouped | list" we'll show the grouped view */}
             {view === 'list' ? (
@@ -136,7 +138,7 @@ const RuleList = withErrorBoundary(
             ) : (
               <ViewByFolder namespaces={sortedNamespaces} />
             )}
-          </>
+          </Suspense>
         )}
       </AlertingPageWrapper>
     );

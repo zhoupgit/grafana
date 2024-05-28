@@ -11,10 +11,10 @@ import { AlertRuleListItem, RecordingRuleListItem, UnknownRuleListItem } from '.
 
 interface Props {
   rules: CombinedRule[];
-  withLocationColumn?: boolean;
+  withLocation?: boolean;
 }
 
-export const RulesList = ({ rules, withLocationColumn }: Props) => {
+export const RulesList = ({ rules, withLocation }: Props) => {
   return rules.map((rule) => {
     const { rulerRule, promRule, annotations, namespace } = rule;
     const rulesSource = namespace.rulesSource;
@@ -30,6 +30,11 @@ export const RulesList = ({ rules, withLocationColumn }: Props) => {
     const isAlertingPromRule = isAlertingRule(promRule);
 
     if (isAlertingRulerRule(rulerRule)) {
+      const location = {
+        namespace: rule.namespace.name,
+        group: rule.group.name,
+      };
+
       return (
         <AlertRuleListItem
           key={hashRulerRule(rulerRule)}
@@ -44,11 +49,17 @@ export const RulesList = ({ rules, withLocationColumn }: Props) => {
           instancesCount={isAlertingPromRule ? size(promRule.alerts) : undefined}
           href={createViewLink(rulesSource, rule)}
           summary={annotations?.['summary']}
+          location={withLocation ? location : undefined}
         />
       );
     }
 
     if (isRecordingRulerRule(rulerRule)) {
+      const location = {
+        namespace: rule.namespace.name,
+        group: rule.group.name,
+      };
+
       return (
         <RecordingRuleListItem
           key={hashRulerRule(rulerRule)}
@@ -60,12 +71,17 @@ export const RulesList = ({ rules, withLocationColumn }: Props) => {
           evaluationInterval={evaluationInterval}
           labels={rulerRule.labels}
           href={createViewLink(rulesSource, rule)}
+          location={withLocation ? location : undefined}
         />
       );
     }
 
     if (isGrafanaRulerRule(rulerRule)) {
       const contactPoint = rulerRule.grafana_alert.notification_settings?.receiver;
+      const location = {
+        namespace: rule.namespace.name,
+        group: rule.group.name,
+      };
 
       return (
         <AlertRuleListItem
@@ -84,6 +100,7 @@ export const RulesList = ({ rules, withLocationColumn }: Props) => {
           summary={rule.annotations?.['summary']}
           isProvisioned={Boolean(rulerRule.grafana_alert.provenance)}
           contactPoint={contactPoint}
+          location={withLocation ? location : undefined}
         />
       );
     }

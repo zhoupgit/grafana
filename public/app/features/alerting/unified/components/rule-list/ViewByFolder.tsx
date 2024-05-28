@@ -55,4 +55,4 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-export { ViewByFolder };
+export default ViewByFolder;

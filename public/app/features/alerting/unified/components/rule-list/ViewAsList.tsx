@@ -86,7 +86,7 @@ const ViewAsList = ({ namespaces }: Props) => {
         </Stack>
       </div>
       <ul className={styles.rulesTree} aria-label="List of alert rules">
-        <RulesList rules={rules} withLocationColumn />
+        <RulesList rules={rules} withLocation={true} />
       </ul>
     </div>
   );
@@ -101,7 +101,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
   rulesTree: css({
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing(1),
   }),
   listWrapper: css({
     border: `1px solid ${theme.colors.border.medium}`,
@@ -109,4 +108,4 @@ const getStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-export { ViewAsList };
+export default ViewAsList;
