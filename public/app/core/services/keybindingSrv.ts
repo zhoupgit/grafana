@@ -381,84 +381,132 @@ export class KeybindingSrv {
   }
 }
 
+interface ShortcutInfo {
+  // these might be better as a union... but...
+  combo?: string[];
+  sequence?: string[];
+
+  comboKey: string;
+
+  handleKeyDown: (pressed: string, shortcutInfo: ShortcutInfo) => void;
+  handleKeyUp: (pressed: string, shortcutInfo: ShortcutInfo) => void;
+}
+
+enum ShortcutType {
+  Combination,
+  Sequence,
+}
+
 class Shortcut {
-  bindings = new Map<string[], Function>();
+  progress: Record<string, string[]> = {};
+  callbacks: Record<string, ShortcutInfo[]> = {};
 
-  activeKeys: string[] = [];
+  resetTimeout: number | null = null;
 
-  private handleKeyDown = (event: KeyboardEvent) => {
+  private handleKeyEvent = (event: KeyboardEvent) => {
     if (event.repeat) {
       return;
     }
 
+    const eventType = event.type;
     const pressed = event.key.toLowerCase();
 
-    console.group('handleKeyDown: ', pressed, event);
+    const emoji = eventType.toLowerCase() === 'keydown' ? '👇' : '👆';
 
-    this.activeKeys.push(pressed);
+    console.group(emoji, 'handle key event', eventType, pressed);
+    const handlers = this.callbacks[pressed] || [];
+    if (handlers.length > 0) {
+      console.log('progress before', [...this.progress[handlers[0].comboKey]]);
 
-    console.log('all binding', ...Array.from(this.bindings.entries()).map(([combo]) => combo));
-    console.log('activeKeys', this.activeKeys);
+      for (const handler of handlers) {
+        if (event.type === 'keydown') {
+          handler.handleKeyDown(pressed, handler);
+        } else if (event.type === 'keyup') {
+          handler.handleKeyUp(pressed, handler);
+        } else {
+          console.groupEnd();
+          throw new Error('Unknown event type');
+        }
+      }
 
-    // Return all bindings that match the currently active keys
-    const matches = Array.from(this.bindings.entries()).filter(([combo]) =>
-      combo.every((key, index) => this.activeKeys[index] === key)
-    );
-
-    for (const [combo, callback] of matches) {
-      console.log('%cShortcut matched!', 'background: #2ecc71; color: black', combo, callback);
-      callback();
+      console.log('progress after', [...this.progress[handlers[0].comboKey]]);
     }
 
     console.groupEnd();
   };
 
-  private handleKeyUp = (event: KeyboardEvent) => {
-    if (event.repeat) {
-      return;
+  bind(type: ShortcutType, combo: string[], bindingCallback: Function) {
+    const comboKey = JSON.stringify(combo);
+
+    this.progress[comboKey] = [];
+
+    for (let index = 0; index < combo.length; index++) {
+      const key = combo[index];
+      const isFinalKey = index === combo.length - 1;
+
+      const handleKeyDown = (pressed: string, shortcutInfo: ShortcutInfo) => {
+        console.log('handleKeyDown', key);
+
+        const progress = this.progress[comboKey];
+        const nextKeyIndex = progress.length;
+
+        const comboOrSequence = shortcutInfo.combo || shortcutInfo.sequence || [];
+
+        if (comboOrSequence[nextKeyIndex] === pressed) {
+          if (isFinalKey) {
+            console.log('trigger this shortcut');
+            bindingCallback();
+            return;
+          } else {
+            console.log('progressing', pressed);
+            this.progress[comboKey].push(key);
+          }
+        }
+      };
+
+      const handleKeyUp = (pressed: string, shortcutInfo: ShortcutInfo) => {
+        console.log('handleKeyUp', key);
+        const progress = this.progress[comboKey];
+
+        const thisKeyIndex = progress.indexOf(pressed);
+        if (thisKeyIndex > -1) {
+          progress.splice(thisKeyIndex, 1);
+        }
+      };
+
+      const handler = {
+        [type === ShortcutType.Combination ? 'combo' : 'sequence']: combo,
+        comboKey,
+        handleKeyDown,
+        handleKeyUp,
+      };
+
+      this.callbacks[key] = this.callbacks[key] || [];
+      this.callbacks[key].push(handler);
     }
 
-    const pressed = event.key.toLowerCase();
-    console.group('handleKeyUp', pressed);
-    console.log('event', event);
-
-    const index = this.activeKeys.indexOf(pressed);
-    if (index > -1) {
-      this.activeKeys.splice(index, 1);
-      console.log('removed from active keys');
-    }
-
-    console.log('activeKeys', this.activeKeys);
-    console.groupEnd();
-  };
+    this.resetEventListeners();
+    this.setupEventListeners();
+  }
 
   private setupEventListeners() {
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
+    document.addEventListener('keydown', this.handleKeyEvent);
+    document.addEventListener('keyup', this.handleKeyEvent);
   }
 
   private resetEventListeners() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-    document.removeEventListener('keyup', this.handleKeyUp);
-  }
-
-  bind(combo: string[], callback: Function) {
-    this.bindings.set(combo, callback); // allows dupes, because arrays
-
-    if (this.bindings.size > 0) {
-      this.resetEventListeners();
-      this.setupEventListeners();
-    }
+    document.removeEventListener('keydown', this.handleKeyEvent);
+    document.removeEventListener('keyup', this.handleKeyEvent);
   }
 }
 
 const sht = new Shortcut();
-sht.bind(['t', 'arrowleft'], () => {
-  console.log('%cDoing shift time LEFT', 'background: #3498db; color: black; font-weight: bold;');
+sht.bind(ShortcutType.Sequence, ['t', 'arrowleft'], () => {
+  console.log('%cDoing shift time 👈 LEFT', 'background: #3498db; color: black; font-weight: bold;');
   appEvents.publish(new ShiftTimeEvent({ direction: ShiftTimeEventDirection.Left, updateUrl: false }));
 });
 
-sht.bind(['t', 'arrowright'], () => {
-  console.log('%cDoing shift time RIGHT', 'background: #3498db; color: black; font-weight: bold;');
+sht.bind(ShortcutType.Sequence, ['t', 'arrowright'], () => {
+  console.log('%cDoing shift time RIGHT 👉', 'background: #3498db; color: black; font-weight: bold;');
   appEvents.publish(new ShiftTimeEvent({ direction: ShiftTimeEventDirection.Right, updateUrl: false }));
 });
