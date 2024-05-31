@@ -19,21 +19,27 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
   const onRegExChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
     variable.setState({ regex: event.currentTarget.value });
   };
+
   const onSortChange = (sort: SelectableValue<VariableSort>) => {
     variable.setState({ sort: sort.value });
   };
+
   const onRefreshChange = (refresh: VariableRefresh) => {
     variable.setState({ refresh: refresh });
   };
+
   const onMultiChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ isMulti: event.currentTarget.checked });
   };
+
   const onIncludeAllChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ includeAll: event.currentTarget.checked });
   };
+
   const onAllValueChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ allValue: event.currentTarget.value });
   };
+
   const onDataSourceChange = (dsInstanceSettings: DataSourceInstanceSettings) => {
     const datasource: DataSourceRef = { uid: dsInstanceSettings.uid, type: dsInstanceSettings.type };
 
@@ -44,6 +50,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
     variable.setState({ datasource });
   };
+
   const onQueryChange = (query: VariableQueryType) => {
     let definition: string;
     if (typeof query === 'string') {
@@ -54,7 +61,6 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
       definition = '';
     }
     variable.setState({ query, definition });
-    onRunQuery();
   };
 
   return (
