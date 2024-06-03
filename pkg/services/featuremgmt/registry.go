@@ -1300,6 +1300,14 @@ var (
 			Owner:        grafanaAlertingSquad,
 			FrontendOnly: true,
 		},
+		{
+			Name:         "pluginsCDNPublicPathAuto",
+			Description:  "Enables reliance on public path resolution for loading plugins via CDN",
+			Stage:        FeatureStageExperimental,
+			Owner:        grafanaPluginsPlatformSquad,
+			HideFromDocs: true,
+			FrontendOnly: true,
+		},
 	}
 )
 

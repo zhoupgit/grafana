@@ -2299,6 +2299,20 @@
         "stage": "privatePreview",
         "codeowner": "@grafana/observability-metrics"
       }
+    },
+    {
+      "metadata": {
+        "name": "pluginsCDNPublicPathAuto",
+        "resourceVersion": "1717419731465",
+        "creationTimestamp": "2024-06-03T13:02:11Z"
+      },
+      "spec": {
+        "description": "Enables reliance on public path resolution for loading plugins via CDN",
+        "stage": "experimental",
+        "codeowner": "@grafana/plugins-platform-backend",
+        "frontend": true,
+        "hideFromDocs": true
+      }
     }
   ]
 }

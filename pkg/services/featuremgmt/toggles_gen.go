@@ -702,4 +702,8 @@ const (
 	// FlagAlertingCentralAlertHistory
 	// Enables the new central alert history.
 	FlagAlertingCentralAlertHistory = "alertingCentralAlertHistory"
+
+	// FlagPluginsCDNPublicPathAuto
+	// Enables reliance on public path resolution for loading plugins via CDN
+	FlagPluginsCDNPublicPathAuto = "pluginsCDNPublicPathAuto"
 )
