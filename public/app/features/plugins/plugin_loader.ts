@@ -6,6 +6,7 @@ import {
   DataSourcePluginMeta,
   PluginMeta,
 } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 
 import { GenericDataSourcePlugin } from '../datasources/types';
@@ -34,6 +35,10 @@ const systemJSPrototype: SystemJSWithLoaderHooks = SystemJS.constructor.prototyp
 systemJSPrototype.shouldFetch = function (url) {
   const pluginInfo = getPluginFromCache(url);
   const jsTypeRegEx = /^[^#?]+\.(js)([?#].*)?$/;
+
+  if (config.featureToggles.pluginsCDNPublicPathAuto) {
+    return Boolean(pluginInfo?.isAngular) || !jsTypeRegEx.test(url);
+  }
 
   return isHostedOnCDN(url) || Boolean(pluginInfo?.isAngular) || !jsTypeRegEx.test(url);
 };
