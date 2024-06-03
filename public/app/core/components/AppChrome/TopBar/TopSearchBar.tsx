@@ -7,6 +7,7 @@ import { GrafanaTheme2, locationUtil, textUtil } from '@grafana/data';
 import { Dropdown, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { config } from 'app/core/config';
 import { contextSrv } from 'app/core/core';
+import { HistoryDrawer } from 'app/features/history/HistoryDrawer';
 import { useSelector } from 'app/types';
 
 import { Branding } from '../../Branding/Branding';
@@ -45,6 +46,7 @@ export const TopSearchBar = React.memo(function TopSearchBar() {
       </TopSearchBarSection>
 
       <TopSearchBarSection>
+        <HistoryDrawer />
         <TopSearchBarCommandPaletteTrigger />
       </TopSearchBarSection>
 
