@@ -192,5 +192,5 @@ export interface FeatureToggles {
   alertingDisableSendAlertsExternal?: boolean;
   preserveDashboardStateWhenNavigating?: boolean;
   alertingCentralAlertHistory?: boolean;
-  pluginsCDNPublicPathAuto?: boolean;
+  pluginsCDNAdvancedLoader?: boolean;
 }

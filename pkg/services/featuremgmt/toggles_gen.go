@@ -703,7 +703,7 @@ const (
 	// Enables the new central alert history.
 	FlagAlertingCentralAlertHistory = "alertingCentralAlertHistory"
 
-	// FlagPluginsCDNPublicPathAuto
-	// Enables reliance on public path resolution for loading plugins via CDN
-	FlagPluginsCDNPublicPathAuto = "pluginsCDNPublicPathAuto"
+	// FlagPluginsCDNAdvancedLoader
+	// Enables using script tags when loading plugins from a CDN.
+	FlagPluginsCDNAdvancedLoader = "pluginsCDNAdvancedLoader"
 )

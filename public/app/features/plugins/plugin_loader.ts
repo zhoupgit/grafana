@@ -36,7 +36,7 @@ systemJSPrototype.shouldFetch = function (url) {
   const pluginInfo = getPluginFromCache(url);
   const jsTypeRegEx = /^[^#?]+\.(js)([?#].*)?$/;
 
-  if (config.featureToggles.pluginsCDNPublicPathAuto) {
+  if (config.featureToggles.pluginsCDNAdvancedLoader) {
     return Boolean(pluginInfo?.isAngular) || !jsTypeRegEx.test(url);
   }
 

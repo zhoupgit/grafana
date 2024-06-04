@@ -1301,8 +1301,8 @@ var (
 			FrontendOnly: true,
 		},
 		{
-			Name:         "pluginsCDNPublicPathAuto",
-			Description:  "Enables reliance on public path resolution for loading plugins via CDN",
+			Name:         "pluginsCDNAdvancedLoader",
+			Description:  "Enables using script tags when loading plugins from a CDN.",
 			Stage:        FeatureStageExperimental,
 			Owner:        grafanaPluginsPlatformSquad,
 			HideFromDocs: true,
