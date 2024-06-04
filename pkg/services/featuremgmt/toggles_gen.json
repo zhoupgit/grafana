@@ -2302,21 +2302,6 @@
     },
     {
       "metadata": {
-        "name": "pluginsCDNPublicPathAuto",
-        "resourceVersion": "1717419731465",
-        "creationTimestamp": "2024-06-03T13:02:11Z",
-        "deletionTimestamp": "2024-06-04T06:46:37Z"
-      },
-      "spec": {
-        "description": "Enables reliance on public path resolution for loading plugins via CDN",
-        "stage": "experimental",
-        "codeowner": "@grafana/plugins-platform-backend",
-        "frontend": true,
-        "hideFromDocs": true
-      }
-    },
-    {
-      "metadata": {
         "name": "pluginsCDNAdvancedLoader",
         "resourceVersion": "1717483899913",
         "creationTimestamp": "2024-06-04T06:46:37Z",
