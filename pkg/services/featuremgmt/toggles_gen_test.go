@@ -145,6 +145,20 @@ func TestFeatureToggleFiles(t *testing.T) {
 				})
 			}
 
+			// Set the dates from git history
+			dates := readFlagDateInfo(t)
+			for idx, item := range current.Items {
+				found, ok := dates[item.Name]
+				if ok {
+					// current.Items[idx].ResourceVersion = fmt.Sprintf("%d", found.created.UnixMilli()+int64(idx))
+					current.Items[idx].CreationTimestamp = v1.NewTime(found.created)
+					if found.deleted != nil {
+						tmp := v1.NewTime(*found.deleted)
+						current.Items[idx].DeletionTimestamp = &tmp
+					}
+				}
+			}
+
 			out, err := json.MarshalIndent(current, "", "  ")
 			require.NoError(t, err)
 
@@ -178,6 +192,36 @@ func TestFeatureToggleFiles(t *testing.T) {
 			generateCSV(),
 		)
 	})
+}
+
+type flagDateInfo struct {
+	created time.Time
+	deleted *time.Time
+}
+
+// Load a cached copy of the feature toggle dates
+func readFlagDateInfo(t *testing.T) map[string]flagDateInfo {
+	info := make(map[string]flagDateInfo, 300)
+	body, err := os.ReadFile("toggles_gitlog.csv")
+	require.NoError(t, err)
+	reader := csv.NewReader(bytes.NewBuffer(body))
+	rows, err := reader.ReadAll()
+	require.NoError(t, err)
+	for _, row := range rows {
+		if strings.HasPrefix(row[0], "#") {
+			continue
+		}
+		d := flagDateInfo{}
+		d.created, err = time.Parse(time.RFC3339, row[1])
+		require.NoError(t, err)
+		if row[2] != "" {
+			tmp, err := time.Parse(time.RFC3339, row[2])
+			require.NoError(t, err)
+			d.deleted = &tmp
+		}
+		info[row[0]] = d
+	}
+	return info
 }
 
 func verifyAndGenerateFile(t *testing.T, fpath string, gen string) {
