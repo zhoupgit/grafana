@@ -41,6 +41,11 @@ export type AppPluginConfig = {
   angular: AngularMeta;
 };
 
+type DependantInfo = {
+  pluginId: string;
+  pluginName: string;
+};
+
 export class GrafanaBootConfig implements GrafanaConfig {
   publicDashboardAccessToken?: string;
   publicDashboardsEnabled = true;
@@ -122,6 +127,7 @@ export class GrafanaBootConfig implements GrafanaConfig {
   pluginAdminExternalManageEnabled = false;
   pluginCatalogHiddenPlugins: string[] = [];
   pluginsCDNBaseURL = '';
+  pluginDependants?: { [key: string]: DependantInfo[] } = {};
   expressionsEnabled = false;
   customTheme?: undefined;
   awsAllowedAuthProviders: string[] = [];

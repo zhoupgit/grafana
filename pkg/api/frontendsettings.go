@@ -226,6 +226,7 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 		SharedWithMeFolderUID:               folder.SharedWithMeFolderUID,
 		RootFolderUID:                       accesscontrol.GeneralFolderUID,
 		LocalFileSystemAvailable:            hs.Cfg.LocalFileSystemAvailable,
+		PluginDependencies:                  pluginDependencyMap(c.Req.Context(), hs.pluginStore),
 
 		BuildInfo: dtos.FrontendSettingsBuildInfoDTO{
 			HideVersion:   hideVersion,
@@ -727,4 +728,23 @@ func (hs *HTTPServer) getEnabledOAuthProviders() map[string]any {
 		}
 	}
 	return providers
+}
+
+// pluginDependencyMap returns a map of dependant plugin IDs to their parent.
+func pluginDependencyMap(ctx context.Context, pluginStore pluginstore.Store) map[string][]dtos.DependencyInfo {
+	dependencies := make(map[string][]dtos.DependencyInfo)
+
+	for _, plugin := range pluginStore.Plugins(ctx) {
+		for _, dep := range plugin.Dependencies.Plugins {
+			if _, exists := dependencies[dep.ID]; !exists {
+				dependencies[dep.ID] = []dtos.DependencyInfo{}
+			}
+			dependencies[dep.ID] = append(dependencies[dep.ID], dtos.DependencyInfo{
+				PluginID:   plugin.ID,
+				PluginName: plugin.Name,
+			})
+		}
+	}
+
+	return dependencies
 }

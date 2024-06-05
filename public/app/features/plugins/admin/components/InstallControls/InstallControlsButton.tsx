@@ -119,12 +119,20 @@ export function InstallControlsButton({
         ? plugin.isUninstallingFromInstance
         : isUninstalling;
 
+    let modalBody = 'Are you sure you want to uninstall this plugin?';
+    if (config.pluginDependants) {
+      const dependencyOf = config.pluginDependants[plugin.id].map((dep) => dep.pluginName).join(', ');
+      if (dependencyOf) {
+        modalBody = `This plugin is a dependency of the following plugin(s): ${dependencyOf}. Are you sure you want to uninstall this plugin?`;
+      }
+    }
+
     return (
       <>
         <ConfirmModal
           isOpen={isConfirmModalVisible}
           title={`Uninstall ${plugin.name}`}
-          body="Are you sure you want to uninstall this plugin?"
+          body={modalBody}
           confirmText="Confirm"
           icon="exclamation-triangle"
           onConfirm={onUninstall}
