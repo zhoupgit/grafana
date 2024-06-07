@@ -12,6 +12,73 @@ func initEntityTables(mg *migrator.Migrator) string {
 
 	tables := []migrator.Table{}
 	tables = append(tables, migrator.Table{
+		Name: "allwriteevents", // eventhings that failed?
+		Columns: []*migrator.Column{
+			// auto increment??? --
+			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
+			{Name: "previous_version", Type: migrator.DB_BigInt, Nullable: true},
+
+			// Properties that exist in path/key (and yes duplicated in the body)
+			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: false},
+			{Name: "group", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+			{Name: "resource", Type: migrator.DB_NVarchar, Length: 190, Nullable: true},
+			{Name: "name", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+
+			// Optional Commit message (currently only used for dashboards)
+			{Name: "message", Type: migrator.DB_Text, Nullable: false}, // defaults to empty string
+
+			// The k8s resource text value without the resourceVersion populated
+			{Name: "value", Type: migrator.DB_MediumText, Nullable: false},
+			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(body)
+
+			// Optional support for large objects, this will be
+			{Name: "blob", Type: migrator.DB_LongBlob, Nullable: true},                                  // null when nested or remote
+			{Name: "blob_etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(bod
+		},
+		Indices: []*migrator.Index{
+			{Cols: []string{"resource_version"}, Type: migrator.IndexType},
+			{Cols: []string{"previous_version"}, Type: migrator.UniqueIndex},
+			{Cols: []string{"namespace", "group", "resource", "name"}, Type: migrator.IndexType},
+		},
+	})
+
+	// Used for faster list/search
+	tables = append(tables, migrator.Table{
+		Name: "current_latest_values",
+		Columns: []*migrator.Column{
+			// auto increment??? --
+			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
+
+			// Properties that exist in path/key (and yes duplicated in the body)
+			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: false},
+			{Name: "group", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+			{Name: "resource", Type: migrator.DB_NVarchar, Length: 190, Nullable: true},
+			{Name: "name", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+
+			// Helpful filters
+			{Name: "folder", Type: migrator.DB_NVarchar, Length: 190, Nullable: false}, // uid of folder
+
+			// For sorting
+			{Name: "created_at", Type: migrator.DB_BigInt, Nullable: false},
+			{Name: "updated_at", Type: migrator.DB_BigInt, Nullable: false},
+
+			// Mark objects with origin metadata
+			{Name: "origin", Type: migrator.DB_NVarchar, Length: 40, Nullable: false},
+			{Name: "origin_key", Type: migrator.DB_Text, Nullable: false},
+			{Name: "origin_ts", Type: migrator.DB_BigInt, Nullable: false},
+
+			// Common Metadata
+			{Name: "title", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+			{Name: "description", Type: migrator.DB_Text, Nullable: true},
+		},
+		Indices: []*migrator.Index{
+			{Cols: []string{"resource_version"}, Type: migrator.IndexType},
+			{Cols: []string{"previous_version"}, Type: migrator.UniqueIndex},
+			{Cols: []string{"namespace", "group", "resource", "name"}, Type: migrator.IndexType},
+		},
+	})
+
+	tables = append(tables, migrator.Table{
 		Name: "entity",
 		Columns: []*migrator.Column{
 			// primary identifier
