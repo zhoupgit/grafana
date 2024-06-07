@@ -7,6 +7,7 @@ import appEvents from 'app/core/app_events';
 import { t } from 'app/core/internationalization';
 import store from 'app/core/store';
 import { isShallowEqual } from 'app/core/utils/isShallowEqual';
+import { getHistoryStateManager } from 'app/features/history/HistoryStateManager';
 import { KioskMode } from 'app/types';
 
 import { RouteDescriptor } from '../../navigation/types';
@@ -85,6 +86,7 @@ export class AppChromeService {
     newState.chromeless = newState.kioskMode === KioskMode.Full || this.currentRoute?.chromeless;
 
     if (!this.ignoreStateUpdate(newState, current)) {
+      getHistoryStateManager().handleAppChromeState(newState, current);
       this.state.next(newState);
     }
   }

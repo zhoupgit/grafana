@@ -11,7 +11,7 @@ export interface HistoryState {
 
 export class HistoryStateManager extends StateManagerBase<HistoryState> {
   constructor() {
-    super({} as HistoryState);
+    super({ entries: [] });
   }
 
   public handleAppChromeState(newState: AppChromeState, currentState: AppChromeState) {
@@ -19,13 +19,13 @@ export class HistoryStateManager extends StateManagerBase<HistoryState> {
     const sectionName = this.getSectionName(newState.sectionNav);
     const oldPageName = currentState.pageNav?.text || currentState.sectionNav.node.text;
 
-    let entries = currentState.history;
+    let entries = this.state.entries;
     let lastEntry = entries[0];
 
     const oldSectionName = entries[0]?.name;
 
     if (!sectionName) {
-      return entries;
+      return;
     }
 
     if (sectionName !== oldSectionName) {
@@ -39,8 +39,8 @@ export class HistoryStateManager extends StateManagerBase<HistoryState> {
       console.log('adding entry view', pageName);
     }
 
-    if (lastEntry !== currentState.history[0]) {
-      entries = [lastEntry, ...entries];
+    if (lastEntry !== entries[0]) {
+      this.setState({ entries: [lastEntry, ...entries] });
     }
   }
 
