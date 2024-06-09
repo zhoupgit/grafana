@@ -103,13 +103,7 @@ message StatusResult {
   int32 code = 4;
 }
 
-// Create a blob that can be linked to a resource
-// Note this must happen *before* creating or updating the resource
-message CreateBlobRequest {
-  // Requires resource+name -- used for permissions
-  // resourceVersion is ignored
-  ResourceIdentifier key = 1;
-
+message CreateBlob {
   // Raw value to write
   bytes value = 2;
 
@@ -118,17 +112,6 @@ message CreateBlobRequest {
 
   // Additional metadata
   map<string,string> metadata = 4;
-}
-
-message CreateBlobResponse {
-  // Status code
-  StatusResult status = 1;
-
-  // The updated resource version
-  BlobInfo info = 2;
-
-  // Signed URL that can see the uploaded value
-  string blob_url = 3;
 }
 
 // ----------------------------------
@@ -145,12 +128,10 @@ message CreateRequest {
   bytes value = 2;
 
   // Optional commit message
-  // +optional
   string message = 3;
 
-  // When linking to a blob, pass in the "path" returned in the CreateBlobResponse
-  // +optional
-  string blob = 4;
+  // Optionally link a resource object
+  CreateBlob blob = 4;
 }
 
 message CreateResponse {
@@ -172,9 +153,8 @@ message UpdateRequest {
   // +optional
   string message = 3;
 
-  // When linking to a blob, pass in the "path" returned in the CreateBlobResponse
-  // +optional
-  string blob = 4;
+  // Optionally link a resource object
+  CreateBlob blob = 4;
 }
 
 message UpdateResponse {
@@ -352,8 +332,6 @@ service ResourceStore {
   rpc List(ListRequest) returns (ListResponse);
   rpc Watch(WatchRequest) returns (stream WatchResponse);
 
-  // Large payload attached to a resource.  This is called before create/update
-  rpc CreateBlob(CreateBlobRequest) returns (CreateBlobResponse);
   // Get the raw blob bytes and metadata
   rpc GetBlob(GetBlobRequest) returns (GetBlobResponse);
 
