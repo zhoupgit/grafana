@@ -103,6 +103,7 @@ message StatusResult {
   int32 code = 4;
 }
 
+// TODO? support PresignedUrls for upload? 
 message CreateBlob {
   // Raw value to write
   bytes value = 2;
