@@ -4,101 +4,270 @@ package entity;
 option go_package = "github.com/grafana/grafana/pkg/services/store/entity";
 
 
-message ResourceKey {
-  // namespace
-  string namespace = 1;
-  // group
-  string group = 2;
-  // kind resource
+message ResourceIdentifier {
+  // Namespace (tenant)
+  string namespace = 2;
+  // Resource Group
+  string group = 1;
+  // The resource type
   string resource = 3;
-  // k8s name
+  // Resource identifier (unique within namespace+group+resource)
   string name = 4;
-  // An explicit resource version
-  int64 resourceVersion = 5;
+  // The resource version
+  uint64 resource_version = 5;
 }
 
-// The canonical entity/document data -- this represents the raw bytes and storage level metadata
-message WriteRequest {
-  // Raw bytes of the storage entity.  The kind will determine what is a valid payload
-  // Includes metadata.resourceVersion for updates
-  ResourceKey key = 1;
+message ResourceWrapper {
+  // The resource version
+  int64 resource_version = 1;
 
-  // The resource JSON value
-  bytes value = 6;
+  // The kubernetes json bytes (resource version may not be accurate)
+  bytes value = 2;
 
-  // For large payloads
-  bytes blob = 7;
-
-  // Commit message (optional)
-  string message = 18;
-
-  // Action code
-  Operation operation = 3;
-
-  // Status enumeration
-  enum Operation {
-    UNKNOWN = 0;
-    CREATE = 1;
-    UPDATE = 2;
-    DELETE = 3;
-  }
+  // URL to fetch the raw blob payload.  
+  // When the URL stats with "#" it can be read from the "GetBlob" request
+  string blob_url = 3;
 }
 
-message WriteResponse {
-  // The RV that changed
-  int64 resourceVersion = 5;
-
-  // What happened
-  Status status = 3;
-
-  // TODO... error messages?
-
-  // Status enumeration
-  enum Status {
-    ERROR = 0;
-    CREATED = 1;
-    UPDATED = 2;
-    DELETED = 3;
-  }
+enum ResourceOperation {
+  UNKNOWN = 0;
+  CREATED = 1;
+  UPDATED = 2;
+  DELETED = 3;
 }
 
+// The history and trash commands need access to commit messages
+message ResourceMeta {
+  // The resource version
+  int64 resource_version = 1;
+
+  // The optional commit message
+  ResourceOperation operation = 2;
+
+  // Size of the full resource body
+  int32 size = 3;
+
+  // Size of the full resource body
+  string ETag = 4;
+
+  // The optional commit message
+  string message = 5;
+
+  // The kubernetes metadata section (not the full resource)
+  // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L111
+  bytes object_meta = 6;
+
+  // URL to fetch the raw blob payload.  
+  // When the URL stats with "#" it can be read from the "GetBlob" request
+  string blob_url = 7;
+}
+
+// When a blob is written, this metadata will be included as a property (blob) on the saved resource
+message BlobInfo {
+  // Path to the stored object. 
+  string path = 1;
+
+  // Content Length
+  int64 size = 2;
+
+  // MD5 digest of the body
+  string ETag = 3;
+
+  // Content type header
+  string content_type = 4;
+
+  // Metadata attributes (resolved from blob store)
+  // These will be returned as headers in a get request
+  map<string,string> metadata = 5;
+}
+
+// Status structure is copied from:
+// https://github.com/kubernetes/apimachinery/blob/v0.30.1/pkg/apis/meta/v1/generated.proto#L979
+message StatusResult {
+  // Status of the operation.
+  // One of: "Success" or "Failure".
+  // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+  // +optional
+  string status = 1;
+  // A human-readable description of the status of this operation.
+  // +optional
+  string message = 2;
+  // A machine-readable description of why this operation is in the
+  // "Failure" status. If this value is empty there
+  // is no information available. A Reason clarifies an HTTP status
+  // code but does not override it.
+  // +optional
+  string reason = 3;
+  // Suggested HTTP return code for this status, 0 if not set.
+  // +optional
+  int32 code = 4;
+}
+
+// Create a blob that can be linked to a resource
+// Note this must happen *before* creating or updating the resource
+message CreateBlobRequest {
+  // Requires resource+name -- used for permissions
+  // resourceVersion is ignored
+  ResourceIdentifier key = 1;
+
+  // Raw value to write
+  bytes value = 2;
+
+  // Content type header
+  string content_type = 3;
+
+  // Additional metadata
+  map<string,string> metadata = 4;
+}
+
+message CreateBlobResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // The updated resource version
+  BlobInfo info = 2;
+
+  // Signed URL that can see the uploaded value
+  string blob_url = 3;
+}
+
+// ----------------------------------
+// CRUD Objects
+// ----------------------------------
+
+message CreateRequest {
+  // Requires group+resource to be configuired
+  // If name is not set, a unique name will be generated
+  // The resourceVersion should not be set
+  ResourceIdentifier key = 1;
+
+  // The resource JSON.  
+  bytes value = 2;
+
+  // Optional commit message
+  // +optional
+  string message = 3;
+
+  // When linking to a blob, pass in the "path" returned in the CreateBlobResponse
+  // +optional
+  string blob = 4;
+}
+
+message CreateResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // The updated resource version
+  ResourceIdentifier key = 2;
+}
+
+message UpdateRequest {
+  // Full key must be set
+  ResourceIdentifier key = 1;
+
+  // The resource JSON.  
+  bytes value = 2;
+
+  // Optional commit message
+  // +optional
+  string message = 3;
+
+  // When linking to a blob, pass in the "path" returned in the CreateBlobResponse
+  // +optional
+  string blob = 4;
+}
+
+message UpdateResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // The updated resource version
+  ResourceIdentifier key = 2;
+}
+
+message DeleteRequest {
+  ResourceIdentifier key = 1;
+
+  // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L507
+  int64 grace_period_seconds = 2;
+}
+
+message DeleteResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // Resource version for the deleted value
+  ResourceIdentifier key = 2;
+}
+
+message GetResourceRequest {
+  ResourceIdentifier key = 1;
+}
+
+message GetResourceResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // The properties
+  bytes value = 2;
+
+  // URL to fetch the blob (if it exists)
+  string blob_url = 3;
+}
+
+message GetBlobRequest {
+  ResourceIdentifier key = 1;
+
+  // The signed URL key
+  string blob_url = 3;
+}
+
+message GetBlobResponse {
+  // Status code
+  StatusResult status = 1;
+
+  // The properties
+  BlobInfo info = 2;
+
+  // The properties
+  bytes value = 3;
+}
+
+// ----------------------------------
+// List Request/Response
+// ----------------------------------
+
+// The label filtering requirements:
+// https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/labels/selector.go#L141
+message Requirement {
+	string key = 1;
+  string operator = 2; // See https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/selection/operator.go#L21
+	repeated string values = 3; // typically one value, but depends on the operator
+}
 
 message ListRequest {
   // Starting from the requested page (other query parameters must match!)
   string next_page_token = 1;
 
   // Maximum number of items to return
+  // NOTE responses will also be limited by the response payload size
   int64 limit = 2;
 
   // Namespace+Group+Resource+etc
-  ResourceKey key = 3;
+  ResourceIdentifier key = 3;
+
+  // Match the label rules
+  repeated Requirement labels = 4;
 
   // Limit results to items in a specific folder (not a query for everything under that folder!)
   string folder = 5;
 
-  // Must match all labels
-  map<string,string> labels = 6;
-
   // Sorting instructions `field ASC/DESC`
   repeated string sort = 7;
-
-  // list deleted entities instead of active ones
-  bool deleted = 12;
-}
-
-message EntityXX {
-  // The resource version, this is a snowflake id controlled by storage
-  int64 resource_version = 1;
-
-  // The k8s object bytes
-  bytes value = 2;
-
-  // Commit message for this resource_version
-  string message = 3;
 }
 
 message ListResponse {
-  repeated EntityXX items = 1; // means the resourveVersion is attached
+  repeated ResourceWrapper items = 1; // could be just the raw bytes
 
   // More results exist... pass this in the next request
   string next_page_token = 2;
@@ -112,39 +281,31 @@ message ListResponse {
 	// If the list is complete (either because it is not chunking or because this is the last chunk),
 	// then there are no more remaining items and this field will be left unset and omitted during
 	// serialization.
-	// Servers older than v1.15 do not set this field.
+  //
 	// The intended use of the remainingItemCount is *estimating* the size of a collection. Clients
 	// should not rely on the remainingItemCount to be set or to be exact.
 	// +optional
-	// int64 remaining_item_count = 4;// *int64
+	int64 remaining_item_count = 4; // -1 for unknown
 }
 
 message WatchRequest {
-  enum WatchAction {
-    START = 0;
-    STOP = 1;
-  }
-
-  // Start or stop the watch
-  WatchAction action = 8;
-
   // ResourceVersion of last changes. Empty will default to full history
   int64 since = 1;
 
   // Watch specific entities
-  repeated ResourceKey keys = 2;
+  repeated ResourceIdentifier keys = 2;
 
-  // Limit results to items in a specific folder (not a subfolder path!!!)
+  // Match the label rules
+  repeated Requirement labels = 3;
+
+  // Limit results to items in a specific folder (not a query for everything under that folder!)
   string folder = 4;
 
-  // Must match all labels
-  map<string,string> labels = 5;
-
   // Return initial events
-  bool send_initial_events = 9;
+  bool send_initial_events = 5;
 
   // When done with initial events, send a bookmark event
-  bool allow_watch_bookmarks = 10;
+  bool allow_watch_bookmarks = 6;
 }
 
 message WatchResponse {
@@ -152,10 +313,10 @@ message WatchResponse {
   int64 timestamp = 1;
 
   // Entity that was created, updated, or deleted
-  EntityXX entity = 2;
+  ResourceWrapper resource = 2;
 
   // previous version of the entity
-  EntityXX previous = 3;
+  ResourceWrapper previous = 3;
 }
 
 message HistoryRequest {
@@ -165,19 +326,41 @@ message HistoryRequest {
   // Maximum number of items to return
   int64 limit = 2;
 
-  // Must point to an explicit resource name
-  ResourceKey key = 3;
+  // Resource identifier
+  ResourceIdentifier key = 3;
+
+  // List the deleted values (eg, show trash)
+  bool show_deleted = 4;
+}
+
+message HistoryResponse {
+  repeated ResourceMeta items = 1;
+
+  // More results exist... pass this in the next request
+  string next_page_token = 2;
+
+  // ResourceVersion of the list response
+  int64 resource_version = 3;
 }
 
 // The entity store provides a basic CRUD (+watch eventually) interface for generic entities
-service EntityStoreX {
-  // or three unique shapes?... but all the same?
-  rpc Write(WriteRequest) returns (WriteResponse);
-
+service ResourceStore {
+  rpc GetResource(GetResourceRequest) returns (GetResourceResponse);
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
   rpc List(ListRequest) returns (ListResponse);
-  rpc Watch(WatchRequest) returns (WatchResponse);
-  rpc History(HistoryRequest) returns (ListResponse);
+  rpc Watch(WatchRequest) returns (stream WatchResponse);
 
+  // Large payload attached to a resource.  This is called before create/update
+  rpc CreateBlob(CreateBlobRequest) returns (CreateBlobResponse);
+  // Get the raw blob bytes and metadata
+  rpc GetBlob(GetBlobRequest) returns (GetBlobResponse);
+
+  // Show resource history (and trash)
+  rpc History(HistoryRequest) returns (HistoryResponse);
+
+  // Check if the service is healthy
   rpc IsHealthy(HealthCheckRequest) returns (HealthCheckResponse);
 }
 

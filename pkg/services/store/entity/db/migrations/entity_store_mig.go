@@ -12,39 +12,62 @@ func initEntityTables(mg *migrator.Migrator) string {
 
 	tables := []migrator.Table{}
 	tables = append(tables, migrator.Table{
-		Name: "allwriteevents", // eventhings that failed?
+		Name: "resource_versions", // write only log?  all events
 		Columns: []*migrator.Column{
 			// auto increment??? --
 			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
 			{Name: "previous_version", Type: migrator.DB_BigInt, Nullable: true},
 
-			// Properties that exist in path/key (and yes duplicated in the body)
-			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: false},
+			// Properties that exist in path/key (and duplicated in the json value)
 			{Name: "group", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+			{Name: "version", Type: migrator.DB_NVarchar, Length: 32, Nullable: false},
+			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: true},
 			{Name: "resource", Type: migrator.DB_NVarchar, Length: 190, Nullable: true},
 			{Name: "name", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
+
+			// The operation that wrote this resource version
+			{Name: "operation", Type: migrator.DB_Int, Nullable: false}, // 1: created, 2: updated, 3: deleted
 
 			// Optional Commit message (currently only used for dashboards)
 			{Name: "message", Type: migrator.DB_Text, Nullable: false}, // defaults to empty string
 
-			// The k8s resource text value without the resourceVersion populated
+			// The k8s resource text value without the resourceVersion populated?
 			{Name: "value", Type: migrator.DB_MediumText, Nullable: false},
-			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(body)
+			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(value)
 
-			// Optional support for large objects, this will be
-			{Name: "blob", Type: migrator.DB_LongBlob, Nullable: true},                                  // null when nested or remote
-			{Name: "blob_etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(bod
+			// If a blob exists, we can join by path
+			{Name: "blob", Type: migrator.DB_NVarchar, Length: 1024, Nullable: true},
 		},
 		Indices: []*migrator.Index{
 			{Cols: []string{"resource_version"}, Type: migrator.IndexType},
 			{Cols: []string{"previous_version"}, Type: migrator.UniqueIndex},
 			{Cols: []string{"namespace", "group", "resource", "name"}, Type: migrator.IndexType},
+			{Cols: []string{"blob"}, Type: migrator.IndexType},
+		},
+	})
+
+	// This table is optional -- values can be saved in blob storage
+	tables = append(tables, migrator.Table{
+		Name: "resource_blob", // even things that failed?
+		Columns: []*migrator.Column{
+			{Name: "path", Type: migrator.DB_NVarchar, Length: 1024, Nullable: false, IsPrimaryKey: true},
+			{Name: "body", Type: migrator.DB_Blob, Nullable: false},
+			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false},
+			{Name: "size", Type: migrator.DB_BigInt, Nullable: false},
+			{Name: "content_type", Type: migrator.DB_NVarchar, Length: 255, Nullable: false},
+			// JSON encoded metadata fields
+			{Name: "meta", Type: migrator.DB_NVarchar, Length: 1024, Nullable: false},
+		},
+		Indices: []*migrator.Index{
+			{Cols: []string{"path"}, Type: migrator.IndexType},
+			{Cols: []string{"etag"}, Type: migrator.IndexType},
 		},
 	})
 
 	// Used for faster list/search
+	// This table can be recreated by processing the `resource_versions` table
 	tables = append(tables, migrator.Table{
-		Name: "current_latest_values",
+		Name: "resource", // The current
 		Columns: []*migrator.Column{
 			// auto increment??? --
 			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
