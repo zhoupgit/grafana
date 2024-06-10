@@ -55,19 +55,16 @@ func initEntityTables(mg *migrator.Migrator) string {
 			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false},
 			{Name: "size", Type: migrator.DB_BigInt, Nullable: false},
 			{Name: "content_type", Type: migrator.DB_NVarchar, Length: 255, Nullable: false},
-			// JSON encoded metadata fields
-			{Name: "meta", Type: migrator.DB_NVarchar, Length: 1024, Nullable: false},
 		},
 		Indices: []*migrator.Index{
 			{Cols: []string{"path"}, Type: migrator.IndexType},
-			{Cols: []string{"etag"}, Type: migrator.IndexType},
 		},
 	})
 
 	// Used for faster list/search
 	// This table can be recreated by processing the `resource_versions` table
 	tables = append(tables, migrator.Table{
-		Name: "resource", // The current
+		Name: "resource", // Only the current versions
 		Columns: []*migrator.Column{
 			// auto increment??? --
 			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},

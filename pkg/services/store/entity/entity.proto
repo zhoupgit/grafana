@@ -17,29 +17,33 @@ message ResourceIdentifier {
   uint64 resource_version = 5;
 }
 
-message ResourceWrapper {
-  // The resource version
-  int64 resource_version = 1;
-
-  // The kubernetes json bytes (resource version may not be accurate)
-  bytes value = 2;
-
-  // URL to fetch the raw blob payload.  
-  // When the URL stats with "#" it can be read from the "GetBlob" request
-  string blob_url = 3;
-}
-
 enum ResourceOperation {
   UNKNOWN = 0;
   CREATED = 1;
   UPDATED = 2;
   DELETED = 3;
+ // BOOKMARK = 5; ??? is this needed for watch?
+}
+
+message ResourceWrapper {
+  // The resource version
+  uint64 resource_version = 1;
+
+  // Full kubernetes json bytes (although the resource version may not be accurate)
+  bytes value = 2;
+
+  // Operation
+  ResourceOperation operation = 3;
+
+  // URL to fetch the raw blob payload.  
+  // When the URL stats with "#" it can be read from the "GetBlob" request
+  string blob_url = 4;
 }
 
 // The history and trash commands need access to commit messages
 message ResourceMeta {
   // The resource version
-  int64 resource_version = 1;
+  uint64 resource_version = 1;
 
   // The optional commit message
   ResourceOperation operation = 2;
@@ -62,23 +66,16 @@ message ResourceMeta {
   string blob_url = 7;
 }
 
-// When a blob is written, this metadata will be included as a property (blob) on the saved resource
+// Basic blob metadata
 message BlobInfo {
-  // Path to the stored object. 
-  string path = 1;
-
   // Content Length
-  int64 size = 2;
+  int64 size = 1;
 
   // MD5 digest of the body
-  string ETag = 3;
+  string ETag = 2;
 
   // Content type header
-  string content_type = 4;
-
-  // Metadata attributes (resolved from blob store)
-  // These will be returned as headers in a get request
-  map<string,string> metadata = 5;
+  string content_type = 3;
 }
 
 // Status structure is copied from:
@@ -105,14 +102,11 @@ message StatusResult {
 
 // TODO? support PresignedUrls for upload? 
 message CreateBlob {
+  // Content type header
+  string content_type = 1;
+
   // Raw value to write
   bytes value = 2;
-
-  // Content type header
-  string content_type = 3;
-
-  // Additional metadata
-  map<string,string> metadata = 4;
 }
 
 // ----------------------------------
@@ -140,7 +134,7 @@ message CreateResponse {
   StatusResult status = 1;
 
   // The updated resource version
-  ResourceIdentifier key = 2;
+  uint64 resource_version = 2;
 }
 
 message UpdateRequest {
@@ -163,7 +157,7 @@ message UpdateResponse {
   StatusResult status = 1;
 
   // The updated resource version
-  ResourceIdentifier key = 2;
+  uint64 resource_version = 2;
 }
 
 message DeleteRequest {
@@ -171,14 +165,17 @@ message DeleteRequest {
 
   // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L507
   int64 grace_period_seconds = 2;
+
+  // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L481
+  string propagationPolicy = 3;
 }
 
 message DeleteResponse {
   // Status code
   StatusResult status = 1;
 
-  // Resource version for the deleted value
-  ResourceIdentifier key = 2;
+  // The new resource version
+  uint64 resource_version = 2;
 }
 
 message GetResourceRequest {
@@ -207,10 +204,10 @@ message GetBlobResponse {
   // Status code
   StatusResult status = 1;
 
-  // The properties
+  // Headers 
   BlobInfo info = 2;
 
-  // The properties
+  // The raw object value
   bytes value = 3;
 }
 
@@ -271,7 +268,7 @@ message ListResponse {
 
 message WatchRequest {
   // ResourceVersion of last changes. Empty will default to full history
-  int64 since = 1;
+  uint64 since = 1;
 
   // Watch specific entities
   repeated ResourceIdentifier keys = 2;
