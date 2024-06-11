@@ -6,7 +6,7 @@ import { Menu } from '@grafana/ui';
 import { DashboardScene } from '../../scene/DashboardScene';
 import { ShareDrawer } from '../ShareDrawer';
 
-import ExportAsJSON from './ExportAsJSON';
+import { ExportAsJSON } from './ExportAsJSON';
 
 const newExportButtonSelector = e2eSelectors.pages.Dashboard.DashNav.newExportButton.menu;
 
@@ -14,7 +14,7 @@ export default function ExportMenu({ dashboard }: { dashboard: DashboardScene })
   const onExportAsJSONClick = () => {
     const drawer = new ShareDrawer({
       title: 'Save dashboard JSON',
-      body: <ExportAsJSON dashboardRef={dashboard.getRef()} />,
+      body: new ExportAsJSON({ dashboardRef: dashboard.getRef() }),
     });
 
     dashboard.showModal(drawer);
