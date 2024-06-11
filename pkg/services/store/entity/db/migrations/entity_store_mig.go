@@ -14,54 +14,86 @@ func initEntityTables(mg *migrator.Migrator) string {
 	tables = append(tables, migrator.Table{
 		Name: "resource_versions", // write only log?  all events
 		Columns: []*migrator.Column{
-			// GUID for the event ID
-			{Name: "eventid", Type: migrator.DB_NVarchar, Length: 36, Nullable: false, IsPrimaryKey: true}, // event UID
+			// SnowflakeID -- Each Create/Update/Delete call is an event
+			// Using snowflake ID doubles this field as an approximate timestamp
+			{Name: "event", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
 
-			// UID is set on create, but stays the same on update+delete
-			{Name: "uid", Type: migrator.DB_NVarchar, Length: 190, Nullable: false}, // resource UID
-			{Name: "previous_version", Type: migrator.DB_BigInt, Nullable: true},
-			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: true}, // null until it is valid
+			// This will be null on insert, and then updated once we are ready to commit the transaction
+			{Name: "resource_version", Type: migrator.DB_BigInt, Nullable: true},
+			{Name: "previous_version", Type: migrator.DB_BigInt, Nullable: true}, // needed?
+
+			// Allows fast search for the first page in any query.
+			// Subsequent pages must use MAX(resource_version) AND is_compacted=false GROUP ...
+			{Name: "is_current", Type: migrator.DB_Bool, Nullable: false},
+
+			// Indicates that this is no longer the current version
+			// This value is updated every few minutes and makes the paged queries more efficient
+			{Name: "is_compacted", Type: migrator.DB_Bool, Nullable: false},
 
 			// Properties that exist in path/key (and duplicated in the json value)
 			{Name: "group", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
 			{Name: "version", Type: migrator.DB_NVarchar, Length: 32, Nullable: false},
-			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: true},
-			{Name: "resource", Type: migrator.DB_NVarchar, Length: 190, Nullable: true},
+			{Name: "namespace", Type: migrator.DB_NVarchar, Length: 63, Nullable: true}, // namespace is not required (cluster scope)
+			{Name: "resource", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
 			{Name: "name", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
 
 			// The operation that wrote this resource version
-			{Name: "operation", Type: migrator.DB_Int, Nullable: false}, // 1: created, 2: updated, 3: deleted
+			// 1: created, 2: updated, 3: deleted
+			{Name: "operation", Type: migrator.DB_Int, Nullable: false},
 
 			// Optional Commit message (currently only used for dashboards)
 			{Name: "message", Type: migrator.DB_Text, Nullable: false}, // defaults to empty string
 
-			// The k8s resource text value without the resourceVersion populated?
+			// The k8s resource JSON text (without the resourceVersion populated)
 			{Name: "value", Type: migrator.DB_MediumText, Nullable: false},
-			{Name: "etag", Type: migrator.DB_NVarchar, Length: 32, Nullable: false, IsLatin: true}, // md5(value)
 
-			// If a blob exists, we can join by path
-			{Name: "blob", Type: migrator.DB_NVarchar, Length: 1024, Nullable: true},
+			// Content hash -- this is appropriate to use for an etag value
+			{Name: "hash", Type: migrator.DB_NVarchar, Length: 32, Nullable: false},
 
-			// SEARCHABLE FIELDS
-			// The values all come from reading grafana.app annotations
-			//------------------------------------------------------------------
+			// Path to linked blob (or null).  This blob may be saved in SQL, or in an object store
+			{Name: "blob_path", Type: migrator.DB_NVarchar, Length: 1024, Nullable: true},
+		},
+		Indices: []*migrator.Index{
+			{Cols: []string{"resource_version"}, Type: migrator.UniqueIndex},
+			{Cols: []string{"is_current"}, Type: migrator.IndexType},
+			{Cols: []string{"is_compacted"}, Type: migrator.IndexType},
+			{Cols: []string{"operation"}, Type: migrator.IndexType},
+			{Cols: []string{"namespace"}, Type: migrator.IndexType},
+			{Cols: []string{"group", "resource", "name"}, Type: migrator.IndexType},
+			{Cols: []string{"blob_path"}, Type: migrator.IndexType},
+		},
+	})
+
+	// The values in this table are created by parsing the the value JSON and writing these as searchable columns
+	// These *could* be in the same table, but this structure allows us to replace the table by first
+	// building a parallel structure, then swapping them... maybe :)
+	tables = append(tables, migrator.Table{
+		Name: "resource_meta", // write only log?  all events
+		Columns: []*migrator.Column{
+			{Name: "event", Type: migrator.DB_BigInt, Nullable: false, IsPrimaryKey: true},
+
+			// Hashed label set
+			{Name: "label_set", Type: migrator.DB_NVarchar, Length: 64, Nullable: true}, // null is no labels
 
 			// Helpful filters
-			{Name: "folder", Type: migrator.DB_NVarchar, Length: 190, Nullable: false}, // uid of folder
+			{Name: "folder", Type: migrator.DB_NVarchar, Length: 190, Nullable: true}, // uid of folder
 
 			// For sorting values come from metadata
 			{Name: "created_at", Type: migrator.DB_BigInt, Nullable: false},
 			{Name: "updated_at", Type: migrator.DB_BigInt, Nullable: false},
 
-			// Mark objects with origin metadata
-			{Name: "origin", Type: migrator.DB_NVarchar, Length: 40, Nullable: false},
+			// Origin metadata helps implement efficient provisioning checks
+			{Name: "origin", Type: migrator.DB_NVarchar, Length: 64, Nullable: true},       // The origin name
+			{Name: "origin_path", Type: migrator.DB_Text, Nullable: true},                  // Path to resource
+			{Name: "origin_hash", Type: migrator.DB_NVarchar, Length: 128, Nullable: true}, // Origin hash
+			{Name: "origin_ts", Type: migrator.DB_BigInt, Nullable: true},                  // Origin timestamp
 		},
 		Indices: []*migrator.Index{
-			{Cols: []string{"resource_version"}, Type: migrator.IndexType},
-			{Cols: []string{"is_current"}, Type: migrator.IndexType},
-			{Cols: []string{"previous_version"}, Type: migrator.UniqueIndex},
-			{Cols: []string{"namespace", "group", "resource", "name"}, Type: migrator.IndexType},
-			{Cols: []string{"blob"}, Type: migrator.IndexType},
+			{Cols: []string{"event"}, Type: migrator.IndexType},
+			{Cols: []string{"folder"}, Type: migrator.IndexType},
+			{Cols: []string{"created_at"}, Type: migrator.IndexType},
+			{Cols: []string{"updated_at"}, Type: migrator.IndexType},
+			{Cols: []string{"origin"}, Type: migrator.IndexType},
 		},
 	})
 
@@ -81,14 +113,14 @@ func initEntityTables(mg *migrator.Migrator) string {
 	})
 
 	tables = append(tables, migrator.Table{
-		Name: "resource_labels",
+		Name: "resource_label_sets",
 		Columns: []*migrator.Column{
-			{Name: "eventid", Type: migrator.DB_NVarchar, Length: 36, Nullable: false},
+			{Name: "label_set", Type: migrator.DB_NVarchar, Length: 36, Nullable: false},
 			{Name: "label", Type: migrator.DB_NVarchar, Length: 190, Nullable: false},
 			{Name: "value", Type: migrator.DB_Text, Nullable: false},
 		},
 		Indices: []*migrator.Index{
-			{Cols: []string{"eventid", "label"}, Type: migrator.UniqueIndex},
+			{Cols: []string{"label_set", "label"}, Type: migrator.UniqueIndex},
 		},
 	})
 

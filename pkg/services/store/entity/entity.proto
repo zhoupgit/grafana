@@ -14,7 +14,7 @@ message ResourceIdentifier {
   // Resource identifier (unique within namespace+group+resource)
   string name = 4;
   // The resource version
-  uint64 resource_version = 5;
+  int64 resource_version = 5;
 }
 
 enum ResourceOperation {
@@ -22,12 +22,12 @@ enum ResourceOperation {
   CREATED = 1;
   UPDATED = 2;
   DELETED = 3;
- // BOOKMARK = 5; ??? is this needed for watch?
+  BOOKMARK = 4;
 }
 
 message ResourceWrapper {
   // The resource version
-  uint64 resource_version = 1;
+  int64 resource_version = 1;
 
   // Full kubernetes json bytes (although the resource version may not be accurate)
   bytes value = 2;
@@ -35,15 +35,14 @@ message ResourceWrapper {
   // Operation
   ResourceOperation operation = 3;
 
-  // URL to fetch the raw blob payload.  
-  // When the URL stats with "#" it can be read from the "GetBlob" request
-  string blob_url = 4;
+  // The resource has an attached blob
+  bool has_blob = 4;
 }
 
 // The history and trash commands need access to commit messages
 message ResourceMeta {
   // The resource version
-  uint64 resource_version = 1;
+  int64 resource_version = 1;
 
   // The optional commit message
   ResourceOperation operation = 2;
@@ -51,8 +50,8 @@ message ResourceMeta {
   // Size of the full resource body
   int32 size = 3;
 
-  // Size of the full resource body
-  string ETag = 4;
+  // Hash for the resource
+  string hash = 4;
 
   // The optional commit message
   string message = 5;
@@ -61,9 +60,8 @@ message ResourceMeta {
   // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L111
   bytes object_meta = 6;
 
-  // URL to fetch the raw blob payload.  
-  // When the URL stats with "#" it can be read from the "GetBlob" request
-  string blob_url = 7;
+  // The resource has an attached blob
+  bool has_blob = 7;
 }
 
 // Basic blob metadata
@@ -125,7 +123,7 @@ message CreateRequest {
   // Optional commit message
   string message = 3;
 
-  // Optionally link a resource object
+  // Optionally include a large binary object
   CreateBlob blob = 4;
 }
 
@@ -134,7 +132,7 @@ message CreateResponse {
   StatusResult status = 1;
 
   // The updated resource version
-  uint64 resource_version = 2;
+  int64 resource_version = 2;
 }
 
 message UpdateRequest {
@@ -157,17 +155,15 @@ message UpdateResponse {
   StatusResult status = 1;
 
   // The updated resource version
-  uint64 resource_version = 2;
+  int64 resource_version = 2;
 }
 
 message DeleteRequest {
   ResourceIdentifier key = 1;
 
-  // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L507
-  int64 grace_period_seconds = 2;
-
-  // https://github.com/kubernetes/kubernetes/blob/v1.30.1/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L481
-  string propagationPolicy = 3;
+  // Preconditions: make sure the uid matches the current saved value
+  // +optional
+  string uid = 2;
 }
 
 message DeleteResponse {
@@ -175,7 +171,7 @@ message DeleteResponse {
   StatusResult status = 1;
 
   // The new resource version
-  uint64 resource_version = 2;
+  int64 resource_version = 2;
 }
 
 message GetResourceRequest {
@@ -195,9 +191,6 @@ message GetResourceResponse {
 
 message GetBlobRequest {
   ResourceIdentifier key = 1;
-
-  // The signed URL key
-  string blob_url = 3;
 }
 
 message GetBlobResponse {
@@ -223,10 +216,16 @@ message Requirement {
 	repeated string values = 3; // typically one value, but depends on the operator
 }
 
-message ListRequest {
-  // Starting from the requested page (other query parameters must match!)
-  string next_page_token = 1;
+message Sort {
+  enum Order {
+    ASC = 0;
+    DESC = 1;
+  }
+	string field = 1;
+  Order order = 2;
+}
 
+message ListOptions {
   // Maximum number of items to return
   // NOTE responses will also be limited by the response payload size
   int64 limit = 2;
@@ -234,20 +233,31 @@ message ListRequest {
   // Namespace+Group+Resource+etc
   ResourceIdentifier key = 3;
 
-  // Match the label rules
+  // Match label
   repeated Requirement labels = 4;
 
+  // Match fields (not yet supported)
+  repeated Requirement fields = 5;
+
   // Limit results to items in a specific folder (not a query for everything under that folder!)
-  string folder = 5;
+  string folder = 6;
+}
+
+message ListRequest {
+  // Starting from the requested page (other query parameters must match!)
+  string next_page_token = 1;
+
+  // Filtering
+  ListOptions options = 2;
 
   // Sorting instructions `field ASC/DESC`
-  repeated string sort = 7;
+  repeated Sort sort = 3;
 }
 
 message ListResponse {
-  repeated ResourceWrapper items = 1; // could be just the raw bytes
+  repeated ResourceWrapper items = 1;
 
-  // More results exist... pass this in the next request
+  // When more results exist, pass this in the next request
   string next_page_token = 2;
 
   // ResourceVersion of the list response
@@ -263,27 +273,24 @@ message ListResponse {
 	// The intended use of the remainingItemCount is *estimating* the size of a collection. Clients
 	// should not rely on the remainingItemCount to be set or to be exact.
 	// +optional
-	int64 remaining_item_count = 4; // -1 for unknown
+	int64 remaining_item_count = 4; // 0 won't be set either (no next page token)
 }
 
 message WatchRequest {
   // ResourceVersion of last changes. Empty will default to full history
-  uint64 since = 1;
+  int64 since = 1;
 
   // Watch specific entities
-  repeated ResourceIdentifier keys = 2;
+  ResourceIdentifier key = 2;
 
-  // Match the label rules
-  repeated Requirement labels = 3;
-
-  // Limit results to items in a specific folder (not a query for everything under that folder!)
-  string folder = 4;
+  // Additional options
+  ListOptions options = 3;
 
   // Return initial events
-  bool send_initial_events = 5;
+  bool send_initial_events = 4;
 
   // When done with initial events, send a bookmark event
-  bool allow_watch_bookmarks = 6;
+  bool allow_watch_bookmarks = 5;
 }
 
 message WatchResponse {
@@ -293,7 +300,7 @@ message WatchResponse {
   // Entity that was created, updated, or deleted
   ResourceWrapper resource = 2;
 
-  // previous version of the entity
+  // previous version of the entity (in update+delete events)
   ResourceWrapper previous = 3;
 }
 
@@ -321,6 +328,53 @@ message HistoryResponse {
   int64 resource_version = 3;
 }
 
+message OriginRequest {
+  // Starting from the requested page (other query parameters must match!)
+  string next_page_token = 1;
+
+  // Maximum number of items to return
+  int64 limit = 2;
+
+  // Resource identifier
+  ResourceIdentifier key = 3;
+
+  // List the deleted values (eg, show trash)
+  string origin = 4;
+}
+
+message ResourceOriginInfo {
+  // The resource
+  ResourceIdentifier key = 1;
+
+  // Size of the full resource body
+  int32 resource_size = 2;
+
+  // Hash for the resource
+  string resource_hash = 3;
+
+  // The origin name
+  string origin = 4;
+
+  // Path on the origin
+  string path = 5;
+
+  // Verification hash from the origin
+  string hash = 6;
+
+  // Change time from the origin
+  int64 timestamp = 7;
+}
+
+message OriginResponse {
+  repeated ResourceOriginInfo items = 1;
+
+  // More results exist... pass this in the next request
+  string next_page_token = 2;
+
+  // ResourceVersion of the list response
+  int64 resource_version = 3;
+}
+
 // The entity store provides a basic CRUD (+watch eventually) interface for generic entities
 service ResourceStore {
   rpc GetResource(GetResourceRequest) returns (GetResourceResponse);
@@ -335,6 +389,9 @@ service ResourceStore {
 
   // Show resource history (and trash)
   rpc History(HistoryRequest) returns (HistoryResponse);
+
+  // Used for efficient provisioning
+  rpc Origin(OriginRequest) returns (OriginResponse);
 
   // Check if the service is healthy
   rpc IsHealthy(HealthCheckRequest) returns (HealthCheckResponse);
