@@ -36,6 +36,8 @@ type Rule interface {
 	Eval(eval *Evaluation) (bool, *Evaluation)
 	// Update sends a singal to change the definition of the rule.
 	Update(lastVersion RuleVersionAndPauseStatus) bool
+	// Health indicates the health of the evaluating rule.
+	Health() string
 }
 
 type ruleFactoryFunc func(context.Context, *ngmodels.AlertRule) Rule
@@ -162,6 +164,10 @@ func newAlertRule(
 		logger:               logger,
 		tracer:               tracer,
 	}
+}
+
+func (a *alertRule) Health() string {
+	return "ok"
 }
 
 // eval signals the rule evaluation routine to perform the evaluation of the rule. Does nothing if the loop is stopped.
