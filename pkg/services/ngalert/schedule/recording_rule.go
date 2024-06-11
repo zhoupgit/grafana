@@ -59,8 +59,10 @@ func newRecordingRule(parent context.Context, maxAttempts int64, clock clock.Clo
 	}
 }
 
-func (r *recordingRule) Health() string {
-	return "ok"
+func (r *recordingRule) Health() ngmodels.Health {
+	return ngmodels.Health{
+		Health: "ok",
+	}
 }
 
 func (r *recordingRule) Eval(eval *Evaluation) (bool, *Evaluation) {

@@ -37,7 +37,7 @@ type Rule interface {
 	// Update sends a singal to change the definition of the rule.
 	Update(lastVersion RuleVersionAndPauseStatus) bool
 	// Health indicates the health of the evaluating rule.
-	Health() string
+	Health() ngmodels.Health
 }
 
 type ruleFactoryFunc func(context.Context, *ngmodels.AlertRule) Rule
@@ -79,6 +79,7 @@ func newRuleFactory(
 		}
 		return newAlertRule(
 			ctx,
+			rule.GetKey(),
 			appURL,
 			disableGrafanaFolder,
 			maxAttempts,
@@ -109,6 +110,8 @@ type alertRule struct {
 	ctx      context.Context
 	stopFn   util.CancelCauseFunc
 
+	key ngmodels.AlertRuleKey
+
 	appURL               *url.URL
 	disableGrafanaFolder bool
 	maxAttempts          int64
@@ -130,6 +133,7 @@ type alertRule struct {
 
 func newAlertRule(
 	parent context.Context,
+	key ngmodels.AlertRuleKey,
 	appURL *url.URL,
 	disableGrafanaFolder bool,
 	maxAttempts int64,
@@ -150,6 +154,7 @@ func newAlertRule(
 		updateCh:             make(chan RuleVersionAndPauseStatus),
 		ctx:                  ctx,
 		stopFn:               stop,
+		key:                  key,
 		appURL:               appURL,
 		disableGrafanaFolder: disableGrafanaFolder,
 		maxAttempts:          maxAttempts,
@@ -166,8 +171,36 @@ func newAlertRule(
 	}
 }
 
-func (a *alertRule) Health() string {
-	return "ok"
+func (a *alertRule) Health() ngmodels.Health {
+	states := a.stateManager.GetStatesForRuleUID(a.key.OrgID, a.key.UID)
+	health := ngmodels.Health{
+		Health:      "ok",
+		LastError:   nil,
+		EvaluatedAt: time.Time{},
+	}
+	for _, state := range states {
+		if state.LastEvaluationTime.After(health.EvaluatedAt) {
+			health.EvaluatedAt = state.LastEvaluationTime
+		}
+
+		health.EvaluatedDuration = state.EvaluationDuration
+
+		switch state.State {
+		case eval.Normal:
+		case eval.Pending:
+		case eval.Alerting:
+		case eval.Error:
+			health.Health = "error"
+		case eval.NoData:
+			health.Health = "nodata"
+		}
+
+		if state.Error != nil {
+			health.LastError = state.Error
+			health.Health = "error"
+		}
+	}
+	return health
 }
 
 // eval signals the rule evaluation routine to perform the evaluation of the rule. Does nothing if the loop is stopped.
