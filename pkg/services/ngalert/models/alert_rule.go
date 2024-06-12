@@ -831,8 +831,8 @@ func (r *Record) Fingerprint() data.Fingerprint {
 	return data.Fingerprint(h.Sum64())
 }
 
-// Health contains health-tracking info about a rule's current evaluation state.
-type Health struct {
+// RuleStatus contains info about a rule's current evaluation state.
+type RuleStatus struct {
 	Health            string
 	LastError         error
 	EvaluatedAt       time.Time

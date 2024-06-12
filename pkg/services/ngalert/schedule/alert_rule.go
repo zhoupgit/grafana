@@ -36,8 +36,8 @@ type Rule interface {
 	Eval(eval *Evaluation) (bool, *Evaluation)
 	// Update sends a singal to change the definition of the rule.
 	Update(lastVersion RuleVersionAndPauseStatus) bool
-	// Health indicates the health of the evaluating rule.
-	Health() ngmodels.Health
+	// Status indicates the status of the evaluating rule.
+	Status() ngmodels.RuleStatus
 }
 
 type ruleFactoryFunc func(context.Context, *ngmodels.AlertRule) Rule
@@ -171,9 +171,9 @@ func newAlertRule(
 	}
 }
 
-func (a *alertRule) Health() ngmodels.Health {
+func (a *alertRule) Status() ngmodels.RuleStatus {
 	states := a.stateManager.GetStatesForRuleUID(a.key.OrgID, a.key.UID)
-	return StatesToHealth(states)
+	return StatesToRuleStatus(states)
 }
 
 // eval signals the rule evaluation routine to perform the evaluation of the rule. Does nothing if the loop is stopped.
@@ -496,33 +496,33 @@ func SchedulerUserFor(orgID int64) *user.SignedInUser {
 	}
 }
 
-func StatesToHealth(states []*state.State) ngmodels.Health {
-	health := ngmodels.Health{
+func StatesToRuleStatus(states []*state.State) ngmodels.RuleStatus {
+	status := ngmodels.RuleStatus{
 		Health:      "ok",
 		LastError:   nil,
 		EvaluatedAt: time.Time{},
 	}
 	for _, state := range states {
-		if state.LastEvaluationTime.After(health.EvaluatedAt) {
-			health.EvaluatedAt = state.LastEvaluationTime
+		if state.LastEvaluationTime.After(status.EvaluatedAt) {
+			status.EvaluatedAt = state.LastEvaluationTime
 		}
 
-		health.EvaluatedDuration = state.EvaluationDuration
+		status.EvaluatedDuration = state.EvaluationDuration
 
 		switch state.State {
 		case eval.Normal:
 		case eval.Pending:
 		case eval.Alerting:
 		case eval.Error:
-			health.Health = "error"
+			status.Health = "error"
 		case eval.NoData:
-			health.Health = "nodata"
+			status.Health = "nodata"
 		}
 
 		if state.Error != nil {
-			health.LastError = state.Error
-			health.Health = "error"
+			status.LastError = state.Error
+			status.Health = "error"
 		}
 	}
-	return health
+	return status
 }

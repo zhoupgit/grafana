@@ -59,8 +59,8 @@ func newRecordingRule(parent context.Context, maxAttempts int64, clock clock.Clo
 	}
 }
 
-func (r *recordingRule) Health() ngmodels.Health {
-	return ngmodels.Health{
+func (r *recordingRule) Status() ngmodels.RuleStatus {
+	return ngmodels.RuleStatus{
 		Health: "ok",
 	}
 }
