@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/prometheus/alertmanager/pkg/labels"
 	apiv1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -444,6 +443,8 @@ func toRuleGroup(log log.Logger, manager state.AlertInstanceManager, sch Schedul
 
 	ngmodels.RulesGroup(rules).SortByGroupIndex()
 	for _, rule := range rules {
+		health, _ := sch.Health(rule.GetKey())
+
 		alertingRule := apimodels.AlertingRule{
 			State:       "inactive",
 			Name:        rule.Title,
@@ -455,9 +456,11 @@ func toRuleGroup(log log.Logger, manager state.AlertInstanceManager, sch Schedul
 		newRule := apimodels.Rule{
 			Name:           rule.Title,
 			Labels:         rule.GetLabels(labelOptions...),
-			Health:         "ok",
+			Health:         health.Health,
+			LastError:      errorOrEmpty(health.LastError),
 			Type:           rule.Type().String(),
-			LastEvaluation: time.Time{},
+			LastEvaluation: health.EvaluatedAt,
+			EvaluationTime: health.EvaluatedDuration.Seconds(),
 		}
 
 		states := manager.GetStatesForRuleUID(rule.OrgID, rule.UID)
@@ -486,12 +489,6 @@ func toRuleGroup(log log.Logger, manager state.AlertInstanceManager, sch Schedul
 				Value:    valString,
 			}
 
-			if alertState.LastEvaluationTime.After(newRule.LastEvaluation) {
-				newRule.LastEvaluation = alertState.LastEvaluationTime
-			}
-
-			newRule.EvaluationTime = alertState.EvaluationDuration.Seconds()
-
 			switch alertState.State {
 			case eval.Normal:
 			case eval.Pending:
@@ -504,14 +501,7 @@ func toRuleGroup(log log.Logger, manager state.AlertInstanceManager, sch Schedul
 				}
 				alertingRule.State = "firing"
 			case eval.Error:
-				newRule.Health = "error"
 			case eval.NoData:
-				newRule.Health = "nodata"
-			}
-
-			if alertState.Error != nil {
-				newRule.LastError = alertState.Error.Error()
-				newRule.Health = "error"
 			}
 
 			if len(withStates) > 0 {
@@ -604,4 +594,11 @@ func encodedQueriesOrError(rules []ngmodels.AlertQuery) string {
 	}
 
 	return err.Error()
+}
+
+func errorOrEmpty(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
