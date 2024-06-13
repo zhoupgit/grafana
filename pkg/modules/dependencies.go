@@ -7,6 +7,7 @@ const (
 	Core                  string = "core"
 	GrafanaAPIServer      string = "grafana-apiserver"
 	StorageServer         string = "storage-server"
+	ZanzanaServer         string = "zanzan-server"
 	InstrumentationServer string = "instrumentation-server"
 )
 

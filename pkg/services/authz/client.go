@@ -15,7 +15,7 @@ type Client interface {
 type LegacyClient struct {
 }
 
-func ProvideAuthZClient(
+func ProvideClient(
 	cfg *setting.Cfg, features featuremgmt.FeatureToggles, acSvc accesscontrol.Service,
 	grpcServer grpcserver.Provider, tracer tracing.Tracer,
 ) (Client, error) {

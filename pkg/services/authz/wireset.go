@@ -5,5 +5,7 @@ import (
 )
 
 var WireSet = wire.NewSet(
-	ProvideAuthZClient,
+	ProvideService,
+	wire.Bind(new(Service), new(*Zanzana)),
+	ProvideClient,
 )
