@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 
 import { urlUtil } from '@grafana/data';
-import { getUrlSyncManager, SceneObject, SceneObjectUrlValues, sceneUtils } from '@grafana/scenes';
+import { getUrlSyncManager, SceneObjectUrlValues, sceneUtils } from '@grafana/scenes';
 import { dispatch } from 'app/store/store';
 
 import { notifyApp } from '../../../core/reducers/appNotification';
@@ -77,7 +77,7 @@ export class TrailStore {
     const trail = new DataTrail({ createdAt: t.createdAt });
 
     t.history.map((step) => {
-      this._loadFromUrl(trail, step.urlValues);
+      sceneUtils.syncStateFromSearchParams(trail, new URLSearchParams(step.urlState));
       const parentIndex = step.parentIndex ?? trail.state.history.state.steps.length - 1;
       // Set the parent of the next trail step by setting the current step in history.
       trail.state.history.setState({ currentStep: parentIndex });
@@ -118,11 +118,6 @@ export class TrailStore {
     };
   }
 
-  private _loadFromUrl(node: SceneObject, urlValues: SceneObjectUrlValues) {
-    const urlState = urlUtil.renderUrl('', urlValues);
-    sceneUtils.syncStateFromSearchParams(node, new URLSearchParams(urlState));
-  }
-
   // Recent Trails
   get recent() {
     return this._recent;
@@ -158,7 +153,13 @@ export class TrailStore {
 
   findMatchingRecentTrail(trail: DataTrail) {
     const matchUrlState = getUrlStateForComparison(trail);
-    return this._recent.find((t) => t.storeRef.urlState === matchUrlState);
+    const recent = this._recent.find((t) => t.storeRef.urlState === matchUrlState);
+
+    if (recent) {
+      return this._deserializeTrail(recent.storeRef);
+    }
+
+    return undefined;
   }
 
   // Bookmarked Trails
