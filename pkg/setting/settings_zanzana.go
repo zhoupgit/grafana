@@ -1,16 +1,18 @@
 package setting
 
-import "slices"
+import (
+	"slices"
+)
 
 type ZanzanaMode string
 
 const (
-	ZanzanaModeEmbedded   = "embedded"
-	ZanzanaModeStandalone = "standalone"
+	ZanzanaModeClient   = "client"
+	ZanzanaModeEmbedded = "embedded"
 )
 
 type ZanzanaSettings struct {
-	// Mode can either be embedded or standalone
+	// Mode can either be embedded or client
 	Mode ZanzanaMode
 }
 
@@ -20,10 +22,12 @@ func (c *Cfg) readZanzanaSettings() {
 	sec := c.Raw.Section("zanzana")
 	s.Mode = ZanzanaMode(sec.Key("mode").MustString("embedded"))
 
-	validModes := []ZanzanaMode{"embedded", "standalone"}
+	validModes := []ZanzanaMode{ZanzanaModeEmbedded, ZanzanaModeClient}
 
 	if slices.Contains(validModes, s.Mode) {
 		c.Logger.Warn("Invalid zanzana mode. It can be any of %v but got %s", validModes, s.Mode)
 		s.Mode = "embedded"
 	}
+
+	c.Zanzana = s
 }
