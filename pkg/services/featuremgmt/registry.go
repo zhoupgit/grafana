@@ -1316,6 +1316,14 @@ var (
 			HideFromAdminPage: true,
 			HideFromDocs:      true,
 		},
+		{
+			Name:              "zanzana",
+			Description:       "Enables the experimental authorization through openFGA",
+			Stage:             FeatureStageExperimental,
+			Owner:             identityAccessTeam,
+			HideFromAdminPage: true,
+			HideFromDocs:      true,
+		},
 	}
 )
 

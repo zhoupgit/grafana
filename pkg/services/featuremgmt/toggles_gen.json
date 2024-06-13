@@ -295,6 +295,20 @@
     },
     {
       "metadata": {
+        "name": "authZGRPCServer",
+        "resourceVersion": "1718093439898",
+        "creationTimestamp": "2024-06-11T08:10:39Z"
+      },
+      "spec": {
+        "description": "Enables the gRPC server for authorization",
+        "stage": "experimental",
+        "codeowner": "@grafana/identity-access-team",
+        "hideFromAdminPage": true,
+        "hideFromDocs": true
+      }
+    },
+    {
+      "metadata": {
         "name": "autoMigrateGraphPanel",
         "resourceVersion": "1717578796182",
         "creationTimestamp": "2024-02-08T22:00:48Z"
@@ -1664,6 +1678,18 @@
     },
     {
       "metadata": {
+        "name": "pinNavItems",
+        "resourceVersion": "1718017263521",
+        "creationTimestamp": "2024-06-10T11:01:03Z"
+      },
+      "spec": {
+        "description": "Enables pinning of nav items",
+        "stage": "experimental",
+        "codeowner": "@grafana/grafana-frontend-platform"
+      }
+    },
+    {
+      "metadata": {
         "name": "pluginProxyPreserveTrailingSlash",
         "resourceVersion": "1717581171624",
         "creationTimestamp": "2024-06-05T11:36:14Z"
@@ -2255,24 +2281,12 @@
     },
     {
       "metadata": {
-        "name": "pinNavItems",
-        "resourceVersion": "1718017263521",
-        "creationTimestamp": "2024-06-10T11:01:03Z"
+        "name": "zanzana",
+        "resourceVersion": "1718271078429",
+        "creationTimestamp": "2024-06-13T09:31:18Z"
       },
       "spec": {
-        "description": "Enables pinning of nav items",
-        "stage": "experimental",
-        "codeowner": "@grafana/grafana-frontend-platform"
-      }
-    },
-    {
-      "metadata": {
-        "name": "authZGRPCServer",
-        "resourceVersion": "1718093439898",
-        "creationTimestamp": "2024-06-11T08:10:39Z"
-      },
-      "spec": {
-        "description": "Enables the gRPC server for authorization",
+        "description": "Enables the experimental authorization through openFGA",
         "stage": "experimental",
         "codeowner": "@grafana/identity-access-team",
         "hideFromAdminPage": true,

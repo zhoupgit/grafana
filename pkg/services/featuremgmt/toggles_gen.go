@@ -710,4 +710,8 @@ const (
 	// FlagAuthZGRPCServer
 	// Enables the gRPC server for authorization
 	FlagAuthZGRPCServer = "authZGRPCServer"
+
+	// FlagZanzana
+	// Enables the experimental authorization through openFGA
+	FlagZanzana = "zanzana"
 )
