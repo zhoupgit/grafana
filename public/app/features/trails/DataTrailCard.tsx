@@ -6,11 +6,12 @@ import { AdHocFiltersVariable, sceneGraph } from '@grafana/scenes';
 import { Card, IconButton, Stack, Tag, useStyles2 } from '@grafana/ui';
 
 import { DataTrail } from './DataTrail';
+import { DataTrailStoreEntry } from './TrailStore/TrailStore';
 import { VAR_FILTERS } from './shared';
 import { getDataSource, getDataSourceName, getMetricName } from './utils';
 
 export interface Props {
-  trail: DataTrail;
+  trail: DataTrailStoreEntry;
   onSelect: (trail: DataTrail) => void;
   onDelete?: () => void;
 }

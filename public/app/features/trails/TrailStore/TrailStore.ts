@@ -26,14 +26,14 @@ export interface SerializedTrail {
   createdAt?: number;
 }
 
-export interface StoreEntry {
+export interface DataTrailStoreEntry {
   storeRef: SerializedTrail;
   sceneRef?: DataTrail;
 }
 
 export class TrailStore {
-  private _recent: StoreEntry[] = [];
-  private _bookmarks: StoreEntry[] = [];
+  private _recent: DataTrailStoreEntry[] = [];
+  private _bookmarks: DataTrailStoreEntry[] = [];
   private _save: () => void;
 
   constructor() {
@@ -57,7 +57,7 @@ export class TrailStore {
     });
   }
 
-  private _loadFromStorage(key: string): StoreEntry[] {
+  private _loadFromStorage(key: string): DataTrailStoreEntry[] {
     const storageItem = localStorage.getItem(key);
 
     if (storageItem) {
