@@ -1,7 +1,7 @@
-import { debounce, isEqual } from 'lodash';
+import { debounce } from 'lodash';
 
 import { urlUtil } from '@grafana/data';
-import { getUrlSyncManager, SceneObject, SceneObjectRef, SceneObjectUrlValues, sceneUtils } from '@grafana/scenes';
+import { getUrlSyncManager, SceneObject, SceneObjectUrlValues, sceneUtils } from '@grafana/scenes';
 import { dispatch } from 'app/store/store';
 
 import { notifyApp } from '../../../core/reducers/appNotification';
@@ -15,30 +15,36 @@ const MAX_RECENT_TRAILS = 20;
 
 export interface SerializedTrail {
   history: Array<{
-    urlValues: SceneObjectUrlValues;
+    urlValues?: SceneObjectUrlValues;
+    urlState: string;
     type: TrailStepType;
     description: string;
     parentIndex: number;
   }>;
+  urlState: string;
   currentStep: number;
   createdAt?: number;
 }
 
+export interface StoreEntry {
+  storeRef: SerializedTrail;
+  sceneRef?: DataTrail;
+}
+
 export class TrailStore {
-  private _recent: Array<SceneObjectRef<DataTrail>> = [];
-  private _bookmarks: Array<SceneObjectRef<DataTrail>> = [];
+  private _recent: StoreEntry[] = [];
+  private _bookmarks: StoreEntry[] = [];
   private _save: () => void;
 
   constructor() {
     this.load();
 
     const doSave = () => {
-      const serializedRecent = this._recent
-        .slice(0, MAX_RECENT_TRAILS)
-        .map((trail) => this._serializeTrail(trail.resolve()));
+      const serializedRecent = this._recent.slice(0, MAX_RECENT_TRAILS).map((trail) => trail.storeRef);
+
       localStorage.setItem(RECENT_TRAILS_KEY, JSON.stringify(serializedRecent));
 
-      const serializedBookmarks = this._bookmarks.map((trail) => this._serializeTrail(trail.resolve()));
+      const serializedBookmarks = this._bookmarks.map((trail) => trail.storeRef);
       localStorage.setItem(BOOKMARKED_TRAILS_KEY, JSON.stringify(serializedBookmarks));
     };
 
@@ -51,18 +57,19 @@ export class TrailStore {
     });
   }
 
-  private _loadFromStorage(key: string) {
-    const list: Array<SceneObjectRef<DataTrail>> = [];
+  private _loadFromStorage(key: string): StoreEntry[] {
     const storageItem = localStorage.getItem(key);
 
     if (storageItem) {
       const serializedTrails: SerializedTrail[] = JSON.parse(storageItem);
-      for (const t of serializedTrails) {
-        const trail = this._deserializeTrail(t);
-        list.push(trail.getRef());
-      }
+      return serializedTrails.map((t) => {
+        return {
+          storeRef: t,
+        };
+      });
     }
-    return list;
+
+    return [];
   }
 
   private _deserializeTrail(t: SerializedTrail): DataTrail {
@@ -93,15 +100,19 @@ export class TrailStore {
   private _serializeTrail(trail: DataTrail): SerializedTrail {
     const history = trail.state.history.state.steps.map((step) => {
       const stepTrail = new DataTrail(sceneUtils.cloneSceneObjectState(step.trailState));
+      const urlState = getUrlStateForComparison(stepTrail);
+
       return {
-        urlValues: getUrlSyncManager().getUrlState(stepTrail),
+        urlState,
         type: step.type,
         description: step.description,
         parentIndex: step.parentIndex,
       };
     });
+
     return {
       history,
+      urlState: getUrlStateForComparison(trail),
       currentStep: trail.state.history.state.currentStep,
       createdAt: trail.state.createdAt,
     };
@@ -131,27 +142,23 @@ export class TrailStore {
     }
 
     // Remove the `recentTrail` from the list if it already exists there
-    this._recent = this._recent.filter((t) => t !== recentTrail.getRef());
+    this._recent = this._recent.filter((t) => t.sceneRef !== recentTrail);
 
     // Check if any existing "recent" entries have equivalent urlState to the new recentTrail
     const recentUrlState = getUrlStateForComparison(recentTrail); //
-    this._recent = this._recent.filter((t) => {
-      // Use the current step urlValues to filter out equivalent states
-      const urlState = getUrlStateForComparison(t.resolve());
-      // Only keep trails with sufficiently unique urlValues on their current step
-      return !isEqual(recentUrlState, urlState);
+    this._recent = this._recent.filter((t) => t.storeRef.urlState !== recentUrlState);
+
+    this._recent.unshift({
+      storeRef: this._serializeTrail(recentTrail),
+      sceneRef: recentTrail,
     });
 
-    this._recent.unshift(recentTrail.getRef());
     this._save();
   }
 
   findMatchingRecentTrail(trail: DataTrail) {
     const matchUrlState = getUrlStateForComparison(trail);
-    return this._recent.find((t) => {
-      const urlState = getUrlStateForComparison(t.resolve());
-      return isEqual(matchUrlState, urlState);
-    });
+    return this._recent.find((t) => t.storeRef.urlState === matchUrlState);
   }
 
   // Bookmarked Trails
@@ -160,8 +167,8 @@ export class TrailStore {
   }
 
   addBookmark(trail: DataTrail) {
-    const bookmark = new DataTrail(sceneUtils.cloneSceneObjectState(trail.state));
-    this._bookmarks.unshift(bookmark.getRef());
+    const bookmark = trail.clone();
+    this._bookmarks.unshift({ sceneRef: trail.clone(), storeRef: this._serializeTrail(bookmark) });
     this._refreshBookmarkIndexMap();
     this._save();
     dispatch(notifyApp(createBookmarkSavedNotification()));
@@ -176,7 +183,7 @@ export class TrailStore {
   }
 
   getBookmarkIndex(trail: DataTrail) {
-    const bookmarkKey = getBookmarkKey(trail);
+    const bookmarkKey = getUrlStateForComparison(trail);
     const bookmarkIndex = this._bookmarkIndexMap.get(bookmarkKey);
     return bookmarkIndex;
   }
@@ -186,16 +193,13 @@ export class TrailStore {
   private _refreshBookmarkIndexMap() {
     this._bookmarkIndexMap.clear();
     this._bookmarks.forEach((bookmarked, index) => {
-      const trail = bookmarked.resolve();
-
-      const key = getBookmarkKey(trail);
       // If there are duplicate bookmarks, the latest index will be kept
-      this._bookmarkIndexMap.set(key, index);
+      this._bookmarkIndexMap.set(bookmarked.storeRef.urlState, index);
     });
   }
 }
 
-function getUrlStateForComparison(trail: DataTrail) {
+function getUrlStateForComparison(trail: DataTrail): string {
   const urlState = getUrlSyncManager().getUrlState(trail);
   // Make a few corrections
 
@@ -208,12 +212,7 @@ function getUrlStateForComparison(trail: DataTrail) {
     urlState['var-groupby'] = '$__all';
   }
 
-  return urlState;
-}
-
-function getBookmarkKey(trail: DataTrail) {
-  const key = JSON.stringify(getUrlStateForComparison(trail));
-  return key;
+  return urlUtil.renderUrl('', urlState);
 }
 
 let store: TrailStore | undefined;

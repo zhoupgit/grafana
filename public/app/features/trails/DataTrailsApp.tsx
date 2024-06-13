@@ -103,7 +103,7 @@ function getInitialTrail() {
 
   // If one of the recent trails is a match to the newTrail derived from the current URL,
   // let's restore that trail so that a page refresh doesn't create a new trail.
-  const recentMatchingTrail = getTrailStore().findMatchingRecentTrail(newTrail)?.resolve();
+  const recentMatchingTrail = getTrailStore().findMatchingRecentTrail(newTrail);
 
   // If there is a matching trail, initialize with that. Otherwise, use the new trail.
   return recentMatchingTrail || newTrail;
