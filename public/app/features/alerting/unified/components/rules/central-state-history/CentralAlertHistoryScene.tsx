@@ -55,7 +55,7 @@ const QUERY_PARAM_PREFIX = 'var-';
 export const LABELS_FILTER = 'filter';
 
 export const CentralAlertHistoryScene = () => {
-  const ashDs: DataSourceInformation = {
+  const alertStateHistoryDatasource: DataSourceInformation = {
     type: historyDataSourcePluginId,
     uid: historyDataSourceUid,
     settings: undefined,
@@ -89,7 +89,7 @@ export const CentralAlertHistoryScene = () => {
       children: [
         new SceneFlexItem({
           ySizing: 'content',
-          body: getEventsSceneObject(ashDs),
+          body: getEventsSceneObject(alertStateHistoryDatasource),
         }),
         new SceneFlexItem({
           body: new HistoryEventsListObject(),
@@ -118,11 +118,8 @@ function getEventsSceneObject(ashDs: DataSourceInformation) {
     }),
   });
 }
-/**
- * This function creates a SceneFlexItem with a timeseries panel that shows the events.
- * The query uses a runtime datasource that fetches the events from the history api.
- */
-export function getEventsScenesFlexItem(datasource: DataSourceInformation) {
+
+function getSceneQuery(datasource: DataSourceInformation) {
   const query = new SceneQueryRunner({
     datasource: datasource,
     queries: [
@@ -134,13 +131,19 @@ export function getEventsScenesFlexItem(datasource: DataSourceInformation) {
       },
     ],
   });
-
+  return query;
+}
+/**
+ * This function creates a SceneFlexItem with a timeseries panel that shows the events.
+ * The query uses a runtime datasource that fetches the events from the history api.
+ */
+export function getEventsScenesFlexItem(datasource: DataSourceInformation) {
   return new SceneFlexItem({
     minHeight: 300,
     body: PanelBuilders.timeseries()
       .setTitle('Events')
       .setDescription('Alert events during the period of time.')
-      .setData(query)
+      .setData(getSceneQuery(datasource))
       .setColor({ mode: 'continuous-BlPu' })
       .setCustomFieldConfig('fillOpacity', 100)
       .setCustomFieldConfig('drawStyle', GraphDrawStyle.Bars)

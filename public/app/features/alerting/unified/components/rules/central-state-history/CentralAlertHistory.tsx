@@ -1,5 +1,4 @@
 import { css } from '@emotion/css';
-import { hash } from 'immutable';
 import React, { useState } from 'react';
 import { useMeasure } from 'react-use';
 
@@ -18,8 +17,9 @@ import {
 } from 'app/types/unified-alerting-dto';
 
 import { stateHistoryApi } from '../../../api/stateHistoryApi';
-import { GRAFANA_DATASOURCE_NAME } from '../../../utils/datasource';
+import { GRAFANA_RULES_SOURCE_NAME } from '../../../utils/datasource';
 import { stringifyErrorLike } from '../../../utils/misc';
+import { hashLabelsOrAnnotations } from '../../../utils/rule-id';
 import { AlertLabels } from '../../AlertLabels';
 import { CollapseToggle } from '../../CollapseToggle';
 import { LogRecord } from '../state-history/common';
@@ -28,7 +28,6 @@ import { useRuleHistoryRecords } from '../state-history/useRuleHistoryRecords';
 import { LABELS_FILTER } from './CentralAlertHistoryScene';
 
 export const LIMIT_EVENTS = 1000;
-const STATE_HISTORY_POLLING_INTERVAL = 10 * 1000; // 10 seconds
 
 const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model: HistoryEventsListObject }) => {
   const filtersVariable = sceneGraph.lookupVariable(LABELS_FILTER, model)!;
@@ -38,7 +37,7 @@ const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model:
   const to = timeRange?.to.unix();
 
   const {
-    currentData: stateHistory,
+    data: stateHistory,
     isLoading,
     isError,
     error,
@@ -51,7 +50,6 @@ const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model:
     {
       refetchOnFocus: true,
       refetchOnReconnect: true,
-      pollingInterval: STATE_HISTORY_POLLING_INTERVAL,
     }
   );
 
@@ -82,7 +80,7 @@ function HistoryLogEvents({ logRecords }: HistoryLogEventsProps) {
   return (
     <ul>
       {logRecords.map((record) => {
-        return <EventRow key={record.timestamp + hash(record.line.labels ?? {})} record={record} />;
+        return <EventRow key={record.timestamp + hashLabelsOrAnnotations(record.line.labels ?? {})} record={record} />;
       })}
     </ul>
   );
@@ -140,7 +138,10 @@ function AlertRuleName({ labels, ruleUID }: { labels: Record<string, string>; ru
   }
   return (
     <Tooltip content={alertRuleName ?? ''}>
-      <a href={`/alerting/${GRAFANA_DATASOURCE_NAME}/${ruleUID}/view`} className={styles.alertName}>
+      <a
+        href={`/alerting/${GRAFANA_RULES_SOURCE_NAME}/${ruleUID}/view?returnTo=${encodeURIComponent('/alerting/history')}`}
+        className={styles.alertName}
+      >
         {alertRuleName}
       </a>
     </Tooltip>
