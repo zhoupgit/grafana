@@ -1,6 +1,5 @@
 import { groupBy } from 'lodash';
 import { useEffect, useMemo } from 'react';
-import { Observable, map } from 'rxjs';
 
 import {
   DataFrame,
@@ -14,9 +13,11 @@ import {
   TestDataSourceResponse,
 } from '@grafana/data';
 import { fieldIndexComparer } from '@grafana/data/src/field/fieldComparers';
-import { FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
+import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
+import { dispatch } from 'app/store/store';
 
+import { stateHistoryApi } from '../../../api/stateHistoryApi';
 import { DataSourceInformation } from '../../../home/Insights';
 import { labelsMatchMatchers, parseMatchers } from '../../../utils/alertmanager';
 import { LogRecord } from '../state-history/common';
@@ -56,10 +57,14 @@ class HistoryAPIDatasource extends RuntimeDataSource {
     super(uid, pluginId);
   }
 
-  query(request: DataQueryRequest<DataQuery>): Promise<DataQueryResponse> | Observable<DataQueryResponse> {
+  async query(request: DataQueryRequest<DataQuery>): Promise<DataQueryResponse> {
     const from = request.range.from.unix();
     const to = request.range.to.unix();
-    return getHistory(from, to);
+    const res = await getHistory(from, to);
+
+    return {
+      data: historyResultToDataFrame(res),
+    };
   }
 
   testDatasource(): Promise<TestDataSourceResponse> {
@@ -67,21 +72,19 @@ class HistoryAPIDatasource extends RuntimeDataSource {
   }
 }
 
-export const getHistory = (from: number, to: number): Observable<DataQueryResponse> => {
-  return getBackendSrv()
-    .fetch<DataFrameJSON>({
-      url: `/api/v1/rules/history`,
-      params: { limit: LIMIT_EVENTS, from, to },
-      method: 'GET',
-    })
-    .pipe(
-      map((res: FetchResponse<DataFrameJSON>) => {
-        return {
-          ...res,
-          data: historyResultToDataFrame(res.data),
-        };
-      })
-    );
+export const getHistory = async (from: number, to: number) => {
+  return await dispatch(
+    stateHistoryApi.endpoints.getRuleHistory.initiate(
+      {
+        from: from,
+        to: to,
+        limit: LIMIT_EVENTS,
+      },
+      {
+        forceRefetch: Boolean(getTimeSrv().getAutoRefreshInteval().interval), // force refetch in case we are using the refresh option
+      }
+    )
+  ).unwrap();
 };
 
 /*
