@@ -5,5 +5,6 @@ import (
 )
 
 var WireSet = wire.NewSet(
+	ProvideZanzana,
 	ProvideClient,
 )

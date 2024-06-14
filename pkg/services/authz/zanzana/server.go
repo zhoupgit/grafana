@@ -7,16 +7,16 @@ import (
 )
 
 func New(store storage.OpenFGADatastore) (*server.Server, error) {
-	// TODO: add support for more options
+	// FIXME(kalleep): add support for more options, configure logging, tracing etc
 	opts := []server.OpenFGAServiceV1Option{
 		server.WithDatastore(store),
-		// TODO: Write and log adapter for open fga logging interface
+		// FIXME(kalleep): Write and log adapter for open fga logging interface
 		server.WithLogger(logger.NewNoopLogger()),
 	}
 
 	// FIXME(kalleep): Interceptors
 	// We probably need to at least need to add store id interceptor also
-	// would be nice to inject our own requestid
+	// would be nice to inject our own requestid?
 	srv, err := server.NewServerWithOpts(opts...)
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/fullstorydev/grpchan/inprocgrpc"
 	"github.com/grafana/dskit/services"
 	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,12 +18,39 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 )
 
+// TODO: probably create a wrapper for openfga client
+func ProvideZanzana(cfg *setting.Cfg) (openfgav1.OpenFGAServiceClient, error) {
+	srv, err := zanzana.New(zanzana.NewStore())
+	if err != nil {
+		return nil, fmt.Errorf("failed to start zanana: %w", err)
+	}
+
+	var client openfgav1.OpenFGAServiceClient
+
+	// FIXME(kalleep): add config for connecting to remote zanana instance
+	switch cfg.Zanzana.Mode {
+	case setting.ZanzanaModeClient:
+		panic("unimplemented")
+	case setting.ZanzanaModeEmbedded:
+		// run zanana embedded in grafana
+		channel := &inprocgrpc.Channel{}
+		openfgav1.RegisterOpenFGAServiceServer(channel, srv)
+		client = openfgav1.NewOpenFGAServiceClient(channel)
+
+	default:
+		return nil, fmt.Errorf("unsupported zanana mode: %s", cfg.Zanzana.Mode)
+	}
+
+	return client, nil
+}
+
 type Service interface {
 	services.NamedService
 }
 
 var _ Service = (*Zanzana)(nil)
 
+// ProvideZanzanaService is used to register zanana as a module so we can run it seperatly from grafana.
 func ProvideZanzanaService(cfg *setting.Cfg, features featuremgmt.FeatureToggles) (*Zanzana, error) {
 	s := &Zanzana{
 		cfg:      cfg,
@@ -46,8 +74,6 @@ type Zanzana struct {
 }
 
 func (z *Zanzana) start(ctx context.Context) error {
-	z.logger.Info("Starting zanana")
-
 	srv, err := zanzana.New(zanzana.NewStore())
 	if err != nil {
 		return fmt.Errorf("failed to start zanana: %w", err)
@@ -77,7 +103,6 @@ func (z *Zanzana) start(ctx context.Context) error {
 }
 
 func (z *Zanzana) running(ctx context.Context) error {
-	z.logger.Info("Running zanana")
 	// handle.Run is blocking so we can just run it here
 	return z.handle.Run(ctx)
 }
@@ -85,8 +110,6 @@ func (z *Zanzana) running(ctx context.Context) error {
 func (z *Zanzana) stopping(err error) error {
 	if err != nil && !errors.Is(err, context.Canceled) {
 		z.logger.Error("Stopping zanzana due to unexpected error", "err", err)
-	} else {
-		z.logger.Info("Stopping zanana")
 	}
 	return nil
 }
