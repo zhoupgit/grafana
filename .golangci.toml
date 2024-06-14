@@ -151,7 +151,6 @@ enable = [
   "ineffassign",
   "misspell",
   "nakedret",
-  "prealloc",
   "revive",
   "staticcheck",
   "stylecheck",
