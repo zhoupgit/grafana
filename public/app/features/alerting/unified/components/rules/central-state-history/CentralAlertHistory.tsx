@@ -29,6 +29,12 @@ import { LABELS_FILTER } from './CentralAlertHistoryScene';
 
 export const LIMIT_EVENTS = 1000;
 
+/**
+ *
+ * This component displays a list of history events.
+ * It fetches the events from the history api and displays them in a list.
+ * The list is filtered by the labels in the filter variable and by the time range variable in the scene graph.
+ */
 const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model: HistoryEventsListObject }) => {
   const filtersVariable = sceneGraph.lookupVariable(LABELS_FILTER, model)!;
 
@@ -48,7 +54,6 @@ const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model:
       limit: LIMIT_EVENTS,
     },
     {
-      refetchOnFocus: true,
       refetchOnReconnect: true,
     }
   );
@@ -300,7 +305,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
 
 /**
  * This is a scene object that displays a list of history events.
- * We need to keep filter state in the scene object so that it can be synced with the URL.
  */
 
 export class HistoryEventsListObject extends SceneObjectBase {
