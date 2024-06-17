@@ -35,7 +35,7 @@ export const LIMIT_EVENTS = 1000;
  * It fetches the events from the history api and displays them in a list.
  * The list is filtered by the labels in the filter variable and by the time range variable in the scene graph.
  */
-const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model: HistoryEventsListObject }) => {
+export const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model: HistoryEventsListObject }) => {
   const filtersVariable = sceneGraph.lookupVariable(LABELS_FILTER, model)!;
 
   const valueInfilterTextBox = !(filtersVariable instanceof TextBoxVariable) ? '' : filtersVariable.getValue();
@@ -75,7 +75,7 @@ const HistoryEventsList = ({ timeRange, model }: { timeRange?: TimeRange; model:
 // todo: this function has been copied from RuleList.v2.tsx, should be moved to a shared location
 const LoadingIndicator = ({ visible = false }) => {
   const [measureRef, { width }] = useMeasure<HTMLDivElement>();
-  return <div ref={measureRef}>{visible && <LoadingBar width={width} />}</div>;
+  return <div ref={measureRef}>{visible && <LoadingBar width={width} data-testid="loading-bar" />}</div>;
 };
 
 interface HistoryLogEventsProps {
@@ -109,7 +109,7 @@ function EventRow({ record }: { record: LogRecord }) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   return (
     <div>
-      <div className={styles.header} data-testid="rule-group-header">
+      <div className={styles.header} data-testid="event-row-header">
         <CollapseToggle
           size="sm"
           className={styles.collapseToggle}

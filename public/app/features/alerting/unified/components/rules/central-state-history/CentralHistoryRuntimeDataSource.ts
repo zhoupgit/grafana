@@ -43,10 +43,9 @@ class HistoryAPIDatasource extends RuntimeDataSource {
   async query(request: DataQueryRequest<DataQuery>): Promise<DataQueryResponse> {
     const from = request.range.from.unix();
     const to = request.range.to.unix();
-    const res = await getHistory(from, to);
 
     return {
-      data: historyResultToDataFrame(res),
+      data: historyResultToDataFrame(await getHistory(from, to)),
     };
   }
 
