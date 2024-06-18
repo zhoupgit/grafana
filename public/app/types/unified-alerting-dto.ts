@@ -120,11 +120,14 @@ export interface PromAlertingRuleDTO extends PromRuleDTOBase {
     activeAt: string;
     value: string;
   }>;
-  labels: Labels;
+  labels?: Labels;
   annotations?: Annotations;
   duration?: number; // for
   state: PromAlertingRuleState;
   type: PromRuleType.Alerting;
+  activeAt?: string;
+  totals?: AlertGroupTotals;
+  totalsFiltered?: AlertGroupTotals;
 }
 
 export interface PromRecordingRuleDTO extends PromRuleDTOBase {

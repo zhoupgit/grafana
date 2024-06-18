@@ -21,7 +21,7 @@ export const rulerRulesHandler = () => {
 };
 
 export const rulerRuleNamespaceHandler = () => {
-  return http.get<{ folderUid: string }>(`/api/ruler/grafana/api/v1/rules/:folderUid`, ({ params: { folderUid } }) => {
+  return http.get<{ folderUid: string }>(`/api/ruler/grafana/api/v1/rules/:folderUid/`, ({ params: { folderUid } }) => {
     // This mimic API response as closely as possible - Invalid folderUid returns 403
     const namespace = namespaces[folderUid];
     if (!namespace) {
@@ -55,6 +55,23 @@ export const rulerRuleGroupHandler = () => {
   );
 };
 
+const updateRulerRuleNamespaceHandler = () =>
+  http.post<{ folderUid: string }>(`/api/ruler/grafana/api/v1/rules/:folderUid`, async ({ params }) => {
+    const { folderUid } = params;
+
+    // This mimic API response as closely as possible.
+    // Invalid folderUid returns 403 but invalid group will return 202 with empty list of rules
+    const namespace = namespaces[folderUid];
+    if (!namespace) {
+      return new HttpResponse(null, { status: 403 });
+    }
+
+    return HttpResponse.json({
+      message: 'updated',
+      updated: [],
+    });
+  });
+
 export const rulerRuleHandler = () => {
   const grafanaRules = new Map<string, RulerGrafanaRuleDTO>(
     [grafanaRulerRule].map((rule) => [rule.grafana_alert.uid, rule])
@@ -69,5 +86,11 @@ export const rulerRuleHandler = () => {
   });
 };
 
-const handlers = [rulerRulesHandler(), rulerRuleNamespaceHandler(), rulerRuleGroupHandler(), rulerRuleHandler()];
+const handlers = [
+  rulerRulesHandler(),
+  rulerRuleNamespaceHandler(),
+  updateRulerRuleNamespaceHandler(),
+  rulerRuleGroupHandler(),
+  rulerRuleHandler(),
+];
 export default handlers;

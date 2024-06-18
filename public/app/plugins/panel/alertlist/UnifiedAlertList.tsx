@@ -94,6 +94,7 @@ const fetchPromAndRuler = ({
 };
 
 function UnifiedAlertList(props: PanelProps<UnifiedAlertListOptions>) {
+  debugger;
   const dispatch = useDispatch();
   const [limitInstances, toggleLimit] = useToggle(true);
   const [, gmaViewAllowed] = useAlertingAbility(AlertingAction.ViewAlertRule);

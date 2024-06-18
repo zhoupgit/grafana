@@ -1,5 +1,6 @@
 import 'whatwg-fetch';
 import '@testing-library/jest-dom';
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { configure } from '@testing-library/react';
 import i18next from 'i18next';
 import failOnConsole from 'jest-fail-on-console';
