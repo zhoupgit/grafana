@@ -89,9 +89,14 @@ func (tapi *TeamAPI) updateTeam(c *contextmodel.ReqContext) response.Response {
 		return response.Error(http.StatusBadRequest, "bad request data", err)
 	}
 	cmd.OrgID = c.SignedInUser.GetOrgID()
-	cmd.ID, err = strconv.ParseInt(web.Params(c.Req)[":teamId"], 10, 64)
+	teamID := web.Params(c.Req)[":teamId"]
+	cmd.ID, err = strconv.ParseInt(teamID, 10, 64)
 	if err != nil {
-		return response.Error(http.StatusBadRequest, "teamId is invalid", err)
+		if teamID != "" {
+			cmd.UID = teamID
+		} else {
+			return response.Error(http.StatusBadRequest, "teamId is invalid", err)
+		}
 	}
 
 	if err := tapi.teamService.UpdateTeam(c.Req.Context(), &cmd); err != nil {

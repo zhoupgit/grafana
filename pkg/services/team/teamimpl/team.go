@@ -42,6 +42,7 @@ func (s *Service) UpdateTeam(ctx context.Context, cmd *team.UpdateTeamCommand) e
 	ctx, span := s.tracer.Start(ctx, "team.UpdateTeam", trace.WithAttributes(
 		attribute.Int64("orgID", cmd.OrgID),
 		attribute.Int64("teamID", cmd.ID),
+		attribute.String("teamUID", cmd.UID),
 	))
 	defer span.End()
 	return s.store.Update(ctx, cmd)
