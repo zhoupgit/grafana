@@ -60,7 +60,7 @@ export async function setMetrics(
  * Builds the metric data object with type and description
  *
  * @param   metric  The metric name
- * @param   datasource  The Prometheus datasource for mapping metradata to the metric name
+ * @param   datasource  The Prometheus datasource for mapping metadata to the metric name
  * @returns A MetricData object.
  */
 function buildMetricData(metric: string, datasource: PrometheusDatasource): MetricData {
@@ -68,14 +68,25 @@ function buildMetricData(metric: string, datasource: PrometheusDatasource): Metr
 
   const description = getMetadataHelp(metric, datasource.languageProvider.metricsMetadata!);
 
+  // there are some metrics built from histograms.
+  // There description may include history, summary.
+  // we enhance the type here by indicating that there type is
+  // counter (histogram)
   ['histogram', 'summary'].forEach((t) => {
     if (description?.toLowerCase().includes(t) && type !== t) {
       type += ` (${t})`;
     }
   });
 
+  // some new descriptions do not include the word histogram but only buckets.
+  // we check here for the '_bucket' suffix
   const oldHistogramMatch = metric.match(/^\w+_bucket$|^\w+_bucket{.*}$/);
+  if (type === 'counter' && oldHistogramMatch) {
+    type += ` (histogram)`;
+  }
 
+  // native histograms do not contain the substring `bucket`
+  // but are given the type of histogram
   if (type === 'histogram' && !oldHistogramMatch) {
     type = 'native histogram';
   }
