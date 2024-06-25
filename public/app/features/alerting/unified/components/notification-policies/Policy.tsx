@@ -1,7 +1,8 @@
 import { css } from '@emotion/css';
 import { defaults, groupBy, isArray, sumBy, uniqueId, upperFirst } from 'lodash';
 import pluralize from 'pluralize';
-import React, { FC, Fragment, ReactNode, useState } from 'react';
+import { FC, Fragment, ReactNode, useState } from 'react';
+import * as React from 'react';
 import { useToggle } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -268,12 +269,12 @@ const Policy = (props: PolicyComponentProps) => {
                               overlay={
                                 <Menu>
                                   <Menu.Item
-                                    label="Insert above"
+                                    label="New sibling above"
                                     icon="arrow-up"
                                     onClick={() => onAddPolicy(currentRoute, 'above')}
                                   />
                                   <Menu.Item
-                                    label="Insert below"
+                                    label="New sibling below"
                                     icon="arrow-down"
                                     onClick={() => onAddPolicy(currentRoute, 'below')}
                                   />

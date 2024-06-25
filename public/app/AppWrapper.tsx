@@ -1,5 +1,5 @@
 import { Action, KBarProvider } from 'kbar';
-import React, { ComponentType } from 'react';
+import { Component, ComponentType } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Provider } from 'react-redux';
 import { Router, Redirect, Switch, RouteComponentProps, MemoryRouter } from 'react-router-dom';
@@ -51,7 +51,7 @@ export function addPageBanner(fn: ComponentType) {
   pageBanners.push(fn);
 }
 
-export class AppWrapper extends React.Component<AppWrapperProps, AppWrapperState> {
+export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
   constructor(props: AppWrapperProps) {
     super(props);
     this.state = {};
