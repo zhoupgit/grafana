@@ -130,7 +130,7 @@ export const EnumMappingEditor = ({ input, options, transformIndex, onChange }: 
 
       <VerticalGroup>
         <table className={styles.compactTable}>
-          <DragDropContext onDragEnd={onDragEnd}>
+          {/* <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="sortable-enum-config-mappings" direction="vertical">
               {(provided) => (
                 <tbody ref={provided.innerRef} {...provided.droppableProps}>
@@ -154,7 +154,7 @@ export const EnumMappingEditor = ({ input, options, transformIndex, onChange }: 
                 </tbody>
               )}
             </Droppable>
-          </DragDropContext>
+          </DragDropContext> */}
         </table>
       </VerticalGroup>
     </InlineFieldRow>

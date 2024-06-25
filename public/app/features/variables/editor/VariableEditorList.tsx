@@ -65,7 +65,7 @@ export function VariableEditorList({
                     <th colSpan={5} />
                   </tr>
                 </thead>
-                <DragDropContext onDragEnd={onDragEnd}>
+                {/* <DragDropContext onDragEnd={onDragEnd}>
                   <Droppable droppableId="variables-list" direction="vertical">
                     {(provided) => (
                       <tbody ref={provided.innerRef} {...provided.droppableProps}>
@@ -85,7 +85,7 @@ export function VariableEditorList({
                       </tbody>
                     )}
                   </Droppable>
-                </DragDropContext>
+                </DragDropContext> */}
               </table>
             </div>
             <Stack>

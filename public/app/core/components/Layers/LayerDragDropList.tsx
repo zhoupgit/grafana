@@ -44,81 +44,82 @@ export const LayerDragDropList = <T extends LayerElement>({
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable">
-        {(provided, snapshot) => (
-          <div {...provided.droppableProps} ref={provided.innerRef} data-testid={DATA_TEST_ID}>
-            {(() => {
-              // reverse order
-              const rows: JSX.Element[] = [];
-              const lastLayerIndex = excludeBaseLayer ? 1 : 0;
-              const shouldRenderDragIconLengthThreshold = excludeBaseLayer ? 2 : 1;
-              for (let i = layers.length - 1; i >= lastLayerIndex; i--) {
-                const element = layers[i];
-                const uid = element.getName();
+    <></>
+    // <DragDropContext onDragEnd={onDragEnd}>
+    //   <Droppable droppableId="droppable">
+    //     {(provided, snapshot) => (
+    //       <div {...provided.droppableProps} ref={provided.innerRef} data-testid={DATA_TEST_ID}>
+    //         {(() => {
+    //           // reverse order
+    //           const rows: JSX.Element[] = [];
+    //           const lastLayerIndex = excludeBaseLayer ? 1 : 0;
+    //           const shouldRenderDragIconLengthThreshold = excludeBaseLayer ? 2 : 1;
+    //           for (let i = layers.length - 1; i >= lastLayerIndex; i--) {
+    //             const element = layers[i];
+    //             const uid = element.getName();
 
-                const isSelected = Boolean(selection?.includes(uid));
-                rows.push(
-                  <Draggable key={uid} draggableId={uid} index={rows.length}>
-                    {(provided, snapshot) => (
-                      <div
-                        className={getRowStyle(isSelected)}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        onMouseDown={() => onSelect(element)}
-                        role="button"
-                        tabIndex={0}
-                      >
-                        <LayerName
-                          name={uid}
-                          onChange={(v) => onNameChange(element, v)}
-                          verifyLayerNameUniqueness={verifyLayerNameUniqueness ?? undefined}
-                        />
-                        <div className={style.textWrapper}>&nbsp; {getLayerInfo(element)}</div>
+    //             const isSelected = Boolean(selection?.includes(uid));
+    //             rows.push(
+    //               <Draggable key={uid} draggableId={uid} index={rows.length}>
+    //                 {(provided, snapshot) => (
+    //                   <div
+    //                     className={getRowStyle(isSelected)}
+    //                     ref={provided.innerRef}
+    //                     {...provided.draggableProps}
+    //                     {...provided.dragHandleProps}
+    //                     onMouseDown={() => onSelect(element)}
+    //                     role="button"
+    //                     tabIndex={0}
+    //                   >
+    //                     <LayerName
+    //                       name={uid}
+    //                       onChange={(v) => onNameChange(element, v)}
+    //                       verifyLayerNameUniqueness={verifyLayerNameUniqueness ?? undefined}
+    //                     />
+    //                     <div className={style.textWrapper}>&nbsp; {getLayerInfo(element)}</div>
 
-                        {showActions(element) && (
-                          <>
-                            {onDuplicate ? (
-                              <IconButton
-                                name="copy"
-                                tooltip="Duplicate"
-                                className={style.actionIcon}
-                                onClick={() => onDuplicate(element)}
-                              />
-                            ) : null}
+    //                     {showActions(element) && (
+    //                       <>
+    //                         {onDuplicate ? (
+    //                           <IconButton
+    //                             name="copy"
+    //                             tooltip="Duplicate"
+    //                             className={style.actionIcon}
+    //                             onClick={() => onDuplicate(element)}
+    //                           />
+    //                         ) : null}
 
-                            <IconButton
-                              name="trash-alt"
-                              tooltip="Remove"
-                              className={cx(style.actionIcon, style.dragIcon)}
-                              onClick={() => onDelete(element)}
-                            />
-                          </>
-                        )}
-                        {layers.length > shouldRenderDragIconLengthThreshold && (
-                          <Icon
-                            aria-label="Drag and drop icon"
-                            title="Drag and drop to reorder"
-                            name="draggabledots"
-                            size="lg"
-                            className={style.dragIcon}
-                          />
-                        )}
-                      </div>
-                    )}
-                  </Draggable>
-                );
-              }
+    //                         <IconButton
+    //                           name="trash-alt"
+    //                           tooltip="Remove"
+    //                           className={cx(style.actionIcon, style.dragIcon)}
+    //                           onClick={() => onDelete(element)}
+    //                         />
+    //                       </>
+    //                     )}
+    //                     {layers.length > shouldRenderDragIconLengthThreshold && (
+    //                       <Icon
+    //                         aria-label="Drag and drop icon"
+    //                         title="Drag and drop to reorder"
+    //                         name="draggabledots"
+    //                         size="lg"
+    //                         className={style.dragIcon}
+    //                       />
+    //                     )}
+    //                   </div>
+    //                 )}
+    //               </Draggable>
+    //             );
+    //           }
 
-              return rows;
-            })()}
+    //           return rows;
+    //         })()}
 
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    //         {provided.placeholder}
+    //       </div>
+    //     )}
+    //   </Droppable>
+    // </DragDropContext>
   );
 };
 

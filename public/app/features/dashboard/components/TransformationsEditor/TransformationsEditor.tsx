@@ -267,23 +267,24 @@ class UnThemedTransformationsEditor extends React.PureComponent<TransformationsE
     const { data, transformations } = this.state;
 
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="transformations-list" direction="vertical">
-          {(provided) => {
-            return (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <TransformationOperationRows
-                  configs={transformations}
-                  data={data}
-                  onRemove={this.onTransformationRemove}
-                  onChange={this.onTransformationChange}
-                />
-                {provided.placeholder}
-              </div>
-            );
-          }}
-        </Droppable>
-      </DragDropContext>
+      <></>
+      // <DragDropContext onDragEnd={this.onDragEnd}>
+      //   <Droppable droppableId="transformations-list" direction="vertical">
+      //     {(provided) => {
+      //       return (
+      //         <div ref={provided.innerRef} {...provided.droppableProps}>
+      //           <TransformationOperationRows
+      //             configs={transformations}
+      //             data={data}
+      //             onRemove={this.onTransformationRemove}
+      //             onChange={this.onTransformationChange}
+      //           />
+      //           {provided.placeholder}
+      //         </div>
+      //       );
+      //     }}
+      //   </Droppable>
+      // </DragDropContext>
     );
   };
 

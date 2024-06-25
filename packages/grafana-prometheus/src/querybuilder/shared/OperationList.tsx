@@ -89,33 +89,34 @@ export function OperationList<T extends QueryWithOperations>({
     <Stack gap={1} direction="column">
       <Stack gap={1}>
         {operations.length > 0 && (
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="sortable-field-mappings" direction="horizontal">
-              {(provided) => (
-                <div className={styles.operationList} ref={provided.innerRef} {...provided.droppableProps}>
-                  {operations.map((op, index) => {
-                    return (
-                      <OperationEditor
-                        key={op.id + JSON.stringify(op.params) + index}
-                        queryModeller={queryModeller}
-                        index={index}
-                        operation={op}
-                        query={query}
-                        datasource={datasource}
-                        onChange={onOperationChange}
-                        onRemove={onRemove}
-                        onRunQuery={onRunQuery}
-                        flash={opsToHighlight[index]}
-                        highlight={highlightedOp === op}
-                        timeRange={timeRange}
-                      />
-                    );
-                  })}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+          <></>
+          // <DragDropContext onDragEnd={onDragEnd}>
+          //   <Droppable droppableId="sortable-field-mappings" direction="horizontal">
+          //     {(provided) => (
+          //       <div className={styles.operationList} ref={provided.innerRef} {...provided.droppableProps}>
+          //         {operations.map((op, index) => {
+          //           return (
+          //             <OperationEditor
+          //               key={op.id + JSON.stringify(op.params) + index}
+          //               queryModeller={queryModeller}
+          //               index={index}
+          //               operation={op}
+          //               query={query}
+          //               datasource={datasource}
+          //               onChange={onOperationChange}
+          //               onRemove={onRemove}
+          //               onRunQuery={onRunQuery}
+          //               flash={opsToHighlight[index]}
+          //               highlight={highlightedOp === op}
+          //               timeRange={timeRange}
+          //             />
+          //           );
+          //         })}
+          //         {provided.placeholder}
+          //       </div>
+          //     )}
+          //   </Droppable>
+          // </DragDropContext>
         )}
         <div className={styles.addButton}>
           {cascaderOpen ? (

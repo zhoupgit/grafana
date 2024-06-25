@@ -22,7 +22,7 @@ export const PlaylistTable = ({ items, deleteItem, moveItem }: Props) => {
 
   return (
     <FieldSet label={t('playlist-edit.form.table-heading', 'Dashboards')}>
-      <DragDropContext onDragEnd={onDragEnd}>
+      {/* <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="playlist-list" direction="vertical">
           {(provided) => {
             return (
@@ -33,7 +33,7 @@ export const PlaylistTable = ({ items, deleteItem, moveItem }: Props) => {
             );
           }}
         </Droppable>
-      </DragDropContext>
+      </DragDropContext> */}
     </FieldSet>
   );
 };

@@ -73,35 +73,36 @@ export const LogsTableActiveFields = (props: {
 
   if (labelKeys.length) {
     return (
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="order-fields" direction="vertical">
-          {(provided) => (
-            <div className={styles.columnWrapper} {...provided.droppableProps} ref={provided.innerRef}>
-              {labelKeys.sort(sortLabels(labels)).map((labelName, index) => (
-                <Draggable draggableId={labelName} key={labelName} index={index}>
-                  {(provided: DraggableProvided, snapshot) => (
-                    <div
-                      className={cx(styles.wrap, snapshot.isDragging ? styles.dragging : undefined)}
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      title={renderTitle(labelName)}
-                    >
-                      <LogsTableNavField
-                        label={labelName}
-                        onChange={() => toggleColumn(labelName)}
-                        labels={labels}
-                        draggable={true}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <></>
+      // <DragDropContext onDragEnd={onDragEnd}>
+      //   <Droppable droppableId="order-fields" direction="vertical">
+      //     {(provided) => (
+      //       <div className={styles.columnWrapper} {...provided.droppableProps} ref={provided.innerRef}>
+      //         {labelKeys.sort(sortLabels(labels)).map((labelName, index) => (
+      //           <Draggable draggableId={labelName} key={labelName} index={index}>
+      //             {(provided: DraggableProvided, snapshot) => (
+      //               <div
+      //                 className={cx(styles.wrap, snapshot.isDragging ? styles.dragging : undefined)}
+      //                 ref={provided.innerRef}
+      //                 {...provided.draggableProps}
+      //                 {...provided.dragHandleProps}
+      //                 title={renderTitle(labelName)}
+      //               >
+      //                 <LogsTableNavField
+      //                   label={labelName}
+      //                   onChange={() => toggleColumn(labelName)}
+      //                   labels={labels}
+      //                   draggable={true}
+      //                 />
+      //               </div>
+      //             )}
+      //           </Draggable>
+      //         ))}
+      //         {provided.placeholder}
+      //       </div>
+      //     )}
+      //   </Droppable>
+      // </DragDropContext>
     );
   }
 

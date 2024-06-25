@@ -108,32 +108,33 @@ const OrganizeFieldsTransformerEditor = ({ options, input, onChange }: OrganizeF
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="sortable-fields-transformer" direction="vertical">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps}>
-            {orderedFieldNames.map((fieldName, index) => {
-              const isIncludeFilter = includeByName && fieldName in includeByName ? includeByName[fieldName] : false;
-              const isVisible = filterType === 'include' ? isIncludeFilter : !excludeByName[fieldName];
-              const onToggleFunction = filterType === 'include' ? onToggleVisibilityInclude : onToggleVisibility;
+    <></>
+    // <DragDropContext onDragEnd={onDragEnd}>
+    //   <Droppable droppableId="sortable-fields-transformer" direction="vertical">
+    //     {(provided) => (
+    //       <div ref={provided.innerRef} {...provided.droppableProps}>
+    //         {orderedFieldNames.map((fieldName, index) => {
+    //           const isIncludeFilter = includeByName && fieldName in includeByName ? includeByName[fieldName] : false;
+    //           const isVisible = filterType === 'include' ? isIncludeFilter : !excludeByName[fieldName];
+    //           const onToggleFunction = filterType === 'include' ? onToggleVisibilityInclude : onToggleVisibility;
 
-              return (
-                <DraggableFieldName
-                  fieldName={fieldName}
-                  renamedFieldName={renameByName[fieldName]}
-                  index={index}
-                  onToggleVisibility={onToggleFunction}
-                  onRenameField={onRenameField}
-                  visible={isVisible}
-                  key={fieldName}
-                />
-              );
-            })}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    //           return (
+    //             <DraggableFieldName
+    //               fieldName={fieldName}
+    //               renamedFieldName={renameByName[fieldName]}
+    //               index={index}
+    //               onToggleVisibility={onToggleFunction}
+    //               onRenameField={onRenameField}
+    //               visible={isVisible}
+    //               key={fieldName}
+    //             />
+    //           );
+    //         })}
+    //         {provided.placeholder}
+    //       </div>
+    //     )}
+    //   </Droppable>
+    // </DragDropContext>
   );
 };
 

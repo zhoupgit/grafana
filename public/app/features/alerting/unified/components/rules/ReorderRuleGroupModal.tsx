@@ -100,7 +100,7 @@ export const ReorderCloudGroupModal = (props: ModalProps) => {
       onDismiss={onClose}
       onClickBackdrop={onClose}
     >
-      <DragDropContext onDragEnd={onDragEnd}>
+      {/* <DragDropContext onDragEnd={onDragEnd}>
         <Droppable
           droppableId="alert-list"
           mode="standard"
@@ -123,7 +123,7 @@ export const ReorderCloudGroupModal = (props: ModalProps) => {
             </div>
           )}
         </Droppable>
-      </DragDropContext>
+      </DragDropContext> */}
     </Modal>
   );
 };

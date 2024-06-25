@@ -160,31 +160,32 @@ function TransformationsEditor({ transformations, model, data }: TransformationE
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="transformations-list" direction="vertical">
-        {(provided) => {
-          return (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
-              <TransformationOperationRows
-                onChange={(index, transformation) => {
-                  const newTransformations = transformations.slice();
-                  newTransformations[index] = transformation;
-                  model.onChangeTransformations(newTransformations);
-                }}
-                onRemove={(index) => {
-                  const newTransformations = transformations.slice();
-                  newTransformations.splice(index, 1);
-                  model.onChangeTransformations(newTransformations);
-                }}
-                configs={transformationEditorRows}
-                data={data}
-              ></TransformationOperationRows>
-              {provided.placeholder}
-            </div>
-          );
-        }}
-      </Droppable>
-    </DragDropContext>
+    <></>
+    // <DragDropContext onDragEnd={onDragEnd}>
+    //   <Droppable droppableId="transformations-list" direction="vertical">
+    //     {(provided) => {
+    //       return (
+    //         <div ref={provided.innerRef} {...provided.droppableProps}>
+    //           <TransformationOperationRows
+    //             onChange={(index, transformation) => {
+    //               const newTransformations = transformations.slice();
+    //               newTransformations[index] = transformation;
+    //               model.onChangeTransformations(newTransformations);
+    //             }}
+    //             onRemove={(index) => {
+    //               const newTransformations = transformations.slice();
+    //               newTransformations.splice(index, 1);
+    //               model.onChangeTransformations(newTransformations);
+    //             }}
+    //             configs={transformationEditorRows}
+    //             data={data}
+    //           ></TransformationOperationRows>
+    //           {provided.placeholder}
+    //         </div>
+    //       );
+    //     }}
+    //   </Droppable>
+    // </DragDropContext>
   );
 }
 

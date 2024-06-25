@@ -19,7 +19,7 @@ type CloseSplitAction = {
 };
 
 export const initialState: WindowSplitState = {
-  secondAppId: undefined,
+  secondAppId: 'grafana-querylibrary-app',
   initialContext: undefined,
 };
 

@@ -16903,7 +16903,7 @@ __metadata:
     rc-tree: "npm:5.8.7"
     re-resizable: "npm:6.9.17"
     react: "npm:18.2.0"
-    react-beautiful-dnd: "npm:13.1.1"
+    react-beautiful-dnd: "file:/Users/harisr/Documents/development/local packages/react-beautiful-dnd"
     react-diff-viewer: "npm:^3.1.1"
     react-dom: "npm:18.2.0"
     react-draggable: "npm:4.4.6"
@@ -24606,6 +24606,24 @@ __metadata:
     react: ^16.13.1 || ^17.0.0 || ^18.0.0
     react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
   checksum: 10/768c3a0fe39d6916caf4e003240d326d62c4d7512c7d3115cc2a98085416fdba80097afdbb93df57b69543c41ce56b33589f2fea6987cd5149faa83cf11c8ba1
+  languageName: node
+  linkType: hard
+
+"react-beautiful-dnd@file:/Users/harisr/Documents/development/local packages/react-beautiful-dnd::locator=grafana%40workspace%3A.":
+  version: 13.1.1
+  resolution: "react-beautiful-dnd@file:/Users/harisr/Documents/development/local packages/react-beautiful-dnd#/Users/harisr/Documents/development/local packages/react-beautiful-dnd::hash=edc118&locator=grafana%40workspace%3A."
+  dependencies:
+    "@babel/runtime": "npm:^7.9.2"
+    css-box-model: "npm:^1.2.0"
+    memoize-one: "npm:^5.1.1"
+    raf-schd: "npm:^4.0.2"
+    react-redux: "npm:^7.2.0"
+    redux: "npm:^4.0.4"
+    use-memo-one: "npm:^1.1.1"
+  peerDependencies:
+    react: ^16.8.5 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.5 || ^17.0.0 || ^18.0.0
+  checksum: 10/4b89da67af3de853bd138d1464c931217d9be59f8b20cce54bdafa9dd7dd762e1bc741e91bec67859ae4d9f3a4082f10bab162766d0b4ae0538ec01bcf75126b
   languageName: node
   linkType: hard
 

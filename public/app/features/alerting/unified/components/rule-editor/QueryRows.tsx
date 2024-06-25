@@ -148,75 +148,76 @@ export class QueryRows extends PureComponent<Props> {
     const thresholdByRefId = getThresholdsForQueries([...queries, ...expressions], condition);
 
     return (
-      <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="alerting-queries" direction="vertical">
-          {(provided) => {
-            return (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <Stack direction="column">
-                  {queries.map((query, index) => {
-                    const isCondition = this.props.condition === query.refId;
-                    const data: PanelData = this.props.data?.[query.refId] ?? {
-                      series: [],
-                      state: LoadingState.NotStarted,
-                    };
-                    const dsSettings = this.getDataSourceSettings(query);
-                    let error: Error | undefined = undefined;
-                    if (data && isCondition) {
-                      error = errorFromCurrentCondition(data);
-                    } else if (data) {
-                      error = errorFromPreviewData(data);
-                    }
+      <></>
+      // <DragDropContext onDragEnd={this.onDragEnd}>
+      //   <Droppable droppableId="alerting-queries" direction="vertical">
+      //     {(provided) => {
+      //       return (
+      //         <div ref={provided.innerRef} {...provided.droppableProps}>
+      //           <Stack direction="column">
+      //             {queries.map((query, index) => {
+      //               const isCondition = this.props.condition === query.refId;
+      //               const data: PanelData = this.props.data?.[query.refId] ?? {
+      //                 series: [],
+      //                 state: LoadingState.NotStarted,
+      //               };
+      //               const dsSettings = this.getDataSourceSettings(query);
+      //               let error: Error | undefined = undefined;
+      //               if (data && isCondition) {
+      //                 error = errorFromCurrentCondition(data);
+      //               } else if (data) {
+      //                 error = errorFromPreviewData(data);
+      //               }
 
-                    if (!dsSettings) {
-                      return (
-                        <DatasourceNotFound
-                          key={`${query.refId}-${index}`}
-                          index={index}
-                          model={query.model}
-                          onUpdateDatasource={() => {
-                            const defaultDataSource = getDatasourceSrv().getInstanceSettings(null);
-                            if (defaultDataSource) {
-                              this.onChangeDataSource(defaultDataSource, index);
-                            }
-                          }}
-                          onRemoveQuery={() => {
-                            this.onRemoveQuery(query);
-                          }}
-                        />
-                      );
-                    }
+      //               if (!dsSettings) {
+      //                 return (
+      //                   <DatasourceNotFound
+      //                     key={`${query.refId}-${index}`}
+      //                     index={index}
+      //                     model={query.model}
+      //                     onUpdateDatasource={() => {
+      //                       const defaultDataSource = getDatasourceSrv().getInstanceSettings(null);
+      //                       if (defaultDataSource) {
+      //                         this.onChangeDataSource(defaultDataSource, index);
+      //                       }
+      //                     }}
+      //                     onRemoveQuery={() => {
+      //                       this.onRemoveQuery(query);
+      //                     }}
+      //                   />
+      //                 );
+      //               }
 
-                    return (
-                      <QueryWrapper
-                        index={index}
-                        key={query.refId}
-                        dsSettings={dsSettings}
-                        data={data}
-                        error={error}
-                        query={query}
-                        onChangeQuery={this.onChangeQuery}
-                        onRemoveQuery={this.onRemoveQuery}
-                        queries={[...queries, ...expressions]}
-                        onChangeDataSource={this.onChangeDataSource}
-                        onDuplicateQuery={this.props.onDuplicateQuery}
-                        onChangeTimeRange={this.onChangeTimeRange}
-                        onChangeQueryOptions={this.onChangeQueryOptions}
-                        thresholds={thresholdByRefId[query.refId]?.config}
-                        thresholdsType={thresholdByRefId[query.refId]?.mode}
-                        onRunQueries={this.props.onRunQueries}
-                        condition={this.props.condition}
-                        onSetCondition={this.props.onSetCondition}
-                      />
-                    );
-                  })}
-                  {provided.placeholder}
-                </Stack>
-              </div>
-            );
-          }}
-        </Droppable>
-      </DragDropContext>
+      //               return (
+      //                 <QueryWrapper
+      //                   index={index}
+      //                   key={query.refId}
+      //                   dsSettings={dsSettings}
+      //                   data={data}
+      //                   error={error}
+      //                   query={query}
+      //                   onChangeQuery={this.onChangeQuery}
+      //                   onRemoveQuery={this.onRemoveQuery}
+      //                   queries={[...queries, ...expressions]}
+      //                   onChangeDataSource={this.onChangeDataSource}
+      //                   onDuplicateQuery={this.props.onDuplicateQuery}
+      //                   onChangeTimeRange={this.onChangeTimeRange}
+      //                   onChangeQueryOptions={this.onChangeQueryOptions}
+      //                   thresholds={thresholdByRefId[query.refId]?.config}
+      //                   thresholdsType={thresholdByRefId[query.refId]?.mode}
+      //                   onRunQueries={this.props.onRunQueries}
+      //                   condition={this.props.condition}
+      //                   onSetCondition={this.props.onSetCondition}
+      //                 />
+      //               );
+      //             })}
+      //             {provided.placeholder}
+      //           </Stack>
+      //         </div>
+      //       );
+      //     }}
+      //   </Droppable>
+      // </DragDropContext>
     );
   }
 }
