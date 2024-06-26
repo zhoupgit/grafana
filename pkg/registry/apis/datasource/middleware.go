@@ -16,7 +16,7 @@ func contextualMiddlewares(ctx context.Context) context.Context {
 
 	sigv4Settings := awsds.ReadSigV4Settings(ctx)
 	if sigv4Settings.Enabled {
-		authSettings, _ := awsds.ReadAuthSettingsFromContext(ctx)
+		authSettings := awsds.ReadAuthSettings(ctx)
 		ctx = httpclient.WithContextualMiddleware(ctx, sigv4.SigV4MiddlewareWithAuthSettings(sigv4Settings.VerboseLogging, *authSettings))
 	}
 
