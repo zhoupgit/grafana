@@ -104,4 +104,4 @@ export interface ParserAndLabelKeysResult {
   unwrapLabelKeys: string[];
 }
 
-export type LokiGroupedRequest = { request: DataQueryRequest<LokiQuery>; partition: TimeRange[] };
+export type LokiGroupedRequest = { request: DataQueryRequest<LokiQuery>; partition: TimeRange[]; shards?: number; };

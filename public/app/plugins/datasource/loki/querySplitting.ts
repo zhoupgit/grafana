@@ -83,7 +83,7 @@ export function runSplitGroupedQueries(datasource: LokiDatasource, requests: Lok
 
   let shouldStop = false;
   let subquerySubsciption: Subscription | null = null;
-  const runNextRequest = (subscriber: Subscriber<DataQueryResponse>, requestN: number, requestGroup: number) => {
+  const runNextRequest = (subscriber: Subscriber<DataQueryResponse>, requestN: number, requestGroup: number, shard?: number) => {
     if (shouldStop) {
       subscriber.complete();
       return;
@@ -96,9 +96,9 @@ export function runSplitGroupedQueries(datasource: LokiDatasource, requests: Lok
     };
 
     const nextRequest = () => {
-      const { nextRequestN, nextRequestGroup } = getNextRequestPointers(requests, requestGroup, requestN);
+      const { nextRequestN, nextRequestGroup, shard } = getNextRequestPointers(requests, requestGroup, requestN);
       if (nextRequestN > 0 && nextRequestGroup >= 0) {
-        runNextRequest(subscriber, nextRequestN, nextRequestGroup);
+        runNextRequest(subscriber, nextRequestN, nextRequestGroup, shard);
         return;
       }
       done();
@@ -106,11 +106,18 @@ export function runSplitGroupedQueries(datasource: LokiDatasource, requests: Lok
 
     const group = requests[requestGroup];
     const range = group.partition[requestN - 1];
-    const targets = adjustTargetsFromResponseState(group.request.targets, mergedResponse);
+    let targets = adjustTargetsFromResponseState(group.request.targets, mergedResponse);
 
     if (!targets.length) {
       nextRequest();
       return;
+    }
+
+    if (shard !== undefined) {
+      targets = targets.map(query => ({
+        ...query,
+        expr: query.expr.replace(/}/g, `\, __stream_shard__="${shard}"}`),
+      }));
     }
 
     const subRequest = { ...requests[requestGroup].request, range, targets };
@@ -186,6 +193,16 @@ function updateLoadingFrame(
 }
 
 function getNextRequestPointers(requests: LokiGroupedRequest[], requestGroup: number, requestN: number) {
+  // There's a pending shard request
+  if (requests[requestGroup].shards && requests[requestGroup].shards) {
+    const shard = requests[requestGroup].shards;
+    requests[requestGroup].shards = (requests[requestGroup].shards ?? 1) - 1;
+    return {
+      nextRequestGroup: requestGroup,
+      nextRequestN: requestN,
+      shard,
+    }
+  }
   // There's a pending request from the next group:
   for (let i = requestGroup + 1; i < requests.length; i++) {
     const group = requests[i];
@@ -195,6 +212,9 @@ function getNextRequestPointers(requests: LokiGroupedRequest[], requestGroup: nu
         nextRequestN: requestN,
       };
     }
+  }
+  if (requests[requestGroup].shards === 0) {
+    requestN++;
   }
   return {
     // Find the first group where `[requestN - 1]` is defined
@@ -249,6 +269,7 @@ export function runSplitQuery(datasource: LokiDatasource, request: DataQueryRequ
       });
       requests.push({
         request: { ...request, targets },
+        shards: 50,
         partition: partitionTimeRange(false, request.range, Number(stepMs), Number(chunkRangeMs)),
       });
     }
