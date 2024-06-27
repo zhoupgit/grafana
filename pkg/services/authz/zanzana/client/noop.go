@@ -18,6 +18,10 @@ func (nc NoopClient) Check(ctx context.Context, in *openfgav1.CheckRequest, opts
 	return nil, nil
 }
 
+func (nc NoopClient) Write(ctx context.Context, in *openfgav1.WriteRequest) error {
+	return nil
+}
+
 func (nc NoopClient) ListObjects(ctx context.Context, in *openfgav1.ListObjectsRequest, opts ...grpc.CallOption) (*openfgav1.ListObjectsResponse, error) {
 	return nil, nil
 }

@@ -74,6 +74,13 @@ func (c *Client) Check(ctx context.Context, in *openfgav1.CheckRequest, opts ...
 	return c.client.Check(ctx, in, opts...)
 }
 
+func (c *Client) Write(ctx context.Context, in *openfgav1.WriteRequest) error {
+	in.StoreId = c.storeID
+	in.AuthorizationModelId = c.modelID
+	_, err := c.client.Write(ctx, in)
+	return err
+}
+
 func (c *Client) ListObjects(ctx context.Context, in *openfgav1.ListObjectsRequest, opts ...grpc.CallOption) (*openfgav1.ListObjectsResponse, error) {
 	return c.client.ListObjects(ctx, in, opts...)
 }

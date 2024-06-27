@@ -26,6 +26,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/accesscontrol/migrator"
 	"github.com/grafana/grafana/pkg/services/accesscontrol/pluginutils"
 	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authz/zanzana"
 	"github.com/grafana/grafana/pkg/services/dashboards"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/folder"
@@ -46,7 +47,11 @@ var SharedWithMeFolderPermission = accesscontrol.Permission{
 
 var OSSRolesPrefixes = []string{accesscontrol.ManagedRolePrefix, accesscontrol.ExternalServiceRolePrefix}
 
-func ProvideService(cfg *setting.Cfg, db db.DB, routeRegister routing.RouteRegister, cache *localcache.CacheService, accessControl accesscontrol.AccessControl, actionResolver accesscontrol.ActionResolver, features featuremgmt.FeatureToggles, tracer tracing.Tracer) (*Service, error) {
+func ProvideService(
+	cfg *setting.Cfg, db db.DB, routeRegister routing.RouteRegister, cache *localcache.CacheService,
+	accessControl accesscontrol.AccessControl, actionResolver accesscontrol.ActionResolver,
+	features featuremgmt.FeatureToggles, tracer tracing.Tracer, zclient zanzana.Client,
+) (*Service, error) {
 	service := ProvideOSSService(cfg, database.ProvideService(db), actionResolver, cache, features, tracer)
 
 	api.NewAccessControlAPI(routeRegister, accessControl, service, features).RegisterAPIEndpoints()
@@ -60,6 +65,10 @@ func ProvideService(cfg *setting.Cfg, db db.DB, routeRegister routing.RouteRegis
 	// 2) have released enough versions not to support a version without split scopes
 	if err := migrator.MigrateScopeSplit(db, service.log); err != nil {
 		return nil, err
+	}
+
+	if features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
+		migrator.MigratePermissions(zclient, db, service.log)
 	}
 
 	return service, nil
@@ -113,7 +122,7 @@ func (s *Service) GetUserPermissions(ctx context.Context, user identity.Requeste
 	return s.getCachedUserPermissions(ctx, user, options)
 }
 
-func (s *Service) getUserPermissions(ctx context.Context, user identity.Requester, options accesscontrol.Options) ([]accesscontrol.Permission, error) {
+func (s *Service) getUserPermissions(ctx context.Context, user identity.Requester, _ accesscontrol.Options) ([]accesscontrol.Permission, error) {
 	permissions := make([]accesscontrol.Permission, 0)
 	for _, builtin := range accesscontrol.GetOrgRoles(user) {
 		if basicRole, ok := s.roles[builtin]; ok {
@@ -640,7 +649,7 @@ func PermissionMatchesSearchOptions(permission accesscontrol.Permission, searchO
 	if searchOptions.Scope != "" {
 		// Permissions including the scope should also match
 		scopes := append(searchOptions.Wildcards(), searchOptions.Scope)
-		if !slices.Contains[[]string, string](scopes, permission.Scope) {
+		if !slices.Contains(scopes, permission.Scope) {
 			return false
 		}
 	}

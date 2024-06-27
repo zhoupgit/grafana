@@ -22,3 +22,22 @@ type team
     define org: [org]
     define admin: [user]
     define member: [user] or admin
+
+type folder
+  relations
+    define org: [org]
+    define parent: [folder]
+
+    # sets
+    define view: [user]
+
+    # relations
+    define read: [user] or view
+
+type dashboard
+  relations
+    # sets
+    define view: [user]
+
+    # relations
+    define read: [user] or view
