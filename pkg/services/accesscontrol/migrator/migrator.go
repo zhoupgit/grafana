@@ -2,16 +2,11 @@ package migrator
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"time"
-
-	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/log"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
-	"github.com/grafana/grafana/pkg/services/authz/zanzana"
 	"github.com/grafana/grafana/pkg/services/sqlstore"
 	"github.com/grafana/grafana/pkg/services/sqlstore/session"
 )
@@ -105,59 +100,6 @@ func MigrateScopeSplit(db db.DB, log log.Logger) error {
 	}
 
 	log.Debug("Migrated permissions", "migration", "scopeSplit", "total", len(permissions), "succeeded", cnt, "in", time.Since(t))
-	return nil
-}
-
-const permissionQuery = `
-SELECT ur.user_id, p.action, p.kind, p.identifier, r.org_id FROM permission p
-INNER JOIN role r on p.role_id = r.id
-INNER JOIN user_role ur on r.id  = ur.role_id
-WHERE p.action IN('dashboards:read')
-AND r.name like 'managed:users:%'
-LIMIT 1000;
-`
-
-func MigratePermissions(client zanzana.Client, store db.DB, log log.Logger) error {
-	ctx := context.Background()
-	type Permission struct {
-		RoleName   string `xorm:"role_name"`
-		OrgID      int64  `xorm:"org_id"`
-		Action     string `xorm:"action"`
-		Kind       string
-		Identifier string
-		UserID     int64 `xorm:"user_id"`
-	}
-
-	var permissions []Permission
-	err := store.WithDbSession(ctx, func(sess *db.Session) error {
-		return sess.SQL(permissionQuery).Find(&permissions)
-	})
-
-	if err != nil {
-		return err
-	}
-
-	tuples := make([]*openfgav1.TupleKey, 0, len(permissions))
-	for _, p := range permissions {
-		user := zanzana.NewObject(zanzana.TypeUser, strconv.FormatInt(p.UserID, 10))
-		tuple, ok := zanzana.TranslateToTuple(user, p.Action, p.Kind, p.Identifier, p.OrgID)
-		if !ok {
-			// FIXME(kalleep): Warning log for unsuported actions
-			continue
-		}
-
-		tuples = append(tuples, tuple)
-	}
-
-	// TODO: how do we track already migrated permission
-	err = client.Write(ctx, &openfgav1.WriteRequest{
-		Writes: &openfgav1.WriteRequestWrites{
-			TupleKeys: tuples,
-		},
-	})
-
-	fmt.Println(err)
-
 	return nil
 }
 

@@ -52,7 +52,7 @@ func ProvideService(
 	accessControl accesscontrol.AccessControl, actionResolver accesscontrol.ActionResolver,
 	features featuremgmt.FeatureToggles, tracer tracing.Tracer, zclient zanzana.Client,
 ) (*Service, error) {
-	service := ProvideOSSService(cfg, database.ProvideService(db), actionResolver, cache, features, tracer)
+	service := ProvideOSSService(cfg, database.ProvideService(db), actionResolver, cache, features, tracer, db, zclient)
 
 	api.NewAccessControlAPI(routeRegister, accessControl, service, features).RegisterAPIEndpoints()
 	if err := accesscontrol.DeclareFixedRoles(service, cfg); err != nil {
@@ -67,14 +67,14 @@ func ProvideService(
 		return nil, err
 	}
 
-	if features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
-		migrator.MigratePermissions(zclient, db, service.log)
-	}
-
 	return service, nil
 }
 
-func ProvideOSSService(cfg *setting.Cfg, store accesscontrol.Store, actionResolver accesscontrol.ActionResolver, cache *localcache.CacheService, features featuremgmt.FeatureToggles, tracer tracing.Tracer) *Service {
+func ProvideOSSService(
+	cfg *setting.Cfg, store accesscontrol.Store, actionResolver accesscontrol.ActionResolver,
+	cache *localcache.CacheService, features featuremgmt.FeatureToggles, tracer tracing.Tracer,
+	db db.DB, zclient zanzana.Client,
+) *Service {
 	s := &Service{
 		actionResolver: actionResolver,
 		cache:          cache,
@@ -84,6 +84,8 @@ func ProvideOSSService(cfg *setting.Cfg, store accesscontrol.Store, actionResolv
 		roles:          accesscontrol.BuildBasicRoleDefinitions(),
 		store:          store,
 		tracer:         tracer,
+		zclient:        zclient,
+		db:             db,
 	}
 
 	return s
@@ -100,6 +102,8 @@ type Service struct {
 	roles          map[string]*accesscontrol.RoleDTO
 	store          accesscontrol.Store
 	tracer         tracing.Tracer
+	zclient        zanzana.Client
+	db             db.DB
 }
 
 func (s *Service) GetUsageStats(_ context.Context) map[string]any {
@@ -406,6 +410,13 @@ func (s *Service) RegisterFixedRoles(ctx context.Context) error {
 		}
 		return true
 	})
+
+	if s.features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
+		if err := migrator.SyncToZanzana(s.zclient, nil, s.log); err != nil {
+			s.log.Error("Failed to sync rbac permissions to zanzana", "err", err)
+		}
+	}
+
 	return nil
 }
 

@@ -2,6 +2,7 @@ package zanzana
 
 import (
 	"fmt"
+	"strconv"
 
 	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 )
@@ -19,8 +20,8 @@ func NewObject(typ, id string) string {
 	return fmt.Sprintf("%s:%s", typ, id)
 }
 
-func NewOrgScopedObject(typ, id string, orgID int64) string {
-	return NewObject(typ, fmt.Sprintf("%d-%s", orgID, id))
+func NewScopedObject(typ, id, scope string) string {
+	return NewObject(typ, fmt.Sprintf("%s-%s", scope, id))
 }
 
 var actionTranslations = map[string]string{
@@ -58,8 +59,9 @@ func TranslateToTuple(user string, action, kind, identifier string, orgID int64)
 	tuple.User = user
 	tuple.Relation = relation
 
+	// UID in grafana are not guarantee to be unique across orgs so we need to scope them.
 	if t.orgScoped {
-		tuple.Object = NewOrgScopedObject(t.typ, identifier, orgID)
+		tuple.Object = NewScopedObject(t.typ, identifier, strconv.FormatInt(orgID, 10))
 	} else {
 		tuple.Object = NewObject(t.typ, identifier)
 	}
