@@ -234,6 +234,14 @@ func (s *Service) Login(ctx context.Context, client string, r *authn.Request) (i
 		return nil, err
 	}
 
+	// Attach external session to internal session
+	// err := s.sessionService.AttachExternalSession(ctx, sessionToken, id)
+	// if err != nil {
+	// 	s.metrics.failedLogin.WithLabelValues(client).Inc()
+	// 	s.log.FromContext(ctx).Error("Failed to attach external session", "client", client, "id", id.ID, "err", err)
+	// 	return nil, err
+	// }
+
 	s.metrics.successfulLogin.WithLabelValues(client).Inc()
 	id.SessionToken = sessionToken
 	return id, nil

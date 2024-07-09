@@ -19,6 +19,14 @@ type Requester = identity.Requester
 
 var _ Requester = (*Identity)(nil)
 
+type SAMLSession struct {
+	// For backward compatibility, we keep the old name
+	AuthID string
+
+	NameID    string
+	SessionID string
+}
+
 type Identity struct {
 	// ID is the unique identifier for the entity in the Grafana database.
 	// If the entity is not found in the DB or this entity is non-persistent, this field will be empty.
@@ -60,6 +68,8 @@ type Identity struct {
 	Groups []string
 	// OAuthToken is the OAuth token used to authenticate the entity.
 	OAuthToken *oauth2.Token
+
+	SAMLSession *SAMLSession
 	// SessionToken is the session token used to authenticate the entity.
 	SessionToken *usertoken.UserToken
 	// ClientParams are hints for the auth service on how to handle the identity.
