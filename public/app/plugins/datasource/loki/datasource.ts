@@ -325,6 +325,20 @@ export class LokiDatasource
       );
     }
 
+    const metricQ = fixedRequest.targets;
+    const req = {
+      ...fixedRequest, targets: metricQ
+    }
+    return merge(
+      ...metricQ.map((q) => 
+        doLokiChannelStream(
+          this.applyTemplateVariables(q, request.scopedVars, request.filters),
+          this,
+          req
+        )
+      )
+    )
+
     if (fixedRequest.liveStreaming) {
       return this.runLiveQueryThroughBackend(fixedRequest);
     }

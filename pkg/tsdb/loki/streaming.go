@@ -13,6 +13,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/tsdb/loki/kinds/dataquery"
 )
 
 func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
@@ -24,7 +26,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 	}
 
 	// Expect tail/${key}
-	if !strings.HasPrefix(req.Path, "tail/") {
+	if !strings.HasPrefix(req.Path, "tail/") && !strings.HasPrefix(req.Path, "mtail/") {
 		return &backend.SubscribeStreamResponse{
 			Status: backend.SubscribeStreamStatusNotFound,
 		}, fmt.Errorf("expected tail in channel path")
@@ -34,7 +36,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 	if err != nil {
 		return nil, err
 	}
-	if query.Expr != nil {
+	if query.Expr == nil {
 		return &backend.SubscribeStreamResponse{
 			Status: backend.SubscribeStreamStatusNotFound,
 		}, fmt.Errorf("missing expr in channel (subscribe)")
@@ -69,8 +71,12 @@ func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, 
 	if err != nil {
 		return err
 	}
-	if query.Expr != nil {
+	if query.Expr == nil {
 		return fmt.Errorf("missing expr in cuannel")
+	}
+
+	if strings.HasPrefix(req.Path, "mtail/") {
+		return s.streamMetricQuery(ctx, req, sender, dsInfo)
 	}
 
 	logger := s.logger.FromContext(ctx)
@@ -170,5 +176,113 @@ func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, 
 func (s *Service) PublishStream(_ context.Context, _ *backend.PublishStreamRequest) (*backend.PublishStreamResponse, error) {
 	return &backend.PublishStreamResponse{
 		Status: backend.PublishStreamStatusPermissionDenied,
+	}, nil
+}
+
+// TimeRange represents a time range for a query and is a property of DataQuery.
+type TimeRange struct {
+	From time.Time `json:"from"`
+	To   time.Time `json:"to"`
+}
+
+type MetricQueryJSONModel struct {
+	dataquery.LokiDataQuery
+	Direction           *string   `json:"direction,omitempty"`
+	SupportingQueryType *string   `json:"supportingQueryType"`
+	TimeRange           TimeRange `json:"timeRange"`
+}
+
+func (s *Service) streamMetricQuery(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender, ds *datasourceInfo) error {
+	s.logger.Info("Running metric query", "model", req)
+
+	lokiQuery, err := parseStreamingQuery(req)
+	if err != nil {
+		return err
+	}
+
+	api := newLokiAPI(ds.HTTPClient, ds.URL, s.logger, s.tracer, false)
+	responseOpts := ResponseOpts{
+		metricDataplane: s.features.IsEnabled(ctx, featuremgmt.FlagLokiMetricDataplane),
+		logsDataplane:   s.features.IsEnabled(ctx, featuremgmt.FlagLokiLogsDataplane),
+	}
+	// cast model.QueryType to dataquery.LokiQueryType
+
+	expr := lokiQuery.Expr
+	for i := 50; i > 0; i-- {
+		// sleep for 0.5 seconds
+		q := lokiQuery
+		braceIndex := strings.LastIndex(expr, "}")
+		q.Expr = fmt.Sprintf("%s ,__stream_shard__=\"%d\"%s", (expr)[:braceIndex], i, (expr)[braceIndex:])
+		res, _ := runQuery(ctx, api, q, responseOpts, s.logger)
+		if res == nil || len(res.Frames) == 0 {
+			continue
+		}
+
+		for _, frame := range res.Frames {
+			if err := sender.SendFrame(frame, data.IncludeAll); err != nil {
+				return err
+			}
+		}
+		//frame.Fields = append(frame.Fields, data.NewField("value", nil, []float64{float64(i * 10)}))
+		//frame.Fields = append(frame.Fields, data.NewField("time", nil, []time.Time{startTime}))
+	}
+	return nil
+}
+
+func parseStreamingQuery(req *backend.RunStreamRequest) (*lokiQuery, error) {
+	var model *MetricQueryJSONModel
+	err := json.Unmarshal(req.Data, &model)
+	if err != nil {
+		return nil, err
+	}
+
+	start := model.TimeRange.From
+	end := model.TimeRange.To
+
+	resolution := int64(1)
+	if model.Resolution != nil && (*model.Resolution >= 1 && *model.Resolution <= 5 || *model.Resolution == 10) {
+		resolution = *model.Resolution
+	}
+
+	interval := time.Millisecond // set this from the frontend directly
+	timeRange := end.Sub(start)
+
+	step, err := calculateStep(interval, timeRange, resolution, model.Step)
+	if err != nil {
+		return nil, err
+	}
+
+	queryType, err := parseQueryType(model.QueryType)
+	if err != nil {
+		return nil, err
+	}
+
+	expr := interpolateVariables(depointerizer(model.Expr), interval, timeRange, queryType, step)
+	direction, err := parseDirection(model.Direction)
+	if err != nil {
+		return nil, err
+	}
+
+	var maxLines int64
+	if model.MaxLines != nil {
+		maxLines = *model.MaxLines
+	}
+	var legendFormat string
+	if model.LegendFormat != nil {
+		legendFormat = *model.LegendFormat
+	}
+
+	supportingQueryType := parseSupportingQueryType(model.SupportingQueryType)
+	return &lokiQuery{
+		Expr:                expr,
+		QueryType:           queryType,
+		Direction:           direction,
+		Step:                step,
+		MaxLines:            int(maxLines),
+		LegendFormat:        legendFormat,
+		Start:               start,
+		End:                 end,
+		SupportingQueryType: supportingQueryType,
+		// add a RefID here
 	}, nil
 }
