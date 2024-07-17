@@ -3,9 +3,10 @@ package interceptors
 import (
 	"context"
 
+	"google.golang.org/grpc"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/setting"
-	"google.golang.org/grpc"
 )
 
 func LoggingUnaryInterceptor(cfg *setting.Cfg, logger log.Logger) grpc.UnaryServerInterceptor {

@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"io"
 
-	"google.golang.org/grpc/metadata"
-
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/tracing"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/grafana/pkg/tsdb/tempo/kinds/dataquery"
 	"github.com/grafana/tempo/pkg/tempopb"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"google.golang.org/grpc/metadata"
+
+	"github.com/grafana/grafana/pkg/tsdb/tempo/kinds/dataquery"
 )
 
 const SearchPathPrefix = "search/"

@@ -7,6 +7,7 @@ import (
 
 	copenapi "cuelang.org/go/encoding/openapi"
 	"github.com/grafana/codejen"
+
 	"github.com/grafana/grafana/pkg/codegen/generators"
 	"github.com/grafana/grafana/pkg/plugins/pfs"
 )

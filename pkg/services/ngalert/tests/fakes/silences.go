@@ -6,6 +6,7 @@ import (
 	"golang.org/x/exp/maps"
 
 	alertingNotify "github.com/grafana/alerting/notify"
+
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/util"
 )

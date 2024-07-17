@@ -6,10 +6,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/mocks"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models/resources"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 var testLogger = log.New().With("logger", "test.logger")

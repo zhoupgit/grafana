@@ -3,10 +3,10 @@ package models
 import (
 	"testing"
 
+	"github.com/grafana/alerting/models"
 	"github.com/prometheus/alertmanager/pkg/labels"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/grafana/alerting/models"
 	"github.com/grafana/grafana/pkg/util"
 )
 

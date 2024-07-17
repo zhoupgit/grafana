@@ -3,8 +3,9 @@ package queryhistory
 import (
 	"testing"
 
-	"github.com/grafana/grafana/pkg/components/simplejson"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/components/simplejson"
 )
 
 var mixedQuery []byte = []byte(`[{"alias":"","bucketAggs":[{"field":"@timestamp","id":"2","settings":{"interval":"auto"},"type":"date_histogram"}],"datasource":{"type":"elasticsearch","uid":"gdev-elasticsearch"},"key":"Q-15d3139f-a942-491c-8fb6-46982475ab07-0","metrics":[{"id":"1","type":"count"}],"query":"test","refId":"A","timeField":"@timestamp"},{"datasource":{"type":"loki","uid":"gdev-loki"},"editorMode":"code","expr":"test","key":"Q-67b4a119-37dd-4276-beac-4ec76b089f10-0","queryType":"range","refId":"B"}]`)

@@ -1,9 +1,10 @@
 package clientmiddleware
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/grafana/grafana/pkg/infra/metrics"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (

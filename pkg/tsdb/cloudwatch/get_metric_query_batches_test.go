@@ -4,8 +4,9 @@ import (
 	"testing"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
-	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 )
 
 func TestGetMetricQueryBatches(t *testing.T) {

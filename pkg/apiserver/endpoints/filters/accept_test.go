@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/grafana/grafana/pkg/apiserver/endpoints/request"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/apiserver/endpoints/request"
 )
 
 func TestWithAcceptHeader(t *testing.T) {

@@ -8,8 +8,9 @@ import (
 
 	"github.com/grafana/grafana-aws-sdk/pkg/awsds"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 )
 
 func Test_external_id_route(t *testing.T) {

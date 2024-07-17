@@ -10,8 +10,9 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	sdkhttpclient "github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	es "github.com/grafana/grafana/pkg/tsdb/elasticsearch/client"
 	"github.com/stretchr/testify/assert"
+
+	es "github.com/grafana/grafana/pkg/tsdb/elasticsearch/client"
 )
 
 func Test_Healthcheck_OK(t *testing.T) {

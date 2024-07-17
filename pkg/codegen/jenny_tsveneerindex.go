@@ -12,6 +12,7 @@ import (
 	"github.com/grafana/cuetsy"
 	"github.com/grafana/cuetsy/ts"
 	"github.com/grafana/cuetsy/ts/ast"
+
 	"github.com/grafana/grafana/pkg/codegen/generators"
 )
 

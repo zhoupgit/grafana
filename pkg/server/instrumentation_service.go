@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/grafana/dskit/services"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/setting"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type instrumentationService struct {

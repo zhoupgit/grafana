@@ -4,8 +4,9 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/grafana/grafana/pkg/plugins/manager/loader/angular/angulardetector"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/plugins/manager/loader/angular/angulardetector"
 )
 
 func TestGCOMPatterns(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"github.com/grafana/codejen"
 	"github.com/grafana/cuetsy"
 	"github.com/grafana/cuetsy/ts/ast"
+
 	"github.com/grafana/grafana/pkg/codegen/generators"
 )
 

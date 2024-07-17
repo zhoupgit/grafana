@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/oam"
 	"github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi"
 	"github.com/aws/aws-sdk-go/service/resourcegroupstaggingapi/resourcegroupstaggingapiiface"
+
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 )
 

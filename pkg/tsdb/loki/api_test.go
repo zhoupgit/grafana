@@ -7,8 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/grafana/grafana/pkg/tsdb/loki/kinds/dataquery"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/tsdb/loki/kinds/dataquery"
 )
 
 func TestApiLogVolume(t *testing.T) {

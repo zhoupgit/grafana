@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana/pkg/plugins/manager/client/clienttest"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/plugins/manager/client/clienttest"
 )
 
 func TestResourceResponseMiddleware(t *testing.T) {

@@ -3,8 +3,9 @@ package scope
 import (
 	"testing"
 
-	scope "github.com/grafana/grafana/pkg/apis/scope/v0alpha1"
 	"github.com/stretchr/testify/require"
+
+	scope "github.com/grafana/grafana/pkg/apis/scope/v0alpha1"
 )
 
 func TestFilterAndAppendItem(t *testing.T) {

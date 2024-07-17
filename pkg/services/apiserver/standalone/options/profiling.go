@@ -3,9 +3,10 @@ package options
 import (
 	"runtime"
 
-	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/spf13/pflag"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
 
 type ProfilingOptions struct {

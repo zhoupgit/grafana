@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/grafana/dataplane/sdata/numeric"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
+	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"github.com/m3db/prometheus_remote_client_golang/promremote"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/ngalert/metrics"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/setting"
-	"github.com/m3db/prometheus_remote_client_golang/promremote"
-
-	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
-	"github.com/grafana/grafana-plugin-sdk-go/data"
 )
 
 const backendType = "prometheus"

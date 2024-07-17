@@ -6,9 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/jeremywohl/flatten"
 	"github.com/scottlepp/go-duck/duck"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
 
 const (

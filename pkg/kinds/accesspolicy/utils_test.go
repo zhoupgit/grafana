@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/grafana/grafana/pkg/util"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/util"
 )
 
 func TestRuleReducer(t *testing.T) {

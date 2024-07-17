@@ -2,14 +2,14 @@ package gmsclient
 
 import (
 	"context"
+	cryptoRand "crypto/rand"
 	"fmt"
 	"math/rand"
 
-	cryptoRand "crypto/rand"
-
 	"github.com/google/uuid"
-	"github.com/grafana/grafana/pkg/services/cloudmigration"
 	"golang.org/x/crypto/nacl/box"
+
+	"github.com/grafana/grafana/pkg/services/cloudmigration"
 )
 
 // NewInMemoryClient returns an implementation of Client that returns canned responses

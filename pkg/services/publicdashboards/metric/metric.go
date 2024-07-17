@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/publicdashboards"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Service struct {

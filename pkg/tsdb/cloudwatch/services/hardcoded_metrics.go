@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/grafana/grafana-aws-sdk/pkg/cloudWatchConsts"
+
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models/resources"
 )
 

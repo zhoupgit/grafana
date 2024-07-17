@@ -3,8 +3,9 @@ package loganalytics
 import (
 	"testing"
 
-	"github.com/grafana/grafana/pkg/tsdb/azuremonitor/kinds/dataquery"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/tsdb/azuremonitor/kinds/dataquery"
 )
 
 func TestParseResultFormat(t *testing.T) {

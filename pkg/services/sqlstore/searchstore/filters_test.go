@@ -3,8 +3,9 @@ package searchstore_test
 import (
 	"testing"
 
-	"github.com/grafana/grafana/pkg/services/sqlstore/searchstore"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/services/sqlstore/searchstore"
 )
 
 func TestFolderUIDFilter(t *testing.T) {

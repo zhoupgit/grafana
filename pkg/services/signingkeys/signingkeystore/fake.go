@@ -5,6 +5,7 @@ import (
 	"crypto"
 
 	"github.com/go-jose/go-jose/v3"
+
 	"github.com/grafana/grafana/pkg/services/signingkeys"
 )
 

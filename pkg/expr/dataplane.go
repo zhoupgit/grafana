@@ -10,11 +10,12 @@ import (
 	"github.com/grafana/dataplane/sdata/reader"
 	"github.com/grafana/dataplane/sdata/timeseries"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
+	"go.opentelemetry.io/otel/attribute"
+
 	"github.com/grafana/grafana/pkg/expr/mathexp"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
-	"go.opentelemetry.io/otel/attribute"
 )
 
 func shouldUseDataplane(frames data.Frames, logger log.Logger, disable bool) (dt data.FrameType, b bool, e error) {

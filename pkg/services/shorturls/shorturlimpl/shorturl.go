@@ -6,10 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/teris-io/shortid"
+
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/services/shorturls"
 	"github.com/grafana/grafana/pkg/services/user"
-	"github.com/teris-io/shortid"
 )
 
 var getTime = time.Now

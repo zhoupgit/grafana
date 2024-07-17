@@ -6,12 +6,13 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
+	"github.com/patrickmn/go-cache"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/kinds/dataquery"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/mocks"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/models"
 	"github.com/grafana/grafana/pkg/tsdb/cloudwatch/utils"
-	"github.com/patrickmn/go-cache"
-	"github.com/stretchr/testify/assert"
 )
 
 func noSkip(q *models.CloudWatchQuery) bool { return false }

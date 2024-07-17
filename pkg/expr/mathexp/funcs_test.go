@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/infra/tracing"
 )
 
 func TestAbsFunc(t *testing.T) {

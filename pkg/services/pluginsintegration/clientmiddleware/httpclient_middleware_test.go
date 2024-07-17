@@ -8,11 +8,12 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
+	"github.com/stretchr/testify/require"
+
 	"github.com/grafana/grafana/pkg/plugins/manager/client/clienttest"
 	ngalertmodels "github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/user"
 	"github.com/grafana/grafana/pkg/util/proxyutil"
-	"github.com/stretchr/testify/require"
 )
 
 func TestHTTPClientMiddleware(t *testing.T) {

@@ -3,9 +3,10 @@ package validation
 import (
 	"testing"
 
-	. "github.com/grafana/grafana/pkg/services/publicdashboards/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	. "github.com/grafana/grafana/pkg/services/publicdashboards/models"
 )
 
 func TestValidatePublicDashboard(t *testing.T) {

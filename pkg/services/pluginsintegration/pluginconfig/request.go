@@ -9,11 +9,11 @@ import (
 
 	"github.com/grafana/grafana-aws-sdk/pkg/awsds"
 	"github.com/grafana/grafana-azure-sdk-go/v2/azsettings"
-	"github.com/grafana/grafana/pkg/plugins/auth"
-
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/proxy"
 	"github.com/grafana/grafana-plugin-sdk-go/experimental/featuretoggles"
+
+	"github.com/grafana/grafana/pkg/plugins/auth"
 )
 
 var _ PluginRequestConfigProvider = (*RequestConfigProvider)(nil)

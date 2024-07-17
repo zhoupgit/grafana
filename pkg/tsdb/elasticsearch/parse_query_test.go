@@ -3,8 +3,9 @@ package elasticsearch
 import (
 	"testing"
 
-	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
 
 func TestParseQuery(t *testing.T) {

@@ -6,8 +6,9 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/infra/tracing"
 )
 
 func TestSeriesExpr(t *testing.T) {

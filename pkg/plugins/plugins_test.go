@@ -8,8 +8,9 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/services/org"
 )
 
 func Test_ReadPluginJSON(t *testing.T) {

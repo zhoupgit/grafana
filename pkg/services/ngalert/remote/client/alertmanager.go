@@ -8,11 +8,12 @@ import (
 	"time"
 
 	httptransport "github.com/go-openapi/runtime/client"
+	amclient "github.com/prometheus/alertmanager/api/v2/client"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/ngalert/client"
 	"github.com/grafana/grafana/pkg/services/ngalert/metrics"
-	amclient "github.com/prometheus/alertmanager/api/v2/client"
 )
 
 const alertmanagerAPIMountPath = "/alertmanager"

@@ -4,18 +4,17 @@ import (
 	"context"
 	"testing"
 
-	openfgav1 "github.com/openfga/api/proto/openfga/v1"
-
 	"github.com/fullstorydev/grpchan/inprocgrpc"
-	"github.com/grafana/grafana/pkg/infra/db"
-	"github.com/grafana/grafana/pkg/infra/log"
-	"github.com/grafana/grafana/pkg/tests/testsuite"
+	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/infra/db"
+	"github.com/grafana/grafana/pkg/infra/log"
 	zserver "github.com/grafana/grafana/pkg/services/authz/zanzana/server"
 	zstore "github.com/grafana/grafana/pkg/services/authz/zanzana/store"
 	"github.com/grafana/grafana/pkg/services/sqlstore/migrator"
+	"github.com/grafana/grafana/pkg/tests/testsuite"
 )
 
 func TestMain(m *testing.M) {

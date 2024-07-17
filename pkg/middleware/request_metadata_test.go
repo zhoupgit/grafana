@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/grafana/grafana/pkg/middleware/requestmeta"
 	"github.com/grafana/grafana/pkg/web"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestRequestMetaDefault(t *testing.T) {

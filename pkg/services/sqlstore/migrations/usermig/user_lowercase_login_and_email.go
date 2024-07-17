@@ -3,9 +3,10 @@ package usermig
 import (
 	"strings"
 
+	"xorm.io/xorm"
+
 	"github.com/grafana/grafana/pkg/services/sqlstore/migrator"
 	"github.com/grafana/grafana/pkg/services/user"
-	"xorm.io/xorm"
 )
 
 const (

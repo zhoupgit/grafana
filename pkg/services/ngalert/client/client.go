@@ -7,11 +7,12 @@ import (
 	"strconv"
 
 	"github.com/grafana/dskit/instrument"
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/grafana/grafana/pkg/infra/tracing"
 )
 
 // Requester executes an HTTP request.

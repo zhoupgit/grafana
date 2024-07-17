@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	sourcemap "github.com/go-sourcemap/sourcemap"
+
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/setting"

@@ -4,8 +4,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/grafana/grafana/pkg/infra/tracing"
 )
 
 func TestScalarExpr(t *testing.T) {

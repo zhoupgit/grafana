@@ -3,8 +3,9 @@ package schedule
 import (
 	"testing"
 
-	models "github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/stretchr/testify/assert"
+
+	models "github.com/grafana/grafana/pkg/services/ngalert/models"
 )
 
 func TestHashUIDs(t *testing.T) {
