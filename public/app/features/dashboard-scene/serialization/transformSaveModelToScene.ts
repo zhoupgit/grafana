@@ -197,59 +197,59 @@ export function createDashboardSceneFromDashboardModel(oldModel: DashboardModel,
   let alertStatesLayer: AlertStatesDataLayer | undefined;
 
   if (oldModel.templating?.list?.length) {
-    if (oldModel.meta.isSnapshot) {
-      const variableObjects = oldModel.templating.list
-        .map((v) => {
-          try {
-            // for adhoc we are using the AdHocFiltersVariable from scenes becuase of its complexity
-            if (v.type === 'adhoc') {
-              return new AdHocFiltersVariable({
-                name: v.name,
-                label: v.label,
-                readOnly: true,
-                description: v.description,
-                skipUrlSync: v.skipUrlSync,
-                hide: v.hide,
-                datasource: v.datasource,
-                applyMode: 'auto',
-                filters: v.filters ?? [],
-                baseFilters: v.baseFilters ?? [],
-                defaultKeys: v.defaultKeys,
-                useQueriesAsFilterForOptions: true,
-              });
-            }
-            // for other variable types we are using the SnapshotVariable
-            return createVariableForSnapshots(v);
-          } catch (err) {
-            console.error(err);
-            return null;
+    // if (oldModel.meta.isSnapshot) {
+    const variableObjects = oldModel.templating.list
+      .map((v) => {
+        try {
+          // for adhoc we are using the AdHocFiltersVariable from scenes becuase of its complexity
+          if (v.type === 'adhoc') {
+            return new AdHocFiltersVariable({
+              name: v.name,
+              label: v.label,
+              readOnly: true,
+              description: v.description,
+              skipUrlSync: v.skipUrlSync,
+              hide: v.hide,
+              datasource: v.datasource,
+              applyMode: 'auto',
+              filters: v.filters ?? [],
+              baseFilters: v.baseFilters ?? [],
+              defaultKeys: v.defaultKeys,
+              useQueriesAsFilterForOptions: true,
+            });
           }
-        })
-        // TODO: Remove filter
-        // Added temporarily to allow skipping non-compatible variables
-        .filter((v): v is SceneVariable => Boolean(v));
+          // for other variable types we are using the SnapshotVariable
+          return createVariableForSnapshots(v);
+        } catch (err) {
+          console.error(err);
+          return null;
+        }
+      })
+      // TODO: Remove filter
+      // Added temporarily to allow skipping non-compatible variables
+      .filter((v): v is SceneVariable => Boolean(v));
 
-      variables = new SceneVariableSet({
-        variables: variableObjects,
-      });
-    } else {
-      const variableObjects = oldModel.templating.list
-        .map((v) => {
-          try {
-            return createSceneVariableFromVariableModel(v);
-          } catch (err) {
-            console.error(err);
-            return null;
-          }
-        })
-        // TODO: Remove filter
-        // Added temporarily to allow skipping non-compatible variables
-        .filter((v): v is SceneVariable => Boolean(v));
-
-      variables = new SceneVariableSet({
-        variables: variableObjects,
-      });
-    }
+    variables = new SceneVariableSet({
+      variables: variableObjects,
+    });
+    // } else {
+    //   const variableObjects = oldModel.templating.list
+    //     .map((v) => {
+    //       try {
+    //         return createSceneVariableFromVariableModel(v);
+    //       } catch (err) {
+    //         console.error(err);
+    //         return null;
+    //       }
+    //     })
+    //     // TODO: Remove filter
+    //     // Added temporarily to allow skipping non-compatible variables
+    //     .filter((v): v is SceneVariable => Boolean(v));
+    //
+    //   variables = new SceneVariableSet({
+    //     variables: variableObjects,
+    //   });
+    // }
   } else {
     // Create empty variable set
     variables = new SceneVariableSet({
