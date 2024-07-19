@@ -93,6 +93,8 @@ func AddKnownTypesGroup(scheme *runtime.Scheme, g schema.GroupVersion) error {
 		&TimeIntervalList{},
 		&Receiver{},
 		&ReceiverList{},
+		&TemplateGroup{},
+		&TemplateGroupList{},
 	)
 	metav1.AddToGroupVersion(scheme, g)
 
@@ -100,6 +102,22 @@ func AddKnownTypesGroup(scheme *runtime.Scheme, g schema.GroupVersion) error {
 		TimeIntervalResourceInfo.GroupVersionKind(),
 		func(label, value string) (string, string, error) {
 			fieldSet := SelectableTimeIntervalsFields(&TimeInterval{})
+			for key := range fieldSet {
+				if label == key {
+					return label, value, nil
+				}
+			}
+			return "", "", fmt.Errorf("field label not supported for %s: %s", scope.ScopeNodeResourceInfo.GroupVersionKind(), label)
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	err = scheme.AddFieldLabelConversionFunc(
+		TemplateGroupResourceInfo.GroupVersionKind(),
+		func(label, value string) (string, string, error) {
+			fieldSet := SelectableTemplateGroupFields(&TemplateGroup{})
 			for key := range fieldSet {
 				if label == key {
 					return label, value, nil
@@ -122,6 +140,16 @@ func SelectableTimeIntervalsFields(obj *TimeInterval) fields.Set {
 	return generic.MergeFieldsSets(generic.ObjectMetaFieldsSet(&obj.ObjectMeta, false), fields.Set{
 		"metadata.provenance": obj.GetProvenanceStatus(),
 		"spec.name":           obj.Spec.Name,
+	})
+}
+
+func SelectableTemplateGroupFields(obj *TemplateGroup) fields.Set {
+	if obj == nil {
+		return nil
+	}
+	return generic.MergeFieldsSets(generic.ObjectMetaFieldsSet(&obj.ObjectMeta, false), fields.Set{
+		"metadata.provenance": obj.GetProvenanceStatus(),
+		"spec.title":          obj.Spec.Title,
 	})
 }
 
