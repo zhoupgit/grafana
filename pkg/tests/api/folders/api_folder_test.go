@@ -193,7 +193,7 @@ func TestIntegrationNestedFoldersOn(t *testing.T) {
 				})
 				require.NoError(t, err)
 				assert.Equal(t, http.StatusOK, resp.Code())
-				assert.Equal(t, "", resp.Payload.ParentUID)
+				assert.Equal(t, parentUID, resp.Payload.ParentUID)
 			})
 
 			t.Run("move subfolder to root should succeed", func(t *testing.T) {
