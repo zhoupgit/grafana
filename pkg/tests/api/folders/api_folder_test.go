@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/go-openapi/runtime"
 	"github.com/grafana/grafana-openapi-client-go/client/folders"
 	"github.com/grafana/grafana-openapi-client-go/models"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
@@ -21,8 +23,6 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/tests"
 	"github.com/grafana/grafana/pkg/tests/testinfra"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 const orgID = 1
@@ -187,14 +187,13 @@ func TestIntegrationNestedFoldersOn(t *testing.T) {
 			assert.Equal(t, other, resp.Payload.ParentUID)
 			subfolderUnderOther := resp.Payload.UID
 
-			t.Run("move subfolder to other folder containing folder with that name should fail", func(t *testing.T) {
-				_, err := adminClient.Folders.MoveFolder(subfolderUnderOther, &models.MoveFolderCommand{
+			t.Run("move subfolder to other folder containing folder with the same name should be ok", func(t *testing.T) {
+				resp, err := adminClient.Folders.MoveFolder(subfolderUnderOther, &models.MoveFolderCommand{
 					ParentUID: parentUID,
 				})
-				require.Error(t, err)
-				var apiError *runtime.APIError
-				assert.True(t, errors.As(err, &apiError))
-				assert.Equal(t, http.StatusConflict, apiError.Code)
+				require.NoError(t, err)
+				assert.Equal(t, http.StatusOK, resp.Code())
+				assert.Equal(t, "", resp.Payload.ParentUID)
 			})
 
 			t.Run("move subfolder to root should succeed", func(t *testing.T) {
