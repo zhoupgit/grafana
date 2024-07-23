@@ -11,9 +11,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 )
 
-type DecryptFn = func(value string) string
-
-func GrafanaIntegrationConfigToGettable(r *alertingNotify.GrafanaIntegrationConfig, provenance models.Provenance, decryptFn DecryptFn) (apimodels.GettableGrafanaReceiver, error) {
+func GrafanaIntegrationConfigToGettable(r *alertingNotify.GrafanaIntegrationConfig, provenance models.Provenance) (apimodels.GettableGrafanaReceiver, error) {
 	out := apimodels.GettableGrafanaReceiver{
 		UID:                   r.UID,
 		Name:                  r.Name,
@@ -37,12 +35,10 @@ func GrafanaIntegrationConfigToGettable(r *alertingNotify.GrafanaIntegrationConf
 	}
 
 	for k, v := range r.SecureSettings {
-		decryptedValue := decryptFn(v)
-		if decryptedValue == "" {
+		if v == "" {
 			continue
-		} else {
-			settings.Set(k, decryptedValue)
 		}
+		settings.Set(k, v)
 		out.SecureFields[k] = true
 	}
 
@@ -56,15 +52,18 @@ func GrafanaIntegrationConfigToGettable(r *alertingNotify.GrafanaIntegrationConf
 	return out, nil
 }
 
-func ReceiverToGettable(r *models.Receiver, decryptFn DecryptFn) (apimodels.GettableApiReceiver, error) {
+func ReceiverToGettable(r *models.Receiver) (apimodels.GettableApiReceiver, error) {
 	out := apimodels.GettableApiReceiver{
 		Receiver: config.Receiver{
 			Name: r.ConfigReceiver.Name,
 		},
+		GettableGrafanaReceivers: apimodels.GettableGrafanaReceivers{
+			GrafanaManagedReceivers: make([]*apimodels.GettableGrafanaReceiver, 0, len(r.Integrations)),
+		},
 	}
 
 	for _, gr := range r.Integrations {
-		gettable, err := GrafanaIntegrationConfigToGettable(gr, r.Provenance, decryptFn)
+		gettable, err := GrafanaIntegrationConfigToGettable(gr, r.Provenance)
 		if err != nil {
 			return apimodels.GettableApiReceiver{}, err
 		}
