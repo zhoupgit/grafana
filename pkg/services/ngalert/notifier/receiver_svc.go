@@ -50,10 +50,10 @@ func NewReceiverService(
 
 // GetReceiver returns a receiver by name.
 // The receiver's secure settings are decrypted if requested and the user has access to do so.
-func (rs *ReceiverService) GetReceiver(ctx context.Context, q models.GetReceiverQuery, user identity.Requester) (definitions.GettableApiReceiver, error) {
+func (rs *ReceiverService) GetReceiver(ctx context.Context, q models.GetReceiverQuery, user identity.Requester) (*models.Receiver, error) {
 	rcv, err := rs.receiverStore.GetReceiver(ctx, q.OrgID, models.GetUID(q.Name))
 	if err != nil {
-		return definitions.GettableApiReceiver{}, err
+		return nil, err
 	}
 
 	auth := rs.authz.AuthorizeReadDecrypted
@@ -61,17 +61,17 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, q models.GetReceiver
 		auth = rs.authz.AuthorizeRead
 	}
 	if err := auth(ctx, user, rcv); err != nil {
-		return definitions.GettableApiReceiver{}, err
+		return nil, err
 	}
 
 	rs.decryptOrRedactSecureSettings(ctx, rcv, q.Decrypt)
 
-	return ReceiverToGettable(rcv)
+	return rcv, nil
 }
 
 // GetReceivers returns a list of receivers a user has access to.
 // Receivers can be filtered by name, and secure settings are decrypted if requested and the user has access to do so.
-func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceiversQuery, user identity.Requester) ([]definitions.GettableApiReceiver, error) {
+func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceiversQuery, user identity.Requester) ([]*models.Receiver, error) {
 	uids := make([]string, 0, len(q.Names))
 	for _, name := range q.Names {
 		uids = append(uids, models.GetUID(name))
@@ -91,23 +91,11 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 		return nil, err
 	}
 
-	var output []definitions.GettableApiReceiver
-	for i := q.Offset; i < len(filtered); i++ {
-		r := filtered[i]
+	for _, r := range filtered {
 		rs.decryptOrRedactSecureSettings(ctx, r, q.Decrypt)
-		res, err := ReceiverToGettable(r)
-		if err != nil {
-			return nil, err
-		}
-
-		output = append(output, res)
-		// stop if we have reached the limit or we have found all the requested receivers
-		if (len(output) == q.Limit && q.Limit > 0) || (len(output) == len(q.Names)) {
-			break
-		}
 	}
 
-	return output, nil
+	return limitOffset(filtered, q.Offset, q.Limit), nil
 }
 
 // ListReceivers returns a list of receivers a user has access to.
@@ -115,7 +103,7 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 // This offers an looser permissions compared to GetReceivers. When a user doesn't have read access it will check for list access instead of returning an empty list.
 // If the users has list access, all receiver settings will be removed from the response. This option is for backwards compatibility with the v1/receivers endpoint
 // and should be removed when FGAC is fully implemented.
-func (rs *ReceiverService) ListReceivers(ctx context.Context, q models.ListReceiversQuery, user identity.Requester) ([]definitions.GettableApiReceiver, error) { // TODO: Remove this method with FGAC.
+func (rs *ReceiverService) ListReceivers(ctx context.Context, q models.ListReceiversQuery, user identity.Requester) ([]*models.Receiver, error) { // TODO: Remove this method with FGAC.
 	listAccess, err := rs.authz.HasList(ctx, user)
 	if err != nil {
 		return nil, err
@@ -139,30 +127,16 @@ func (rs *ReceiverService) ListReceivers(ctx context.Context, q models.ListRecei
 		}
 	}
 
-	var output []definitions.GettableApiReceiver
-	for i := q.Offset; i < len(receivers); i++ {
-		r := receivers[i]
-
-		// Remove settings.
+	// Remove settings.
+	for _, r := range receivers {
 		for _, integration := range r.Integrations {
 			integration.Settings = nil
 			integration.SecureSettings = nil
 			integration.DisableResolveMessage = false
 		}
-
-		res, err := ReceiverToGettable(r)
-		if err != nil {
-			return nil, err
-		}
-
-		output = append(output, res)
-		// stop if we have reached the limit or we have found all the requested receivers
-		if (len(output) == q.Limit && q.Limit > 0) || (len(output) == len(q.Names)) {
-			break
-		}
 	}
 
-	return output, nil
+	return limitOffset(receivers, q.Offset, q.Limit), nil
 }
 
 // DeleteReceiver deletes a receiver by uid.
@@ -172,12 +146,12 @@ func (rs *ReceiverService) DeleteReceiver(ctx context.Context, uid string, orgID
 	return rs.receiverStore.DeleteReceiver(ctx, orgID, uid, models.Provenance(callerProvenance), version)
 }
 
-func (rs *ReceiverService) CreateReceiver(ctx context.Context, r definitions.GettableApiReceiver, orgID int64) (definitions.GettableApiReceiver, error) {
+func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receiver, orgID int64) (*models.Receiver, error) {
 	// TODO: Stub
 	panic("not implemented")
 }
 
-func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r definitions.GettableApiReceiver, orgID int64) (definitions.GettableApiReceiver, error) {
+func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receiver, orgID int64) (*models.Receiver, error) {
 	// TODO: Stub
 	panic("not implemented")
 }
@@ -222,3 +196,20 @@ func (rs *ReceiverService) redactor() decryptFn {
 }
 
 type decryptFn = func(value string) (string, error)
+
+// limitOffset returns a subslice of items with the given offset and limit. Returns the same underlying array, not a copy.
+func limitOffset[T any](items []T, offset, limit int) []T {
+	if limit == 0 && offset == 0 {
+		return items
+	}
+	if offset >= len(items) {
+		return nil
+	}
+	if offset+limit >= len(items) {
+		return items[offset:]
+	}
+	if limit == 0 {
+		limit = len(items) - offset
+	}
+	return items[offset : offset+limit]
+}

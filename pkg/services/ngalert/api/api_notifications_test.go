@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	alertingNotify "github.com/grafana/alerting/notify"
+
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/log/logtest"
@@ -34,35 +36,39 @@ func TestRouteGetReceiver(t *testing.T) {
 	fakeReceiverSvc := fakes.NewFakeReceiverService()
 
 	t.Run("returns expected model", func(t *testing.T) {
-		expected := definitions.GettableApiReceiver{
-			Receiver: am_config.Receiver{
-				Name: "receiver1",
-			},
-			GettableGrafanaReceivers: definitions.GettableGrafanaReceivers{
-				GrafanaManagedReceivers: []*definitions.GettableGrafanaReceiver{
-					{
-						UID:  "uid1",
-						Name: "receiver1",
-						Type: "slack",
+		expected := &models.Receiver{
+			APIReceiver: alertingNotify.APIReceiver{
+				ConfigReceiver: am_config.Receiver{
+					Name: "receiver1",
+				},
+				GrafanaIntegrations: alertingNotify.GrafanaIntegrations{
+					Integrations: []*alertingNotify.GrafanaIntegrationConfig{
+						{
+							UID:  "uid1",
+							Name: "receiver1",
+							Type: "slack",
+						},
 					},
 				},
 			},
 		}
-		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (definitions.GettableApiReceiver, error) {
+		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (*models.Receiver, error) {
 			return expected, nil
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
 		rc := testReqCtx("GET")
 		resp := handler.handleRouteGetReceiver(&rc, "receiver1")
 		require.Equal(t, http.StatusOK, resp.Status())
-		json, err := json.Marshal(expected)
+		gettables, err := GettableApiReceiverFromReceiver(expected)
+		require.NoError(t, err)
+		json, err := json.Marshal(gettables)
 		require.NoError(t, err)
 		require.Equal(t, json, resp.Body())
 	})
 
 	t.Run("builds query from request context and url param", func(t *testing.T) {
-		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (definitions.GettableApiReceiver, error) {
-			return definitions.GettableApiReceiver{}, nil
+		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (*models.Receiver, error) {
+			return &models.Receiver{}, nil
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
 		rc := testReqCtx("GET")
@@ -81,8 +87,8 @@ func TestRouteGetReceiver(t *testing.T) {
 	})
 
 	t.Run("should pass along not found response", func(t *testing.T) {
-		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (definitions.GettableApiReceiver, error) {
-			return definitions.GettableApiReceiver{}, legacy_storage.ErrReceiverNotFound.Errorf("")
+		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (*models.Receiver, error) {
+			return nil, legacy_storage.ErrReceiverNotFound.Errorf("")
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
 		rc := testReqCtx("GET")
@@ -91,8 +97,8 @@ func TestRouteGetReceiver(t *testing.T) {
 	})
 
 	t.Run("should pass along permission denied response", func(t *testing.T) {
-		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (definitions.GettableApiReceiver, error) {
-			return definitions.GettableApiReceiver{}, ac.ErrAuthorizationBase.Errorf("")
+		fakeReceiverSvc.GetReceiverFn = func(ctx context.Context, q models.GetReceiverQuery, u identity.Requester) (*models.Receiver, error) {
+			return nil, ac.ErrAuthorizationBase.Errorf("")
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
 		rc := testReqCtx("GET")
@@ -105,23 +111,25 @@ func TestRouteGetReceivers(t *testing.T) {
 	fakeReceiverSvc := fakes.NewFakeReceiverService()
 
 	t.Run("returns expected model", func(t *testing.T) {
-		expected := []definitions.GettableApiReceiver{
+		expected := []*models.Receiver{
 			{
-				Receiver: am_config.Receiver{
-					Name: "receiver1",
-				},
-				GettableGrafanaReceivers: definitions.GettableGrafanaReceivers{
-					GrafanaManagedReceivers: []*definitions.GettableGrafanaReceiver{
-						{
-							UID:  "uid1",
-							Name: "receiver1",
-							Type: "slack",
+				APIReceiver: alertingNotify.APIReceiver{
+					ConfigReceiver: am_config.Receiver{
+						Name: "receiver1",
+					},
+					GrafanaIntegrations: alertingNotify.GrafanaIntegrations{
+						Integrations: []*alertingNotify.GrafanaIntegrationConfig{
+							{
+								UID:  "uid1",
+								Name: "receiver1",
+								Type: "slack",
+							},
 						},
 					},
 				},
 			},
 		}
-		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]definitions.GettableApiReceiver, error) {
+		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]*models.Receiver, error) {
 			return expected, nil
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
@@ -129,14 +137,16 @@ func TestRouteGetReceivers(t *testing.T) {
 		rc.Context.Req.Form.Set("names", "receiver1")
 		resp := handler.handleRouteGetReceivers(&rc)
 		require.Equal(t, http.StatusOK, resp.Status())
-		json, err := json.Marshal(expected)
+		gettables, err := GettableApiReceiversFromReceivers(expected)
 		require.NoError(t, err)
-		require.Equal(t, json, resp.Body())
+		jsonBody, err := json.Marshal(gettables)
+		require.NoError(t, err)
+		require.JSONEq(t, string(jsonBody), string(resp.Body()))
 	})
 
 	t.Run("builds query from request context", func(t *testing.T) {
-		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]definitions.GettableApiReceiver, error) {
-			return []definitions.GettableApiReceiver{}, nil
+		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]*models.Receiver, error) {
+			return nil, nil
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
 		rc := testReqCtx("GET")
@@ -160,7 +170,7 @@ func TestRouteGetReceivers(t *testing.T) {
 	})
 
 	t.Run("should pass along permission denied response", func(t *testing.T) {
-		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]definitions.GettableApiReceiver, error) {
+		fakeReceiverSvc.ListReceiversFn = func(ctx context.Context, q models.ListReceiversQuery, u identity.Requester) ([]*models.Receiver, error) {
 			return nil, ac.ErrAuthorizationBase.Errorf("")
 		}
 		handler := NewNotificationsApi(newNotificationSrv(fakeReceiverSvc))
@@ -222,7 +232,7 @@ func TestRouteGetReceiversResponses(t *testing.T) {
 					{limit: 4, offset: 0, expected: expected[:4]},
 					{limit: 1, offset: 1, expected: expected[1:2]},
 					{limit: 2, offset: 2, expected: expected[2:4]},
-					{limit: 2, offset: 99, expected: nil},
+					{limit: 2, offset: 99, expected: []definitions.GettableApiReceiver{}},
 					{limit: 0, offset: 0, expected: expected},
 					{limit: 0, offset: 1, expected: expected[1:]},
 				}
@@ -238,7 +248,7 @@ func TestRouteGetReceiversResponses(t *testing.T) {
 						err := json.Unmarshal(response.Body(), &configs)
 						require.NoError(t, err)
 
-						require.Equal(t, configs, tc.expected)
+						require.Equal(t, tc.expected, configs)
 					})
 				}
 			})
