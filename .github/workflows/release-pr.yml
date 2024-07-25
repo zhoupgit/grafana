@@ -23,11 +23,11 @@ on:
       dry_run:
         required: false
         default: false
-        type: bool
+        type: boolean
       latest:
         required: false
         default: false
-        type: bool
+        type: boolean
 
 permissions:
   contents: write
@@ -42,6 +42,9 @@ jobs:
       latest: ${{ inputs.latest }}
       dry_run: ${{ inputs.dry_run }}
       target: main
+    secrets:
+      GRAFANA_DELIVERY_BOT_APP_ID: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
+      GRAFANA_DELIVERY_BOT_APP_PEM: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
   create-prs:
     name: Create Release PR
     runs-on: ubuntu-latest
@@ -53,7 +56,6 @@ jobs:
         with:
           app_id: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_ID }}
           private_key: ${{ secrets.GRAFANA_DELIVERY_BOT_APP_PEM }}
-
       - name: Checkout Grafana
         uses: actions/checkout@v4
         with:
@@ -124,7 +126,7 @@ jobs:
 
       - name: Git push
         if: ${{ inputs.dry_run }} != true
-        run: git push
+        run: git push --set-upstream origin release/${{ github.run_id }}/${{ inputs.version }}
 
       - name: Create PR without backports
         if: "${{ inputs.backport == '' }}"
@@ -143,7 +145,6 @@ jobs:
         run: >
           gh pr create \
             $( [ "x${{ inputs.latest }}" == "xtrue" ] && printf %s '-l "release/latest"') \
-            -l "backport ${{ inputs.backport }}" \
             -l "product-approved" \
             --dry-run=${{ inputs.dry_run }} \
             -B "${{ inputs.target }}" \
