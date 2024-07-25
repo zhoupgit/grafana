@@ -663,7 +663,7 @@ func (s *server) GetBlob(ctx context.Context, req *GetBlobRequest) (*GetBlobResp
 		return nil, err
 	}
 
-	// NOTE: in SQL... this could be simple select rather than a full fetch and extract
+	// The linked blob is stored in the resource metadata attributes
 	obj, status := s.getPartialObject(ctx, req.Resource, req.ResourceVersion)
 	if status != nil {
 		return &GetBlobResponse{Error: status}, nil
