@@ -4,74 +4,75 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import {
   AbstractQuery,
+  AdHocVariableFilter,
   AnnotationEvent,
   AnnotationQueryRequest,
   CoreApp,
+  CustomVariableModel,
   DataFrame,
   DataFrameView,
   DataQueryRequest,
   DataQueryResponse,
+  DataSourceGetTagKeysOptions,
+  DataSourceGetTagValuesOptions,
   DataSourceInstanceSettings,
   DataSourceWithLogsContextSupport,
-  DataSourceWithSupplementaryQueriesSupport,
-  SupplementaryQueryType,
   DataSourceWithQueryExportSupport,
   DataSourceWithQueryImportSupport,
+  DataSourceWithQueryModificationSupport,
+  DataSourceWithSupplementaryQueriesSupport,
+  DataSourceWithToggleableQueryFiltersSupport,
   Labels,
+  LegacyMetricFindQueryOptions,
   LoadingState,
+  LogRowContextOptions,
   LogRowModel,
+  LogsSampleOptions,
+  LogsVolumeOption,
+  MetricFindValue,
+  QueryFilterOptions,
   QueryFixAction,
   QueryHint,
+  QueryVariableModel,
   rangeUtil,
+  renderLegendFormat,
   ScopedVars,
   SupplementaryQueryOptions,
+  SupplementaryQueryType,
   TimeRange,
-  LogRowContextOptions,
-  DataSourceWithToggleableQueryFiltersSupport,
   ToggleFilterAction,
-  QueryFilterOptions,
-  renderLegendFormat,
-  LegacyMetricFindQueryOptions,
-  AdHocVariableFilter,
   urlUtil,
-  MetricFindValue,
-  DataSourceGetTagValuesOptions,
-  DataSourceGetTagKeysOptions,
-  DataSourceWithQueryModificationSupport,
-  LogsVolumeOption,
-  LogsSampleOptions,
-  QueryVariableModel,
-  CustomVariableModel,
 } from '@grafana/data';
 import { Duration } from '@grafana/lezer-logql';
 import { BackendSrvRequest, config, DataSourceWithBackend, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 
-import LanguageProvider from './LanguageProvider';
+import LanguageProvider, { STREAM_SHARD_LABEL } from './LanguageProvider';
 import { LiveStreams, LokiLiveTarget } from './LiveStreams';
 import { LogContextProvider } from './LogContextProvider';
 import { LokiVariableSupport } from './LokiVariableSupport';
 import { transformBackendResult } from './backendResultTransformer';
 import { LokiAnnotationsQueryEditor } from './components/AnnotationsQueryEditor';
 import { placeHolderScopedVars } from './components/monaco-query-field/monaco-completion-provider/validation';
-import { escapeLabelValueInSelector, isRegexSelector, getLabelTypeFromFrame } from './languageUtils';
+import { escapeLabelValueInSelector, getLabelTypeFromFrame, isRegexSelector } from './languageUtils';
 import { labelNamesRegex, labelValuesRegex } from './migrations/variableQueryMigrations';
 import {
+  addFilterAsLabelFilter,
   addLabelFormatToQuery,
   addLabelToQuery,
+  addLineFilter,
   addNoPipelineErrorToQuery,
   addParserToQuery,
-  removeCommentsFromQuery,
-  addFilterAsLabelFilter,
-  getParserPositions,
-  toLabelFilter,
-  addLineFilter,
   findLastPosition,
   getLabelFilterPositions,
+  getParserPositions,
   queryHasFilter,
+  removeCommentsFromQuery,
   removeLabelFromQuery,
+  toLabelFilter,
 } from './modifyQuery';
 import { getQueryHints } from './queryHints';
+import { runShardedQueries } from './querySharding';
 import { runSplitQuery } from './querySplitting';
 import {
   getLogQueryFromMetricsQuery,
@@ -81,12 +82,14 @@ import {
   getStreamSelectorsFromQuery,
   isLogsQuery,
   isQueryWithError,
+  requestSupportsSharding,
   requestSupportsSplitting,
 } from './queryUtils';
 import { replaceVariables, returnVariables } from './querybuilder/parsingUtils';
 import { convertToWebSocketUrl, doLokiChannelStream } from './streaming';
 import { trackQuery } from './tracking';
 import {
+  LabelType,
   LokiOptions,
   LokiQuery,
   LokiQueryType,
@@ -327,6 +330,20 @@ export class LokiDatasource
 
     if (fixedRequest.liveStreaming) {
       return this.runLiveQueryThroughBackend(fixedRequest);
+    }
+
+    const requestSupportsShardingFlagPlaceholder = true;
+    if (requestSupportsShardingFlagPlaceholder && requestSupportsSharding(fixedRequest.targets)) {
+      console.log('shards', this.languageProvider.streamShards);
+
+      if (
+        this.languageProvider.streamShards &&
+        this.languageProvider.streamShards?.length > 0 &&
+        fixedRequest.targets.length === 1
+      ) {
+        console.log('running sharded queries', fixedRequest);
+        return runShardedQueries(this, fixedRequest, this.languageProvider.streamShards);
+      }
     }
 
     if (config.featureToggles.lokiQuerySplitting && requestSupportsSplitting(fixedRequest.targets)) {

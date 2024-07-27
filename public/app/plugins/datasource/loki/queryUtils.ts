@@ -292,6 +292,10 @@ export function getStreamSelectorsFromQuery(query: string): string[] {
   return labelMatchers;
 }
 
+export function requestSupportsSharding(allQueries: LokiQuery[]) {
+  return requestSupportsSplitting(allQueries);
+}
+
 export function requestSupportsSplitting(allQueries: LokiQuery[]) {
   const queries = allQueries
     .filter((query) => !query.hide)

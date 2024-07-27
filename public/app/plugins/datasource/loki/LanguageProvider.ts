@@ -17,12 +17,14 @@ import { ParserAndLabelKeysResult, LokiQuery, LokiQueryType, LabelType } from '.
 
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
+export const STREAM_SHARD_LABEL = '__stream_shard__';
 
 export default class LokiLanguageProvider extends LanguageProvider {
   labelKeys: string[];
   started = false;
   startedTimeRange?: TimeRange;
   datasource: LokiDatasource;
+  streamShards?: string[];
 
   /**
    *  Cache for labels of series. This is bit simplistic in the sense that it just counts responses each as a 1 and does
@@ -63,7 +65,14 @@ export default class LokiLanguageProvider extends LanguageProvider {
       this.startedTimeRange?.to.isSame(range.to) === false
     ) {
       this.startedTimeRange = range;
-      this.startTask = this.fetchLabels({ timeRange: range }).then(() => {
+      this.startTask = this.fetchLabels({ timeRange: range }).then((labels) => {
+        if (labels.includes(STREAM_SHARD_LABEL)) {
+          this.fetchLabelValues(STREAM_SHARD_LABEL, {
+            timeRange,
+          }).then((result) => {
+            this.streamShards = result;
+          });
+        }
         this.started = true;
         return [];
       });
