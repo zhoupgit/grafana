@@ -112,7 +112,6 @@ const getDataLinkListItemStyles = (theme: GrafanaTheme2) => {
     }),
     icons: css({
       display: 'flex',
-      color: theme.colors.text.secondary,
       padding: 6,
       alignItems: 'center',
       gap: 8,
