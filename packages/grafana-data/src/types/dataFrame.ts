@@ -1,7 +1,7 @@
 import { HideSeriesConfig } from '@grafana/schema';
 
 import { ScopedVars } from './ScopedVars';
-import { Action } from './action';
+import { Action, ActionModel } from './action';
 import { QueryResultBase, Labels, NullValueMode } from './data';
 import { DataLink, LinkModel, OneClickMode } from './dataLink';
 import { DecimalCount, DisplayProcessor, DisplayValue, DisplayValueAlignmentFactors } from './displayValue';
@@ -181,6 +181,8 @@ export interface Field<T = any> {
    * Get value data links with variables interpolated
    */
   getLinks?: (config: ValueLinkConfig) => Array<LinkModel<Field>>;
+
+  getActions?: (config: ValueLinkConfig) => Array<ActionModel<Field>>;
 }
 
 /** @alpha */

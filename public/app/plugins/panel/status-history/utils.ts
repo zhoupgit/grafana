@@ -23,24 +23,15 @@ export const getActions = (field: Field, rowIdx: number) => {
   const actions: Array<ActionModel<Field>> = [];
   const lookup = new Set<string>();
 
-  if ((field.config.actions?.length ?? 0) > 0) {
-    // const v = field.values[rowIdx];
-
-    field.config.actions?.forEach((action) => {
-      const key = `${action.title}`;
-
-      if (!lookup.has(key)) {
-        actions.push({
-          title: action.title,
-          // TODO: generate fetch() call using configured & interpolated form fields, href, etc.
-          onClick: () => {},
-          // origin: field,
-        });
-
-        lookup.add(key);
-      }
-    });
-  }
+  const v = field.values[rowIdx];
+  const disp = field.display ? field.display(v) : { text: `${v}`, numeric: +v };
+  field.getActions?.({ calculatedValue: disp, valueRowIndex: rowIdx }).forEach((action) => {
+    const key = `${action.title}`;
+    if (!lookup.has(key)) {
+      actions.push(action);
+      lookup.add(key);
+    }
+  });
 
   return actions;
 };

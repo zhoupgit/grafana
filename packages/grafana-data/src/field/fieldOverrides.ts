@@ -12,6 +12,7 @@ import { GrafanaTheme2 } from '../themes/types';
 import { ReducerID, reduceField } from '../transformations/fieldReducer';
 import { fieldMatchers } from '../transformations/matchers';
 import { ScopedVars, DataContextScopedVar } from '../types/ScopedVars';
+import { getActionsSupplier } from '../types/action';
 import { DataFrame, NumericRange, FieldType, Field, ValueLinkConfig, FieldConfig } from '../types/dataFrame';
 import { LinkModel, DataLink } from '../types/dataLink';
 import { DisplayProcessor, DisplayValue, DecimalCount } from '../types/displayValue';
@@ -193,6 +194,9 @@ export function applyFieldOverrides(options: ApplyFieldOverrideOptions): DataFra
         options.timeZone,
         options.dataLinkPostProcessor
       );
+
+      // Attach actions supplier
+      field.getActions = getActionsSupplier(newFrame, field, field.state!.scopedVars, context.replaceVariables);
 
       if (field.type === FieldType.nestedFrames) {
         for (const nestedFrames of field.values) {

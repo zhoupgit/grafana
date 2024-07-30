@@ -414,8 +414,7 @@ export class ElementState implements LayerElement {
             },
           },
         },
-        scene?.panel.props.replaceVariables!,
-        this.options.actions ?? []
+        scene?.panel.props.replaceVariables!
       );
     }
 

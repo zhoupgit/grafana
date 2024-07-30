@@ -68,19 +68,13 @@ export const defaultActionConfig: Action = {
 };
 
 export const getActionsSupplier =
-  (
-    frame: DataFrame,
-    field: Field,
-    fieldScopedVars: ScopedVars,
-    replaceVariables: InterpolateFunction,
-    actions: Action[]
-  ) =>
+  (frame: DataFrame, field: Field, fieldScopedVars: ScopedVars, replaceVariables: InterpolateFunction) =>
   (config: ValueLinkConfig): Array<ActionModel<Field>> => {
-    if (!actions || actions.length === 0) {
+    if (!field.config.actions || field.config.actions.length === 0) {
       return [];
     }
 
-    const actionModels = actions.map((action: Action) => {
+    const actionModels = field.config.actions.map((action: Action) => {
       const dataContext: DataContextScopedVar = getFieldDataContextClone(frame, field, fieldScopedVars);
       const actionScopedVars = {
         ...fieldScopedVars,

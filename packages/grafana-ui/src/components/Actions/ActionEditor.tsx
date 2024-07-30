@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { memo, ChangeEvent } from 'react';
+import { memo } from 'react';
 
 import {
   GrafanaTheme2,
@@ -18,7 +18,6 @@ import { InlineField } from '../Forms/InlineField';
 import { InlineFieldRow } from '../Forms/InlineFieldRow';
 import { Label } from '../Forms/Label';
 import { RadioButtonGroup } from '../Forms/RadioButtonGroup/RadioButtonGroup';
-import { Input } from '../Input/Input';
 import { JSONFormatter } from '../JSONFormatter/JSONFormatter';
 import { Select } from '../Select/Select';
 
@@ -48,8 +47,8 @@ const LABEL_WIDTH = 13;
 export const ActionEditor = memo(({ index, value, onChange, suggestions }: ActionEditorProps) => {
   const styles = useStyles2(getStyles);
 
-  const onTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChange(index, { ...value, title: event.target.value });
+  const onTitleChange = (title: string) => {
+    onChange(index, { ...value, title });
   };
 
   const onEndpointChange = (endpoint: string) => {
@@ -111,7 +110,7 @@ export const ActionEditor = memo(({ index, value, onChange, suggestions }: Actio
   return (
     <div className={styles.listItem}>
       <Field label="Title">
-        <Input value={value.title} onChange={onTitleChange} />
+        <SuggestionsInput value={value.title} onChange={onTitleChange} suggestions={suggestions} />
       </Field>
       <Label>API</Label>
       <InlineFieldRow>

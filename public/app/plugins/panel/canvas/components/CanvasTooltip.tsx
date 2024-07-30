@@ -90,7 +90,7 @@ export const CanvasTooltip = ({ scene }: Props) => {
   const elementHasActions = (element.options.actions?.length ?? 0) > 0;
 
   if (elementHasActions && element.getActions) {
-    element.getActions({}).forEach((action) => {
+    element.getActions({ valueRowIndex: getRowIndex(element.data.field, scene) }).forEach((action) => {
       const key = `${action.title}/${Math.random()}`;
       if (!actionLookup.has(key)) {
         actions.push(action);
