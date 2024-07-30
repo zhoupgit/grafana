@@ -143,6 +143,8 @@ export enum FieldConfigProperty {
   Thresholds = 'thresholds',
   Mappings = 'mappings',
   Links = 'links',
+  Actions = 'actions',
+  OneClickMode = 'oneClickMode',
   Color = 'color',
   Filterable = 'filterable',
 }
