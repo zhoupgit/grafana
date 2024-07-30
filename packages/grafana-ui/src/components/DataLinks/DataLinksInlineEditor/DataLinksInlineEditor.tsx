@@ -6,6 +6,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { DataFrame, DataLink, GrafanaTheme2, VariableSuggestion } from '@grafana/data';
 
 import { useStyles2 } from '../../../themes';
+import { isCompactUrl } from '../../../utils';
 import { Button } from '../../Button';
 import { Modal } from '../../Modal/Modal';
 
@@ -90,10 +91,10 @@ export const DataLinksInlineEditor = ({
     onChange(update);
   };
 
-  const renderFirstLink = (linkJSX: ReactNode, key: string) => {
+  const renderFirstLink = (linkJSX: ReactNode, link: DataLink, key: string) => {
     if (showOneClick) {
       return (
-        <div className={styles.oneClickOverlay} key={key}>
+        <div className={styles.oneClickOverlay} style={{ maxHeight: isCompactUrl(link.url) ? 107 : 75 }} key={key}>
           <span className={styles.oneClickSpan}>One-click</span>
           {linkJSX}
         </div>
@@ -125,7 +126,7 @@ export const DataLinksInlineEditor = ({
                 );
 
                 if (idx === 0) {
-                  return renderFirstLink(linkJSX, key);
+                  return renderFirstLink(linkJSX, link, key);
                 }
 
                 return linkJSX;
@@ -172,7 +173,6 @@ const getDataLinksInlineEditorStyles = (theme: GrafanaTheme2) => ({
     border: `1px dashed ${theme.colors.border.medium}`,
     fontSize: 10,
     color: theme.colors.text.link,
-    maxHeight: 75,
     marginBottom: 15,
   }),
   oneClickSpan: css({
