@@ -170,9 +170,10 @@ const getDataLinksInlineEditorStyles = (theme: GrafanaTheme2) => ({
   oneClickOverlay: css({
     height: 'auto',
     border: `1px dashed ${theme.colors.border.medium}`,
-    paddingBottom: 10,
     fontSize: 10,
     color: theme.colors.text.link,
+    maxHeight: 75,
+    marginBottom: 15,
   }),
   oneClickSpan: css({
     padding: 10,
