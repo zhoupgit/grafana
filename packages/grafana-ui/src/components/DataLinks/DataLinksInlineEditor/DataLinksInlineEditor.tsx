@@ -94,7 +94,7 @@ export const DataLinksInlineEditor = ({
   const renderFirstLink = (linkJSX: ReactNode, link: DataLink, key: string) => {
     if (showOneClick) {
       return (
-        <div className={styles.oneClickOverlay} style={{ maxHeight: isCompactUrl(link.url) ? 107 : 75 }} key={key}>
+        <div className={styles.oneClickOverlay} style={{ maxHeight: isCompactUrl(link.url) ? 107 : 77 }} key={key}>
           <span className={styles.oneClickSpan}>One-click</span>
           {linkJSX}
         </div>
