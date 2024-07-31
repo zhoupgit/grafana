@@ -116,7 +116,7 @@ func (t *TemplateService) SetTemplate(ctx context.Context, orgID int64, tmpl def
 	}, nil
 }
 
-func (t *TemplateService) DeleteTemplate(ctx context.Context, orgID int64, name string, provenance definitions.Provenance, version string) error {
+func (t *TemplateService) DeleteTemplate(ctx context.Context, orgID int64, nameOrUid string, provenance definitions.Provenance, version string) error {
 	revision, err := t.configStore.Get(ctx, orgID)
 	if err != nil {
 		return err
@@ -126,18 +126,22 @@ func (t *TemplateService) DeleteTemplate(ctx context.Context, orgID int64, name 
 		return nil
 	}
 
-	existing, ok := revision.Config.TemplateFiles[name]
+	existingName := nameOrUid
+	existing, ok := revision.Config.TemplateFiles[nameOrUid]
+	if !ok {
+		existingName, existing, ok = getTemplateByUid(revision.Config.TemplateFiles, nameOrUid)
+	}
 	if !ok {
 		return nil
 	}
 
-	err = t.checkOptimisticConcurrency(name, existing, models.Provenance(provenance), version, "delete")
+	err = t.checkOptimisticConcurrency(existingName, existing, models.Provenance(provenance), version, "delete")
 	if err != nil {
 		return err
 	}
 
 	// check that provenance is not changed in an invalid way
-	storedProvenance, err := t.provenanceStore.GetProvenance(ctx, &definitions.NotificationTemplate{Name: name}, orgID)
+	storedProvenance, err := t.provenanceStore.GetProvenance(ctx, &definitions.NotificationTemplate{Name: existingName}, orgID)
 	if err != nil {
 		return err
 	}
@@ -145,14 +149,14 @@ func (t *TemplateService) DeleteTemplate(ctx context.Context, orgID int64, name 
 		return err
 	}
 
-	delete(revision.Config.TemplateFiles, name)
+	delete(revision.Config.TemplateFiles, existingName)
 
 	return t.xact.InTransaction(ctx, func(ctx context.Context) error {
 		if err := t.configStore.Save(ctx, revision, orgID); err != nil {
 			return err
 		}
 		tgt := definitions.NotificationTemplate{
-			Name: name,
+			Name: existingName,
 		}
 		return t.provenanceStore.DeleteProvenance(ctx, &tgt, orgID)
 	})
@@ -177,4 +181,13 @@ func calculateTemplateFingerprint(t string) string {
 	sum := fnv.New64()
 	_, _ = sum.Write(unsafe.Slice(unsafe.StringData(t), len(t))) //nolint:gosec
 	return fmt.Sprintf("%016x", sum.Sum64())
+}
+
+func getTemplateByUid(templates map[string]string, uid string) (string, string, bool) {
+	for n, tmpl := range templates {
+		if legacy_storage.NameToUid(n) == uid {
+			return n, tmpl, true
+		}
+	}
+	return "", "", false
 }
