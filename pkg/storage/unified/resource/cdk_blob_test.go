@@ -28,7 +28,7 @@ func TestCDKBlobStore(t *testing.T) {
 	}
 	ctx := context.Background()
 
-	store, err := NewCDKBlobStore(ctx, CDKBlobStoreOptions{
+	store, err := NewCDKBlobSupport(ctx, CDKBlobSupportOptions{
 		Bucket: bucket,
 		//RootFolder: "xyz",
 	})
@@ -43,7 +43,7 @@ func TestCDKBlobStore(t *testing.T) {
 			Name:      "fdgsv37qslr0ga",
 		}
 
-		rsp, err := store.PutBlob(ctx, &PutBlobRequest{
+		rsp, err := store.PutResourceBlob(ctx, &PutBlobRequest{
 			Resource:    key,
 			Method:      PutBlobRequest_GRPC,
 			ContentType: "application/json",
@@ -52,7 +52,7 @@ func TestCDKBlobStore(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "49dfdd54b01cbcd2d2ab5e9e5ee6b9b9", rsp.Hash)
 
-		found, err := store.GetBlob(ctx, key, &utils.BlobInfo{
+		found, err := store.GetResourceBlob(ctx, key, &utils.BlobInfo{
 			UID:      rsp.Uid,
 			Size:     rsp.Size,
 			Hash:     rsp.Hash,

@@ -3,7 +3,6 @@ package resource
 import (
 	context "context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -19,21 +18,36 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-// Package-level errors.
-var (
-	ErrNotFound                 = errors.New("resource not found")
-	ErrOptimisticLockingFailed  = errors.New("optimistic locking failed")
-	ErrUserNotFoundInContext    = errors.New("user not found in context")
-	ErrUnableToReadResourceJSON = errors.New("unable to read resource json")
-	ErrNotImplementedYet        = errors.New("not implemented yet")
-)
-
-// ResourceServer implements all services
+// ResourceServer implements all gRPC services
 type ResourceServer interface {
 	ResourceStoreServer
 	ResourceIndexServer
 	DiagnosticsServer
 	LifecycleHooks
+}
+
+type ListIterator interface {
+	Next() bool // sql.Rows
+
+	// Iterator error (if exts)
+	Error() error
+
+	// The token that can be used to start iterating *after* this item
+	ContinueToken() string
+
+	// ResourceVersion of the current item
+	ResourceVersion() int64
+
+	// Namespace of the current item
+	// Used for fast(er) authz filtering
+	Namespace() string
+
+	// Name of the current item
+	// Used for fast(er) authz filtering
+	Name() string
+
+	// Value for the current item
+	Value() []byte
 }
 
 // The StorageBackend is an internal abstraction that supports interacting with
@@ -45,15 +59,15 @@ type StorageBackend interface {
 	// Return the revisionVersion for this event or error
 	WriteEvent(context.Context, WriteEvent) (int64, error)
 
-	// Read a value from storage optionally at an explicit version
-	Read(context.Context, *ReadRequest) (*ReadResponse, error)
+	// Read a resource from storage optionally at an explicit version
+	ReadResource(context.Context, *ReadRequest) *ReadResponse
 
-	// When the ResourceServer executes a List request, it will first
+	// When the ResourceServer executes a List request, this iterator will
 	// query the backend for potential results.  All results will be
 	// checked against the kubernetes requirements before finally returning
 	// results.  The list options can be used to improve performance
 	// but are the the final answer.
-	PrepareList(context.Context, *ListRequest) (*ListResponse, error)
+	ListIterator(context.Context, *ListRequest, func(ListIterator) error) (int64, error)
 
 	// Get all events from the store
 	// For HA setups, this will be more events than the local WriteEvent above!
@@ -62,17 +76,17 @@ type StorageBackend interface {
 
 // This interface is not exposed to end users directly
 // Access to this interface is already gated by access control
-type BlobStore interface {
+type BlobSupport interface {
 	// Indicates if storage layer supports signed urls
 	SupportsSignedURLs() bool
 
 	// Get the raw blob bytes and metadata -- limited to protobuf message size
 	// For larger payloads, we should use presigned URLs to upload from the client
-	PutBlob(context.Context, *PutBlobRequest) (*PutBlobResponse, error)
+	PutResourceBlob(context.Context, *PutBlobRequest) (*PutBlobResponse, error)
 
 	// Get blob contents.  When possible, this will return a signed URL
 	// For large payloads, signed URLs are required to avoid protobuf message size limits
-	GetBlob(ctx context.Context, resource *ResourceKey, info *utils.BlobInfo, mustProxy bool) (*GetBlobResponse, error)
+	GetResourceBlob(ctx context.Context, resource *ResourceKey, info *utils.BlobInfo, mustProxy bool) (*GetBlobResponse, error)
 
 	// TODO? List+Delete?  This is for admin access
 }
@@ -85,7 +99,7 @@ type ResourceServerOptions struct {
 	Backend StorageBackend
 
 	// The blob storage engine
-	Blob BlobStore
+	Blob BlobSupport
 
 	// Requests based on a search index
 	Index ResourceIndexServer
@@ -114,9 +128,6 @@ func NewResourceServer(opts ResourceServerOptions) (ResourceServer, error) {
 	}
 	if opts.Index == nil {
 		opts.Index = &noopService{}
-	}
-	if opts.Blob == nil {
-		opts.Blob = &noopService{}
 	}
 	if opts.Diagnostics == nil {
 		opts.Diagnostics = &noopService{}
@@ -156,7 +167,7 @@ type server struct {
 	tracer      trace.Tracer
 	log         *slog.Logger
 	backend     StorageBackend
-	blob        BlobStore
+	blob        BlobSupport
 	index       ResourceIndexServer
 	diagnostics DiagnosticsServer
 	access      WriteAccessHooks
@@ -318,7 +329,7 @@ func (s *server) Create(ctx context.Context, req *CreateRequest) (*CreateRespons
 	}
 
 	rsp := &CreateResponse{}
-	found, _ := s.backend.Read(ctx, &ReadRequest{Key: req.Key})
+	found := s.backend.ReadResource(ctx, &ReadRequest{Key: req.Key})
 	if found != nil && len(found.Value) > 0 {
 		rsp.Error = &ErrorResult{
 			Code:    http.StatusConflict,
@@ -329,54 +340,15 @@ func (s *server) Create(ctx context.Context, req *CreateRequest) (*CreateRespons
 
 	event, err := s.newEvent(ctx, req.Key, req.Value, nil)
 	if err != nil {
-		rsp.Error, err = errToStatus(err)
-		return rsp, err
+		rsp.Error = AsErrorResult(err)
+		return rsp, nil
 	}
 
 	rsp.ResourceVersion, err = s.backend.WriteEvent(ctx, *event)
 	if err != nil {
-		rsp.Error, err = errToStatus(err)
+		rsp.Error = AsErrorResult(err)
 	}
-	return rsp, err
-}
-
-// Convert golang errors to status result errors that can be returned to a client
-func errToStatus(err error) (*ErrorResult, error) {
-	if err != nil {
-		apistatus, ok := err.(apierrors.APIStatus)
-		if ok {
-			s := apistatus.Status()
-			res := &ErrorResult{
-				Message: s.Message,
-				Reason:  string(s.Reason),
-				Code:    s.Code,
-			}
-			if s.Details != nil {
-				res.Details = &ErrorDetails{
-					Group:             s.Details.Group,
-					Kind:              s.Details.Kind,
-					Name:              s.Details.Name,
-					Uid:               string(s.Details.UID),
-					RetryAfterSeconds: s.Details.RetryAfterSeconds,
-				}
-				for _, c := range s.Details.Causes {
-					res.Details.Causes = append(res.Details.Causes, &ErrorCause{
-						Reason:  string(c.Type),
-						Message: c.Message,
-						Field:   c.Field,
-					})
-				}
-			}
-			return res, nil
-		}
-
-		// TODO... better conversion??
-		return &ErrorResult{
-			Message: err.Error(),
-			Code:    500,
-		}, nil
-	}
-	return nil, err
+	return rsp, nil
 }
 
 func (s *server) Update(ctx context.Context, req *UpdateRequest) (*UpdateResponse, error) {
@@ -389,18 +361,19 @@ func (s *server) Update(ctx context.Context, req *UpdateRequest) (*UpdateRespons
 
 	rsp := &UpdateResponse{}
 	if req.ResourceVersion < 0 {
-		rsp.Error, _ = errToStatus(apierrors.NewBadRequest("update must include the previous version"))
+		rsp.Error = AsErrorResult(apierrors.NewBadRequest("update must include the previous version"))
 		return rsp, nil
 	}
 
-	latest, err := s.backend.Read(ctx, &ReadRequest{
+	latest := s.backend.ReadResource(ctx, &ReadRequest{
 		Key: req.Key,
 	})
-	if err != nil {
-		return nil, err
+	if latest.Error != nil {
+		return rsp, nil
 	}
 	if latest.Value == nil {
-		return nil, apierrors.NewBadRequest("current value does not exist")
+		rsp.Error = NewBadRequestError("current value does not exist")
+		return rsp, nil
 	}
 
 	if req.ResourceVersion > 0 && latest.ResourceVersion != req.ResourceVersion {
@@ -409,7 +382,7 @@ func (s *server) Update(ctx context.Context, req *UpdateRequest) (*UpdateRespons
 
 	event, err := s.newEvent(ctx, req.Key, req.Value, latest.Value)
 	if err != nil {
-		rsp.Error, err = errToStatus(err)
+		rsp.Error = AsErrorResult(err)
 		return rsp, err
 	}
 
@@ -417,11 +390,10 @@ func (s *server) Update(ctx context.Context, req *UpdateRequest) (*UpdateRespons
 	event.PreviousRV = latest.ResourceVersion
 
 	rsp.ResourceVersion, err = s.backend.WriteEvent(ctx, *event)
-	rsp.Error, err = errToStatus(err)
 	if err != nil {
-		rsp.Error, err = errToStatus(err)
+		rsp.Error = AsErrorResult(err)
 	}
-	return rsp, err
+	return rsp, nil
 }
 
 func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteResponse, error) {
@@ -437,14 +409,16 @@ func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteRespons
 		return nil, apierrors.NewBadRequest("update must include the previous version")
 	}
 
-	latest, err := s.backend.Read(ctx, &ReadRequest{
+	latest := s.backend.ReadResource(ctx, &ReadRequest{
 		Key: req.Key,
 	})
-	if err != nil {
-		return nil, err
+	if latest.Error != nil {
+		rsp.Error = latest.Error
+		return rsp, nil
 	}
 	if req.ResourceVersion > 0 && latest.ResourceVersion != req.ResourceVersion {
-		return nil, ErrOptimisticLockingFailed
+		rsp.Error = AsErrorResult(ErrOptimisticLockingFailed)
+		return rsp, nil
 	}
 
 	now := metav1.NewTime(time.UnixMilli(s.now()))
@@ -471,7 +445,7 @@ func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteRespons
 	obj.SetUpdatedTimestamp(&now.Time)
 	obj.SetManagedFields(nil)
 	obj.SetFinalizers(nil)
-	obj.SetUpdatedBy(requester.GetUID().String())
+	obj.SetUpdatedBy(requester.GetUID())
 	marker.TypeMeta = metav1.TypeMeta{
 		Kind:       "DeletedMarker",
 		APIVersion: "common.grafana.app/v0alpha1", // ?? or can we stick this in common?
@@ -484,8 +458,10 @@ func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteRespons
 	}
 
 	rsp.ResourceVersion, err = s.backend.WriteEvent(ctx, event)
-	rsp.Error, err = errToStatus(err)
-	return rsp, err
+	if err != nil {
+		rsp.Error = AsErrorResult(err)
+	}
+	return rsp, nil
 }
 
 func (s *server) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, error) {
@@ -494,31 +470,66 @@ func (s *server) Read(ctx context.Context, req *ReadRequest) (*ReadResponse, err
 	}
 
 	// if req.Key.Group == "" {
-	// 	status, _ := errToStatus(apierrors.NewBadRequest("missing group"))
+	// 	status, _ := AsErrorResult(apierrors.NewBadRequest("missing group"))
 	// 	return &ReadResponse{Status: status}, nil
 	// }
 	if req.Key.Resource == "" {
-		status, _ := errToStatus(apierrors.NewBadRequest("missing resource"))
-		return &ReadResponse{Error: status}, nil
+		return &ReadResponse{Error: NewBadRequestError("missing resource")}, nil
 	}
 
-	rsp, err := s.backend.Read(ctx, req)
-	if err != nil {
-		if rsp == nil {
-			rsp = &ReadResponse{}
-		}
-		rsp.Error, err = errToStatus(err)
-	}
-	return rsp, err
+	rsp := s.backend.ReadResource(ctx, req)
+	// TODO, check folder permissions etc
+	return rsp, nil
 }
 
 func (s *server) List(ctx context.Context, req *ListRequest) (*ListResponse, error) {
 	if err := s.Init(ctx); err != nil {
 		return nil, err
 	}
+	if req.Limit < 1 {
+		req.Limit = 50 // default max 50 items in a page
+	}
+	maxPageBytes := 1024 * 1024 * 2 // 2mb/page
+	pageBytes := 0
+	rsp := &ListResponse{}
+	rv, err := s.backend.ListIterator(ctx, req, func(iter ListIterator) error {
+		for iter.Next() {
+			if err := iter.Error(); err != nil {
+				return err
+			}
 
-	rsp, err := s.backend.PrepareList(ctx, req)
-	// Status???
+			// TODO: add authz filters
+
+			item := &ResourceWrapper{
+				ResourceVersion: iter.ResourceVersion(),
+				Value:           iter.Value(),
+			}
+
+			pageBytes += len(item.Value)
+			rsp.Items = append(rsp.Items, item)
+			if len(rsp.Items) >= int(req.Limit) || pageBytes >= maxPageBytes {
+				t := iter.ContinueToken()
+				if iter.Next() {
+					rsp.NextPageToken = t
+				}
+				break
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		rsp.Error = AsErrorResult(err)
+		return rsp, nil
+	}
+
+	if rv < 1 {
+		rsp.Error = &ErrorResult{
+			Code:    http.StatusInternalServerError,
+			Message: fmt.Sprintf("invalid resource version for list: %v", rv),
+		}
+		return rsp, nil
+	}
+	rsp.ResourceVersion = rv
 	return rsp, err
 }
 
@@ -623,42 +634,53 @@ func (s *server) IsHealthy(ctx context.Context, req *HealthCheckRequest) (*Healt
 
 // GetBlob implements BlobStore.
 func (s *server) PutBlob(ctx context.Context, req *PutBlobRequest) (*PutBlobResponse, error) {
+	if s.blob == nil {
+		return &PutBlobResponse{Error: &ErrorResult{
+			Message: "blob store not configured",
+			Code:    http.StatusNotImplemented,
+		}}, nil
+	}
 	if err := s.Init(ctx); err != nil {
 		return nil, err
 	}
-	rsp, err := s.blob.PutBlob(ctx, req)
-	rsp.Error, err = errToStatus(err)
-	return rsp, err
+
+	rsp, err := s.blob.PutResourceBlob(ctx, req)
+	if err != nil {
+		rsp.Error = AsErrorResult(err)
+	}
+	return rsp, nil
 }
 
 func (s *server) getPartialObject(ctx context.Context, key *ResourceKey, rv int64) (utils.GrafanaMetaAccessor, *ErrorResult) {
-	rsp, err := s.backend.Read(ctx, &ReadRequest{
+	rsp := s.backend.ReadResource(ctx, &ReadRequest{
 		Key:             key,
 		ResourceVersion: rv,
 	})
-	if err != nil {
-		rsp.Error, _ = errToStatus(err)
-	}
 	if rsp.Error != nil {
 		return nil, rsp.Error
 	}
 
 	partial := &metav1.PartialObjectMetadata{}
-	err = json.Unmarshal(rsp.Value, partial)
+	err := json.Unmarshal(rsp.Value, partial)
 	if err != nil {
-		rsp.Error, _ = errToStatus(fmt.Errorf("error reading body %w", err))
-		return nil, rsp.Error
+		return nil, AsErrorResult(err)
 	}
 	obj, err := utils.MetaAccessor(partial)
 	if err != nil {
-		rsp.Error, _ = errToStatus(fmt.Errorf("error getting accessor %w", err))
-		return nil, rsp.Error
+		return nil, AsErrorResult(err)
 	}
 	return obj, nil
 }
 
 // GetBlob implements BlobStore.
 func (s *server) GetBlob(ctx context.Context, req *GetBlobRequest) (*GetBlobResponse, error) {
+	if s.blob == nil {
+		return &GetBlobResponse{Error: &ErrorResult{
+			Message: "blob store not configured",
+			Code:    http.StatusNotImplemented,
+		}}, nil
+	}
+
 	if err := s.Init(ctx); err != nil {
 		return nil, err
 	}
@@ -677,7 +699,9 @@ func (s *server) GetBlob(ctx context.Context, req *GetBlobRequest) (*GetBlobResp
 		}}, nil
 	}
 
-	rsp, err := s.blob.GetBlob(ctx, req.Resource, info, req.MustProxyBytes)
-	rsp.Error, err = errToStatus(err)
-	return rsp, err
+	rsp, err := s.blob.GetResourceBlob(ctx, req.Resource, info, req.MustProxyBytes)
+	if err != nil {
+		rsp.Error = AsErrorResult(err)
+	}
+	return rsp, nil
 }

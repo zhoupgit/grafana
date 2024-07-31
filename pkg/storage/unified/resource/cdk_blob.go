@@ -18,14 +18,14 @@ import (
 	_ "gocloud.dev/blob/memblob"
 )
 
-type CDKBlobStoreOptions struct {
+type CDKBlobSupportOptions struct {
 	Tracer        trace.Tracer
 	Bucket        *blob.Bucket
 	RootFolder    string
 	URLExpiration time.Duration
 }
 
-func NewCDKBlobStore(ctx context.Context, opts CDKBlobStoreOptions) (BlobStore, error) {
+func NewCDKBlobSupport(ctx context.Context, opts CDKBlobSupportOptions) (BlobSupport, error) {
 	if opts.Tracer == nil {
 		opts.Tracer = noop.NewTracerProvider().Tracer("cdk-blob-store")
 	}
@@ -48,7 +48,7 @@ func NewCDKBlobStore(ctx context.Context, opts CDKBlobStoreOptions) (BlobStore, 
 		return nil, fmt.Errorf("the root folder does not exist")
 	}
 
-	return &cdkBlobStore{
+	return &cdkBlobSupport{
 		tracer:      opts.Tracer,
 		bucket:      opts.Bucket,
 		root:        opts.RootFolder,
@@ -57,7 +57,7 @@ func NewCDKBlobStore(ctx context.Context, opts CDKBlobStoreOptions) (BlobStore, 
 	}, nil
 }
 
-type cdkBlobStore struct {
+type cdkBlobSupport struct {
 	tracer      trace.Tracer
 	bucket      *blob.Bucket
 	root        string
@@ -65,7 +65,7 @@ type cdkBlobStore struct {
 	expiration  time.Duration
 }
 
-func (s *cdkBlobStore) getBlobPath(key *ResourceKey, info *utils.BlobInfo) (string, error) {
+func (s *cdkBlobSupport) getBlobPath(key *ResourceKey, info *utils.BlobInfo) (string, error) {
 	var buffer bytes.Buffer
 	buffer.WriteString(s.root)
 
@@ -105,11 +105,11 @@ func (s *cdkBlobStore) getBlobPath(key *ResourceKey, info *utils.BlobInfo) (stri
 	return buffer.String(), nil
 }
 
-func (s *cdkBlobStore) SupportsSignedURLs() bool {
+func (s *cdkBlobSupport) SupportsSignedURLs() bool {
 	return s.cansignurls
 }
 
-func (s *cdkBlobStore) PutBlob(ctx context.Context, req *PutBlobRequest) (*PutBlobResponse, error) {
+func (s *cdkBlobSupport) PutResourceBlob(ctx context.Context, req *PutBlobRequest) (*PutBlobResponse, error) {
 	info := &utils.BlobInfo{
 		UID: uuid.New().String(),
 	}
@@ -156,7 +156,7 @@ func (s *cdkBlobStore) PutBlob(ctx context.Context, req *PutBlobRequest) (*PutBl
 	return rsp, err
 }
 
-func (s *cdkBlobStore) GetBlob(ctx context.Context, resource *ResourceKey, info *utils.BlobInfo, mustProxy bool) (*GetBlobResponse, error) {
+func (s *cdkBlobSupport) GetResourceBlob(ctx context.Context, resource *ResourceKey, info *utils.BlobInfo, mustProxy bool) (*GetBlobResponse, error) {
 	path, err := s.getBlobPath(resource, info)
 	if err != nil {
 		return nil, err
