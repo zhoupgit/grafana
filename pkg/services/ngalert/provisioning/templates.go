@@ -2,6 +2,7 @@ package provisioning
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"unsafe"
@@ -56,6 +57,37 @@ func (t *TemplateService) GetTemplates(ctx context.Context, orgID int64) ([]defi
 	}
 
 	return templates, nil
+}
+
+func (t *TemplateService) GetTemplate(ctx context.Context, orgID int64, nameOrUid string) (definitions.NotificationTemplate, error) {
+	revision, err := t.configStore.Get(ctx, orgID)
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+	
+	name := nameOrUid
+	content, ok := revision.Config.TemplateFiles[nameOrUid]
+	if !ok {
+		name, content, ok = getTemplateByUid(revision.Config.TemplateFiles, nameOrUid)
+	}
+	if !ok {
+		return definitions.NotificationTemplate{}, ErrTemplateNotFound.Errorf("")
+	}
+
+	template := definitions.NotificationTemplate{
+		UID:             legacy_storage.NameToUid(name),
+		Name:            name,
+		Template:        content,
+		ResourceVersion: calculateTemplateFingerprint(content),
+	}
+
+	provenance, err := t.provenanceStore.GetProvenance(ctx, &template, orgID)
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+	template.Provenance = definitions.Provenance(provenance)
+
+	return template, nil
 }
 
 func (t *TemplateService) CreateTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
