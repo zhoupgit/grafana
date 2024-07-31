@@ -9,6 +9,7 @@ import (
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
+	"github.com/grafana/grafana/pkg/services/ngalert/notifier/legacy_storage"
 	"github.com/grafana/grafana/pkg/services/ngalert/provisioning/validation"
 )
 
@@ -39,6 +40,7 @@ func (t *TemplateService) GetTemplates(ctx context.Context, orgID int64) ([]defi
 	templates := make([]definitions.NotificationTemplate, 0, len(revision.Config.TemplateFiles))
 	for name, tmpl := range revision.Config.TemplateFiles {
 		tmpl := definitions.NotificationTemplate{
+			UID:             legacy_storage.NameToUid(name),
 			Name:            name,
 			Template:        tmpl,
 			ResourceVersion: calculateTemplateFingerprint(tmpl),
@@ -106,6 +108,7 @@ func (t *TemplateService) SetTemplate(ctx context.Context, orgID int64, tmpl def
 	}
 
 	return definitions.NotificationTemplate{
+		UID:             legacy_storage.NameToUid(tmpl.Name),
 		Name:            tmpl.Name,
 		Template:        tmpl.Template,
 		Provenance:      tmpl.Provenance,
