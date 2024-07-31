@@ -58,6 +58,50 @@ func (t *TemplateService) GetTemplates(ctx context.Context, orgID int64) ([]defi
 	return templates, nil
 }
 
+func (t *TemplateService) CreateTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
+	err := tmpl.Validate()
+	if err != nil {
+		return definitions.NotificationTemplate{}, MakeErrTemplateInvalid(err)
+	}
+
+	revision, err := t.configStore.Get(ctx, orgID)
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+	return t.createTemplate(ctx, revision, orgID, tmpl)
+}
+
+func (t *TemplateService) createTemplate(ctx context.Context, revision *legacy_storage.ConfigRevision, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
+	if revision.Config.TemplateFiles == nil {
+		revision.Config.TemplateFiles = map[string]string{}
+	}
+
+	_, found := revision.Config.TemplateFiles[tmpl.Name]
+	if found {
+		return definitions.NotificationTemplate{}, ErrTemplateExists.Errorf("")
+	}
+
+	revision.Config.TemplateFiles[tmpl.Name] = tmpl.Template
+
+	err := t.xact.InTransaction(ctx, func(ctx context.Context) error {
+		if err := t.configStore.Save(ctx, revision, orgID); err != nil {
+			return err
+		}
+		return t.provenanceStore.SetProvenance(ctx, &tmpl, orgID, models.Provenance(tmpl.Provenance))
+	})
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+
+	return definitions.NotificationTemplate{
+		UID:             legacy_storage.NameToUid(tmpl.Name),
+		Name:            tmpl.Name,
+		Template:        tmpl.Template,
+		Provenance:      tmpl.Provenance,
+		ResourceVersion: calculateTemplateFingerprint(tmpl.Template),
+	}, nil
+}
+
 func (t *TemplateService) UpdateTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
 	err := tmpl.Validate()
 	if err != nil {
@@ -68,7 +112,10 @@ func (t *TemplateService) UpdateTemplate(ctx context.Context, orgID int64, tmpl 
 	if err != nil {
 		return definitions.NotificationTemplate{}, err
 	}
+	return t.updateTemplate(ctx, revision, orgID, tmpl)
+}
 
+func (t *TemplateService) updateTemplate(ctx context.Context, revision *legacy_storage.ConfigRevision, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
 	if revision.Config.TemplateFiles == nil {
 		revision.Config.TemplateFiles = map[string]string{}
 	}
@@ -126,6 +173,26 @@ func (t *TemplateService) UpdateTemplate(ctx context.Context, orgID int64, tmpl 
 		Provenance:      tmpl.Provenance,
 		ResourceVersion: calculateTemplateFingerprint(tmpl.Template),
 	}, nil
+}
+
+func (t *TemplateService) UpsertTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error) {
+	err := tmpl.Validate()
+	if err != nil {
+		return definitions.NotificationTemplate{}, MakeErrTemplateInvalid(err)
+	}
+
+	revision, err := t.configStore.Get(ctx, orgID)
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+
+	d, err := t.updateTemplate(ctx, revision, orgID, tmpl)
+	if err != nil {
+		if errors.Is(err, ErrTemplateNotFound) {
+			return t.createTemplate(ctx, revision, orgID, tmpl)
+		}
+	}
+	return d, err
 }
 
 func (t *TemplateService) DeleteTemplate(ctx context.Context, orgID int64, nameOrUid string, provenance definitions.Provenance, version string) error {
