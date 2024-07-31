@@ -73,31 +73,43 @@ func (t *TemplateService) SetTemplate(ctx context.Context, orgID int64, tmpl def
 		revision.Config.TemplateFiles = map[string]string{}
 	}
 
-	_, ok := revision.Config.TemplateFiles[tmpl.Name]
-	if ok {
-		// check that provenance is not changed in an invalid way
-		storedProvenance, err := t.provenanceStore.GetProvenance(ctx, &tmpl, orgID)
-		if err != nil {
-			return definitions.NotificationTemplate{}, err
-		}
-		if err := t.validator(storedProvenance, models.Provenance(tmpl.Provenance)); err != nil {
-			return definitions.NotificationTemplate{}, err
-		}
+	var found bool
+	var existingName, exisitingContent string
+	if tmpl.UID != "" {
+		existingName, exisitingContent, found = getTemplateByUid(revision.Config.TemplateFiles, tmpl.UID)
+	} else {
+		existingName = tmpl.Name
+		exisitingContent, found = revision.Config.TemplateFiles[existingName]
+	}
+	if !found {
+		return definitions.NotificationTemplate{}, ErrTemplateNotFound.Errorf("")
 	}
 
-	existing, ok := revision.Config.TemplateFiles[tmpl.Name]
-	if ok {
-		err = t.checkOptimisticConcurrency(tmpl.Name, existing, models.Provenance(tmpl.Provenance), tmpl.ResourceVersion, "update")
-		if err != nil {
-			return definitions.NotificationTemplate{}, err
-		}
-	} else if tmpl.ResourceVersion != "" { // if version is set then it's an update operation. Fail because resource does not exist anymore
-		return definitions.NotificationTemplate{}, ErrTemplateNotFound.Errorf("")
+	// check that provenance is not changed in an invalid way
+	storedProvenance, err := t.provenanceStore.GetProvenance(ctx, &tmpl, orgID)
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+	if err := t.validator(storedProvenance, models.Provenance(tmpl.Provenance)); err != nil {
+		return definitions.NotificationTemplate{}, err
+	}
+
+	err = t.checkOptimisticConcurrency(tmpl.Name, exisitingContent, models.Provenance(tmpl.Provenance), tmpl.ResourceVersion, "update")
+	if err != nil {
+		return definitions.NotificationTemplate{}, err
 	}
 
 	revision.Config.TemplateFiles[tmpl.Name] = tmpl.Template
 
 	err = t.xact.InTransaction(ctx, func(ctx context.Context) error {
+		if existingName != tmpl.Name {
+			delete(revision.Config.TemplateFiles, existingName)
+			err := t.provenanceStore.DeleteProvenance(ctx, &definitions.NotificationTemplate{Name: existingName}, orgID)
+			if err != nil {
+				return err
+			}
+		}
+
 		if err := t.configStore.Save(ctx, revision, orgID); err != nil {
 			return err
 		}
