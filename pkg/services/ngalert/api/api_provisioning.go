@@ -44,8 +44,9 @@ type ContactPointService interface {
 }
 
 type TemplateService interface {
+	GetTemplate(ctx context.Context, orgID int64) ([]definitions.NotificationTemplate, error)
 	GetTemplates(ctx context.Context, orgID int64) ([]definitions.NotificationTemplate, error)
-	UpdateTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error)
+	UpsertTemplate(ctx context.Context, orgID int64, tmpl definitions.NotificationTemplate) (definitions.NotificationTemplate, error)
 	DeleteTemplate(ctx context.Context, orgID int64, name string, provenance definitions.Provenance, version string) error
 }
 
@@ -226,7 +227,7 @@ func (srv *ProvisioningSrv) RoutePutTemplate(c *contextmodel.ReqContext, body de
 		Provenance:      determineProvenance(c),
 		ResourceVersion: body.ResourceVersion,
 	}
-	modified, err := srv.templates.UpdateTemplate(c.Req.Context(), c.SignedInUser.GetOrgID(), tmpl)
+	modified, err := srv.templates.UpsertTemplate(c.Req.Context(), c.SignedInUser.GetOrgID(), tmpl)
 	if err != nil {
 		return response.ErrOrFallback(http.StatusInternalServerError, "", err)
 	}
