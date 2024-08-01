@@ -7,7 +7,6 @@ import { Button } from '@grafana/ui';
 
 import { TestProvider } from '../../../../../../test/helpers/TestProvider';
 import { RouteWithID } from '../../../../../plugins/datasource/alertmanager/types';
-import * as grafanaApp from '../../components/receivers/grafanaAppReceivers/grafanaApp';
 import { FormAmRoute } from '../../types/amroutes';
 import { GRAFANA_RULES_SOURCE_NAME } from '../../utils/datasource';
 import { AmRouteReceiver } from '../receivers/grafanaAppReceivers/types';
@@ -22,9 +21,6 @@ const ui = {
   groupIntervalInput: byRole('textbox', { name: /Group interval/ }),
   repeatIntervalInput: byRole('textbox', { name: /Repeat interval/ }),
 };
-
-const useGetGrafanaReceiverTypeCheckerMock = jest.spyOn(grafanaApp, 'useGetGrafanaReceiverTypeChecker');
-useGetGrafanaReceiverTypeCheckerMock.mockReturnValue(() => undefined);
 
 // TODO Default and Notification policy form should be unified so we don't need to maintain two almost identical forms
 describe('EditDefaultPolicyForm', function () {
