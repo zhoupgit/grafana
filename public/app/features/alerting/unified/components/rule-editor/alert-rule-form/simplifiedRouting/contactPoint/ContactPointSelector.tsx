@@ -5,7 +5,7 @@ import { SelectableValue } from '@grafana/data';
 import { ActionMeta, Field, FieldValidationMessage, Stack, TextLink } from '@grafana/ui';
 import { ContactPointSelector as ContactPointSelectorDropdown } from 'app/features/alerting/unified/components/notification-policies/ContactPointSelector';
 import { RuleFormValues } from 'app/features/alerting/unified/types/rule-form';
-import { createUrl } from 'app/features/alerting/unified/utils/url';
+import { createRelativeUrl } from 'app/features/alerting/unified/utils/url';
 
 import { ContactPointWithMetadata } from '../../../../contact-points/utils';
 
@@ -76,7 +76,7 @@ export function ContactPointSelector({ alertManager, onSelectContactPoint }: Con
 function LinkToContactPoints() {
   const hrefToContactPoints = '/alerting/notifications';
   return (
-    <TextLink external href={createUrl(hrefToContactPoints)} aria-label="View or create contact points">
+    <TextLink external href={createRelativeUrl(hrefToContactPoints)} aria-label="View or create contact points">
       View or create contact points
     </TextLink>
   );
