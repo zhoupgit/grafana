@@ -170,35 +170,40 @@ export function TraceView(props: Props) {
     : document.getElementsByClassName(props.scrollElementClass ?? '')[0];
 
   const criticalPath = memoizedTraceCriticalPath(traceProp);
+  const skipHeader = props.dataFrames?.length && props.dataFrames[0].meta?.custom?.skipHeader;
 
   return (
     <>
       {props.dataFrames?.length && traceProp ? (
         <>
-          <TracePageHeader
-            trace={traceProp}
-            data={props.dataFrames[0]}
-            timeZone={timeZone}
-            search={search}
-            setSearch={setSearch}
-            showSpanFilters={showSpanFilters}
-            setShowSpanFilters={setShowSpanFilters}
-            showSpanFilterMatchesOnly={showSpanFilterMatchesOnly}
-            setShowSpanFilterMatchesOnly={setShowSpanFilterMatchesOnly}
-            showCriticalPathSpansOnly={showCriticalPathSpansOnly}
-            setShowCriticalPathSpansOnly={setShowCriticalPathSpansOnly}
-            setFocusedSpanIdForSearch={setFocusedSpanIdForSearch}
-            spanFilterMatches={spanFilterMatches}
-            datasourceType={datasourceType}
-            setHeaderHeight={setHeaderHeight}
-            app={exploreId ? CoreApp.Explore : CoreApp.Unknown}
-          />
-          <SpanGraph
-            trace={traceProp}
-            viewRange={viewRange}
-            updateNextViewRangeTime={updateNextViewRangeTime}
-            updateViewRangeTime={updateViewRangeTime}
-          />
+          {!skipHeader && (
+            <>
+              <TracePageHeader
+                trace={traceProp}
+                data={props.dataFrames[0]}
+                timeZone={timeZone}
+                search={search}
+                setSearch={setSearch}
+                showSpanFilters={showSpanFilters}
+                setShowSpanFilters={setShowSpanFilters}
+                showSpanFilterMatchesOnly={showSpanFilterMatchesOnly}
+                setShowSpanFilterMatchesOnly={setShowSpanFilterMatchesOnly}
+                showCriticalPathSpansOnly={showCriticalPathSpansOnly}
+                setShowCriticalPathSpansOnly={setShowCriticalPathSpansOnly}
+                setFocusedSpanIdForSearch={setFocusedSpanIdForSearch}
+                spanFilterMatches={spanFilterMatches}
+                datasourceType={datasourceType}
+                setHeaderHeight={setHeaderHeight}
+                app={exploreId ? CoreApp.Explore : CoreApp.Unknown}
+              />
+              <SpanGraph
+                trace={traceProp}
+                viewRange={viewRange}
+                updateNextViewRangeTime={updateNextViewRangeTime}
+                updateViewRangeTime={updateViewRangeTime}
+              />
+            </>
+          )}
           <TraceTimelineViewer
             findMatchesIDs={spanFilterMatches}
             trace={traceProp}
@@ -242,6 +247,7 @@ export function TraceView(props: Props) {
             setTraceFlameGraphs={setTraceFlameGraphs}
             redrawListView={redrawListView}
             setRedrawListView={setRedrawListView}
+            skipHeader={skipHeader}
           />
         </>
       ) : (

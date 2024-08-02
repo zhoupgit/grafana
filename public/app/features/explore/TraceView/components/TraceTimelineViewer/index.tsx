@@ -114,6 +114,7 @@ export type TProps = {
   setTraceFlameGraphs: (flameGraphs: TraceFlameGraphs) => void;
   redrawListView: {};
   setRedrawListView: (redraw: {}) => void;
+  skipHeader: boolean;
 };
 
 type State = {
@@ -190,6 +191,7 @@ export class UnthemedTraceTimelineViewer extends PureComponent<TProps, State> {
       theme,
       topOfViewRef,
       focusedSpanIdForSearch,
+      skipHeader,
       ...rest
     } = this.props;
     const { trace } = rest;
@@ -200,20 +202,22 @@ export class UnthemedTraceTimelineViewer extends PureComponent<TProps, State> {
         className={styles.TraceTimelineViewer}
         ref={(ref: HTMLDivElement | null) => ref && this.setState({ height: ref.getBoundingClientRect().height })}
       >
-        <TimelineHeaderRow
-          duration={trace.duration}
-          nameColumnWidth={traceTimeline.spanNameColumnWidth}
-          numTicks={NUM_TICKS}
-          onCollapseAll={this.collapseAll}
-          onCollapseOne={this.collapseOne}
-          onColummWidthChange={setSpanNameColumnWidth}
-          onExpandAll={this.expandAll}
-          onExpandOne={this.expandOne}
-          viewRangeTime={viewRange.time}
-          updateNextViewRangeTime={updateNextViewRangeTime}
-          updateViewRangeTime={updateViewRangeTime}
-          columnResizeHandleHeight={this.state.height}
-        />
+        {!skipHeader && (
+          <TimelineHeaderRow
+            duration={trace.duration}
+            nameColumnWidth={traceTimeline.spanNameColumnWidth}
+            numTicks={NUM_TICKS}
+            onCollapseAll={this.collapseAll}
+            onCollapseOne={this.collapseOne}
+            onColummWidthChange={setSpanNameColumnWidth}
+            onExpandAll={this.expandAll}
+            onExpandOne={this.expandOne}
+            viewRangeTime={viewRange.time}
+            updateNextViewRangeTime={updateNextViewRangeTime}
+            updateViewRangeTime={updateViewRangeTime}
+            columnResizeHandleHeight={this.state.height}
+          />
+        )}
         <VirtualizedTraceView
           {...rest}
           {...traceTimeline}
