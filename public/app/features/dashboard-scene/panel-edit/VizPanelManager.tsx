@@ -361,11 +361,14 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
   }
 
   public toggleTableView() {
+    // Switch the table view off
     if (this.state.tableView) {
       this.setState({ tableView: undefined });
       return;
     }
 
+    // switch the table view on
+    // What is the `this` here?
     this.setState({
       tableView: PanelBuilders.table()
         .setTitle('')
