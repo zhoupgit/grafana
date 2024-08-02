@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { debounce } from 'lodash';
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 
 import {
   DataSourceApi,
@@ -49,7 +49,7 @@ export interface VizPanelManagerState extends SceneObjectState {
   pluginId: string;
   datasource?: DataSourceApi;
   dsSettings?: DataSourceInstanceSettings;
-  tableView?: VizPanel;
+  tableView: VizPanel;
   repeat?: string;
   repeatDirection?: RepeatDirection;
   maxPerRow?: number;
@@ -100,6 +100,7 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
     return new VizPanelManager({
       $variables: variables,
       panel: sourcePanel.clone(),
+      tableView: sourcePanel.clone(),
       sourcePanel: sourcePanel.getRef(),
       pluginId: sourcePanel.state.pluginId,
       ...repeatOptions,
@@ -462,21 +463,22 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
 
   public static Component = ({ model }: SceneComponentProps<VizPanelManager>) => {
     // const { panel, tableView } = model.useState();
-    const { panel } = model.useState();
+    const { panel, tableView } = model.useState();
 
     const styles = useStyles2(getStyles);
     // const panelToShow = tableView ?? panel;
-    const panelToShow = panel;
-    const dataProvider = panelToShow.state.$data;
+    // const panelToShow = panel;
+    // const dataProvider = panelToShow.state.$data;
 
     // This is to preserve SceneQueryRunner stays alive when switching between visualizations and table view
-    useEffect(() => {
-      return dataProvider?.activate();
-    }, [dataProvider]);
+    // useEffect(() => {
+    //   return dataProvider?.activate();
+    // }, [dataProvider]);
 
     return (
       <>
-        <div className={styles.wrapper}>{<panelToShow.Component model={panelToShow} />}</div>
+        <div className={styles.wrapper}>{<panel.Component model={panel} />}</div>
+        <div className={styles.wrapper}>{<tableView.Component model={tableView} />}</div>
       </>
     );
   };
