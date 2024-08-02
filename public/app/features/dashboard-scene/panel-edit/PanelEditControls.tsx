@@ -16,15 +16,19 @@ export function PanelEditControls({ panelEditor }: Props) {
   return (
     <>
       {!skipDataQuery && (
-        <InlineSwitch
-          label="Table view"
-          showLabel={true}
-          id="table-view"
-          value={tableView ? true : false}
-          onClick={() => vizManager.toggleTableView()}
-          aria-label="toggle-table-view"
-          data-testid={selectors.components.PanelEditor.toggleTableView}
-        />
+        <>
+          <InlineSwitch
+            label="Table view"
+            showLabel={true}
+            id="table-view"
+            value={tableView ? true : false}
+            onClick={() => vizManager.toggleTableView()}
+            aria-label="toggle-table-view"
+            data-testid={selectors.components.PanelEditor.toggleTableView}
+          />
+          {/* inline text to help me debug: "Hello Sam" */}
+          <span>Hello Sam - Scenes enabled</span>
+        </>
       )}
     </>
   );

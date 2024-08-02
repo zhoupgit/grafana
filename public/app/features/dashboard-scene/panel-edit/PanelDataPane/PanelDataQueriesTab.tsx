@@ -221,6 +221,8 @@ export function PanelDataQueriesTabRendered({ model }: SceneComponentProps<Panel
             data-testid={selectors.components.QueryTab.addQuery}
           >
             Add query
+            {/* inline text to help me debug: "Hello Sam" */}
+            <span>Hello Sam - Scenes enabled</span>
           </Button>
         )}
         {config.expressionsEnabled && model.isExpressionsSupported(dsSettings) && (

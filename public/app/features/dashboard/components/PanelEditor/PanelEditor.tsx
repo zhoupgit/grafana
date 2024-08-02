@@ -311,6 +311,8 @@ export class PanelEditorUnconnected extends PureComponent<Props> {
               onClick={this.onToggleTableView}
               data-testid={selectors.components.PanelEditor.toggleTableView}
             />
+            {/* inline text to help me debug: "Hello Sam" */}
+            <span>Hello Sam</span>
             <RadioButtonGroup value={uiState.mode} options={displayModes} onChange={this.onDisplayModeChange} />
             <DashNavTimeControls dashboard={dashboard} onChangeTimeZone={updateTimeZoneForSession} isOnCanvas={true} />
             {!uiState.isPanelOptionsVisible && <VisualizationButton panel={panel} />}

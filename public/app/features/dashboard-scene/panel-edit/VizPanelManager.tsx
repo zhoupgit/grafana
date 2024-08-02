@@ -461,9 +461,12 @@ export class VizPanelManager extends SceneObjectBase<VizPanelManagerState> {
   }
 
   public static Component = ({ model }: SceneComponentProps<VizPanelManager>) => {
-    const { panel, tableView } = model.useState();
+    // const { panel, tableView } = model.useState();
+    const { panel } = model.useState();
+
     const styles = useStyles2(getStyles);
-    const panelToShow = tableView ?? panel;
+    // const panelToShow = tableView ?? panel;
+    const panelToShow = panel;
     const dataProvider = panelToShow.state.$data;
 
     // This is to preserve SceneQueryRunner stays alive when switching between visualizations and table view
