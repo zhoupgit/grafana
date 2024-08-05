@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { useMemo, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { MenuItemInternalProps } from '@grafana/data/src/types/navModel';
 import { reportInteraction } from '@grafana/runtime';
 import { Menu, Dropdown, useStyles2, useTheme2, ToolbarButton } from '@grafana/ui';
 import { useMediaQueryChange } from 'app/core/hooks/useMediaQueryChange';
@@ -33,14 +34,26 @@ export const QuickAdd = ({}: Props) => {
   const MenuActions = () => {
     return (
       <Menu>
-        {createActions.map((createAction, index) => (
-          <Menu.Item
-            key={index}
-            url={createAction.url}
-            label={createAction.text}
-            onClick={() => reportInteraction('grafana_menu_item_clicked', { url: createAction.url, from: 'quickadd' })}
-          />
-        ))}
+        {createActions.map((createAction, index) => {
+          const MenuItem = (props: MenuItemInternalProps) => (
+            <Menu.Item
+              url={createAction.url}
+              label={createAction.text}
+              onClick={() => {
+                reportInteraction('grafana_menu_item_clicked', { url: createAction.url, from: 'quickadd' });
+                props.onClick?.();
+              }}
+            />
+          );
+
+          const CustomMenuItem = createAction.CustomMenuItem;
+
+          return CustomMenuItem ? (
+            <CustomMenuItem key={index} MenuItem={MenuItem} onClick={createAction.onClick} />
+          ) : (
+            <MenuItem key={index} onClick={createAction.onClick} />
+          );
+        })}
       </Menu>
     );
   };

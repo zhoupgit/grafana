@@ -16,6 +16,7 @@ import { OrganizationSwitcher } from '../OrganizationSwitcher/OrganizationSwitch
 import { QuickAdd } from '../QuickAdd/QuickAdd';
 import { TOP_BAR_LEVEL_HEIGHT } from '../types';
 
+import { SavedViewsToggle } from './SavedViewsToggle';
 import { SignInLink } from './SignInLink';
 import { TopNavBarMenu } from './TopNavBarMenu';
 import { TopSearchBarCommandPaletteTrigger } from './TopSearchBarCommandPaletteTrigger';
@@ -50,6 +51,8 @@ export const TopSearchBar = memo(function TopSearchBar() {
 
       <TopSearchBarSection align="right">
         <QuickAdd />
+        {/* TODO: hide it behind a toggle */}
+        <SavedViewsToggle />
         {enrichedHelpNode && (
           <Dropdown overlay={() => <TopNavBarMenu node={enrichedHelpNode} />} placement="bottom-end">
             <ToolbarButton iconOnly icon="question-circle" aria-label="Help" />

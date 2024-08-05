@@ -24,6 +24,7 @@ import { GrafanaContext } from './core/context/GrafanaContext';
 import { ModalsContextProvider } from './core/context/ModalsContextProvider';
 import { GrafanaRoute } from './core/navigation/GrafanaRoute';
 import { RouteDescriptor } from './core/navigation/types';
+import { SavedViewsContextProvider } from './core/savedviews/SavedViewsContext';
 import { contextSrv } from './core/services/context_srv';
 import { ThemeProvider } from './core/utils/ConfigProvider';
 import { LiveConnectionWarning } from './features/live/LiveConnectionWarning';
@@ -104,13 +105,14 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
       <Provider store={store}>
         <ErrorBoundaryAlert style="page">
           <GrafanaContext.Provider value={app.context}>
-            <ThemeProvider value={config.theme2}>
-              <KBarProvider
-                actions={[]}
-                options={{ enableHistory: true, callbacks: { onSelectAction: commandPaletteActionSelected } }}
-              >
-                <Router history={locationService.getHistory()}>
-                  <LocationServiceProvider service={locationService}>
+            <SavedViewsContextProvider>
+              <ThemeProvider value={config.theme2}>
+                <KBarProvider
+                  actions={[]}
+                  options={{ enableHistory: true, callbacks: { onSelectAction: commandPaletteActionSelected } }}
+                >
+                  <Router history={locationService.getHistory()}>
+                    <LocationServiceProvider service={locationService}>
                     <CompatRouter>
                       <ModalsContextProvider>
                         <GlobalStyles />
@@ -135,9 +137,10 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
                       </ModalsContextProvider>
                     </CompatRouter>
                   </LocationServiceProvider>
-                </Router>
-              </KBarProvider>
-            </ThemeProvider>
+                  </Router>
+                </KBarProvider>
+              </ThemeProvider>
+            </SavedViewsContextProvider>
           </GrafanaContext.Provider>
         </ErrorBoundaryAlert>
       </Provider>

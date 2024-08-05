@@ -1,4 +1,4 @@
-import { ComponentType } from 'react';
+import React, { ComponentType } from 'react';
 
 import { LinkTarget } from './dataLink';
 import { IconName } from './icon';
@@ -30,6 +30,15 @@ export interface NavLinkDTO {
   keywords?: string[];
 }
 
+export interface MenuItemInternalProps {
+  onClick?: () => void;
+}
+
+export interface CustomMenuItemProps {
+  onClick?: () => void;
+  MenuItem: (props: MenuItemInternalProps) => React.ReactNode;
+}
+
 export interface NavModelItem extends NavLinkDTO {
   children?: NavModelItem[];
   active?: boolean;
@@ -39,6 +48,7 @@ export interface NavModelItem extends NavLinkDTO {
   tabCounter?: number;
   hideFromBreadcrumbs?: boolean;
   emptyMessage?: string;
+  CustomMenuItem?: (props: CustomMenuItemProps) => React.ReactNode;
 }
 
 /**
