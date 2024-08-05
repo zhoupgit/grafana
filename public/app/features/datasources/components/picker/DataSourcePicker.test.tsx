@@ -1,6 +1,5 @@
 import { findByText, render, screen } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import * as React from 'react';
 
 import {
   DataSourceInstanceSettings,
