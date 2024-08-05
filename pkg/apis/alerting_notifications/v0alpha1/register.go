@@ -72,6 +72,22 @@ var (
 		"templategroups", "templategroup", "TemplateGroup",
 		func() runtime.Object { return &TemplateGroup{} },
 		func() runtime.Object { return &TemplateGroupList{} },
+		utils.TableColumns{
+			Definition: []metav1.TableColumnDefinition{
+				{Name: "Name", Type: "string", Format: "name"},
+				// {Name: "Intervals", Type: "string", Format: "string", Description: "The display name"},
+			},
+			Reader: func(obj any) ([]interface{}, error) {
+				r, ok := obj.(*TemplateGroup)
+				if !ok {
+					return nil, fmt.Errorf("expected resource or info")
+				}
+				return []interface{}{
+					r.Name,
+					// r.Spec, //TODO implement formatting for Spec, same as UI?
+				}, nil
+			},
+		},
 	)
 	// SchemeGroupVersion is group version used to register these objects
 	SchemeGroupVersion = schema.GroupVersion{Group: GROUP, Version: VERSION}
