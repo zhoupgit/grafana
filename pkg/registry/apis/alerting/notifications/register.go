@@ -119,6 +119,7 @@ func (t *NotificationsAPIBuilder) PostProcessOpenAPI(oas *spec3.OpenAPI) (*spec3
 	// Hide the ability to list or watch across all tenants
 	delete(oas.Paths.Paths, root+notificationsModels.ReceiverResourceInfo.GroupResource().Resource)
 	delete(oas.Paths.Paths, root+notificationsModels.TimeIntervalResourceInfo.GroupResource().Resource)
+	delete(oas.Paths.Paths, root+notificationsModels.TemplateGroupResourceInfo.GroupResource().Resource)
 
 	// The root API discovery list
 	sub := oas.Paths.Paths[root]
