@@ -467,6 +467,8 @@ type Cfg struct {
 
 	Zanzana ZanzanaSettings
 
+	Cache CacheSettings
+
 	// GRPC Server.
 	GRPCServerNetwork        string
 	GRPCServerAddress        string
@@ -1108,6 +1110,8 @@ func (cfg *Cfg) parseINIFile(iniFile *ini.File) error {
 	cfg.readRBACSettings()
 
 	cfg.readZanzanaSettings()
+
+	cfg.readCacheSettings()
 
 	if err := cfg.readRenderingSettings(iniFile); err != nil {
 		return err
