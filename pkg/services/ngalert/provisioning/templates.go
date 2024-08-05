@@ -64,7 +64,7 @@ func (t *TemplateService) GetTemplate(ctx context.Context, orgID int64, nameOrUi
 	if err != nil {
 		return definitions.NotificationTemplate{}, err
 	}
-	
+
 	name := nameOrUid
 	content, ok := revision.Config.TemplateFiles[nameOrUid]
 	if !ok {
