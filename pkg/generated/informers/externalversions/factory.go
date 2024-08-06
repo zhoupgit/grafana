@@ -12,6 +12,7 @@ import (
 	versioned "github.com/grafana/grafana/pkg/generated/clientset/versioned"
 	alertingnotifications "github.com/grafana/grafana/pkg/generated/informers/externalversions/alerting_notifications"
 	internalinterfaces "github.com/grafana/grafana/pkg/generated/informers/externalversions/internalinterfaces"
+	savedview "github.com/grafana/grafana/pkg/generated/informers/externalversions/savedview"
 	service "github.com/grafana/grafana/pkg/generated/informers/externalversions/service"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -241,11 +242,16 @@ type SharedInformerFactory interface {
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
 	Notifications() alertingnotifications.Interface
+	Savedview() savedview.Interface
 	Service() service.Interface
 }
 
 func (f *sharedInformerFactory) Notifications() alertingnotifications.Interface {
 	return alertingnotifications.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) Savedview() savedview.Interface {
+	return savedview.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) Service() service.Interface {

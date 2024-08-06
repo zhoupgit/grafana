@@ -10,6 +10,7 @@ import { StoreState } from 'app/types/store';
 
 import { buildInitialState } from '../core/reducers/navModel';
 import { addReducer, createRootReducer } from '../core/reducers/root';
+import { savedViewApi } from '../core/savedviews/api';
 import { alertingApi } from '../features/alerting/unified/api/alertingApi';
 import { queryLibraryApi } from '../features/query-library/api/factory';
 
@@ -40,6 +41,7 @@ export function configureStore(initialState?: Partial<StoreState>) {
         browseDashboardsAPI.middleware,
         cloudMigrationAPI.middleware,
         queryLibraryApi.middleware,
+        savedViewApi.middleware,
         userPreferencesAPI.middleware,
         ...extraMiddleware
       ),

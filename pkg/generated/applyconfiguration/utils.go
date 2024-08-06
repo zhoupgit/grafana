@@ -6,8 +6,10 @@ package applyconfiguration
 
 import (
 	v0alpha1 "github.com/grafana/grafana/pkg/apis/alerting_notifications/v0alpha1"
+	savedviewv0alpha1 "github.com/grafana/grafana/pkg/apis/savedview/v0alpha1"
 	servicev0alpha1 "github.com/grafana/grafana/pkg/apis/service/v0alpha1"
 	alertingnotificationsv0alpha1 "github.com/grafana/grafana/pkg/generated/applyconfiguration/alerting_notifications/v0alpha1"
+	applyconfigurationsavedviewv0alpha1 "github.com/grafana/grafana/pkg/generated/applyconfiguration/savedview/v0alpha1"
 	applyconfigurationservicev0alpha1 "github.com/grafana/grafana/pkg/generated/applyconfiguration/service/v0alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -31,6 +33,12 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &alertingnotificationsv0alpha1.TimeIntervalSpecApplyConfiguration{}
 	case v0alpha1.SchemeGroupVersion.WithKind("TimeRange"):
 		return &alertingnotificationsv0alpha1.TimeRangeApplyConfiguration{}
+
+		// Group=savedview.grafana.app, Version=v0alpha1
+	case savedviewv0alpha1.SchemeGroupVersion.WithKind("SavedView"):
+		return &applyconfigurationsavedviewv0alpha1.SavedViewApplyConfiguration{}
+	case savedviewv0alpha1.SchemeGroupVersion.WithKind("SavedViewSpec"):
+		return &applyconfigurationsavedviewv0alpha1.SavedViewSpecApplyConfiguration{}
 
 		// Group=service.grafana.app, Version=v0alpha1
 	case servicev0alpha1.SchemeGroupVersion.WithKind("ExternalName"):

@@ -12,6 +12,7 @@ import (
 	"github.com/grafana/grafana/pkg/registry/apis/folders"
 	"github.com/grafana/grafana/pkg/registry/apis/identity"
 	"github.com/grafana/grafana/pkg/registry/apis/peakq"
+	"github.com/grafana/grafana/pkg/registry/apis/savedview"
 	"github.com/grafana/grafana/pkg/registry/apis/playlist"
 	"github.com/grafana/grafana/pkg/registry/apis/query"
 	"github.com/grafana/grafana/pkg/registry/apis/scope"
@@ -28,6 +29,7 @@ type Service struct{}
 func ProvideRegistryServiceSink(
 	_ *dashboard.DashboardsAPIBuilder,
 	_ *playlist.PlaylistAPIBuilder,
+	_ *savedview.SavedViewAPIBuilder,
 	_ *dashboardsnapshot.SnapshotsAPIBuilder,
 	_ *featuretoggle.FeatureFlagAPIBuilder,
 	_ *datasource.DataSourceAPIBuilder,

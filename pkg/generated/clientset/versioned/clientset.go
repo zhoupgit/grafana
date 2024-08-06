@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	notificationsv0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/alerting_notifications/v0alpha1"
+	savedviewv0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/savedview/v0alpha1"
 	servicev0alpha1 "github.com/grafana/grafana/pkg/generated/clientset/versioned/typed/service/v0alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
@@ -18,6 +19,7 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	NotificationsV0alpha1() notificationsv0alpha1.NotificationsV0alpha1Interface
+	SavedviewV0alpha1() savedviewv0alpha1.SavedviewV0alpha1Interface
 	ServiceV0alpha1() servicev0alpha1.ServiceV0alpha1Interface
 }
 
@@ -25,12 +27,18 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	notificationsV0alpha1 *notificationsv0alpha1.NotificationsV0alpha1Client
+	savedviewV0alpha1     *savedviewv0alpha1.SavedviewV0alpha1Client
 	serviceV0alpha1       *servicev0alpha1.ServiceV0alpha1Client
 }
 
 // NotificationsV0alpha1 retrieves the NotificationsV0alpha1Client
 func (c *Clientset) NotificationsV0alpha1() notificationsv0alpha1.NotificationsV0alpha1Interface {
 	return c.notificationsV0alpha1
+}
+
+// SavedviewV0alpha1 retrieves the SavedviewV0alpha1Client
+func (c *Clientset) SavedviewV0alpha1() savedviewv0alpha1.SavedviewV0alpha1Interface {
+	return c.savedviewV0alpha1
 }
 
 // ServiceV0alpha1 retrieves the ServiceV0alpha1Client
@@ -86,6 +94,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.savedviewV0alpha1, err = savedviewv0alpha1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.serviceV0alpha1, err = servicev0alpha1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -112,6 +124,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.notificationsV0alpha1 = notificationsv0alpha1.New(c)
+	cs.savedviewV0alpha1 = savedviewv0alpha1.New(c)
 	cs.serviceV0alpha1 = servicev0alpha1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)

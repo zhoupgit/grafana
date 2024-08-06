@@ -6,6 +6,7 @@ package fake
 
 import (
 	notificationsv0alpha1 "github.com/grafana/grafana/pkg/apis/alerting_notifications/v0alpha1"
+	savedviewv0alpha1 "github.com/grafana/grafana/pkg/apis/savedview/v0alpha1"
 	servicev0alpha1 "github.com/grafana/grafana/pkg/apis/service/v0alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
@@ -19,6 +20,7 @@ var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
 	notificationsv0alpha1.AddToScheme,
+	savedviewv0alpha1.AddToScheme,
 	servicev0alpha1.AddToScheme,
 }
 

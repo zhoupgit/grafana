@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	v0alpha1 "github.com/grafana/grafana/pkg/apis/alerting_notifications/v0alpha1"
+	savedviewv0alpha1 "github.com/grafana/grafana/pkg/apis/savedview/v0alpha1"
 	servicev0alpha1 "github.com/grafana/grafana/pkg/apis/service/v0alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -44,6 +45,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Notifications().V0alpha1().Receivers().Informer()}, nil
 	case v0alpha1.SchemeGroupVersion.WithResource("timeintervals"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Notifications().V0alpha1().TimeIntervals().Informer()}, nil
+
+		// Group=savedview.grafana.app, Version=v0alpha1
+	case savedviewv0alpha1.SchemeGroupVersion.WithResource("savedviews"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Savedview().V0alpha1().SavedViews().Informer()}, nil
 
 		// Group=service.grafana.app, Version=v0alpha1
 	case servicev0alpha1.SchemeGroupVersion.WithResource("externalnames"):

@@ -1,7 +1,7 @@
-import { ToolbarButton, Drawer, Input, RadioButtonGroup, InlineFieldRow, InlineSwitch } from '@grafana/ui';
-import { InlineField } from '@grafana/ui/';
+import { ToolbarButton, Drawer, Input, RadioButtonGroup, Button } from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
+import { useAddSavedViewMutation, useAllSavedViewsQuery } from '../../../savedviews/api';
 import { SavedViewCard } from '../QuickAdd/SavedViewCard';
 
 const searchStyle = {
@@ -16,9 +16,22 @@ const inputStyle = {
 
 export function SavedViewsToggle() {
   const { isOpen, setIsOpen, isAvailable } = useSavedViewsContext();
+  const [addSavedView] = useAddSavedViewMutation();
+  const { data, isLoading, error } = useAllSavedViewsQuery();
+
+  console.log(data, isLoading, error);
+
   if (!isAvailable) {
     return null;
   }
+
+  const test = () => {
+    addSavedView({
+      name: 'test',
+      url: 'url',
+    });
+  };
+
   return (
     <>
       <ToolbarButton
@@ -30,6 +43,7 @@ export function SavedViewsToggle() {
       {isOpen && (
         <Drawer title="Saved Views" onClose={() => setIsOpen(false)}>
           <div style={searchStyle}>
+            <Button onClick={test}>Test</Button>
             <Input width={200} style={inputStyle} placeholder="Search text" />
             <RadioButtonGroup
               onChange={() => {}}

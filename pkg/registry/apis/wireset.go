@@ -15,6 +15,7 @@ import (
 	"github.com/grafana/grafana/pkg/registry/apis/query"
 	"github.com/grafana/grafana/pkg/registry/apis/scope"
 	"github.com/grafana/grafana/pkg/registry/apis/service"
+	"github.com/grafana/grafana/pkg/registry/apis/savedview"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/plugincontext"
 )
 
@@ -28,6 +29,7 @@ var WireSet = wire.NewSet(
 
 	// Each must be added here *and* in the ServiceSink above
 	playlist.RegisterAPIService,
+	savedview.RegisterAPIService,
 	dashboard.RegisterAPIService,
 	dashboardsnapshot.RegisterAPIService,
 	featuretoggle.RegisterAPIService,

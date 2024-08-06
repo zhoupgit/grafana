@@ -31,6 +31,7 @@ import { alertingApi } from '../../features/alerting/unified/api/alertingApi';
 import { userPreferencesAPI } from '../../features/preferences/api';
 import { queryLibraryApi } from '../../features/query-library/api/factory';
 import { cleanUpAction } from '../actions/cleanUp';
+import { savedViewApi } from '../savedviews/api';
 
 const rootReducers = {
   ...sharedReducers,
@@ -60,6 +61,7 @@ const rootReducers = {
   [browseDashboardsAPI.reducerPath]: browseDashboardsAPI.reducer,
   [cloudMigrationAPI.reducerPath]: cloudMigrationAPI.reducer,
   [queryLibraryApi.reducerPath]: queryLibraryApi.reducer,
+  [savedViewApi.reducerPath]: savedViewApi.reducer,
   [userPreferencesAPI.reducerPath]: userPreferencesAPI.reducer,
 };
 
