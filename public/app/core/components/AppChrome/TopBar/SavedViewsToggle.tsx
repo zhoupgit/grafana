@@ -19,13 +19,11 @@ export function SavedViewsToggle() {
   const [addSavedView] = useAddSavedViewMutation();
   const { data, isLoading, error } = useAllSavedViewsQuery();
 
-  console.log(data, isLoading, error);
-
   if (!isAvailable) {
     return null;
   }
 
-  const test = () => {
+  const addCurrent = () => {
     addSavedView({
       name: window.document.title,
       url: window.location.href,
@@ -45,7 +43,9 @@ export function SavedViewsToggle() {
       {isOpen && (
         <Drawer title="Saved Views" onClose={() => setIsOpen(false)}>
           <div style={searchStyle}>
-            <Button onClick={test}>Test</Button>
+            <Button variant="secondary" onClick={addCurrent}>
+              Add current
+            </Button>
             <Input width={200} style={inputStyle} placeholder="Search text" />
             <RadioButtonGroup
               onChange={() => {}}

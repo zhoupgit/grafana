@@ -1,4 +1,7 @@
-import { Button, Card, Icon, IconButton, IconName } from '@grafana/ui';
+import { css } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Button, Card, Icon, IconButton, IconName, useStyles2 } from '@grafana/ui';
 
 import { SavedView, useDeleteSavedViewMutation, useEditSavedViewMutation } from '../../../savedviews/api';
 
@@ -9,6 +12,7 @@ type Props = {
 export function SavedViewCard(props: Props) {
   const [deleteSavedViewMutation] = useDeleteSavedViewMutation();
   const [editSavedViewMutation] = useEditSavedViewMutation();
+  const styles = useStyles2(getStyles);
 
   const { uid, icon, description, name, url, metadata } = props.view;
 
@@ -37,7 +41,7 @@ export function SavedViewCard(props: Props) {
         {name}
         <Icon name={iconName} />
       </Card.Heading>
-      <Card.Meta>{url}</Card.Meta>
+      <Card.Meta className={styles.singleLine}>{url}</Card.Meta>
       <Card.Description>{description}</Card.Description>
       <Card.Actions>
         <Button key="open" variant="secondary" onClick={() => window.open(url, '_self')}>
@@ -56,3 +60,16 @@ export function SavedViewCard(props: Props) {
     </Card>
   );
 }
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  singleLine: css({
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: 1,
+    overflow: 'hidden',
+    margin: 0,
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+    textOverflow: 'ellipsis',
+  }),
+});
