@@ -5,8 +5,11 @@ import (
 	"errors"
 	"sync"
 
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/genproto/pluginv2"
 
 	"github.com/grafana/grafana/pkg/plugins"
@@ -135,7 +138,19 @@ func (r *protoClient) QueryData(ctx context.Context, in *pluginv2.QueryDataReque
 	if !exists {
 		return nil, errClientNotStarted
 	}
-	return c.DataClient.QueryData(ctx, in, opts...)
+	qdr, err := c.DataClient.QueryData(ctx, in, opts...)
+	if err != nil {
+		st := status.Convert(err)
+		for _, detail := range st.Details() {
+			switch t := detail.(type) {
+			case *errdetails.ErrorInfo:
+				if t.Domain == string(backend.ErrorSourceDownstream) {
+					return nil, plugins.ErrPluginDownstreamErrorBase.Errorf("%v", t.Reason)
+				}
+			}
+		}
+	}
+	return qdr, nil
 }
 
 func (r *protoClient) CallResource(ctx context.Context, in *pluginv2.CallResourceRequest, opts ...grpc.CallOption) (pluginv2.Resource_CallResourceClient, error) {

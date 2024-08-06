@@ -10,6 +10,7 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/grpcplugin"
 	"github.com/grafana/grafana-plugin-sdk-go/genproto/pluginv2"
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -172,6 +173,16 @@ func (c *ClientV2) QueryData(ctx context.Context, req *backend.QueryDataRequest)
 	if err != nil {
 		if status.Code(err) == codes.Unimplemented {
 			return nil, plugins.ErrMethodNotImplemented
+		}
+
+		st := status.Convert(err)
+		for _, detail := range st.Details() {
+			switch t := detail.(type) {
+			case *errdetails.ErrorInfo:
+				if t.Domain == string(backend.ErrorSourceDownstream) {
+					return nil, plugins.ErrPluginDownstreamErrorBase.Errorf("%v", t.Reason)
+				}
+			}
 		}
 
 		return nil, fmt.Errorf("%v: %w", "Failed to query data", err)

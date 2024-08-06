@@ -2,6 +2,7 @@ package clientmiddleware
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -43,6 +44,10 @@ func (m *LoggerMiddleware) logRequest(ctx context.Context, fn func(ctx context.C
 		"time_before_plugin_request", timeBeforePluginRequest,
 	}
 	if err != nil {
+		if errors.Is(err, plugins.ErrPluginDownstreamErrorBase) {
+			logParams = append(logParams, "downstream", true)
+		}
+
 		logParams = append(logParams, "error", err)
 	}
 	logParams = append(logParams, "statusSource", pluginrequestmeta.StatusSourceFromContext(ctx))
