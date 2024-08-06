@@ -1,5 +1,5 @@
-import { LegacyGraphHoverClearEvent, SetPanelAttentionEvent, locationUtil } from '@grafana/data';
-import { LocationService } from '@grafana/runtime';
+import { LegacyGraphHoverClearEvent, SetPanelAttentionEvent, locationUtil, AppEvents } from '@grafana/data';
+import { getAppEvents, LocationService } from '@grafana/runtime';
 import appEvents from 'app/core/app_events';
 import { getExploreUrl } from 'app/core/utils/explore';
 import { SaveDashboardDrawer } from 'app/features/dashboard/components/SaveDashboard/SaveDashboardDrawer';
@@ -7,6 +7,7 @@ import { ShareModal } from 'app/features/dashboard/components/ShareModal';
 import { DashboardModel } from 'app/features/dashboard/state';
 
 import { getTimeSrv } from '../../features/dashboard/services/TimeSrv';
+import { dispatch } from '../../store/store';
 import {
   RemovePanelEvent,
   ShiftTimeEvent,
@@ -21,6 +22,7 @@ import { AppChromeService } from '../components/AppChrome/AppChromeService';
 import { HelpModal } from '../components/help/HelpModal';
 import { contextSrv } from '../core';
 import { RouteDescriptor } from '../navigation/types';
+import { savedViewApi } from '../savedviews/api';
 
 import { mousetrap } from './mousetrap';
 import { toggleTheme } from './theme';
@@ -49,6 +51,7 @@ export class KeybindingSrv {
       this.bind('g e', this.goToExplore);
       this.bind('g a', this.openAlerting);
       this.bind('g p', this.goToProfile);
+      this.bind('g s', this.saveView);
       this.bind('esc', this.exit);
       this.bindGlobalEsc();
     }
@@ -105,6 +108,22 @@ export class KeybindingSrv {
 
   private goToProfile() {
     this.locationService.push('/profile');
+  }
+
+  private async saveView() {
+    dispatch(
+      savedViewApi.endpoints.addSavedView.initiate({
+        name: window.document.title,
+        url: window.location.href,
+        description: '...',
+        icon: 'compass',
+      })
+    );
+
+    getAppEvents().publish({
+      type: AppEvents.alertSuccess.name,
+      payload: ['View saved successfully'],
+    });
   }
 
   private goToExplore() {
