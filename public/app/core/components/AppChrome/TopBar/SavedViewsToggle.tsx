@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ToolbarButton, Drawer, Input, RadioButtonGroup } from '@grafana/ui';
+import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab } from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
 import { useAllSavedViewsQuery } from '../../../savedviews/api';
@@ -19,6 +19,7 @@ const inputStyle = {
 
 export function SavedViewsToggle() {
   const { isOpen, setIsOpen, isAvailable } = useSavedViewsContext();
+  const [activeTab, setActiveTab] = useState<'savedviews' | 'history'>('savedviews');
   const { data, isLoading, error } = useAllSavedViewsQuery();
   const [searchText, setSearchText] = useState('');
 
@@ -26,6 +27,65 @@ export function SavedViewsToggle() {
 
   if (!isAvailable) {
     return null;
+  }
+
+  const tabs = (
+    <TabsBar>
+      <Tab
+        label="Saved"
+        active={activeTab === 'savedviews'}
+        onChangeTab={(e) => {
+          e.preventDefault();
+          setActiveTab('savedviews');
+        }}
+      />
+      <Tab
+        label="History"
+        active={activeTab === 'history'}
+        onChangeTab={(e) => {
+          e.preventDefault();
+          setActiveTab('history');
+        }}
+      />
+    </TabsBar>
+  );
+
+  let Content = <p>'loading...'</p>;
+
+  if (activeTab === 'savedviews') {
+    Content = (
+      <>
+        <div style={searchStyle}>
+          <Input
+            width={200}
+            style={inputStyle}
+            placeholder="Search text"
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+          />
+          <RadioButtonGroup
+            onChange={(value) => {
+              setScope(value);
+            }}
+            value={scope}
+            options={[
+              { value: 'my', label: 'My views' },
+              { value: 'all', label: 'All views' },
+            ]}
+          />
+        </div>
+        {data
+          ?.filter((view) => scope === 'all' || myView(view))
+          .filter((view) => {
+            return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
+          })
+          .map((view) => {
+            return <SavedViewCard key={view.uid} view={view} />;
+          })}
+      </>
+    );
+  } else if (activeTab === 'history') {
+    Content = <p>history</p>;
   }
 
   return (
@@ -37,34 +97,8 @@ export function SavedViewsToggle() {
         onClick={() => setIsOpen(!isOpen)}
       />
       {isOpen && (
-        <Drawer size="sm" title="Saved Views" onClose={() => setIsOpen(false)}>
-          <div style={searchStyle}>
-            <Input
-              width={200}
-              style={inputStyle}
-              placeholder="Search text"
-              value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
-            />
-            <RadioButtonGroup
-              onChange={(value) => {
-                setScope(value);
-              }}
-              value={scope}
-              options={[
-                { value: 'my', label: 'My views' },
-                { value: 'all', label: 'All views' },
-              ]}
-            />
-          </div>
-          {data
-            ?.filter((view) => scope === 'all' || myView(view))
-            .filter((view) => {
-              return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
-            })
-            .map((view) => {
-              return <SavedViewCard key={view.uid} view={view} />;
-            })}
+        <Drawer tabs={tabs} size="sm" title="Views" onClose={() => setIsOpen(false)}>
+          {Content}
         </Drawer>
       )}
     </>
