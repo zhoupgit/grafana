@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
-import { config } from '@grafana/runtime';
-import { ToolbarButton, Drawer, Input, RadioButtonGroup, Button } from '@grafana/ui';
+import { ToolbarButton, Drawer, Input, RadioButtonGroup } from '@grafana/ui';
 
-import { contextSrv } from '../../../core';
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
-import { useAddSavedViewMutation, useAllSavedViewsQuery } from '../../../savedviews/api';
+import { useAllSavedViewsQuery } from '../../../savedviews/api';
+import { myView } from '../../../savedviews/utils';
 import { SavedViewCard } from '../QuickAdd/SavedViewCard';
 
 const searchStyle = {
@@ -59,7 +58,7 @@ export function SavedViewsToggle() {
             />
           </div>
           {data
-            ?.filter((view) => scope === 'all' || view.user === contextSrv.user.uid)
+            ?.filter((view) => scope === 'all' || myView(view))
             .filter((view) => {
               return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
             })

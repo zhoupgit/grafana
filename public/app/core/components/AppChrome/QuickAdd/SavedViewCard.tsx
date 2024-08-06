@@ -5,6 +5,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Card, Icon, IconButton, IconName, Input, useStyles2 } from '@grafana/ui';
 
 import { SavedView, useDeleteSavedViewMutation, useEditSavedViewMutation } from '../../../savedviews/api';
+import { myView } from '../../../savedviews/utils';
 
 type Props = {
   view: SavedView;
@@ -17,7 +18,7 @@ export function SavedViewCard(props: Props) {
 
   const [isEditingName, setIsEditingName] = useState<boolean>(false);
   const [isEditingDescription, setIsEditingDescription] = useState<boolean>(false);
-  const { uid, icon, description, name, url, metadata } = props.view;
+  const { user, uid, icon, description, name, url, metadata } = props.view;
 
   const [editName, setEditName] = useState<string>(name);
   const [editDescription, setEditDescription] = useState<string>(description);
@@ -97,25 +98,29 @@ export function SavedViewCard(props: Props) {
 
   return (
     <Card>
-      <Card.Heading>{isEditingName ? editNameComponent : readNameComponent}</Card.Heading>
+      <Card.Heading>{isEditingName && myView(props.view) ? editNameComponent : readNameComponent}</Card.Heading>
       <Card.Meta className={styles.singleLine}>
         <a href={url} onClick={() => window.open(url, '_self')}>
           {url}
         </a>
       </Card.Meta>
-      <Card.Description>{isEditingDescription ? editDescriptionComponent : readDescriptionComponent}</Card.Description>
+      <Card.Description>
+        {isEditingDescription && myView(props.view) ? editDescriptionComponent : readDescriptionComponent}
+      </Card.Description>
       <Card.Actions>
         <a href={url}>
           <IconButton key="link" name="repeat" tooltip="Switch to" />
         </a>
-        <a href="#">
-          <IconButton
-            key="delete"
-            name="trash-alt"
-            tooltip="Delete this view"
-            onClick={() => deleteSavedView(uid || '')}
-          />
-        </a>
+        {myView(props.view) && (
+          <a href="#">
+            <IconButton
+              key="delete"
+              name="trash-alt"
+              tooltip="Delete this view"
+              onClick={() => deleteSavedView(uid || '')}
+            />
+          </a>
+        )}
       </Card.Actions>
     </Card>
   );
