@@ -1,9 +1,10 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { useLocation } from 'react-use';
 
 import { Page } from 'app/core/components/Page/Page';
 import { PageProps } from 'app/core/components/Page/types';
 
+import { savedViewsService } from '../../../../core/savedviews/utils';
 import { AlertmanagerProvider, useAlertmanager } from '../state/AlertmanagerContext';
 
 import { AlertManagerPicker } from './AlertManagerPicker';
@@ -16,11 +17,27 @@ interface AlertingPageWrapperProps extends PageProps {
   isLoading?: boolean;
 }
 
-export const AlertingPageWrapper = ({ children, isLoading, ...rest }: AlertingPageWrapperProps) => (
-  <Page {...rest}>
-    <Page.Contents isLoading={isLoading}>{children}</Page.Contents>
-  </Page>
-);
+export const AlertingPageWrapper = ({ children, isLoading, ...rest }: AlertingPageWrapperProps) => {
+  useEffect(() => {
+    savedViewsService.register('alerting', (command) => {
+      return {
+        ...command,
+        name: 'Alerting',
+        description: command.name.replace('- Alerting', ''),
+        icon: 'bell',
+      };
+    });
+    return () => {
+      savedViewsService.unregister('alerting');
+    };
+  }, []);
+
+  return (
+    <Page {...rest}>
+      <Page.Contents isLoading={isLoading}>{children}</Page.Contents>
+    </Page>
+  );
+};
 
 /**
  * This wrapper is for pages that use the Alertmanager API

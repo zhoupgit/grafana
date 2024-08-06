@@ -27,6 +27,8 @@ function DashboardPageProxy(props: DashboardPageProxyProps) {
     savedViewsService.register('dashboards', (command) => {
       return {
         ...command,
+        name: 'Dashboard',
+        description: command.name,
         icon: 'apps',
       };
     });

@@ -132,7 +132,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     WebkitBoxOrient: 'vertical',
     WebkitLineClamp: 1,
     overflow: 'hidden',
-    margin: 0,
     fontSize: theme.typography.body.fontSize,
     color: theme.colors.text.secondary,
     textOverflow: 'ellipsis',

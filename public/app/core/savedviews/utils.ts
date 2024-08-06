@@ -15,7 +15,7 @@ class SavedViewsService {
   processors: Record<string, (view: AddSavedViewCommand) => AddSavedViewCommand> = {};
   getCommand() {
     let view: AddSavedViewCommand = {
-      name: window.document.title || '',
+      name: window.document.title.replace('- Grafana', '') || '',
       url: window.location.href,
       description: '(no description)',
       icon: 'link',

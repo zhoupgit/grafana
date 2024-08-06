@@ -68,6 +68,8 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
     savedViewsService.register('explore', (command) => {
       return {
         ...command,
+        name: 'Explore',
+        description: command.name.replace('Explore -', ''),
         icon: 'compass',
       };
     });
