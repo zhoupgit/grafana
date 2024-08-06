@@ -27,8 +27,10 @@ export function SavedViewsToggle() {
 
   const test = () => {
     addSavedView({
-      name: 'test',
-      url: 'url',
+      name: window.document.title,
+      url: window.location.href,
+      icon: 'compass',
+      description: '...',
     });
   };
 
@@ -54,9 +56,6 @@ export function SavedViewsToggle() {
               ]}
             />
           </div>
-          <SavedViewCard />
-          <SavedViewCard />
-          <SavedViewCard />
           {data?.map((view) => {
             return <SavedViewCard key={view.uid} view={view} />;
           })}

@@ -39,6 +39,10 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &applyconfigurationsavedviewv0alpha1.SavedViewApplyConfiguration{}
 	case savedviewv0alpha1.SchemeGroupVersion.WithKind("SavedViewSpec"):
 		return &applyconfigurationsavedviewv0alpha1.SavedViewSpecApplyConfiguration{}
+	case savedviewv0alpha1.SchemeGroupVersion.WithKind("View"):
+		return &applyconfigurationsavedviewv0alpha1.ViewApplyConfiguration{}
+	case savedviewv0alpha1.SchemeGroupVersion.WithKind("ViewSpec"):
+		return &applyconfigurationsavedviewv0alpha1.ViewSpecApplyConfiguration{}
 
 		// Group=service.grafana.app, Version=v0alpha1
 	case servicev0alpha1.SchemeGroupVersion.WithKind("ExternalName"):

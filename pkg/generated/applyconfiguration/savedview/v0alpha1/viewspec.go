@@ -4,9 +4,9 @@
 
 package v0alpha1
 
-// SavedViewSpecApplyConfiguration represents an declarative configuration of the SavedViewSpec type for use
+// ViewSpecApplyConfiguration represents an declarative configuration of the ViewSpec type for use
 // with apply.
-type SavedViewSpecApplyConfiguration struct {
+type ViewSpecApplyConfiguration struct {
 	Name        *string `json:"name,omitempty"`
 	URL         *string `json:"url,omitempty"`
 	Description *string `json:"description,omitempty"`
@@ -14,16 +14,16 @@ type SavedViewSpecApplyConfiguration struct {
 	Meta        *string `json:"meta,omitempty"`
 }
 
-// SavedViewSpecApplyConfiguration constructs an declarative configuration of the SavedViewSpec type for use with
+// ViewSpecApplyConfiguration constructs an declarative configuration of the ViewSpec type for use with
 // apply.
-func SavedViewSpec() *SavedViewSpecApplyConfiguration {
-	return &SavedViewSpecApplyConfiguration{}
+func ViewSpec() *ViewSpecApplyConfiguration {
+	return &ViewSpecApplyConfiguration{}
 }
 
 // WithName sets the Name field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Name field is set to the value of the last call.
-func (b *SavedViewSpecApplyConfiguration) WithName(value string) *SavedViewSpecApplyConfiguration {
+func (b *ViewSpecApplyConfiguration) WithName(value string) *ViewSpecApplyConfiguration {
 	b.Name = &value
 	return b
 }
@@ -31,7 +31,7 @@ func (b *SavedViewSpecApplyConfiguration) WithName(value string) *SavedViewSpecA
 // WithURL sets the URL field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the URL field is set to the value of the last call.
-func (b *SavedViewSpecApplyConfiguration) WithURL(value string) *SavedViewSpecApplyConfiguration {
+func (b *ViewSpecApplyConfiguration) WithURL(value string) *ViewSpecApplyConfiguration {
 	b.URL = &value
 	return b
 }
@@ -39,7 +39,7 @@ func (b *SavedViewSpecApplyConfiguration) WithURL(value string) *SavedViewSpecAp
 // WithDescription sets the Description field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Description field is set to the value of the last call.
-func (b *SavedViewSpecApplyConfiguration) WithDescription(value string) *SavedViewSpecApplyConfiguration {
+func (b *ViewSpecApplyConfiguration) WithDescription(value string) *ViewSpecApplyConfiguration {
 	b.Description = &value
 	return b
 }
@@ -47,7 +47,7 @@ func (b *SavedViewSpecApplyConfiguration) WithDescription(value string) *SavedVi
 // WithIcon sets the Icon field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Icon field is set to the value of the last call.
-func (b *SavedViewSpecApplyConfiguration) WithIcon(value string) *SavedViewSpecApplyConfiguration {
+func (b *ViewSpecApplyConfiguration) WithIcon(value string) *ViewSpecApplyConfiguration {
 	b.Icon = &value
 	return b
 }
@@ -55,7 +55,7 @@ func (b *SavedViewSpecApplyConfiguration) WithIcon(value string) *SavedViewSpecA
 // WithMeta sets the Meta field in the declarative configuration to the given value
 // and returns the receiver, so that objects can be built by chaining "With" function invocations.
 // If called multiple times, the Meta field is set to the value of the last call.
-func (b *SavedViewSpecApplyConfiguration) WithMeta(value string) *SavedViewSpecApplyConfiguration {
+func (b *ViewSpecApplyConfiguration) WithMeta(value string) *ViewSpecApplyConfiguration {
 	b.Meta = &value
 	return b
 }

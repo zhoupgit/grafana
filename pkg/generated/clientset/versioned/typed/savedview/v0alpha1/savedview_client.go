@@ -15,6 +15,7 @@ import (
 type SavedviewV0alpha1Interface interface {
 	RESTClient() rest.Interface
 	SavedViewsGetter
+	ViewsGetter
 }
 
 // SavedviewV0alpha1Client is used to interact with features provided by the savedview.grafana.app group.
@@ -24,6 +25,10 @@ type SavedviewV0alpha1Client struct {
 
 func (c *SavedviewV0alpha1Client) SavedViews(namespace string) SavedViewInterface {
 	return newSavedViews(c, namespace)
+}
+
+func (c *SavedviewV0alpha1Client) Views(namespace string) ViewInterface {
+	return newViews(c, namespace)
 }
 
 // NewForConfig creates a new SavedviewV0alpha1Client for the given config.

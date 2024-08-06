@@ -12,6 +12,8 @@ import (
 type Interface interface {
 	// SavedViews returns a SavedViewInformer.
 	SavedViews() SavedViewInformer
+	// Views returns a ViewInformer.
+	Views() ViewInformer
 }
 
 type version struct {
@@ -28,4 +30,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 // SavedViews returns a SavedViewInformer.
 func (v *version) SavedViews() SavedViewInformer {
 	return &savedViewInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// Views returns a ViewInformer.
+func (v *version) Views() ViewInformer {
+	return &viewInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

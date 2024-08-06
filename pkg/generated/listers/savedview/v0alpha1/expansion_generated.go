@@ -11,3 +11,11 @@ type SavedViewListerExpansion interface{}
 // SavedViewNamespaceListerExpansion allows custom methods to be added to
 // SavedViewNamespaceLister.
 type SavedViewNamespaceListerExpansion interface{}
+
+// ViewListerExpansion allows custom methods to be added to
+// ViewLister.
+type ViewListerExpansion interface{}
+
+// ViewNamespaceListerExpansion allows custom methods to be added to
+// ViewNamespaceLister.
+type ViewNamespaceListerExpansion interface{}

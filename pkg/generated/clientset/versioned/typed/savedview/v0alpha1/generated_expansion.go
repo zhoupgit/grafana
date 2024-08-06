@@ -5,3 +5,5 @@
 package v0alpha1
 
 type SavedViewExpansion interface{}
+
+type ViewExpansion interface{}

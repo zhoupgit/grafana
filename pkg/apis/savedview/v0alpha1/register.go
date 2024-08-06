@@ -20,6 +20,13 @@ var SavedViewResourceInfo = common.NewResourceInfo(GROUP, VERSION,
 	func() runtime.Object { return &SavedViewList{} },
 )
 
+var ViewResourceInfo = common.NewResourceInfo(GROUP, VERSION,
+	"views", "view", "View",
+	func() runtime.Object { return &View{} },
+	func() runtime.Object { return &ViewList{} },
+)
+
+
 var (
 	// SchemeGroupVersion is group version used to register these objects
 	SchemeGroupVersion = schema.GroupVersion{Group: GROUP, Version: VERSION}
@@ -39,6 +46,10 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&SavedView{},
 		&SavedViewList{},
+	)
+	scheme.AddKnownTypes(SchemeGroupVersion,
+		&View{},
+		&ViewList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

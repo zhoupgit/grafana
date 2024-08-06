@@ -4,21 +4,19 @@ import { lastValueFrom } from 'rxjs';
 import { config } from '@grafana/runtime';
 import { BackendSrvRequest, getBackendSrv, isFetchError } from '@grafana/runtime/src/services/backendSrv';
 
+import { ObjectMeta } from '../../features/apiserver/types';
 import { parseCreatedByValue } from '../../features/query-library/api/mappers';
 import { CREATED_BY_KEY } from '../../features/query-library/api/types';
 
 export type SavedViewSpec = {
   apiVersion: string;
   kind: string;
-  metadata: {
-    generateName: string;
-    name?: string;
-    creationTimestamp?: string;
-    annotations?: { [key: string]: string };
-  };
+  metadata: ObjectMeta & { generateName?: string };
   spec: {
     name: string;
     url: string;
+    icon: string;
+    description: string;
   };
 };
 
@@ -71,8 +69,11 @@ export interface SavedView {
   uid: string;
   name: string;
   url: string;
+  icon: string;
+  description: string;
   createdAtTimestamp: number;
   user: string;
+  metadata: ObjectMeta;
 }
 
 export const convertSavedViewsResponseToSavedViews = (result: SavedViewSpecResponse): SavedView[] => {
@@ -84,8 +85,11 @@ export const convertSavedViewsResponseToSavedViews = (result: SavedViewSpecRespo
       uid: spec.metadata.name || '',
       name: spec.spec.name,
       url: spec.spec.url,
+      icon: spec.spec.icon,
+      description: spec.spec.description,
       createdAtTimestamp: new Date(spec.metadata.creationTimestamp || '').getTime(),
       user: parseCreatedByValue(spec.metadata?.annotations?.[CREATED_BY_KEY]) || '',
+      metadata: spec.metadata || {},
     };
   });
 };
@@ -93,23 +97,47 @@ export const convertSavedViewsResponseToSavedViews = (result: SavedViewSpecRespo
 export interface AddSavedViewCommand {
   name: string;
   url: string;
+  icon: string;
+  description: string;
 }
 
 export interface DeleteSavedViewCommand {
   uid: string;
 }
 
+export type EditSavedViewCommand = AddSavedViewCommand & { uid: string; metadata: ObjectMeta };
+
 export const convertAddSavedViewCommandToDataQuerySpec = (addSavedViewCommand: AddSavedViewCommand): SavedViewSpec => {
-  const { name, url } = addSavedViewCommand;
+  const { name, url, icon, description } = addSavedViewCommand;
   return {
     apiVersion: API_VERSION,
     kind: 'SavedView',
+    // @ts-ignore
     metadata: {
       generateName: 'A' + name.replaceAll(' ', '-'),
     },
     spec: {
       name,
       url,
+      icon,
+      description,
+    },
+  };
+};
+
+export const convertEditSavedViewCommandToDataQuerySpec = (
+  editSavedViewCommand: EditSavedViewCommand
+): SavedViewSpec => {
+  const { name, url, icon, description } = editSavedViewCommand;
+  return {
+    apiVersion: API_VERSION,
+    kind: 'SavedView',
+    metadata: editSavedViewCommand.metadata,
+    spec: {
+      name,
+      url,
+      icon,
+      description,
     },
   };
 };
@@ -136,9 +164,18 @@ export const savedViewApi = createApi({
       }),
       invalidatesTags: ['SavedViewsList'],
     }),
+    editSavedView: builder.mutation<void, EditSavedViewCommand>({
+      query: (command) => ({
+        url: `${command.uid}`,
+        method: 'PUT',
+        data: convertEditSavedViewCommandToDataQuerySpec(command),
+      }),
+      invalidatesTags: ['SavedViewsList'],
+    }),
   }),
   tagTypes: ['SavedViewsList'],
   reducerPath: 'savedViews',
 });
 
-export const { useAllSavedViewsQuery, useAddSavedViewMutation, useDeleteSavedViewMutation } = savedViewApi;
+export const { useAllSavedViewsQuery, useAddSavedViewMutation, useDeleteSavedViewMutation, useEditSavedViewMutation } =
+  savedViewApi;

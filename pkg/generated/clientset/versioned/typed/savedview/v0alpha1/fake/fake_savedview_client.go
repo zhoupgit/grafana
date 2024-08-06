@@ -18,6 +18,10 @@ func (c *FakeSavedviewV0alpha1) SavedViews(namespace string) v0alpha1.SavedViewI
 	return &FakeSavedViews{c, namespace}
 }
 
+func (c *FakeSavedviewV0alpha1) Views(namespace string) v0alpha1.ViewInterface {
+	return &FakeViews{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSavedviewV0alpha1) RESTClient() rest.Interface {

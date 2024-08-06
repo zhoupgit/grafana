@@ -1,18 +1,16 @@
-import { Button, Card, IconButton } from '@grafana/ui';
+import { Button, Card, Icon, IconButton, IconName } from '@grafana/ui';
 
-import { SavedView, useDeleteSavedViewMutation } from '../../../savedviews/api';
+import { SavedView, useDeleteSavedViewMutation, useEditSavedViewMutation } from '../../../savedviews/api';
 
 type Props = {
-  view?: SavedView;
+  view: SavedView;
 };
 
 export function SavedViewCard(props: Props) {
   const [deleteSavedViewMutation] = useDeleteSavedViewMutation();
+  const [editSavedViewMutation] = useEditSavedViewMutation();
 
-  const { uid, name, url } = props.view || {};
-
-  const URL = url || 'http://localhost:3000/explore?schemaVersion=1&panes=...';
-  const NAME = name || 'New Dashboard - Dashboards - Grafana<';
+  const { uid, icon, description, name, url, metadata } = props.view;
 
   const deleteSavedView = (uid: string) => {
     deleteSavedViewMutation({
@@ -20,16 +18,33 @@ export function SavedViewCard(props: Props) {
     });
   };
 
+  const edit = (uid: string) => {
+    editSavedViewMutation({
+      uid: uid,
+      name,
+      icon,
+      description,
+      url: 'UPDATED',
+      metadata,
+    });
+  };
+
+  const iconName = icon as IconName;
+
   return (
     <Card>
-      <Card.Heading>{NAME}</Card.Heading>
-      <Card.Meta>{URL}</Card.Meta>
-      <Card.Description>Description</Card.Description>
+      <Card.Heading>
+        {name}
+        <Icon name={iconName} />
+      </Card.Heading>
+      <Card.Meta>{url}</Card.Meta>
+      <Card.Description>{description}</Card.Description>
       <Card.Actions>
-        <Button key="open" variant="secondary" onClick={() => alert('open')}>
+        <Button key="open" variant="secondary" onClick={() => window.open(url, '_self')}>
           Open
         </Button>
         <Card.SecondaryActions>
+          <Button onClick={() => edit(uid || '')}>Edit</Button>
           <IconButton
             key="delete"
             name="trash-alt"

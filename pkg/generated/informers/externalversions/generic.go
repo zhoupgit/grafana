@@ -49,6 +49,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		// Group=savedview.grafana.app, Version=v0alpha1
 	case savedviewv0alpha1.SchemeGroupVersion.WithResource("savedviews"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Savedview().V0alpha1().SavedViews().Informer()}, nil
+	case savedviewv0alpha1.SchemeGroupVersion.WithResource("views"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Savedview().V0alpha1().Views().Informer()}, nil
 
 		// Group=service.grafana.app, Version=v0alpha1
 	case servicev0alpha1.SchemeGroupVersion.WithResource("externalnames"):
