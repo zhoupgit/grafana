@@ -22,7 +22,7 @@ export const parseCreatedByValue = (value?: string) => {
   } else {
     return undefined;
   }*/
-  return !!value ? value : undefined;
+  return !!value ? value.split(':')[1] : '';
 };
 
 export const convertDataQueryResponseToQueryTemplates = (result: DataQuerySpecResponse): QueryTemplate[] => {
