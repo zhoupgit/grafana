@@ -23,6 +23,7 @@ import { HelpModal } from '../components/help/HelpModal';
 import { contextSrv } from '../core';
 import { RouteDescriptor } from '../navigation/types';
 import { savedViewApi } from '../savedviews/api';
+import { savedViewsService } from '../savedviews/utils';
 
 import { mousetrap } from './mousetrap';
 import { toggleTheme } from './theme';
@@ -111,14 +112,7 @@ export class KeybindingSrv {
   }
 
   private async saveView() {
-    dispatch(
-      savedViewApi.endpoints.addSavedView.initiate({
-        name: window.document.title,
-        url: window.location.href,
-        description: '...',
-        icon: 'compass',
-      })
-    );
+    savedViewsService.save();
 
     getAppEvents().publish({
       type: AppEvents.alertSuccess.name,

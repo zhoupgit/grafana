@@ -14,6 +14,7 @@ import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
 import { useSelector } from 'app/types';
 import { ExploreQueryParams } from 'app/types/explore';
 
+import { savedViewsService } from '../../core/savedviews/utils';
 import { RowActionComponents } from '../query/components/QueryActionComponent';
 
 import { CorrelationEditorModeBar } from './CorrelationEditorModeBar';
@@ -62,6 +63,18 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
   const { drawerOpened, setDrawerOpened, queryLibraryAvailable } = useQueriesDrawerContext();
   const showCorrelationEditorBar = config.featureToggles.correlations && (correlationDetails?.editorMode || false);
   const [queryToAdd, setQueryToAdd] = useState<DataQuery | undefined>();
+
+  useEffect(() => {
+    savedViewsService.register('explore', (command) => {
+      return {
+        ...command,
+        icon: 'compass',
+      };
+    });
+    return () => {
+      savedViewsService.unregister('explore');
+    };
+  }, []);
 
   useEffect(() => {
     //This is needed for breadcrumbs and topnav.

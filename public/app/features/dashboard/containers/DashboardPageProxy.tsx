@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAsync } from 'react-use';
 
 import { config } from '@grafana/runtime';
@@ -5,6 +6,8 @@ import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
 import DashboardScenePage from 'app/features/dashboard-scene/pages/DashboardScenePage';
 import { getDashboardScenePageStateManager } from 'app/features/dashboard-scene/pages/DashboardScenePageStateManager';
 import { DashboardRoutes } from 'app/types';
+
+import { savedViewsService } from '../../../core/savedviews/utils';
 
 import DashboardPage from './DashboardPage';
 import { DashboardPageRouteParams, DashboardPageRouteSearchParams } from './types';
@@ -19,6 +22,18 @@ export type DashboardPageProxyProps = GrafanaRouteComponentProps<
 function DashboardPageProxy(props: DashboardPageProxyProps) {
   const forceScenes = props.queryParams.scenes === true;
   const forceOld = props.queryParams.scenes === false;
+
+  useEffect(() => {
+    savedViewsService.register('dashboards', (command) => {
+      return {
+        ...command,
+        icon: 'apps',
+      };
+    });
+    return () => {
+      savedViewsService.unregister('dashboards');
+    };
+  }, []);
 
   if (forceScenes || (config.featureToggles.dashboardScene && !forceOld)) {
     return <DashboardScenePage {...props} />;
