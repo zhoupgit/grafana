@@ -3,7 +3,8 @@ import { cloneDeep } from 'lodash';
 import { memo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { GrafanaTheme2, locationUtil, textUtil } from '@grafana/data';
+import { GrafanaTheme2, locationUtil, PluginExtensionPoints, textUtil } from '@grafana/data';
+import { usePluginComponents } from '@grafana/runtime';
 import { Dropdown, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { config } from 'app/core/config';
 import { contextSrv } from 'app/core/core';
@@ -35,6 +36,10 @@ export const TopSearchBar = memo(function TopSearchBar() {
     homeUrl = textUtil.sanitizeUrl(locationUtil.getUrlForPartial(location, { forceLogin: 'true' }));
   }
 
+  const { components } = usePluginComponents({
+    extensionPointId: PluginExtensionPoints.TopBarItems,
+  });
+
   return (
     <div className={styles.layout}>
       <TopSearchBarSection>
@@ -50,6 +55,9 @@ export const TopSearchBar = memo(function TopSearchBar() {
 
       <TopSearchBarSection align="right">
         <QuickAdd />
+        {components.map((C) => {
+          return <C key={C.name} />;
+        })}
         {enrichedHelpNode && (
           <Dropdown overlay={() => <TopNavBarMenu node={enrichedHelpNode} />} placement="bottom-end">
             <ToolbarButton iconOnly icon="question-circle" aria-label="Help" />
