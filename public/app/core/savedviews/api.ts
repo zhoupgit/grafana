@@ -67,12 +67,15 @@ const baseQuery: BaseQueryFn<SavedViewBackendRequest, SavedViewSpecResponse, Err
   }
 };
 
-interface SavedView {
+export interface SavedView {
+  uid: string;
   name: string;
   url: string;
+  createdAtTimestamp: number;
+  user: string;
 }
 
-export const convertSavedViewsResponseToQueryTemplates = (result: SavedViewSpecResponse): SavedView[] => {
+export const convertSavedViewsResponseToSavedViews = (result: SavedViewSpecResponse): SavedView[] => {
   if (!result.items) {
     return [];
   }
@@ -82,7 +85,7 @@ export const convertSavedViewsResponseToQueryTemplates = (result: SavedViewSpecR
       name: spec.spec.name,
       url: spec.spec.url,
       createdAtTimestamp: new Date(spec.metadata.creationTimestamp || '').getTime(),
-      user: parseCreatedByValue(spec.metadata?.annotations?.[CREATED_BY_KEY]),
+      user: parseCreatedByValue(spec.metadata?.annotations?.[CREATED_BY_KEY]) || '',
     };
   });
 };
@@ -90,6 +93,10 @@ export const convertSavedViewsResponseToQueryTemplates = (result: SavedViewSpecR
 export interface AddSavedViewCommand {
   name: string;
   url: string;
+}
+
+export interface DeleteSavedViewCommand {
+  uid: string;
 }
 
 export const convertAddSavedViewCommandToDataQuerySpec = (addSavedViewCommand: AddSavedViewCommand): SavedViewSpec => {
@@ -112,7 +119,7 @@ export const savedViewApi = createApi({
   endpoints: (builder) => ({
     allSavedViews: builder.query<SavedView[], void>({
       query: () => ({}),
-      transformResponse: convertSavedViewsResponseToQueryTemplates,
+      transformResponse: convertSavedViewsResponseToSavedViews,
       providesTags: ['SavedViewsList'],
     }),
     addSavedView: builder.mutation<SavedView, AddSavedViewCommand>({
@@ -122,16 +129,16 @@ export const savedViewApi = createApi({
       }),
       invalidatesTags: ['SavedViewsList'],
     }),
-    // deleteQueryTemplate: builder.mutation<void, DeleteQueryTemplateCommand>({
-    //   query: ({ uid }) => ({
-    //     url: `${uid}`,
-    //     method: 'DELETE',
-    //   }),
-    //   invalidatesTags: ['SavedViewsList'],
-    // }),
+    deleteSavedView: builder.mutation<void, DeleteSavedViewCommand>({
+      query: ({ uid }) => ({
+        url: `${uid}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['SavedViewsList'],
+    }),
   }),
   tagTypes: ['SavedViewsList'],
   reducerPath: 'savedViews',
 });
 
-export const { useAllSavedViewsQuery, useAddSavedViewMutation } = savedViewApi;
+export const { useAllSavedViewsQuery, useAddSavedViewMutation, useDeleteSavedViewMutation } = savedViewApi;

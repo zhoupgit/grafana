@@ -57,6 +57,9 @@ export function SavedViewsToggle() {
           <SavedViewCard />
           <SavedViewCard />
           <SavedViewCard />
+          {data?.map((view) => {
+            return <SavedViewCard key={view.uid} view={view} />;
+          })}
         </Drawer>
       )}
     </>
