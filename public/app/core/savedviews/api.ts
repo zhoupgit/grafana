@@ -1,4 +1,5 @@
 import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query/react';
+import { nanoid } from 'nanoid';
 import { lastValueFrom } from 'rxjs';
 
 import { config } from '@grafana/runtime';
@@ -114,7 +115,7 @@ export const convertAddSavedViewCommandToDataQuerySpec = (addSavedViewCommand: A
     kind: 'SavedView',
     // @ts-ignore
     metadata: {
-      generateName: 'A' + name.replaceAll(' ', '-'),
+      generateName: nanoid(10),
     },
     spec: {
       name,

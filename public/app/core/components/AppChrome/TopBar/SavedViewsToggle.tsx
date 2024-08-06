@@ -28,7 +28,7 @@ export function SavedViewsToggle() {
       name: window.document.title,
       url: window.location.href,
       icon: 'compass',
-      description: '...',
+      description: '(no description)',
     });
   };
 
@@ -43,9 +43,6 @@ export function SavedViewsToggle() {
       {isOpen && (
         <Drawer title="Saved Views" onClose={() => setIsOpen(false)}>
           <div style={searchStyle}>
-            <Button variant="secondary" onClick={addCurrent}>
-              Add current
-            </Button>
             <Input width={200} style={inputStyle} placeholder="Search text" />
             <RadioButtonGroup
               onChange={() => {}}
