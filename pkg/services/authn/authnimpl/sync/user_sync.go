@@ -132,6 +132,7 @@ func (s *UserSync) FetchSyncedUserHook(ctx context.Context, id *authn.Identity, 
 		UserID: userID,
 		OrgID:  r.OrgID,
 	})
+
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
 			return errFetchingSignedInUserNotFound.Errorf("%w", err)

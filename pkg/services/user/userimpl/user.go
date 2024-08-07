@@ -3,7 +3,6 @@ package userimpl
 import (
 	"bytes"
 	"context"
-	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -366,17 +365,17 @@ func (s *Service) getCachedUser(ctx context.Context, orgID int64, userID int64) 
 		return nil, err
 	}
 
-	var u *user.SignedInUser
-	if err := gob.NewDecoder(bytes.NewReader(data)).Decode(u); err != nil {
+	var u user.SignedInUser
+	if err := json.NewDecoder(bytes.NewReader(data)).Decode(&u); err != nil {
 		return nil, err
 	}
 
-	return u, nil
+	return &u, nil
 }
 
 func (s *Service) setCachedUser(ctx context.Context, u *user.SignedInUser) error {
 	var buf bytes.Buffer
-	if err := gob.NewEncoder(&buf).Encode(&u); err != nil {
+	if err := json.NewEncoder(&buf).Encode(&u); err != nil {
 		return err
 	}
 
