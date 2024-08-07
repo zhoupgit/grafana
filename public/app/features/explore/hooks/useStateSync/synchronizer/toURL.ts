@@ -73,6 +73,6 @@ export function syncToURL(
 
     location.partial({ panes: prevParams.current.panes }, replace);
 
-    savedViewsService.updateHistory();
+    // savedViewsService.updateHistory();
   }
 }

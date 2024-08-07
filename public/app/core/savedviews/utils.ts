@@ -63,14 +63,14 @@ class SavedViewsService {
       const history = this.getHistory();
       history.unshift(view || this.getHistoryCommand());
       this.saveHistory(history);
-    }, 1000);
+    }, 1);
   }
   updateHistory(view?: HistoryView) {
     setTimeout(() => {
       const history = this.getHistory();
       history[0] = view || this.getHistoryCommand();
       this.saveHistory(history);
-    });
+    }, 1);
   }
   deleteHistory(view: HistoryView) {
     let history = this.getHistory();

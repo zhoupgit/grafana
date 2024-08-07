@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
-import { getCurrentUser } from '@grafana/runtime/src/services/user';
 import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab } from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
-import { HistoryView, SavedView, useAllSavedViewsQuery } from '../../../savedviews/api';
-import { getUserUid, myView, savedViewsService } from '../../../savedviews/utils';
+import { HistoryView, useAllSavedViewsQuery } from '../../../savedviews/api';
+import { myView, savedViewsService } from '../../../savedviews/utils';
 import { HistoryViewCard } from '../QuickAdd/HistoryViewCard';
 import { SavedViewCard } from '../QuickAdd/SavedViewCard';
 
@@ -48,7 +47,7 @@ export function SavedViewsToggle() {
         }}
       />
       <Tab
-        label="History"
+        label="Recent"
         active={activeTab === 'history'}
         onChangeTab={(e) => {
           e.preventDefault();

@@ -11,6 +11,7 @@ import { OpenSavedViewsEvent } from '../savedviews/utils';
 
 import { GrafanaRouteError } from './GrafanaRouteError';
 import { GrafanaRouteLoading } from './GrafanaRouteLoading';
+import { SavedViewsListener } from './SavedViewsListener';
 import { GrafanaRouteComponentProps, RouteDescriptor } from './types';
 
 export interface Props extends Omit<GrafanaRouteComponentProps, 'queryParams'> {}
@@ -54,7 +55,7 @@ export function GrafanaRoute(props: Props) {
     return () => {
       un.unsubscribe();
     };
-  }, []);
+  }, [setIsOpen]);
 
   return (
     <ErrorBoundary>
@@ -65,6 +66,7 @@ export function GrafanaRoute(props: Props) {
 
         return (
           <Suspense fallback={<GrafanaRouteLoading />}>
+            <SavedViewsListener />
             <props.route.component {...props} queryParams={locationSearchToObject(props.location.search)} />
           </Suspense>
         );

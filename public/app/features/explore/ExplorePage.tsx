@@ -74,7 +74,7 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
       };
     });
 
-    savedViewsService.pushHistory();
+    // savedViewsService.pushHistory();
 
     return () => {
       savedViewsService.unregister('explore');
