@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, Card, Icon, IconButton, IconName, Input, useStyles2 } from '@grafana/ui';
@@ -9,6 +9,7 @@ import { myView } from '../../../savedviews/utils';
 
 type Props = {
   view: SavedView;
+  reSave: (view: SavedView) => void;
 };
 
 export function SavedViewCard(props: Props) {
@@ -71,6 +72,7 @@ export function SavedViewCard(props: Props) {
         if (event.key === 'Enter') {
           setEditName(event.currentTarget.value);
           edit(uid || '');
+          setIsEditingName(false);
         }
       }}
     />
@@ -93,11 +95,17 @@ export function SavedViewCard(props: Props) {
       addonAfter={addonAfterDescription}
       value={editDescription}
       onChange={(event) => setEditDescription(event.currentTarget.value)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          setEditDescription(event.currentTarget.value);
+          edit(uid || '');
+          setIsEditingDescription(false);
+        }
+      }}
     />
   );
 
   const sinceAdded = Date.now() - props.view.createdAtTimestamp;
-  console.log(sinceAdded);
   return (
     <Card className={sinceAdded < 2000 ? styles.fresh : undefined}>
       <Card.Heading>{isEditingName && myView(props.view) ? editNameComponent : readNameComponent}</Card.Heading>
@@ -113,6 +121,11 @@ export function SavedViewCard(props: Props) {
         <a href={url}>
           <IconButton key="link" name="repeat" tooltip="Switch to" />
         </a>
+        {!myView(props.view) && (
+          <a href="#">
+            <IconButton key="save" name="save" tooltip="Save" onClick={() => props.reSave(props.view)} />
+          </a>
+        )}
         {myView(props.view) && (
           <a href="#">
             <IconButton

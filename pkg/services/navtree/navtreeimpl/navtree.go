@@ -183,7 +183,7 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 	}
 
 	treeRoot.AddSection(&navtree.NavLink{
-		Text:           "Save view",
+		Text:           "Save view 🇬 🇸",
 		Id:             "save-view",
 		Icon:           "plus",
 		SortWeight:     navtree.WeightApplication,

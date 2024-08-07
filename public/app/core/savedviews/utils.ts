@@ -43,6 +43,16 @@ class SavedViewsService {
   save() {
     dispatch(savedViewApi.endpoints.addSavedView.initiate(this.getCommand()));
   }
+  reSave(view: SavedView) {
+    dispatch(
+      savedViewApi.endpoints.addSavedView.initiate({
+        name: view.name,
+        url: view.url,
+        description: view.description,
+        icon: view.icon,
+      })
+    );
+  }
   saveFromHistory(history: HistoryView) {
     dispatch(
       savedViewApi.endpoints.addSavedView.initiate({

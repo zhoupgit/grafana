@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab, LinkButton, EmptyState } from '@grafana/ui';
 
@@ -45,6 +45,12 @@ export function SavedViewsToggle() {
     savedViewsService.deleteHistory(view);
     savedViewsService.saveFromHistory(view);
     setActiveTab('savedviews');
+  };
+
+  const reSave = (view) => {
+    savedViewsService.reSave(view);
+    setActiveTab('savedviews');
+    setScope('my');
   };
 
   if (!isAvailable) {
@@ -110,7 +116,7 @@ export function SavedViewsToggle() {
             return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
           })
           .map((view) => {
-            return <SavedViewCard key={view.uid} view={view} />;
+            return <SavedViewCard reSave={reSave} key={view.uid} view={view} />;
           })}
       </>
     );
@@ -144,11 +150,21 @@ export function SavedViewsToggle() {
       <ToolbarButton
         variant={isOpen ? 'active' : 'default'}
         icon="list-ul"
-        tooltip="Saved Views"
+        tooltip="Saved Views 🇬🇻"
         onClick={() => setIsOpen(!isOpen)}
       />
       {isOpen && (
-        <Drawer tabs={tabs} size="sm" title="Views" onClose={() => setIsOpen(false)}>
+        <Drawer
+          tabs={tabs}
+          size="sm"
+          title="Views"
+          onClose={() => {
+            setScope('my');
+            setSearchText('');
+            setActiveTab('savedviews');
+            setIsOpen(false);
+          }}
+        >
           {Content}
         </Drawer>
       )}
