@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
+import { getCurrentUser } from '@grafana/runtime/src/services/user';
 import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab } from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
-import { useAllSavedViewsQuery } from '../../../savedviews/api';
-import { myView } from '../../../savedviews/utils';
+import { HistoryView, SavedView, useAllSavedViewsQuery } from '../../../savedviews/api';
+import { getUserUid, myView, savedViewsService } from '../../../savedviews/utils';
+import { HistoryViewCard } from '../QuickAdd/HistoryViewCard';
 import { SavedViewCard } from '../QuickAdd/SavedViewCard';
 
 const searchStyle = {
@@ -22,8 +24,14 @@ export function SavedViewsToggle() {
   const [activeTab, setActiveTab] = useState<'savedviews' | 'history'>('savedviews');
   const { data, isLoading, error } = useAllSavedViewsQuery();
   const [searchText, setSearchText] = useState('');
+  const [counter, setCounter] = useState(0);
 
-  const [scope, setScope] = useState<'my' | 'all'>('my');
+  const [scope, setScope] = useState<'my' | 'other'>('my');
+
+  const deleteHistoryView = (view: HistoryView) => {
+    savedViewsService.deleteHistory(view);
+    setCounter(counter + 1);
+  };
 
   if (!isAvailable) {
     return null;
@@ -70,12 +78,16 @@ export function SavedViewsToggle() {
             value={scope}
             options={[
               { value: 'my', label: 'My views' },
-              { value: 'all', label: 'All views' },
+              { value: 'other', label: 'Other users' },
             ]}
           />
         </div>
         {data
-          ?.filter((view) => scope === 'all' || myView(view))
+          ?.filter((view) => {
+            const my = scope === 'my' && myView(view);
+            const other = scope === 'other' && !myView(view);
+            return my || other;
+          })
           .filter((view) => {
             return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
           })
@@ -85,7 +97,14 @@ export function SavedViewsToggle() {
       </>
     );
   } else if (activeTab === 'history') {
-    Content = <p>history</p>;
+    const history = savedViewsService.getHistory();
+    Content = (
+      <>
+        {history.map((history, index) => {
+          return <HistoryViewCard deleteHistoryView={deleteHistoryView} view={history} />;
+        })}
+      </>
+    );
   }
 
   return (

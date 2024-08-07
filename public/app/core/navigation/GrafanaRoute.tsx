@@ -2,10 +2,12 @@ import { Suspense, useEffect, useLayoutEffect } from 'react';
 // @ts-ignore
 import Drop from 'tether-drop';
 
-import { locationSearchToObject, navigationLogger, reportPageview } from '@grafana/runtime';
+import { getAppEvents, locationSearchToObject, navigationLogger, reportPageview } from '@grafana/runtime';
 import { ErrorBoundary } from '@grafana/ui';
 
 import { useGrafana } from '../context/GrafanaContext';
+import { useSavedViewsContext } from '../savedviews/SavedViewsContext';
+import { OpenSavedViewsEvent } from '../savedviews/utils';
 
 import { GrafanaRouteError } from './GrafanaRouteError';
 import { GrafanaRouteLoading } from './GrafanaRouteLoading';
@@ -42,6 +44,17 @@ export function GrafanaRoute(props: Props) {
   });
 
   navigationLogger('GrafanaRoute', false, 'Rendered', props.route);
+
+  const { setIsOpen } = useSavedViewsContext();
+
+  useEffect(() => {
+    const un = getAppEvents().subscribe(OpenSavedViewsEvent, () => {
+      setIsOpen(true);
+    });
+    return () => {
+      un.unsubscribe();
+    };
+  }, []);
 
   return (
     <ErrorBoundary>

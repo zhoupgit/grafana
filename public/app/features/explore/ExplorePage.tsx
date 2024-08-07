@@ -73,6 +73,9 @@ function ExplorePageContent(props: GrafanaRouteComponentProps<{}, ExploreQueryPa
         icon: 'compass',
       };
     });
+
+    savedViewsService.pushHistory();
+
     return () => {
       savedViewsService.unregister('explore');
     };

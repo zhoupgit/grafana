@@ -23,7 +23,7 @@ import { HelpModal } from '../components/help/HelpModal';
 import { contextSrv } from '../core';
 import { RouteDescriptor } from '../navigation/types';
 import { savedViewApi } from '../savedviews/api';
-import { savedViewsService } from '../savedviews/utils';
+import { OpenSavedViewsEvent, savedViewsService } from '../savedviews/utils';
 
 import { mousetrap } from './mousetrap';
 import { toggleTheme } from './theme';
@@ -53,6 +53,7 @@ export class KeybindingSrv {
       this.bind('g a', this.openAlerting);
       this.bind('g p', this.goToProfile);
       this.bind('g s', this.saveView);
+      this.bind('g v', this.openSavedViews);
       this.bind('esc', this.exit);
       this.bindGlobalEsc();
     }
@@ -118,6 +119,10 @@ export class KeybindingSrv {
       type: AppEvents.alertSuccess.name,
       payload: ['View saved successfully'],
     });
+  }
+
+  private openSavedViews() {
+    getAppEvents().publish(OpenSavedViewsEvent);
   }
 
   private goToExplore() {

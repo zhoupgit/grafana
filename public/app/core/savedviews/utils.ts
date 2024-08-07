@@ -1,7 +1,9 @@
+import { BusEventBase, BusEventWithPayload } from '@grafana/data';
+
 import { dispatch } from '../../store/store';
 import { contextSrv } from '../core';
 
-import { AddSavedViewCommand, SavedView, savedViewApi } from './api';
+import { AddSavedViewCommand, HistoryView, SavedView, savedViewApi } from './api';
 
 export function getUserUid(): string {
   return contextSrv.user.uid || contextSrv.user.id.toString();
@@ -9,6 +11,10 @@ export function getUserUid(): string {
 
 export function myView(view: SavedView) {
   return view.user === getUserUid();
+}
+
+export class OpenSavedViewsEvent extends BusEventBase {
+  static type = 'open-saved-views';
 }
 
 class SavedViewsService {
@@ -25,11 +31,52 @@ class SavedViewsService {
     });
     return view;
   }
+  getHistoryCommand(): HistoryView {
+    const command = this.getCommand();
+    return {
+      name: command.name,
+      url: command.url,
+      description: command.description,
+      icon: command.icon,
+    } as HistoryView;
+  }
   save() {
     dispatch(savedViewApi.endpoints.addSavedView.initiate(this.getCommand()));
   }
-  async push(view: SavedView) {}
-  update(view: AddSavedViewCommand) {}
+  getHistory() {
+    const historyRaw = window.localStorage.getItem('history.views') || '[]';
+    const history = JSON.parse(historyRaw);
+    const reversed = (history as HistoryView[]).reverse();
+    return reversed.map((item, index) => {
+      return {
+        ...item,
+        index,
+      };
+    });
+  }
+  private saveHistory(views: HistoryView[]) {
+    const historyRaw = JSON.stringify(views);
+    window.localStorage.setItem('history.views', historyRaw);
+  }
+  pushHistory(view?: HistoryView) {
+    setTimeout(() => {
+      const history = this.getHistory();
+      history.unshift(view || this.getHistoryCommand());
+      this.saveHistory(history);
+    }, 1000);
+  }
+  updateHistory(view?: HistoryView) {
+    setTimeout(() => {
+      const history = this.getHistory();
+      history[0] = view || this.getHistoryCommand();
+      this.saveHistory(history);
+    });
+  }
+  deleteHistory(view: HistoryView) {
+    let history = this.getHistory();
+    history.splice(view.index!, 1);
+    this.saveHistory(history);
+  }
   register(id: string, callback: (view: AddSavedViewCommand) => AddSavedViewCommand) {
     this.processors[id] = callback;
   }

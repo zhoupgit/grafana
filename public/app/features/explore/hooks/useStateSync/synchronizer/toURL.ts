@@ -11,6 +11,7 @@ import { runQueries } from 'app/features/explore/state/query';
 import { changeRangeAction } from 'app/features/explore/state/time';
 import { ExploreState } from 'app/types';
 
+import { savedViewsService } from '../../../../../core/savedviews/utils';
 import { getUrlStateFromPaneState } from '../index';
 import { InitState } from '../internal.utils';
 
@@ -71,5 +72,7 @@ export function syncToURL(
     };
 
     location.partial({ panes: prevParams.current.panes }, replace);
+
+    savedViewsService.updateHistory();
   }
 }

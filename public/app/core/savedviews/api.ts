@@ -66,6 +66,14 @@ const baseQuery: BaseQueryFn<SavedViewBackendRequest, SavedViewSpecResponse, Err
   }
 };
 
+export interface HistoryView {
+  index?: number;
+  name: string;
+  url: string;
+  description: string;
+  icon: string;
+}
+
 export interface SavedView {
   uid: string;
   name: string;
