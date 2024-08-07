@@ -2,15 +2,19 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/grafana/grafana/pkg/api/dtos"
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/infra/remotecache"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/login"
 	"github.com/grafana/grafana/pkg/services/org"
@@ -71,6 +75,15 @@ func (hs *HTTPServer) GetUserByID(c *contextmodel.ReqContext) response.Response 
 
 func (hs *HTTPServer) getUserUserProfile(c *contextmodel.ReqContext, userID int64) response.Response {
 	query := user.GetUserProfileQuery{UserID: userID}
+	cacheKey := fmt.Sprintf("user-profile-%d", userID)
+
+	val, err := hs.RemoteCacheService.Get(c.Req.Context(), cacheKey)
+	if err == nil {
+		hs.log.Debug("retrieved user profile from cache", "key", cacheKey)
+		return response.JSON(http.StatusOK, val)
+	} else if !errors.Is(err, remotecache.ErrCacheItemNotFound) {
+		hs.log.Warn("error retrieving user profile from cache", "err", err)
+	}
 
 	userProfile, err := hs.userService.GetProfile(c.Req.Context(), &query)
 	if err != nil {
@@ -94,6 +107,18 @@ func (hs *HTTPServer) getUserUserProfile(c *contextmodel.ReqContext, userID int6
 
 	userProfile.AccessControl = hs.getAccessControlMetadata(c, "global.users:id:", strconv.FormatInt(userID, 10))
 	userProfile.AvatarURL = dtos.GetGravatarUrl(hs.Cfg, userProfile.Email)
+
+	profileJSON, err := json.Marshal(userProfile)
+	if err != nil {
+		hs.log.Error("failed to marshall profile", "user_uid", userProfile.UID)
+		return response.Error(http.StatusInternalServerError, "Failed to get user profile", err)
+	}
+
+	if err := hs.RemoteCacheService.Set(c.Req.Context(),
+		cacheKey, profileJSON, 10*time.Second); err != nil {
+		hs.log.Error("failed to cache user profile", "key", cacheKey, "error", err)
+		return response.Error(http.StatusInternalServerError, "Failed to cache user profile", err)
+	}
 
 	return response.JSON(http.StatusOK, userProfile)
 }
