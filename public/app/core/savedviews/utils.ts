@@ -83,6 +83,9 @@ class SavedViewsService {
   unregister(id: string) {
     delete this.processors[id];
   }
+  clearHistory() {
+    this.saveHistory([]);
+  }
 }
 
 export const savedViewsService = new SavedViewsService();

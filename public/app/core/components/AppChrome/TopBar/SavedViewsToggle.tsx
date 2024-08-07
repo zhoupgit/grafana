@@ -1,6 +1,7 @@
+import { css } from '@emotion/css';
 import { useState } from 'react';
 
-import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab } from '@grafana/ui';
+import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab, LinkButton, EmptyState } from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
 import { HistoryView, useAllSavedViewsQuery } from '../../../savedviews/api';
@@ -32,6 +33,11 @@ export function SavedViewsToggle() {
     setCounter(counter + 1);
   };
 
+  const deleteAllHistoryViews = () => {
+    savedViewsService.clearHistory();
+    setCounter(counter + 1);
+  };
+
   if (!isAvailable) {
     return null;
   }
@@ -59,6 +65,12 @@ export function SavedViewsToggle() {
 
   let Content = <p>'loading...'</p>;
 
+  const toShow = data?.filter((view) => {
+    const my = scope === 'my' && myView(view);
+    const other = scope === 'other' && !myView(view);
+    return my || other;
+  });
+
   if (activeTab === 'savedviews') {
     Content = (
       <>
@@ -81,13 +93,11 @@ export function SavedViewsToggle() {
             ]}
           />
         </div>
-        {data
+
+        {toShow?.length === 0 && <EmptyState message="No saved items" variant="not-found" />}
+
+        {toShow
           ?.filter((view) => {
-            const my = scope === 'my' && myView(view);
-            const other = scope === 'other' && !myView(view);
-            return my || other;
-          })
-          .filter((view) => {
             return searchText.trim() === '' || JSON.stringify(view).includes(searchText);
           })
           .map((view) => {
@@ -99,6 +109,18 @@ export function SavedViewsToggle() {
     const history = savedViewsService.getHistory();
     Content = (
       <>
+        <LinkButton
+          className={css({ marginBottom: 5 })}
+          icon="trash-alt"
+          variant="destructive"
+          size="xs"
+          onClick={() => deleteAllHistoryViews()}
+        >
+          Delete all recent entries
+        </LinkButton>
+
+        {history.length === 0 && <EmptyState message="No entries" variant="not-found" />}
+
         {history.map((history, index) => {
           return <HistoryViewCard deleteHistoryView={deleteHistoryView} view={history} />;
         })}
