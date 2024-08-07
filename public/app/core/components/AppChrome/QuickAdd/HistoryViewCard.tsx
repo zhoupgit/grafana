@@ -8,6 +8,7 @@ import { HistoryView } from '../../../savedviews/api';
 type Props = {
   view: HistoryView;
   deleteHistoryView: (view: HistoryView) => void;
+  saveHistoryView: (view: HistoryView) => void;
 };
 
 export function HistoryViewCard(props: Props) {
@@ -33,7 +34,7 @@ export function HistoryViewCard(props: Props) {
       </Card.Description>
       <Card.Actions>
         <a href="#">
-          <IconButton key="save" name="save" tooltip="Save" />
+          <IconButton key="save" name="save" tooltip="Save" onClick={() => props.saveHistoryView(props.view)} />
         </a>
         <a href={url}>
           <IconButton key="link" name="repeat" tooltip="Switch to" />

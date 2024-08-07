@@ -38,6 +38,12 @@ export function SavedViewsToggle() {
     setCounter(counter + 1);
   };
 
+  const saveHistoryView = (view) => {
+    savedViewsService.deleteHistory(view);
+    savedViewsService.saveFromHistory(view);
+    setActiveTab('savedviews');
+  };
+
   if (!isAvailable) {
     return null;
   }
@@ -122,7 +128,9 @@ export function SavedViewsToggle() {
         {history.length === 0 && <EmptyState message="No entries" variant="not-found" />}
 
         {history.map((history, index) => {
-          return <HistoryViewCard deleteHistoryView={deleteHistoryView} view={history} />;
+          return (
+            <HistoryViewCard saveHistoryView={saveHistoryView} deleteHistoryView={deleteHistoryView} view={history} />
+          );
         })}
       </>
     );

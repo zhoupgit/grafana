@@ -43,6 +43,16 @@ class SavedViewsService {
   save() {
     dispatch(savedViewApi.endpoints.addSavedView.initiate(this.getCommand()));
   }
+  saveFromHistory(history: HistoryView) {
+    dispatch(
+      savedViewApi.endpoints.addSavedView.initiate({
+        name: history.name,
+        url: history.url,
+        description: history.description,
+        icon: history.icon,
+      })
+    );
+  }
   getHistory() {
     const historyRaw = window.localStorage.getItem('history.views') || '[]';
     const history = JSON.parse(historyRaw);
