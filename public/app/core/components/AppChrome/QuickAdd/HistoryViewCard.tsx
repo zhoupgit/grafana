@@ -16,7 +16,7 @@ export function HistoryViewCard(props: Props) {
   const iconName = icon as IconName;
 
   return (
-    <Card className={css({ opacity: 0.6 })}>
+    <Card className={css({ opacity: 0.8 })}>
       <Card.Heading>
         <div>
           {iconName ? <Icon name={iconName} className={css({ marginRight: 5, marginTop: -2 })} /> : undefined}
