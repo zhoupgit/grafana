@@ -28,6 +28,9 @@ export function SavedViewsToggle() {
 
   const [scope, setScope] = useState<'my' | 'other'>('my');
 
+  let sortedData = [...(data || [])];
+  sortedData.sort((b, a) => a.createdAtTimestamp - b.createdAtTimestamp);
+
   const deleteHistoryView = (view: HistoryView) => {
     savedViewsService.deleteHistory(view);
     setCounter(counter + 1);
@@ -71,7 +74,7 @@ export function SavedViewsToggle() {
 
   let Content = <p>'loading...'</p>;
 
-  const toShow = data?.filter((view) => {
+  const toShow = sortedData?.filter((view) => {
     const my = scope === 'my' && myView(view);
     const other = scope === 'other' && !myView(view);
     return my || other;

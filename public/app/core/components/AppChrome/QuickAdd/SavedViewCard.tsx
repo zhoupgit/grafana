@@ -96,8 +96,10 @@ export function SavedViewCard(props: Props) {
     />
   );
 
+  const sinceAdded = Date.now() - props.view.createdAtTimestamp;
+  console.log(sinceAdded);
   return (
-    <Card>
+    <Card className={sinceAdded < 2000 ? styles.fresh : undefined}>
       <Card.Heading>{isEditingName && myView(props.view) ? editNameComponent : readNameComponent}</Card.Heading>
       <Card.Meta className={styles.singleLine}>
         <a href={url} onClick={() => window.open(url, '_self')}>
@@ -135,5 +137,10 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.body.fontSize,
     color: theme.colors.text.secondary,
     textOverflow: 'ellipsis',
+  }),
+  fresh: css({
+    borderColor: theme.colors.success.main,
+    borderWidth: 1,
+    borderStyle: 'solid',
   }),
 });
