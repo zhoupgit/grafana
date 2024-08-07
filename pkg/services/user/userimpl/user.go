@@ -1,8 +1,11 @@
 package userimpl
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,6 +15,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/localcache"
+	"github.com/grafana/grafana/pkg/infra/remotecache"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/org"
@@ -31,6 +35,7 @@ type Service struct {
 	cacheService *localcache.CacheService
 	cfg          *setting.Cfg
 	tracer       tracing.Tracer
+	cache        remotecache.CacheStorage
 }
 
 func ProvideService(
@@ -40,6 +45,7 @@ func ProvideService(
 	teamService team.Service,
 	cacheService *localcache.CacheService, tracer tracing.Tracer,
 	quotaService quota.Service, bundleRegistry supportbundles.Service,
+	remoteCache remotecache.CacheStorage,
 ) (user.Service, error) {
 	store := ProvideStore(db, cfg)
 	s := &Service{
@@ -49,6 +55,7 @@ func ProvideService(
 		teamService:  teamService,
 		cacheService: cacheService,
 		tracer:       tracer,
+		cache:        remoteCache,
 	}
 
 	defaultLimits, err := readQuotaConfig(cfg)
@@ -324,16 +331,16 @@ func (s *Service) GetSignedInUser(ctx context.Context, query *user.GetSignedInUs
 	))
 	defer span.End()
 
-	var signedInUser *user.SignedInUser
-
 	// only check cache if we have a user ID and an org ID in query
-	if s.cacheService != nil {
+	if s.cache != nil {
 		if query.OrgID > 0 && query.UserID > 0 {
-			cacheKey := newSignedInUserCacheKey(query.OrgID, query.UserID)
-			if cached, found := s.cacheService.Get(cacheKey); found {
-				cachedUser := cached.(user.SignedInUser)
-				signedInUser = &cachedUser
-				return signedInUser, nil
+			u, err := s.getCachedUser(ctx, query.OrgID, query.UserID)
+			if u != nil {
+				return u, nil
+			}
+
+			if err != nil && !errors.Is(err, remotecache.ErrCacheItemNotFound) {
+				return nil, err
 			}
 		}
 	}
@@ -343,12 +350,37 @@ func (s *Service) GetSignedInUser(ctx context.Context, query *user.GetSignedInUs
 		return nil, err
 	}
 
-	if s.cacheService != nil {
-		cacheKey := newSignedInUserCacheKey(result.OrgID, result.UserID)
-		s.cacheService.Set(cacheKey, *result, time.Second*5)
+	if s.cache != nil {
+		if err := s.setCachedUser(ctx, result); err != nil {
+			// FIXME: add logger
+			fmt.Println("Failed to cache user", err)
+		}
 	}
 
 	return result, nil
+}
+
+func (s *Service) getCachedUser(ctx context.Context, orgID int64, userID int64) (*user.SignedInUser, error) {
+	data, err := s.cache.Get(ctx, newSignedInUserCacheKey(orgID, userID))
+	if err != nil {
+		return nil, err
+	}
+
+	var u *user.SignedInUser
+	if err := gob.NewDecoder(bytes.NewReader(data)).Decode(u); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}
+
+func (s *Service) setCachedUser(ctx context.Context, u *user.SignedInUser) error {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(&u); err != nil {
+		return err
+	}
+
+	return s.cache.Set(ctx, newSignedInUserCacheKey(u.OrgID, u.UserID), buf.Bytes(), time.Second*20)
 }
 
 func newSignedInUserCacheKey(orgID, userID int64) string {

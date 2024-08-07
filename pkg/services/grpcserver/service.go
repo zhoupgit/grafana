@@ -43,7 +43,7 @@ type gPRCServerService struct {
 	startedChan chan struct{}
 }
 
-func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, authenticator interceptors.Authenticator, tracer tracing.Tracer, registerer prometheus.Registerer) (Provider, error) {
+func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, tracer tracing.Tracer, registerer prometheus.Registerer) (Provider, error) {
 	s := &gPRCServerService{
 		cfg:         cfg,
 		logger:      log.New("grpc-server"),
@@ -77,13 +77,13 @@ func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, authe
 	opts = append(opts, []grpc.ServerOption{
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
-			grpcAuth.UnaryServerInterceptor(authenticator.Authenticate),
+			grpcAuth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }),
 			interceptors.LoggingUnaryInterceptor(s.cfg, s.logger), // needs to be registered after tracing interceptor to get trace id
 			middleware.UnaryServerInstrumentInterceptor(grpcRequestDuration),
 		),
 		grpc.ChainStreamInterceptor(
 			interceptors.TracingStreamInterceptor(tracer),
-			grpcAuth.StreamServerInterceptor(authenticator.Authenticate),
+			grpcAuth.StreamServerInterceptor(func(ctx context.Context) (context.Context, error) { return ctx, nil }),
 			middleware.StreamServerInstrumentInterceptor(grpcRequestDuration),
 		),
 	}...)

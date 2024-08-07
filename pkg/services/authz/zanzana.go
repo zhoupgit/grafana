@@ -122,7 +122,7 @@ func (z *Zanzana) start(ctx context.Context) error {
 
 	// FIXME(kalleep): For now we use noopAuthenticator but we should create an authenticator that can be shared
 	// between different services.
-	z.handle, err = grpcserver.ProvideService(z.cfg, z.features, noopAuthenticator{}, tracer, prometheus.DefaultRegisterer)
+	z.handle, err = grpcserver.ProvideService(z.cfg, z.features, tracer, prometheus.DefaultRegisterer)
 	if err != nil {
 		return fmt.Errorf("failed to create zanzana grpc server: %w", err)
 	}
