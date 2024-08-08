@@ -1,7 +1,17 @@
 import { css } from '@emotion/css';
 import { useEffect, useMemo, useState } from 'react';
 
-import { ToolbarButton, Drawer, Input, RadioButtonGroup, TabsBar, Tab, LinkButton, EmptyState } from '@grafana/ui';
+import {
+  ToolbarButton,
+  Drawer,
+  Input,
+  RadioButtonGroup,
+  TabsBar,
+  Tab,
+  LinkButton,
+  EmptyState,
+  Button,
+} from '@grafana/ui';
 
 import { useSavedViewsContext } from '../../../savedviews/SavedViewsContext';
 import { HistoryView, useAllSavedViewsQuery } from '../../../savedviews/api';
@@ -30,6 +40,11 @@ export function SavedViewsToggle() {
 
   let sortedData = [...(data || [])];
   sortedData.sort((b, a) => a.createdAtTimestamp - b.createdAtTimestamp);
+
+  const saveCurrent = () => {
+    savedViewsService.save();
+    setCounter(counter + 1);
+  };
 
   const deleteHistoryView = (view: HistoryView) => {
     savedViewsService.deleteHistory(view);
@@ -86,6 +101,8 @@ export function SavedViewsToggle() {
     return my || other;
   });
 
+  const AddCurrent = <Button onClick={() => saveCurrent()}>Add current view</Button>;
+
   if (activeTab === 'savedviews') {
     Content = (
       <>
@@ -109,7 +126,7 @@ export function SavedViewsToggle() {
           />
         </div>
 
-        {toShow?.length === 0 && <EmptyState message="No saved items" variant="not-found" />}
+        {toShow?.length === 0 && <EmptyState message="No saved views" variant="call-to-action" button={AddCurrent} />}
 
         {toShow
           ?.filter((view) => {
