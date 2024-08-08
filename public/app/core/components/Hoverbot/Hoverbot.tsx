@@ -13,6 +13,7 @@ export const Hoverbot = () => {
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selecting, setSelecting] = useState(false);
+  const [automatic, setAutomatic] = useState(true);
   const [reply, setReply] = useState('');
   const [[x, y], setPosition] = useState([
     Number(sessionStorage.getItem('hoverbot.x')) || 0,
@@ -27,7 +28,7 @@ export const Hoverbot = () => {
     openai.enabled().then(setEnabled);
   }, []);
 
-  const ask = useCallback((image: string, element: HTMLDivElement, promptSuffix = '') => {
+  const ask = useCallback((image: string, element: HTMLDivElement, promptSuffix = '', replacePrompt = false) => {
     lastImageRef.current = image;
     lastElementRef.current = element;
 
@@ -42,7 +43,7 @@ export const Hoverbot = () => {
             content: [
               {
                 type: 'text',
-                text: scrapContext(element, promptSuffix),
+                text: replacePrompt ? promptSuffix : scrapContext(element, promptSuffix),
               },
               {
                 type: 'image_url',
@@ -60,16 +61,18 @@ export const Hoverbot = () => {
       next: setReply,
       complete: () => {
         setLoading(false);
+        setAutomatic(false);
       },
       error: (e) => {
         console.error(e);
         setLoading(false);
+        setAutomatic(false);
       },
     });
   }, []);
 
   const helpMe = useCallback(
-    (element: HTMLDivElement) => {
+    (element: HTMLDivElement, prompt = '', replacePrompt = false) => {
       if (!enabled) {
         console.error('LLM Disabled');
         return;
@@ -78,14 +81,13 @@ export const Hoverbot = () => {
       setLoading(true);
 
       html2canvas(element, { allowTaint: true }).then((canvas) => {
-        //ask(canvas.toDataURL('image/png', 0.5), element);
         canvas.toBlob((blob) => {
           if (!blob) {
             console.error('Failed to generate canvas blob');
             return;
           }
           upload(blob)
-            .then((url) => ask(url, element))
+            .then((url) => ask(url, element, prompt, replacePrompt))
             .catch(console.error);
         });
       });
@@ -110,6 +112,7 @@ export const Hoverbot = () => {
 
   const selectRegion = useCallback(() => {
     setSelecting(true);
+    setAutomatic(false);
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('click', handleClick);
   }, [handleClick]);
@@ -118,6 +121,7 @@ export const Hoverbot = () => {
     document.removeEventListener('mouseover', handleMouseOver);
     document.removeEventListener('click', handleClick);
     setSelecting(false);
+    setAutomatic(false);
     if (highlighted) {
       highlighted.style.outline = '';
       highlighted.style.boxShadow = '';
@@ -135,6 +139,19 @@ export const Hoverbot = () => {
     document.addEventListener('keyup', handleEscape);
     return () => document.removeEventListener('keyup', handleEscape);
   }, [cancel, handleClick]);
+
+  useEffect(() => {
+    if (enabled && automatic) {
+      console.warn('Generating initial suggestion.');
+      setAutomatic(true);
+      setTimeout(() => {
+        const firstDiv = document.querySelector('.grafana-app');
+        if (firstDiv instanceof HTMLDivElement) {
+          helpMe(firstDiv, getInitialPrompt(), true);
+        }
+      }, 5000);
+    }
+  }, [automatic, enabled, helpMe]);
 
   const handleDragStart = useCallback(
     (event: DragEvent<HTMLDivElement>) => {
@@ -178,7 +195,6 @@ export const Hoverbot = () => {
     (getSuffix: () => string) => {
       if (lastImageRef.current && lastElementRef.current) {
         setReply('');
-        setLoading(true);
         ask(lastImageRef.current, lastElementRef.current, getSuffix());
       }
     },
@@ -190,7 +206,7 @@ export const Hoverbot = () => {
     return null;
   }
 
-  if (loading || selecting || reply) {
+  if (!automatic && (loading || selecting || reply)) {
     return (
       <div className={styles.grotContainer} style={{ bottom: y, left: x }}>
         <Toggletip
@@ -200,9 +216,9 @@ export const Hoverbot = () => {
               {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
               <div tabIndex={0} className={styles.grotWrapper}>
                 {selecting && <p>Click on an element in the screen to get assistance.</p>}
-                {loading && <p>Asking Grot...</p>}
+                {!automatic && loading && <p>Asking Grot...</p>}
                 {reply !== '' && <Markdown>{reply}</Markdown>}
-                {reply !== '' && (
+                {!automatic && reply !== '' && (
                   <div className={styles.actions}>
                     <Button
                       variant="secondary"
@@ -257,7 +273,7 @@ export const Hoverbot = () => {
           show={true}
         >
           <button className={`${styles.invisibleButton} ${subtleMove}`}>
-            <SVG src={grot} width={250} height={250} />
+            <SVG src={grot} width={250} height={250} onClick={selectRegion} />
           </button>
         </Toggletip>
       </div>
@@ -272,6 +288,7 @@ export const Hoverbot = () => {
       onDrag={handleDrag}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      title="Click on Grot to get help"
     >
       <SVG src={grot} width={250} height={250} onClick={selectRegion} />
     </div>
@@ -457,6 +474,10 @@ async function upload(blob: Blob): Promise<string> {
         reject();
       });
   });
+}
+
+function getInitialPrompt() {
+  return 'The user is using Grafana. From the provided screenshot, infer the Grafana module where the user is and write a short sentence letting them know that you can help them understand what they are seeing.';
 }
 
 function getShorterSuffix() {
