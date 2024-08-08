@@ -1,5 +1,4 @@
 import { css } from '@emotion/css';
-import { useEffect } from 'react';
 
 import { GrafanaTheme2, LoadingState } from '@grafana/data';
 import { Alert, Stack, Tab, TabsBar, useStyles2 } from '@grafana/ui';
@@ -16,13 +15,7 @@ export const NewNotificationsPage = () => {
 
   const [params, replace] = useQueryParams();
 
-  const activeTab = params['tab'] ?? groups[0]?.id;
-
-  useEffect(() => {
-    if (!groups.find((group) => group.id === activeTab)) {
-      replace({ tab: groups[0]?.id });
-    }
-  }, [activeTab, replace, groups]);
+  let activeTab = params['tab'] ?? groups[0]?.id;
 
   const group = groups.find((group) => group.id === activeTab);
 

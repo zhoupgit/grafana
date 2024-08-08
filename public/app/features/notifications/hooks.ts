@@ -8,7 +8,7 @@ export function useNotificationGroups(): { groups: NotificationGroup[]; state: L
   const { observables, isLoading } = usePluginNotifications();
 
   const [groups, setGroups] = useState<NotificationGroup[]>([]);
-  const [state, setState] = useState<LoadingState>(isLoading ? LoadingState.Loading : LoadingState.NotStarted);
+  const [state, setState] = useState<LoadingState>(LoadingState.Loading);
 
   useEffect(() => {
     if (observables.length && !isLoading) {
