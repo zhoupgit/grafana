@@ -155,8 +155,6 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 	ctx, span := s.tracer.Start(ctx, "user.sync.SyncLastSeenHook")
 	defer span.End()
 
-	return nil
-
 	if r.GetMeta(authn.MetaKeyIsLogin) != "" {
 		// Do not sync last seen for login requests
 		return nil

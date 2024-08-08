@@ -339,7 +339,8 @@ func (s *Service) GetSignedInUser(ctx context.Context, query *user.GetSignedInUs
 			}
 
 			if err != nil && !errors.Is(err, remotecache.ErrCacheItemNotFound) {
-				return nil, err
+				// FIXME: logg error and move one
+				fmt.Println("Failed to get cache user", err)
 			}
 		}
 	}
