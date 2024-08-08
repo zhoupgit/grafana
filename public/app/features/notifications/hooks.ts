@@ -39,7 +39,7 @@ export function useNotificationGroups(): { groups: NotificationGroup[]; state: L
           }
         });
       });
-      return sub.unsubscribe;
+      return () => sub.unsubscribe();
     }
     return () => {};
   }, [observables, isLoading]);
