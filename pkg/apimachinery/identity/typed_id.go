@@ -68,10 +68,7 @@ func ParseTypedID(str string) (TypedID, error) {
 		return typeID, err
 	}
 
-	typeID.id = parts[1]
-	typeID.t = t
-
-	return typeID, nil
+	return NewTypedIDString(t, parts[1]), nil
 }
 
 // MustParseTypedID parses namespace id, it will panic if it fails to do so.
@@ -85,28 +82,19 @@ func MustParseTypedID(str string) TypedID {
 }
 
 func NewTypedID(t IdentityType, id int64) TypedID {
-	return TypedID{
-		id: strconv.FormatInt(id, 10),
-		t:  t,
-	}
+	return TypedID(fmt.Sprintf("%s:%d", t, id))
 }
 
 // NewTypedIDString creates a new TypedID with a string id
 func NewTypedIDString(t IdentityType, id string) TypedID {
-	return TypedID{
-		id: id,
-		t:  t,
-	}
+	return TypedID(fmt.Sprintf("%s:%s", t, id))
 }
 
-// FIXME: use this instead of encoded string through the codebase
-type TypedID struct {
-	id string
-	t  IdentityType
-}
+type TypedID string
 
 func (ni TypedID) ID() string {
-	return ni.id
+	return ""
+	// return ni.id
 }
 
 // UserID will try to parse and int64 identifier if namespace is either user or service-account.
@@ -120,17 +108,19 @@ func (ni TypedID) UserID() (int64, error) {
 
 // ParseInt will try to parse the id as an int64 identifier.
 func (ni TypedID) ParseInt() (int64, error) {
-	return strconv.ParseInt(ni.id, 10, 64)
+	return strconv.ParseInt(ni.ID(), 10, 64)
 }
 
 func (ni TypedID) Type() IdentityType {
-	return ni.t
+	return ""
+	//return ni.t
 }
 
 func (ni TypedID) IsType(expected ...IdentityType) bool {
-	return IsIdentityType(ni.t, expected...)
+	return false
+	//return IsIdentityType(ni.t, expected...)
 }
 
 func (ni TypedID) String() string {
-	return fmt.Sprintf("%s:%s", ni.t, ni.id)
+	return string(ni)
 }
