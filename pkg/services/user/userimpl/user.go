@@ -380,7 +380,7 @@ func (s *Service) setCachedUser(ctx context.Context, u *user.SignedInUser) error
 		return err
 	}
 
-	return s.cache.Set(ctx, newSignedInUserCacheKey(u.OrgID, u.UserID), buf.Bytes(), time.Second*20)
+	return s.cache.Set(ctx, newSignedInUserCacheKey(u.OrgID, u.UserID), buf.Bytes(), time.Second*5)
 }
 
 func newSignedInUserCacheKey(orgID, userID int64) string {
