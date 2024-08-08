@@ -92,7 +92,7 @@ func (s *Service) SignIdentity(ctx context.Context, id identity.Requester) (stri
 			Claims: &jwt.Claims{
 				Issuer:   s.cfg.AppURL,
 				Audience: getAudience(id.GetOrgID()),
-				Subject:  getSubject(namespace.String(), identifier),
+				Subject:  getSubject(namespace, identifier),
 				Expiry:   jwt.NewNumericDate(now.Add(tokenTTL)),
 				IssuedAt: jwt.NewNumericDate(now),
 			},

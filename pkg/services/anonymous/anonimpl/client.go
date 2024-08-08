@@ -69,7 +69,7 @@ func (a *Anonymous) Test(ctx context.Context, r *authn.Request) bool {
 	return true
 }
 
-func (a *Anonymous) IdentityType() identity.IdentityType {
+func (a *Anonymous) IdentityType() string {
 	return identity.TypeAnonymous
 }
 

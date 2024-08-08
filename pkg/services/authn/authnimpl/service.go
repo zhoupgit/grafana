@@ -353,7 +353,7 @@ func (s *Service) RegisterClient(c authn.Client) {
 	}
 
 	if rc, ok := c.(authn.IdentityResolverClient); ok {
-		s.idenityResolverClients[rc.IdentityType().String()] = rc
+		s.idenityResolverClients[rc.IdentityType()] = rc
 	}
 }
 

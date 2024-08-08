@@ -135,7 +135,7 @@ func (s *APIKey) Priority() uint {
 	return 30
 }
 
-func (s *APIKey) IdentityType() identity.IdentityType {
+func (s *APIKey) IdentityType() string {
 	return identity.TypeAPIKey
 }
 

@@ -12,7 +12,7 @@ type Requester interface {
 	user.Info
 
 	// GetIdentityType returns the type for the requester
-	GetIdentityType() IdentityType
+	GetIdentityType() string
 	// GetRawIdentifier returns only the identifier part of the UID, excluding the type
 	GetRawIdentifier() string
 	// Deprecated: use GetUID instead
@@ -24,7 +24,7 @@ type Requester interface {
 	// GetTypedID returns the namespace and ID of the active entity.
 	// The namespace is one of the constants defined in pkg/apimachinery/identity.
 	// Deprecated: use GetID instead
-	GetTypedID() (kind IdentityType, identifier string)
+	GetTypedID() (kind string, identifier string)
 
 	// GetDisplayName returns the display name of the active entity.
 	// The display name is the name if it is set, otherwise the login or email.
@@ -85,7 +85,7 @@ type Requester interface {
 // IntIdentifier converts a string identifier to an int64.
 // Applicable for users, service accounts, api keys and renderer service.
 // Errors if the identifier is not initialized or if namespace is not recognized.
-func IntIdentifier(kind IdentityType, identifier string) (int64, error) {
+func IntIdentifier(kind string, identifier string) (int64, error) {
 	if IsIdentityType(kind, TypeUser, TypeAPIKey, TypeServiceAccount, TypeRenderService) {
 		id, err := strconv.ParseInt(identifier, 10, 64)
 		if err != nil {
@@ -105,7 +105,7 @@ func IntIdentifier(kind IdentityType, identifier string) (int64, error) {
 // UserIdentifier converts a string identifier to an int64.
 // Errors if the identifier is not initialized or if namespace is not recognized.
 // Returns 0 if the namespace is not user or service account
-func UserIdentifier(kind IdentityType, identifier string) (int64, error) {
+func UserIdentifier(kind string, identifier string) (int64, error) {
 	userID, err := IntIdentifier(kind, identifier)
 	if err != nil {
 		// FIXME: return this error once entity namespaces are handled by stores

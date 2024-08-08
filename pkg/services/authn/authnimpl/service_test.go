@@ -527,7 +527,7 @@ func TestService_ResolveIdentity(t *testing.T) {
 	t.Run("should resolve for valid namespace if client is registered", func(t *testing.T) {
 		svc := setupTests(t, func(svc *Service) {
 			svc.RegisterClient(&authntest.MockClient{
-				IdentityTypeFunc: func() identity.IdentityType { return identity.TypeAPIKey },
+				IdentityTypeFunc: func() string { return identity.TypeAPIKey },
 				ResolveIdentityFunc: func(ctx context.Context, orgID int64, namespaceID identity.TypedID) (*authn.Identity, error) {
 					return &authn.Identity{}, nil
 				},

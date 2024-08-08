@@ -179,7 +179,7 @@ type UsageStatClient interface {
 // Clients that implements this interface can resolve an full identity from an orgID and namespaceID.
 type IdentityResolverClient interface {
 	Client
-	IdentityType() identity.IdentityType
+	IdentityType() string
 	ResolveIdentity(ctx context.Context, orgID int64, namespaceID identity.TypedID) (*Identity, error)
 }
 

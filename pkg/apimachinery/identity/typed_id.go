@@ -6,24 +6,18 @@ import (
 	"strings"
 )
 
-type IdentityType string
-
 const (
-	TypeUser           IdentityType = "user"
-	TypeAPIKey         IdentityType = "api-key"
-	TypeServiceAccount IdentityType = "service-account"
-	TypeAnonymous      IdentityType = "anonymous"
-	TypeRenderService  IdentityType = "render"
-	TypeAccessPolicy   IdentityType = "access-policy"
-	TypeProvisioning   IdentityType = "provisioning"
-	TypeEmpty          IdentityType = ""
+	TypeUser           string = "user"
+	TypeAPIKey         string = "api-key"
+	TypeServiceAccount string = "service-account"
+	TypeAnonymous      string = "anonymous"
+	TypeRenderService  string = "render"
+	TypeAccessPolicy   string = "access-policy"
+	TypeProvisioning   string = "provisioning"
+	TypeEmpty          string = ""
 )
 
-func (n IdentityType) String() string {
-	return string(n)
-}
-
-func ParseType(str string) (IdentityType, error) {
+func ParseType(str string) (string, error) {
 	switch str {
 	case string(TypeUser):
 		return TypeUser, nil
@@ -43,7 +37,7 @@ func ParseType(str string) (IdentityType, error) {
 }
 
 // IsIdentityType returns true if type matches any expected identity type
-func IsIdentityType(typ IdentityType, expected ...IdentityType) bool {
+func IsIdentityType(typ string, expected ...string) bool {
 	for _, e := range expected {
 		if typ == e {
 			return true
@@ -81,12 +75,12 @@ func MustParseTypedID(str string) TypedID {
 	return typeID
 }
 
-func NewTypedID(t IdentityType, id int64) TypedID {
+func NewTypedID(t string, id int64) TypedID {
 	return TypedID(fmt.Sprintf("%s:%d", t, id))
 }
 
 // NewTypedIDString creates a new TypedID with a string id
-func NewTypedIDString(t IdentityType, id string) TypedID {
+func NewTypedIDString(t string, id string) TypedID {
 	return TypedID(fmt.Sprintf("%s:%s", t, id))
 }
 
@@ -111,12 +105,12 @@ func (ni TypedID) ParseInt() (int64, error) {
 	return strconv.ParseInt(ni.ID(), 10, 64)
 }
 
-func (ni TypedID) Type() IdentityType {
+func (ni TypedID) Type() string {
 	return ""
 	//return ni.t
 }
 
-func (ni TypedID) IsType(expected ...IdentityType) bool {
+func (ni TypedID) IsType(expected ...string) bool {
 	return false
 	//return IsIdentityType(ni.t, expected...)
 }

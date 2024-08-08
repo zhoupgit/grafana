@@ -429,7 +429,7 @@ func syncUserToIdentity(usr *user.User, id *authn.Identity) {
 
 // syncSignedInUserToIdentity syncs a user to an identity.
 func syncSignedInUserToIdentity(usr *user.SignedInUser, id *authn.Identity) {
-	var ns identity.IdentityType
+	var ns string
 	if id.ID.IsType(identity.TypeServiceAccount) {
 		ns = identity.TypeServiceAccount
 	} else {

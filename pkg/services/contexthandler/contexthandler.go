@@ -164,7 +164,7 @@ func (h *ContextHandler) addIDHeaderEndOfRequestFunc(ident identity.Requester) w
 			return
 		}
 
-		if _, ok := h.Cfg.IDResponseHeaderNamespaces[namespace.String()]; !ok {
+		if _, ok := h.Cfg.IDResponseHeaderNamespaces[namespace]; !ok {
 			return
 		}
 

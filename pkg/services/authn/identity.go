@@ -85,7 +85,7 @@ func (i *Identity) GetInternalID() (int64, error) {
 }
 
 // GetIdentityType implements Requester.
-func (i *Identity) GetIdentityType() identity.IdentityType {
+func (i *Identity) GetIdentityType() string {
 	return i.UID.Type()
 }
 
@@ -115,7 +115,7 @@ func (i *Identity) GetID() identity.TypedID {
 	return i.ID
 }
 
-func (i *Identity) GetTypedID() (namespace identity.IdentityType, identifier string) {
+func (i *Identity) GetTypedID() (namespace string, identifier string) {
 	return i.ID.Type(), i.ID.ID()
 }
 

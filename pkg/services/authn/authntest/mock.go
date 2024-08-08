@@ -77,7 +77,7 @@ type MockClient struct {
 	PriorityFunc        func() uint
 	HookFunc            func(ctx context.Context, identity *authn.Identity, r *authn.Request) error
 	LogoutFunc          func(ctx context.Context, user identity.Requester) (*authn.Redirect, bool)
-	IdentityTypeFunc    func() identity.IdentityType
+	IdentityTypeFunc    func() string
 	ResolveIdentityFunc func(ctx context.Context, orgID int64, namespaceID identity.TypedID) (*authn.Identity, error)
 }
 
@@ -127,7 +127,7 @@ func (m *MockClient) Logout(ctx context.Context, user identity.Requester) (*auth
 	return nil, false
 }
 
-func (m *MockClient) IdentityType() identity.IdentityType {
+func (m *MockClient) IdentityType() string {
 	if m.IdentityTypeFunc != nil {
 		return m.IdentityTypeFunc()
 	}

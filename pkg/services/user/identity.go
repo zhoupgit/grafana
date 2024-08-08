@@ -49,7 +49,7 @@ type SignedInUser struct {
 	IDTokenClaims *authnlib.Claims[authnlib.IDTokenClaims] `json:"-" xorm:"-"`
 
 	// When other settings are not deterministic, this value is used
-	FallbackType identity.IdentityType
+	FallbackType string
 }
 
 // GetRawIdentifier implements Requester.
@@ -75,7 +75,7 @@ func (u *SignedInUser) GetInternalID() (int64, error) {
 }
 
 // GetIdentityType implements Requester.
-func (u *SignedInUser) GetIdentityType() identity.IdentityType {
+func (u *SignedInUser) GetIdentityType() string {
 	switch {
 	case u.ApiKeyID != 0:
 		return identity.TypeAPIKey
@@ -251,7 +251,7 @@ func (u *SignedInUser) GetID() identity.TypedID {
 
 // GetTypedID returns the namespace and ID of the active entity
 // The namespace is one of the constants defined in pkg/apimachinery/identity
-func (u *SignedInUser) GetTypedID() (identity.IdentityType, string) {
+func (u *SignedInUser) GetTypedID() (string, string) {
 	switch {
 	case u.ApiKeyID != 0:
 		return identity.TypeAPIKey, strconv.FormatInt(u.ApiKeyID, 10)
