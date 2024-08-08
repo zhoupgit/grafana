@@ -546,9 +546,11 @@ export {
   type PluginExtension,
   type PluginExtensionLink,
   type PluginExtensionComponent,
+  type PluginExtensionNotification,
   type PluginExtensionConfig,
   type PluginExtensionLinkConfig,
   type PluginExtensionComponentConfig,
+  type PluginExtensionNotificationConfig,
   type PluginExtensionEventHelpers,
   type PluginExtensionPanelContext,
   type PluginExtensionDataSourceConfigContext,
@@ -836,6 +838,13 @@ export {
   isObject,
 } from './types/data';
 export { GAUGE_DEFAULT_MINIMUM, GAUGE_DEFAULT_MAXIMUM, DEFAULT_SAML_NAME } from './types/constants';
+
+export {
+  type NotificationGroup,
+  NotificationSeverity,
+  type Notification,
+  type NotificationUpdate,
+} from './types/notifications';
 
 // deprecated
 export { CircularVector } from './vector/CircularVector';

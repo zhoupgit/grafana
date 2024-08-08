@@ -3,11 +3,11 @@ import { cloneDeep } from 'lodash';
 import { memo } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { GrafanaTheme2, locationUtil, PluginExtensionPoints, textUtil } from '@grafana/data';
-import { usePluginComponents } from '@grafana/runtime';
+import { GrafanaTheme2, locationUtil, textUtil } from '@grafana/data';
 import { Dropdown, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { config } from 'app/core/config';
 import { contextSrv } from 'app/core/core';
+import { TopBarNotifications } from 'app/features/notifications/TopBarNotifications';
 import { useSelector } from 'app/types';
 
 import { Branding } from '../../Branding/Branding';
@@ -36,10 +36,6 @@ export const TopSearchBar = memo(function TopSearchBar() {
     homeUrl = textUtil.sanitizeUrl(locationUtil.getUrlForPartial(location, { forceLogin: 'true' }));
   }
 
-  const { components } = usePluginComponents({
-    extensionPointId: PluginExtensionPoints.TopBarItems,
-  });
-
   return (
     <div className={styles.layout}>
       <TopSearchBarSection>
@@ -55,9 +51,7 @@ export const TopSearchBar = memo(function TopSearchBar() {
 
       <TopSearchBarSection align="right">
         <QuickAdd />
-        {components.map((C) => {
-          return <C key={C.name} />;
-        })}
+        <TopBarNotifications />
         {enrichedHelpNode && (
           <Dropdown overlay={() => <TopNavBarMenu node={enrichedHelpNode} />} placement="bottom-end">
             <ToolbarButton iconOnly icon="question-circle" aria-label="Help" />

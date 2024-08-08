@@ -8,6 +8,8 @@ import {
   PluginExtensionTypes,
   PluginExtensionComponentConfig,
   PluginExtensionConfig,
+  PluginExtensionNotificationConfig,
+  PluginExtensionPoints,
 } from './pluginExtensions';
 
 /**
@@ -139,6 +141,16 @@ export class AppPlugin<T extends KeyValue = KeyValue> extends GrafanaPlugin<AppP
       } as PluginExtensionComponentConfig);
     });
 
+    return this;
+  }
+
+  addNotifications(extensionConfig: Omit<PluginExtensionNotificationConfig, 'type' | 'extensionPointId'>) {
+    this._extensionConfigs.push({
+      ...extensionConfig,
+      extensionPointId: PluginExtensionPoints.Notifications,
+      type: PluginExtensionTypes.notification,
+    } as PluginExtensionNotificationConfig);
+    console.log('addNotifications', this._extensionConfigs);
     return this;
   }
 

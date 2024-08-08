@@ -1,10 +1,12 @@
 import * as React from 'react';
+import { Observable } from 'rxjs';
 
 import { DataQuery, DataSourceJsonData } from '@grafana/schema';
 
 import { ScopedVars } from './ScopedVars';
 import { DataSourcePluginMeta, DataSourceSettings } from './datasource';
 import { IconName } from './icon';
+import { NotificationUpdate } from './notifications';
 import { PanelData } from './panel';
 import { RawTimeRange, TimeZone } from './time';
 
@@ -14,6 +16,7 @@ import { RawTimeRange, TimeZone } from './time';
 export enum PluginExtensionTypes {
   link = 'link',
   component = 'component',
+  notification = 'notification',
 }
 
 type PluginExtensionBase = {
@@ -37,7 +40,12 @@ export type PluginExtensionComponent<Props = {}> = PluginExtensionBase & {
   component: React.ComponentType<Props>;
 };
 
-export type PluginExtension = PluginExtensionLink | PluginExtensionComponent;
+export type PluginExtensionNotification = PluginExtensionBase & {
+  type: PluginExtensionTypes.notification;
+  getNotifications: () => Observable<NotificationUpdate>;
+};
+
+export type PluginExtension = PluginExtensionLink | PluginExtensionComponent | PluginExtensionNotification;
 
 // Objects used for registering extensions (in app plugins)
 // --------------------------------------------------------
@@ -95,7 +103,18 @@ export type PluginExtensionComponentConfig<Props = {}> = {
   extensionPointId: string;
 };
 
-export type PluginExtensionConfig = PluginExtensionLinkConfig | PluginExtensionComponentConfig;
+export type PluginExtensionNotificationConfig = {
+  type: PluginExtensionTypes.notification;
+  title: string;
+  description: string;
+  getNotifications: () => Observable<NotificationUpdate>;
+  extensionPointId: string;
+};
+
+export type PluginExtensionConfig =
+  | PluginExtensionLinkConfig
+  | PluginExtensionComponentConfig
+  | PluginExtensionNotificationConfig;
 
 export type PluginExtensionOpenModalOptions = {
   // The title of the modal
@@ -129,6 +148,7 @@ export enum PluginExtensionPoints {
   ExploreToolbarAction = 'grafana/explore/toolbar/action',
   UserProfileTab = 'grafana/user/profile/tab',
   TopBarItems = 'grafana/topbar/items',
+  Notifications = 'grafana/notifications',
 }
 
 export type PluginExtensionPanelContext = {

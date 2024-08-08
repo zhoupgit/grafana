@@ -15,6 +15,7 @@ import {
   PluginContextProvider,
   PluginExtensionLink,
   PanelMenuItem,
+  PluginExtensionNotificationConfig,
 } from '@grafana/data';
 import { Modal } from '@grafana/ui';
 import appEvents from 'app/core/app_events';
@@ -35,6 +36,17 @@ export function isPluginExtensionComponentConfig<Props extends object>(
   extension: PluginExtensionConfig | undefined | PluginExtensionComponentConfig<Props>
 ): extension is PluginExtensionComponentConfig<Props> {
   return typeof extension === 'object' && 'type' in extension && extension['type'] === PluginExtensionTypes.component;
+}
+
+export function isPluginExtensionsNotificationsConfig(
+  extension: PluginExtensionConfig | undefined | PluginExtensionNotificationConfig
+): extension is PluginExtensionNotificationConfig {
+  return (
+    typeof extension === 'object' &&
+    'type' in extension &&
+    extension['type'] === PluginExtensionTypes.notification &&
+    'getNotifications' in extension
+  );
 }
 
 export function isPluginCapability(

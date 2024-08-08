@@ -499,7 +499,7 @@ export function getAppRoutes(): RouteDescriptor[] {
     {
       path: '/notifications',
       component: SafeDynamicImport(
-        () => import(/* webpackChunkName: "NotificationsPage"*/ 'app/features/notifications/NotificationsPage')
+        () => import(/* webpackChunkName: "NotificationsPage"*/ 'app/features/notifications/NewNotificationsPage')
       ),
     },
     config.featureToggles.exploreMetrics && {

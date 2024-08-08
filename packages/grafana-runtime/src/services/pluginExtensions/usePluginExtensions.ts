@@ -1,9 +1,15 @@
 import { useMemo } from 'react';
+import { Observable } from 'rxjs';
 
-import { PluginExtensionComponent, PluginExtensionLink } from '@grafana/data';
+import {
+  PluginExtensionComponent,
+  PluginExtensionLink,
+  PluginExtensionPoints,
+  NotificationUpdate,
+} from '@grafana/data';
 
 import { GetPluginExtensionsOptions, UsePluginExtensions, UsePluginExtensionsResult } from './getPluginExtensions';
-import { isPluginExtensionComponent, isPluginExtensionLink } from './utils';
+import { isPluginExtensionComponent, isPluginExtensionLink, isPluginExtensionNotifications } from './utils';
 
 let singleton: UsePluginExtensions | undefined;
 
@@ -49,6 +55,20 @@ export function usePluginComponents<Props = {}>(
       components: extensions
         .filter(isPluginExtensionComponent)
         .map(({ component }) => component as React.ComponentType<Props>),
+      isLoading,
+    }),
+    [extensions, isLoading]
+  );
+}
+
+export function usePluginNotifications(): { observables: Array<Observable<NotificationUpdate>>; isLoading: boolean } {
+  const { extensions, isLoading } = usePluginExtensions({
+    extensionPointId: PluginExtensionPoints.Notifications,
+  });
+
+  return useMemo(
+    () => ({
+      observables: extensions.filter(isPluginExtensionNotifications).map((ext) => ext.getNotifications()),
       isLoading,
     }),
     [extensions, isLoading]

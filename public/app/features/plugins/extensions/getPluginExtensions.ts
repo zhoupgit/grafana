@@ -7,6 +7,7 @@ import {
   type PluginExtensionLinkConfig,
   type PluginExtensionComponent,
   urlUtil,
+  PluginExtensionNotification,
 } from '@grafana/data';
 import { GetPluginExtensions, reportInteraction } from '@grafana/runtime';
 
@@ -20,6 +21,7 @@ import {
   getEventHelpers,
   isPluginExtensionComponentConfig,
   wrapWithPluginContext,
+  isPluginExtensionsNotificationsConfig,
 } from './utils';
 import {
   assertIsReactComponent,
@@ -62,6 +64,7 @@ export const getPluginExtensions: GetExtensions = ({ context, extensionPointId, 
   const extensionsByPlugin: Record<string, number> = {};
 
   for (const registryItem of registryItems) {
+    console.log('regitem', registryItem);
     try {
       const extensionConfig = registryItem.config;
       const { pluginId } = registryItem;
@@ -120,6 +123,23 @@ export const getPluginExtensions: GetExtensions = ({ context, extensionPointId, 
 
         extensions.push(extension);
         extensionsByPlugin[pluginId] += 1;
+      }
+
+      // NOTIFICATION
+      if (isPluginExtensionsNotificationsConfig(extensionConfig)) {
+        const extension: PluginExtensionNotification = {
+          id: generateExtensionId(registryItem.pluginId, extensionConfig),
+          type: PluginExtensionTypes.notification,
+          pluginId: registryItem.pluginId,
+          title: extensionConfig.title,
+          description: extensionConfig.description,
+          getNotifications: extensionConfig.getNotifications,
+        };
+
+        extensions.push(extension);
+        extensionsByPlugin[pluginId] += 1;
+      } else {
+        console.log('is not notification :(');
       }
     } catch (error) {
       if (error instanceof Error) {
