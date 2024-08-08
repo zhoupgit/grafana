@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 import { GetPluginExtensions, reportInteraction } from '@grafana/runtime';
 
-import { ReactivePluginExtensionsRegistry } from './reactivePluginExtensionRegistry';
+import { Registry } from './registry/Registry';
 import type { PluginExtensionRegistry } from './types';
 import {
   isPluginExtensionLinkConfig,
@@ -41,12 +41,12 @@ type GetExtensions = ({
   registry: PluginExtensionRegistry;
 }) => { extensions: PluginExtension[] };
 
-export function createPluginExtensionsGetter(extensionRegistry: ReactivePluginExtensionsRegistry): GetPluginExtensions {
+export function createPluginExtensionsGetter(registry: Registry): GetPluginExtensions {
   let registry: PluginExtensionRegistry = { id: '', extensions: {} };
 
   // Create a subscription to keep an copy of the registry state for use in the non-async
   // plugin extensions getter.
-  extensionRegistry.asObservable().subscribe((r) => {
+  registry.asObservable().subscribe((r) => {
     registry = r;
   });
 

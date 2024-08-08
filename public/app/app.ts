@@ -82,9 +82,13 @@ import { initGrafanaLive } from './features/live';
 import { PanelDataErrorView } from './features/panel/components/PanelDataErrorView';
 import { PanelRenderer } from './features/panel/components/PanelRenderer';
 import { DatasourceSrv } from './features/plugins/datasource_srv';
+import { getCoreAddedLinks } from './features/plugins/extensions/getCoreAddedLinks';
 import { getCoreExtensionConfigurations } from './features/plugins/extensions/getCoreExtensionConfigurations';
 import { createPluginExtensionsGetter } from './features/plugins/extensions/getPluginExtensions';
 import { ReactivePluginExtensionsRegistry } from './features/plugins/extensions/reactivePluginExtensionRegistry';
+import { AddedComponentRegistry } from './features/plugins/extensions/registry/AddedComponentRegistry';
+import { AddedLinkRegistry } from './features/plugins/extensions/registry/AddedLinkRegistry';
+import { ExportedComponentRegistry } from './features/plugins/extensions/registry/ExportedComponentRegistry';
 import { createUsePluginComponent } from './features/plugins/extensions/usePluginComponent';
 import { createUsePluginExtensions } from './features/plugins/extensions/usePluginExtensions';
 import { importPanelPlugin, syncGetPanelPlugin } from './features/plugins/importPanelPlugin';
@@ -208,10 +212,17 @@ export class GrafanaApp {
       initWindowRuntime();
 
       // Initialize plugin extensions
-      const extensionsRegistry = new ReactivePluginExtensionsRegistry();
-      extensionsRegistry.register({
+      const pluginExtensionsRegistries = {
+        addedComponentsRegistry: new AddedComponentRegistry(),
+        addedLinksRegistry: new AddedLinkRegistry(),
+        exportedComponentsRegistry: new ExportedComponentRegistry(),
+      };
+
+      pluginExtensionsRegistries.addedLinksRegistry.register({
         pluginId: 'grafana',
-        extensionConfigs: getCoreExtensionConfigurations(),
+        addedLinks: getCoreAddedLinks(),
+        addedComponents: [],
+        exportedComponents: [],
       });
 
       if (contextSrv.user.orgRole !== '') {
@@ -221,8 +232,8 @@ export class GrafanaApp {
         const awaitedAppPlugins = Object.values(config.apps).filter((app) => awaitedAppPluginIds.includes(app.id));
         const appPlugins = Object.values(config.apps).filter((app) => !awaitedAppPluginIds.includes(app.id));
 
-        preloadPlugins(appPlugins, extensionsRegistry);
-        await preloadPlugins(awaitedAppPlugins, extensionsRegistry, 'frontend_awaited_plugins_preload');
+        preloadPlugins(appPlugins, pluginExtensionsRegistries);
+        await preloadPlugins(awaitedAppPlugins, pluginExtensionsRegistries, 'frontend_awaited_plugins_preload');
       }
 
       setPluginExtensionGetter(createPluginExtensionsGetter(extensionsRegistry));
