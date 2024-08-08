@@ -2,10 +2,6 @@ import { uniqBy } from 'lodash';
 
 import { LANGUAGES, VALID_LANGUAGES } from './constants';
 
-jest.mock('./extensions.ts', () => {
-  return {};
-});
-
 describe('internationalization constants', () => {
   it('should not have duplicate languages codes', () => {
     const uniqLocales = uniqBy(LANGUAGES, (v) => v.code);
