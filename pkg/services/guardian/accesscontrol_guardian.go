@@ -339,7 +339,7 @@ func (a *accessControlFolderGuardian) evaluate(evaluator accesscontrol.Evaluator
 			uid = a.folder.UID
 			orgID = int(a.folder.OrgID)
 		}
-		a.log.Debug("Failed to evaluate access control to folder", "error", err, "namespaceID", namespaceID, "userId", userID, "orgID", orgID, "uid", uid)
+		a.log.Debug("Failed to evaluate access control to folder", "error", err, "identity", a.user.GetID(), "orgID", orgID, "uid", uid)
 	}
 
 	if !ok && err == nil {
