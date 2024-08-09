@@ -25,7 +25,12 @@ export const Hoverbot = () => {
   const lastElementRef = useRef<HTMLDivElement | undefined>(undefined);
 
   useEffect(() => {
-    openai.enabled().then(setEnabled);
+    openai.enabled().then((isEnabled) => {
+      setEnabled(isEnabled);
+      if (!isEnabled) {
+        console.warn('Hoverbot disabled');
+      }
+    });
   }, []);
 
   const ask = useCallback((image: string, element: HTMLDivElement, promptSuffix = '', replacePrompt = false) => {
@@ -200,11 +205,6 @@ export const Hoverbot = () => {
     },
     [ask]
   );
-
-  if (!enabled) {
-    console.warn('Hoverbot disabled');
-    return null;
-  }
 
   if (!automatic && (loading || selecting || reply)) {
     return (
