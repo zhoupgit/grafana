@@ -16,8 +16,8 @@ export const Hoverbot = () => {
   const [automatic, setAutomatic] = useState(true);
   const [reply, setReply] = useState('');
   const [[x, y], setPosition] = useState([
-    Number(sessionStorage.getItem('hoverbot.x')) || 0,
-    Number(sessionStorage.getItem('hoverbot.y')) || 0,
+    Number(localStorage.getItem('hoverbot.x')) || 0,
+    Number(localStorage.getItem('hoverbot.y')) || 0,
   ]);
   const posRef = useRef({ x: 0, y: 0 });
   const oldPosRef = useRef({ x, y });
@@ -195,8 +195,8 @@ export const Hoverbot = () => {
       console.warn('Disabling hoverbot');
       setEnabled(false);
     } else {
-      sessionStorage.setItem('hoverbot.x', newX.toString());
-      sessionStorage.setItem('hoverbot.y', newY.toString());
+      localStorage.setItem('hoverbot.x', newX.toString());
+      localStorage.setItem('hoverbot.y', newY.toString());
     }
   }, []);
 
@@ -327,6 +327,14 @@ const styles = {
     bottom: 0,
     left: 0,
     zIndex: 99999,
+    'div:focus-visible': css({
+      outline: 'none',
+      border: 'none'
+    }),
+    'div:focus': css({
+      outline: 'none',
+      border: 'none'
+    })
   }),
   invisibleButton: css({
     border: 'none',
