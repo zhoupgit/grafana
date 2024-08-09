@@ -286,7 +286,7 @@ func (hs *HTTPServer) StartEmailVerificaton(c *contextmodel.ReqContext) response
 		return response.Respond(http.StatusNotModified, nil)
 	}
 
-	userID, err := strconv.ParseInt(id, 10, 64)
+	userID, err := identity.UserIdentifier(c.SignedInUser.GetID().String())
 	if err != nil {
 		return response.Error(http.StatusInternalServerError, "Got invalid user id", err)
 	}

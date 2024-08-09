@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -38,31 +39,40 @@ func ParseType(str string) (string, error) {
 	}
 }
 
-// FIXME(kalleep): come up with a proper name
-func Temp(typedID string) (string, string) {
-	split := strings.Split(typedID, ":")
+var allTypes = []string{
+	TypeUser,
+	TypeAPIKey,
+	TypeServiceAccount,
+	TypeAnonymous,
+	TypeRenderService,
+	TypeAccessPolicy,
+	TypeProvisioning,
+}
 
-	if len(split) != 2 {
-		return "", ""
+func IsValidTypedID(typedID string) bool {
+	if !IsIdentityType(typedID, allTypes...) {
+		return false
 	}
 
-	return split[0], split[1]
+	parts := strings.Split(typedID, ":")
+	return len(parts) == 2
+}
+
+// ParseTypeAndID will parse out the type and id into seperate field.
+// Expected format is of <type>:<id>
+func ParseTypeAndID(typedID string) (string, string, error) {
+	if !IsValidTypedID(typedID) {
+		return "", "", errors.New("invalid type id")
+	}
+
+	parts := strings.Split(typedID, ":")
+	return parts[0], parts[1], nil
 }
 
 // IsIdentityType returns true if typed id matches any expected identity type
 func IsIdentityType(typedID string, expected ...string) bool {
 	for _, e := range expected {
 		if strings.HasPrefix(string(typedID), e) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func isIdentityType(id string, expected ...string) bool {
-	for _, e := range expected {
-		if strings.HasPrefix(string(id), e) {
 			return true
 		}
 	}
@@ -132,7 +142,7 @@ func (ni TypedID) Type() string {
 }
 
 func (ni TypedID) IsType(expected ...string) bool {
-	return isIdentityType(ni.String(), expected...)
+	return IsIdentityType(ni.String(), expected...)
 }
 
 func (ni TypedID) String() string {

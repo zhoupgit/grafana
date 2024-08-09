@@ -18,7 +18,7 @@ type Requester interface {
 	// Deprecated: use GetUID instead
 	GetInternalID() (int64, error)
 
-	// GetID returns namespaced internalID for the entity
+	// GetID returns typed internal id for the entity
 	// Deprecated: use GetUID instead
 	GetID() TypedID
 	// GetTypedID returns the namespace and ID of the active entity.
@@ -87,7 +87,10 @@ type Requester interface {
 // Errors if the identifier is not initialized or if namespace is not recognized.
 func IntIdentifier(typedID string) (int64, error) {
 	if IsIdentityType(typedID, TypeUser, TypeAPIKey, TypeServiceAccount, TypeRenderService) {
-		typ, identifier := Temp(typedID)
+		typ, identifier, err := ParseTypeAndID(typedID)
+		if err != nil {
+			return 0, err
+		}
 
 		id, err := strconv.ParseInt(identifier, 10, 64)
 		if err != nil {
