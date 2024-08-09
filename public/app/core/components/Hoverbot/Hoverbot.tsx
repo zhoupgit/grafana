@@ -23,6 +23,7 @@ export const Hoverbot = () => {
   const oldPosRef = useRef({ x, y });
   const lastImageRef = useRef('');
   const lastElementRef = useRef<HTMLDivElement | undefined>(undefined);
+  const initialTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     openai.enabled().then((isEnabled) => {
@@ -117,6 +118,10 @@ export const Hoverbot = () => {
   const selectRegion = useCallback(() => {
     setSelecting(true);
     setAutomatic(false);
+    if (initialTimeout.current) {
+      clearTimeout(initialTimeout.current);
+      initialTimeout.current = null;
+    }
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('click', handleClick);
   }, [handleClick]);
@@ -148,7 +153,7 @@ export const Hoverbot = () => {
     if (enabled && automatic) {
       console.warn('Generating initial suggestion.');
       setAutomatic(true);
-      setTimeout(() => {
+      initialTimeout.current = setTimeout(() => {
         const firstDiv = document.querySelector('.grafana-app');
         if (firstDiv instanceof HTMLDivElement) {
           helpMe(firstDiv, getInitialPrompt(), true);
@@ -328,6 +333,7 @@ const styles = {
     background: 'transparent',
     margin: 0,
     padding: 0,
+    cursor: 'pointer',
   }),
   grotWrapper: css({
     paddingTop: 12,
@@ -378,7 +384,7 @@ function scrapContext(element: HTMLDivElement, promptSuffix = ''): string {
   if (document.title.includes('Dashboards')) {
     context = scrapDashboardContext(element);
   }
-  if (window.location.pathname === '/a/grafana-lokiexplore-app/explore') {
+  if (window.location.pathname.includes('/a/grafana-lokiexplore-app/explore')) {
     context = scrapLogsAppContext();
   }
 
@@ -439,9 +445,26 @@ function scrapLogsAppContext() {
   if (window.location.pathname === '/a/grafana-lokiexplore-app/explore') {
     context =
       "I'm in the service selection page of the Grafana Logs App. I need to understand what I'm looking at and select a service of interest to investigate or diagnose using logging data.";
+  } else {
+    context = "I'm in the service details page of the Grafana Logs App. I need to understand what I'm looking investigate or diagnose a situation using logging data.";
   }
 
   context += `${getTimeRangeContext()}. `;
+
+  const filtersApplied: string[] = [];
+
+  $('[data-testid="data-testid template variable"]').each((_, variable) => {
+    const text = $(variable).text();
+    if (text.includes('service_name')) {
+      context += `The selected service name is ${text.replace('service_name=', '')}. `
+    } else {
+      filtersApplied.push(text);
+    }
+  });
+
+  if (filtersApplied.length) {
+    context += `The filters applied are: ${filtersApplied.join(', ')}. `;
+  }
 
   return context;
 }
