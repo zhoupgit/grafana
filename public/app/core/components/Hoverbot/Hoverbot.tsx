@@ -66,7 +66,6 @@ export const Hoverbot = () => {
       next: setReply,
       complete: () => {
         setLoading(false);
-        setAutomatic(false);
       },
       error: (e) => {
         console.error(e);
@@ -206,7 +205,7 @@ export const Hoverbot = () => {
     [ask]
   );
 
-  if (!automatic && (loading || selecting || reply)) {
+  if ((automatic && reply) || (!automatic && (loading || selecting || reply))) {
     return (
       <div className={styles.grotContainer} style={{ bottom: y, left: x }}>
         <Toggletip
