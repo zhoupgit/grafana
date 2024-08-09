@@ -143,11 +143,7 @@ func (s *Service) getUserPermissions(ctx context.Context, user identity.Requeste
 		permissions = append(permissions, SharedWithMeFolderPermission)
 	}
 
-	userID, err := identity.UserIdentifier(user.GetTypedID())
-	if err != nil {
-		return nil, err
-	}
-
+	userID, _ := identity.UserIdentifier(user.GetID().String())
 	dbPermissions, err := s.store.GetUserPermissions(ctx, accesscontrol.GetUserPermissionsQuery{
 		OrgID:        user.GetOrgID(),
 		UserID:       userID,

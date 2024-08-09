@@ -192,14 +192,11 @@ func (hs *HTTPServer) setDefaultFolderPermissions(ctx context.Context, orgID int
 		return nil
 	}
 	var permissions []accesscontrol.SetResourcePermissionCommand
-	var userID int64
 
-	namespace, id := user.GetTypedID()
-	if namespace == identity.TypeUser {
-		var errID error
-		userID, errID = identity.IntIdentifier(namespace, id)
-		if errID != nil {
-			return errID
+	if identity.IsIdentityType(user.GetID().String(), identity.TypeUser) {
+		userID, err := identity.UserIdentifier(user.GetID().String())
+		if err != nil {
+			return err
 		}
 
 		permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{

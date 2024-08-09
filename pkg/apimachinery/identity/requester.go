@@ -82,14 +82,16 @@ type Requester interface {
 	GetIDClaims() *authnlib.Claims[authnlib.IDTokenClaims]
 }
 
-// IntIdentifier converts a string identifier to an int64.
+// IntIdentifier converts a typesID to an int64.
 // Applicable for users, service accounts, api keys and renderer service.
 // Errors if the identifier is not initialized or if namespace is not recognized.
-func IntIdentifier(kind string, identifier string) (int64, error) {
-	if IsIdentityType(kind, TypeUser, TypeAPIKey, TypeServiceAccount, TypeRenderService) {
+func IntIdentifier(typedID string) (int64, error) {
+	if IsIdentityType(typedID, TypeUser, TypeAPIKey, TypeServiceAccount, TypeRenderService) {
+		typ, identifier := Temp(typedID)
+
 		id, err := strconv.ParseInt(identifier, 10, 64)
 		if err != nil {
-			return 0, fmt.Errorf("unrecognized format for valid type %s: %w", kind, err)
+			return 0, fmt.Errorf("unrecognized format for valid type %s: %w", typ, err)
 		}
 
 		if id < 1 {
@@ -102,19 +104,19 @@ func IntIdentifier(kind string, identifier string) (int64, error) {
 	return 0, ErrNotIntIdentifier
 }
 
-// UserIdentifier converts a string identifier to an int64.
+// UserIdentifier converts a typeID to an int64.
 // Errors if the identifier is not initialized or if namespace is not recognized.
 // Returns 0 if the namespace is not user or service account
-func UserIdentifier(kind string, identifier string) (int64, error) {
-	userID, err := IntIdentifier(kind, identifier)
+func UserIdentifier(typedID string) (int64, error) {
+	userID, err := IntIdentifier(typedID)
 	if err != nil {
 		// FIXME: return this error once entity namespaces are handled by stores
 		return 0, nil
 	}
 
-	if IsIdentityType(kind, TypeUser, TypeServiceAccount) {
+	if IsIdentityType(typedID, TypeUser, TypeServiceAccount) {
 		return userID, nil
 	}
 
-	return 0, nil
+	return 0, ErrInvalidIDType
 }

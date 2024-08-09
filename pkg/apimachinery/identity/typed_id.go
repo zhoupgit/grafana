@@ -17,29 +17,42 @@ const (
 	TypeEmpty          string = ""
 )
 
+var AnonymousTypedID = NewTypedID(TypeAnonymous, 0)
+
 func ParseType(str string) (string, error) {
 	switch str {
-	case string(TypeUser):
+	case TypeUser:
 		return TypeUser, nil
-	case string(TypeAPIKey):
+	case TypeAPIKey:
 		return TypeAPIKey, nil
-	case string(TypeServiceAccount):
+	case TypeServiceAccount:
 		return TypeServiceAccount, nil
-	case string(TypeAnonymous):
+	case TypeAnonymous:
 		return TypeAnonymous, nil
-	case string(TypeRenderService):
+	case TypeRenderService:
 		return TypeRenderService, nil
-	case string(TypeAccessPolicy):
+	case TypeAccessPolicy:
 		return TypeAccessPolicy, nil
 	default:
 		return "", ErrInvalidTypedID.Errorf("got invalid identity type %s", str)
 	}
 }
 
-// IsIdentityType returns true if type matches any expected identity type
-func IsIdentityType(typ string, expected ...string) bool {
+// FIXME(kalleep): come up with a proper name
+func Temp(typedID string) (string, string) {
+	split := strings.Split(typedID, ":")
+
+	if len(split) != 2 {
+		return "", ""
+	}
+
+	return split[0], split[1]
+}
+
+// IsIdentityType returns true if typed id matches any expected identity type
+func IsIdentityType(typedID string, expected ...string) bool {
 	for _, e := range expected {
-		if typ == e {
+		if strings.HasPrefix(string(typedID), e) {
 			return true
 		}
 	}
@@ -47,7 +60,15 @@ func IsIdentityType(typ string, expected ...string) bool {
 	return false
 }
 
-var AnonymousTypedID = NewTypedID(TypeAnonymous, 0)
+func isIdentityType(id string, expected ...string) bool {
+	for _, e := range expected {
+		if strings.HasPrefix(string(id), e) {
+			return true
+		}
+	}
+
+	return false
+}
 
 func ParseTypedID(str string) (TypedID, error) {
 	var typeID TypedID
@@ -84,6 +105,7 @@ func NewTypedIDString(t string, id string) TypedID {
 	return TypedID(fmt.Sprintf("%s:%s", t, id))
 }
 
+// FIXME(kalleep): remove this one and only use string
 type TypedID string
 
 func (ni TypedID) ID() string {
@@ -106,13 +128,11 @@ func (ni TypedID) ParseInt() (int64, error) {
 }
 
 func (ni TypedID) Type() string {
-	return ""
-	//return ni.t
+	return strings.Split(string(ni), ":")[0]
 }
 
 func (ni TypedID) IsType(expected ...string) bool {
-	return false
-	//return IsIdentityType(ni.t, expected...)
+	return isIdentityType(ni.String(), expected...)
 }
 
 func (ni TypedID) String() string {

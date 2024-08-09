@@ -65,17 +65,14 @@ func (hs *HTTPServer) RenderHandler(c *contextmodel.ReqContext) {
 		headers["Accept-Language"] = acceptLanguageHeader
 	}
 
-	userID, errID := identity.UserIdentifier(c.SignedInUser.GetTypedID())
-	if errID != nil {
-		hs.log.Error("Failed to parse user id", "err", errID)
-	}
-
 	encoding := queryReader.Get("encoding", "")
 
 	renderType := rendering.RenderPNG
 	if encoding == "pdf" {
 		renderType = rendering.RenderPDF
 	}
+
+	userID, _ := identity.UserIdentifier(c.SignedInUser.GetID().String())
 
 	result, err := hs.RenderService.Render(c.Req.Context(), renderType, rendering.Opts{
 		CommonOpts: rendering.CommonOpts{
