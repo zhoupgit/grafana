@@ -362,7 +362,7 @@ const helpStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-function usePluginsFilterStatus() {
+export function usePluginsFilterStatus() {
   const { extensions } = useAlertingHomePageExtensions();
   return { pluginsFilterEnabled: extensions.length > 0 };
 }

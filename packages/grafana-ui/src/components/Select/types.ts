@@ -65,7 +65,7 @@ export interface SelectCommonProps<T> {
   menuShouldPortal?: boolean;
   /** The message to display when no options could be found */
   noOptionsMessage?: string;
-  onBlur?: () => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onChange: (value: SelectableValue<T>, actionMeta: ActionMeta) => {} | void;
   onCloseMenu?: () => void;
   /** allowCustomValue must be enabled. Function decides what to do with that custom value. */
@@ -77,7 +77,7 @@ export interface SelectCommonProps<T> {
   /** Callback which fires when the user scrolls to the top of the menu */
   onMenuScrollToTop?: (event: WheelEvent | TouchEvent) => void;
   onOpenMenu?: () => void;
-  onFocus?: () => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   openMenuOnFocus?: boolean;
   options?: Array<SelectableValue<T>>;
   placeholder?: string;
