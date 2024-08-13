@@ -54,7 +54,7 @@ function NotificationPreviewByAlertManager({
           <div className={styles.secondAlertManagerLine}></div>
         </Stack>
       )}
-      <Stack gap={1} direction="column">
+      <Stack direction="column" gap={0}>
         {Array.from(matchingMap.entries()).map(([routeId, instanceMatches]) => {
           const route = routesByIdMap.get(routeId);
           const receiver = route?.receiver && receiversByName.get(route.receiver);

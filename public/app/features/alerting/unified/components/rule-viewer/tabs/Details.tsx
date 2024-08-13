@@ -7,9 +7,13 @@ import { ClipboardButton, Stack, Text, TextLink, useStyles2 } from '@grafana/ui'
 import { CombinedRule } from 'app/types/unified-alerting';
 import { Annotations } from 'app/types/unified-alerting-dto';
 
+import { useGetAlertManagerDataSourcesByPermissionAndConfig } from '../../../utils/datasource';
+import { getRoutingType } from '../../../utils/rule-form';
 import { isGrafanaRulerRule, isRecordingRulerRule } from '../../../utils/rules';
 import { MetaText } from '../../MetaText';
 import { Tokenize } from '../../Tokenize';
+import { RoutingOptions } from '../../rule-editor/NotificationsStep';
+import NotificationPreviewByAlertManager from '../../rule-editor/notificaton-preview/NotificationPreviewByAlertManager';
 
 interface DetailsProps {
   rule: CombinedRule;
@@ -23,6 +27,7 @@ enum RuleType {
 
 const Details = ({ rule }: DetailsProps) => {
   const styles = useStyles2(getStyles);
+  const alertManagerDataSources = useGetAlertManagerDataSourcesByPermissionAndConfig('notification');
 
   let ruleType: RuleType;
 
@@ -51,6 +56,7 @@ const Details = ({ rule }: DetailsProps) => {
     : undefined;
 
   const hasEvaluationDuration = Number.isFinite(evaluationDuration);
+  const routingType = getRoutingType(rule.rulerRule!);
 
   return (
     <Stack direction="column" gap={3}>
@@ -114,6 +120,26 @@ const Details = ({ rule }: DetailsProps) => {
             </>
           )}
       </div>
+
+      {/* routing info goes here */}
+      <>
+        <Text variant="h4">Notifications</Text>
+        <div className={styles.metadataWrapper}>
+          <MetaText direction="column">
+            Notification routing
+            {routingType === RoutingOptions.NotificationPolicy &&
+              alertManagerDataSources.map((source) => (
+                <NotificationPreviewByAlertManager
+                  key={source.name}
+                  alertManagerSource={source}
+                  potentialInstances={[]}
+                  onlyOneAM={alertManagerDataSources.length === 1}
+                />
+              ))}
+            {routingType === RoutingOptions.ContactPoint && <AnnotationValue value="Using a contact point" />}
+          </MetaText>
+        </div>
+      </>
 
       {/* annotations go here */}
       {annotations && (

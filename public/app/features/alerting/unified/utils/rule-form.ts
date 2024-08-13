@@ -41,6 +41,7 @@ import {
 } from 'app/types/unified-alerting-dto';
 
 import { EvalFunction } from '../../state/alertDef';
+import { RoutingOptions } from '../components/rule-editor/NotificationsStep';
 import { AlertManagerManualRouting, ContactPoint, RuleFormType, RuleFormValues } from '../types/rule-form';
 
 import { getRulesAccess } from './access-control';
@@ -259,6 +260,18 @@ export function formValuesToRulerGrafanaRuleDTO(values: RuleFormValues): Postabl
   throw new Error('Cannot create rule without specifying alert condition');
 }
 
+export function getRoutingType(ruleDefinition: RulerRuleDTO): RoutingOptions {
+  let type: RoutingOptions = RoutingOptions.NotificationPolicy;
+
+  if (isGrafanaRulerRule(ruleDefinition)) {
+    type = Boolean(ruleDefinition.grafana_alert.notification_settings)
+      ? RoutingOptions.ContactPoint
+      : RoutingOptions.NotificationPolicy;
+  }
+
+  return type;
+}
+
 export function getContactPointsFromDTO(ga: GrafanaRuleDefinition): AlertManagerManualRouting | undefined {
   const contactPoint: ContactPoint | undefined = ga.notification_settings
     ? {
@@ -311,7 +324,7 @@ export function rulerRuleToFormValues(ruleWithLocation: RuleWithLocation): RuleF
     } else if (isGrafanaRulerRule(rule)) {
       // grafana alerting rule
       const ga = rule.grafana_alert;
-      const routingSettings: AlertManagerManualRouting | undefined = getContactPointsFromDTO(ga);
+      const routingSettings = getContactPointsFromDTO(ga);
       if (ga.no_data_state !== undefined && ga.exec_err_state !== undefined) {
         return {
           ...defaultFormValues,

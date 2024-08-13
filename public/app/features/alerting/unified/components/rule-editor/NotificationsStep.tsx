@@ -23,7 +23,7 @@ type NotificationsStepProps = {
   alertUid?: string;
 };
 
-enum RoutingOptions {
+export enum RoutingOptions {
   NotificationPolicy = 'notification policy',
   ContactPoint = 'contact point',
 }
