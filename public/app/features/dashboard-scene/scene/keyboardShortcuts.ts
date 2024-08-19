@@ -52,7 +52,7 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
       key: 'p u',
       onTrigger: withFocusedPanel(scene, async (vizPanel: VizPanel) => {
         const drawer = new ShareDrawer({
-          shareView: 'link',
+          activeShareView: 'panel_link',
           panelRef: vizPanel.getRef(),
         });
 
@@ -63,7 +63,7 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
       key: 'p e',
       onTrigger: withFocusedPanel(scene, async (vizPanel: VizPanel) => {
         const drawer = new ShareDrawer({
-          shareView: 'embed',
+          activeShareView: 'embed',
           panelRef: vizPanel.getRef(),
         });
 
@@ -76,7 +76,7 @@ export function setupKeyboardShortcuts(scene: DashboardScene) {
         key: 'p s',
         onTrigger: withFocusedPanel(scene, async (vizPanel: VizPanel) => {
           const drawer = new ShareDrawer({
-            shareView: 'snapshot',
+            activeShareView: 'snapshot',
             panelRef: vizPanel.getRef(),
           });
 

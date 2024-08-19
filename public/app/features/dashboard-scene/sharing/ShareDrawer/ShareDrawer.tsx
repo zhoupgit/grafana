@@ -1,9 +1,9 @@
-import { locationService } from '@grafana/runtime';
+import { config, locationService } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, SceneObjectRef, SceneObjectState, VizPanel } from '@grafana/scenes';
 import { Drawer } from '@grafana/ui';
 
-import { CreateReportTab as CreateReportTabScene } from '../../../../extensions/reports/dashboard-scene/CreateReportTab';
-import { DashboardScene } from '../../scene/DashboardScene';
+import { contextSrv } from '../../../../core/services/context_srv';
+import { isPublicDashboardsEnabled } from '../../../dashboard/components/ShareModal/SharePublicDashboard/SharePublicDashboardUtils';
 import { getDashboardSceneFor } from '../../utils/utils';
 import { ExportAsJson } from '../ExportButton/ExportAsJson';
 import { ShareExternally } from '../ShareButton/share-externally/ShareExternally';
@@ -11,22 +11,30 @@ import { ShareInternally } from '../ShareButton/share-internally/ShareInternally
 import { ShareSnapshot } from '../ShareButton/share-snapshot/ShareSnapshot';
 import { SharePanelEmbedTab } from '../SharePanelEmbedTab';
 import { SharePanelInternally } from '../panel-share/SharePanelInternally';
-import { ModalSceneObjectLike, ShareView } from '../types';
+import { ModalSceneObjectLike, SceneShareTab, SceneShareTabState } from '../types';
 
 import { ShareDrawerContext } from './ShareDrawerContext';
 
 export interface ShareDrawerState extends SceneObjectState {
   panelRef?: SceneObjectRef<VizPanel>;
-  shareView: string;
-  activeShare: ShareView;
+  activeShareView: string;
+  shareOptions?: SceneShareTab[];
+}
+
+type CustomDashboardShareViewType = new (...args: SceneShareTabState[]) => SceneShareTab;
+
+const customDashboardShareView: CustomDashboardShareViewType[] = [];
+
+export function addDashboardShareView(shareView: CustomDashboardShareViewType) {
+  customDashboardShareView.push(shareView);
 }
 
 export class ShareDrawer extends SceneObjectBase<ShareDrawerState> implements ModalSceneObjectLike {
   static Component = ShareDrawerRenderer;
 
-  constructor(state: Omit<ShareDrawerState, 'activeShare'>) {
-    super({ ...state, activeShare: new ShareInternally({}) });
-    this.addActivationHandler(() => this.buildActiveShare(state.shareView!));
+  constructor(state: Omit<ShareDrawerState, 'shareOptions'>) {
+    super(state);
+    this.addActivationHandler(() => this.buildActiveShare(state.activeShareView));
   }
 
   onDismiss = () => {
@@ -38,67 +46,48 @@ export class ShareDrawer extends SceneObjectBase<ShareDrawerState> implements Mo
     }
   };
 
-  private buildActiveShare(shareView: string) {
+  private buildActiveShare(activeShareView: string) {
     const { panelRef } = this.state;
     const dashboard = getDashboardSceneFor(this);
 
-    const activeShare = panelRef
-      ? getPanelShareView(shareView, this.onDismiss, dashboard.getRef(), panelRef)
-      : getShareView(shareView, this.onDismiss, dashboard.getRef(), panelRef);
+    const shareOptions: SceneShareTab[] = [
+      new ShareInternally({ onDismiss: this.onDismiss }),
+      new ExportAsJson({ onDismiss: this.onDismiss }),
+    ];
 
-    this.setState({ activeShare });
+    if (contextSrv.isSignedIn && config.snapshotEnabled && dashboard.canEditDashboard()) {
+      shareOptions.push(new ShareSnapshot({ dashboardRef: dashboard.getRef(), panelRef, onDismiss: this.onDismiss }));
+    }
+    if (isPublicDashboardsEnabled()) {
+      shareOptions.push(new ShareExternally({ onDismiss: this.onDismiss }));
+    }
+
+    if (panelRef) {
+      shareOptions.push(
+        new SharePanelInternally({ panelRef, onDismiss: this.onDismiss }),
+        new SharePanelEmbedTab({ panelRef, onDismiss: this.onDismiss })
+      );
+    }
+
+    shareOptions.push(...customDashboardShareView.map((ShareOption) => new ShareOption({ onDismiss: this.onDismiss })));
+
+    const activeShareOption = shareOptions.find((s) => s.tabId === activeShareView);
+
+    this.setState({ activeShareView: activeShareOption?.tabId ?? shareOptions[0].tabId, shareOptions });
   }
 }
 
 function ShareDrawerRenderer({ model }: SceneComponentProps<ShareDrawer>) {
-  const { activeShare } = model.useState();
+  const { activeShareView, shareOptions } = model.useState();
   const dashboard = getDashboardSceneFor(model);
 
+  const currentShareOption = shareOptions?.find((s) => s.tabId === activeShareView)!;
+
   return (
-    <Drawer title={activeShare.getTabLabel()} onClose={model.onDismiss} size="md">
+    <Drawer title={currentShareOption.getTabLabel()} onClose={model.onDismiss} size="md">
       <ShareDrawerContext.Provider value={{ dashboard }}>
-        {<activeShare.Component model={activeShare} />}
+        {<currentShareOption.Component model={currentShareOption} />}
       </ShareDrawerContext.Provider>
     </Drawer>
   );
-}
-
-function getShareView(
-  shareView: string,
-  onDismiss: () => void,
-  dashboardRef: SceneObjectRef<DashboardScene>,
-  panelRef?: SceneObjectRef<VizPanel>
-): ShareView {
-  switch (shareView) {
-    case 'link':
-      return new ShareInternally({ onDismiss });
-    case 'public_dashboard':
-      return new ShareExternally({ onDismiss });
-    case 'snapshot':
-      return new ShareSnapshot({ dashboardRef, panelRef, onDismiss });
-    case 'export':
-      return new ExportAsJson({ onDismiss });
-    case 'report':
-      return new CreateReportTabScene({ onDismiss });
-    default:
-      return new ShareInternally({ onDismiss });
-  }
-}
-
-function getPanelShareView(
-  shareView: string,
-  onDismiss: () => void,
-  dashboardRef: SceneObjectRef<DashboardScene>,
-  panelRef: SceneObjectRef<VizPanel>
-): ShareView {
-  switch (shareView) {
-    case 'link':
-      return new SharePanelInternally({ panelRef, onDismiss });
-    case 'snapshot':
-      return new ShareSnapshot({ dashboardRef, panelRef, onDismiss });
-    case 'embed':
-      return new SharePanelEmbedTab({ panelRef, onDismiss });
-    default:
-      return new SharePanelInternally({ panelRef, onDismiss });
-  }
 }

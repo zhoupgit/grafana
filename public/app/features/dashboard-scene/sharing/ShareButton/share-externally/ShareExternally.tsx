@@ -23,6 +23,7 @@ import { DashboardInteractions } from 'app/features/dashboard-scene/utils/intera
 import { getDashboardSceneFor } from 'app/features/dashboard-scene/utils/utils';
 import { AccessControlAction } from 'app/types';
 
+import { shareDashboardType } from '../../../../dashboard/components/ShareModal/utils';
 import { ShareDrawerConfirmAction } from '../../ShareDrawer/ShareDrawerConfirmAction';
 import { useShareDrawerContext } from '../../ShareDrawer/ShareDrawerContext';
 import { SceneShareTabState, ShareView } from '../../types';
@@ -63,6 +64,7 @@ const getShareExternallyOptions = () => {
 };
 
 export class ShareExternally extends SceneObjectBase<SceneShareTabState> implements ShareView {
+  public tabId = shareDashboardType.publicDashboard;
   static Component = ShareExternallyRenderer;
 
   public getTabLabel() {

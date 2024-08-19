@@ -5,11 +5,14 @@ import { config } from '@grafana/runtime';
 import { SceneComponentProps } from '@grafana/scenes';
 import { Alert, ClipboardButton, Divider, LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
 import { t, Trans } from 'app/core/internationalization';
+
+import { shareDashboardType } from '../../../dashboard/components/ShareModal/utils';
+import { getDashboardSceneFor } from '../../utils/utils';
 import ShareInternallyConfiguration from '../ShareInternallyConfiguration';
 import { ShareLinkTab, ShareLinkTabState } from '../ShareLinkTab';
-import { getDashboardSceneFor } from '../../utils/utils';
 
 export class SharePanelInternally extends ShareLinkTab {
+  public tabId = shareDashboardType.panelLink;
   static Component = SharePanelInternallyRenderer;
 
   constructor(state: Partial<ShareLinkTabState>) {
