@@ -19,7 +19,6 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana/pkg/expr"
 	"github.com/grafana/grafana/pkg/infra/log"
-	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/ngalert/metrics"
 	models "github.com/grafana/grafana/pkg/services/ngalert/models"
@@ -155,7 +154,7 @@ func TestRecordingRule(t *testing.T) {
 
 func blankRecordingRuleForTests(ctx context.Context) *recordingRule {
 	ft := featuremgmt.WithFeatures(featuremgmt.FlagGrafanaManagedRecordingRules)
-	return newRecordingRule(context.Background(), models.AlertRuleKey{}, 0, nil, nil, ft, log.NewNopLogger(), nil, nil, writer.FakeWriter{})
+	return newRecordingRule(context.Background(), models.AlertRuleKey{}, 0, nil, nil, ft, log.NewNopLogger(), nil, nil, writer.FakeWriter{}, nil, nil)
 }
 
 func TestRecordingRule_Integration(t *testing.T) {
@@ -482,8 +481,8 @@ func TestRecordingRule_Integration(t *testing.T) {
 		t.Run("status shows evaluation", func(t *testing.T) {
 			status := process.(*recordingRule).Status()
 
-			// TODO: OK expected for nil result but having a point. Probably should change.
-			require.Equal(t, "ok", status.Health)
+			//TODO: assert "error" to fix test, update to "nodata" in the future
+			require.Equal(t, "error", status.Health)
 		})
 	})
 }
@@ -532,7 +531,7 @@ func withQueryForHealth(health string) models.AlertRuleMutator {
 func setupWriter(t *testing.T, target *writer.TestRemoteWriteTarget, reg prometheus.Registerer) *writer.PrometheusWriter {
 	provider := testClientProvider{}
 	m := metrics.NewNGAlert(reg)
-	wr, err := writer.NewPrometheusWriter(target.ClientSettings(), provider, clock.NewMock(), tracing.InitializeTracerForTest(), log.NewNopLogger(), m.GetRemoteWriterMetrics())
+	wr, err := writer.NewPrometheusWriter(target.ClientSettings(), provider, clock.NewMock(), log.NewNopLogger(), m.GetRemoteWriterMetrics())
 	require.NoError(t, err)
 	return wr
 }

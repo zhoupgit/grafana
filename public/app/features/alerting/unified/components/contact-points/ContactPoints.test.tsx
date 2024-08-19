@@ -14,7 +14,8 @@ import { AlertmanagerProvider } from '../../state/AlertmanagerContext';
 import { setupDataSources } from '../../testSetup/datasources';
 import { DataSourceType } from '../../utils/datasource';
 
-import ContactPoints, { ContactPoint } from './ContactPoints';
+import { ContactPoint } from './ContactPoint';
+import ContactPointsPageContents from './ContactPoints';
 import setupMimirFlavoredServer, { MIMIR_DATASOURCE_UID } from './__mocks__/mimirFlavoredServer';
 import setupVanillaAlertmanagerFlavoredServer, {
   VANILLA_ALERTMANAGER_DATASOURCE_UID,
@@ -62,38 +63,35 @@ describe('contact points', () => {
 
     describe('tabs behaviour', () => {
       test('loads contact points tab', async () => {
-        renderWithProvider(<ContactPoints />, { initialEntries: ['/?tab=contact_points'] });
+        renderWithProvider(<ContactPointsPageContents />, { initialEntries: ['/?tab=contact_points'] });
 
         expect(await screen.findByText(/add contact point/i)).toBeInTheDocument();
       });
 
       test('loads templates tab', async () => {
-        renderWithProvider(<ContactPoints />, { initialEntries: ['/?tab=templates'] });
+        renderWithProvider(<ContactPointsPageContents />, { initialEntries: ['/?tab=templates'] });
 
         expect(await screen.findByText(/add notification template/i)).toBeInTheDocument();
       });
 
       test('defaults to contact points tab with invalid query param', async () => {
-        renderWithProvider(<ContactPoints />, { initialEntries: ['/?tab=foo_bar'] });
+        renderWithProvider(<ContactPointsPageContents />, { initialEntries: ['/?tab=foo_bar'] });
 
         expect(await screen.findByText(/add contact point/i)).toBeInTheDocument();
       });
 
       test('defaults to contact points tab with no query param', async () => {
-        renderWithProvider(<ContactPoints />);
+        renderWithProvider(<ContactPointsPageContents />);
 
         expect(await screen.findByText(/add contact point/i)).toBeInTheDocument();
       });
     });
 
     it('should show / hide loading states, have all actions enabled', async () => {
-      renderWithProvider(<ContactPoints />);
+      renderWithProvider(<ContactPointsPageContents />);
 
-      await waitFor(async () => {
-        expect(screen.getByText('Loading...')).toBeInTheDocument();
-        await waitForElementToBeRemoved(screen.getByText('Loading...'));
-        expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
-      });
+      await waitForElementToBeRemoved(screen.queryByText('Loading...'));
+      expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
 
       expect(screen.getByText('grafana-default-email')).toBeInTheDocument();
       expect(screen.getAllByTestId('contact-point')).toHaveLength(5);
@@ -108,30 +106,28 @@ describe('contact points', () => {
 
       const viewProvisioned = screen.getByRole('link', { name: 'view-action' });
       expect(viewProvisioned).toBeInTheDocument();
-      expect(viewProvisioned).not.toBeDisabled();
+      expect(viewProvisioned).toBeEnabled();
 
       const editButtons = screen.getAllByRole('link', { name: 'edit-action' });
       expect(editButtons).toHaveLength(4);
       editButtons.forEach((button) => {
-        expect(button).not.toBeDisabled();
+        expect(button).toBeEnabled();
       });
 
       const moreActionsButtons = screen.getAllByRole('button', { name: /More/ });
       expect(moreActionsButtons).toHaveLength(5);
       moreActionsButtons.forEach((button) => {
-        expect(button).not.toBeDisabled();
+        expect(button).toBeEnabled();
       });
     });
 
     it('should disable certain actions if the user has no write permissions', async () => {
       grantUserPermissions([AccessControlAction.AlertingNotificationsRead]);
 
-      renderWithProvider(<ContactPoints />);
+      renderWithProvider(<ContactPointsPageContents />);
 
       // wait for loading to be done
-      await waitFor(async () => {
-        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-      });
+      await waitForElementToBeRemoved(screen.queryByText('Loading...'));
 
       // should disable create contact point
       expect(screen.getByRole('link', { name: 'add contact point' })).toHaveAttribute('aria-disabled', 'true');
@@ -179,7 +175,7 @@ describe('contact points', () => {
       renderWithProvider(<ContactPoint name={'my-contact-point'} disabled={true} receivers={[]} onDelete={noop} />);
 
       const moreActions = screen.getByRole('button', { name: /More/ });
-      expect(moreActions).not.toBeDisabled();
+      expect(moreActions).toBeEnabled();
 
       const editAction = screen.getByTestId('edit-action');
       expect(editAction).toHaveAttribute('aria-disabled', 'true');
@@ -197,7 +193,7 @@ describe('contact points', () => {
       expect(viewAction).toBeInTheDocument();
 
       const moreActions = screen.getByRole('button', { name: /More/ });
-      expect(moreActions).not.toBeDisabled();
+      expect(moreActions).toBeEnabled();
       await userEvent.click(moreActions);
 
       const deleteButton = screen.getByRole('menuitem', { name: /delete/i });
@@ -241,18 +237,18 @@ describe('contact points', () => {
       await userEvent.click(moreActions);
 
       const deleteButton = screen.getByRole('menuitem', { name: /delete/i });
-      expect(deleteButton).not.toBeDisabled();
+      expect(deleteButton).toBeEnabled();
     });
 
     it('should be able to search', async () => {
-      renderWithProvider(<ContactPoints />);
+      renderWithProvider(<ContactPointsPageContents />);
 
-      const searchInput = screen.getByRole('textbox', { name: 'search contact points' });
+      const searchInput = await screen.findByRole('textbox', { name: 'search contact points' });
       await userEvent.type(searchInput, 'slack');
       expect(searchInput).toHaveValue('slack');
 
+      expect(await screen.findByText('Slack with multiple channels')).toBeInTheDocument();
       await waitFor(() => {
-        expect(screen.getByText('Slack with multiple channels')).toBeInTheDocument();
         expect(screen.getAllByTestId('contact-point')).toHaveLength(1);
       });
 
@@ -283,13 +279,10 @@ describe('contact points', () => {
     });
 
     it('should show / hide loading states, have the right actions enabled', async () => {
-      renderWithProvider(<ContactPoints />, undefined, { alertmanagerSourceName: MIMIR_DATASOURCE_UID });
+      renderWithProvider(<ContactPointsPageContents />, undefined, { alertmanagerSourceName: MIMIR_DATASOURCE_UID });
 
-      await waitFor(async () => {
-        expect(screen.getByText('Loading...')).toBeInTheDocument();
-        await waitForElementToBeRemoved(screen.getByText('Loading...'));
-        expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
-      });
+      await waitForElementToBeRemoved(screen.queryByText('Loading...'));
+      expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
 
       expect(screen.getByText('mixed')).toBeInTheDocument();
       expect(screen.getByText('some webhook')).toBeInTheDocument();
@@ -306,13 +299,13 @@ describe('contact points', () => {
       const editButtons = screen.getAllByRole('link', { name: 'edit-action' });
       expect(editButtons).toHaveLength(2);
       editButtons.forEach((button) => {
-        expect(button).not.toBeDisabled();
+        expect(button).toBeEnabled();
       });
 
       const moreActionsButtons = screen.getAllByRole('button', { name: /More/ });
       expect(moreActionsButtons).toHaveLength(2);
       moreActionsButtons.forEach((button) => {
-        expect(button).not.toBeDisabled();
+        expect(button).toBeEnabled();
       });
     });
   });
@@ -339,19 +332,18 @@ describe('contact points', () => {
     });
 
     it("should not allow any editing because it's not supported", async () => {
-      renderWithProvider(<ContactPoints />, undefined, { alertmanagerSourceName: VANILLA_ALERTMANAGER_DATASOURCE_UID });
-
-      await waitFor(async () => {
-        expect(screen.getByText('Loading...')).toBeInTheDocument();
-        await waitForElementToBeRemoved(screen.getByText('Loading...'));
-        expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
+      renderWithProvider(<ContactPointsPageContents />, undefined, {
+        alertmanagerSourceName: VANILLA_ALERTMANAGER_DATASOURCE_UID,
       });
+
+      await waitForElementToBeRemoved(screen.queryByText('Loading...'));
+      expect(screen.queryByTestId(selectors.components.Alert.alertV2('error'))).not.toBeInTheDocument();
 
       expect(screen.queryByRole('link', { name: 'add contact point' })).not.toBeInTheDocument();
 
       const viewProvisioned = screen.getByRole('link', { name: 'view-action' });
       expect(viewProvisioned).toBeInTheDocument();
-      expect(viewProvisioned).not.toBeDisabled();
+      expect(viewProvisioned).toBeEnabled();
 
       // check buttons in Notification Templates
       const notificationTemplatesTab = screen.getByRole('tab', { name: 'Notification Templates' });
