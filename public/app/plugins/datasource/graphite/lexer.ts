@@ -81,6 +81,7 @@ for (let i = 0; i < 128; i++) {
     i === 37 || // %
     i === 35 || // #
     i === 61 || // =
+   // i === 64 || // @
     (i >= 97 && i <= 122); // a-z
 }
 
@@ -109,10 +110,21 @@ export class Lexer {
 
   tokenize() {
     const list = [];
-    let token = this.next();
+    let token = null;
+    try {
+      token = this.next();
+    }
+    catch (e) {
+      return []
+    }
     while (token) {
       list.push(token);
-      token = this.next();
+      try {
+        token = this.next();
+      }
+      catch (e) {
+        return []
+      }
     }
     return list;
   }
@@ -145,8 +157,11 @@ export class Lexer {
       return match;
     }
 
-    // No token could be matched, give up.
-    return null;
+    if (this.isEndOfInput()) {
+      // No token could be matched, give up.
+      return null;
+    }
+    throw Error("hello");
   }
 
   scanTemplateSequence() {
@@ -615,5 +630,9 @@ export class Lexer {
       quote: quote,
       pos: this.char,
     };
+  }
+
+  isEndOfInput() {
+   return this.peek() === -1;
   }
 }
