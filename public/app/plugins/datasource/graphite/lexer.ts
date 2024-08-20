@@ -1,4 +1,5 @@
 import { bind } from 'lodash';
+import { AstNode } from './parser';
 
 // This is auto generated from the unicode tables.
 // The tables are at:
@@ -87,8 +88,16 @@ for (let i = 0; i < 128; i++) {
 
 const identifierPartTable = identifierStartTable;
 
+interface token {
+    type: string;
+    value: string;
+    isUnclosed: boolean;
+    quote: string;
+    pos: number;
+}
+
 export class Lexer {
-  input: any;
+  input: string;
   char: number;
   from: number;
 
@@ -110,26 +119,18 @@ export class Lexer {
 
   tokenize() {
     const list = [];
-    let token = null;
-    try {
-      token = this.next();
-    }
-    catch (e) {
-      return []
-    }
+    let token = this.next();
     while (token) {
+      if (token === "error") {
+        return "error";
+      }
       list.push(token);
-      try {
-        token = this.next();
-      }
-      catch (e) {
-        return []
-      }
+      token = this.next();
     }
     return list;
   }
 
-  next() {
+  next(): AstNode|null|"error" {
     this.from = this.char;
 
     // Move to the next non-space character.
@@ -158,10 +159,9 @@ export class Lexer {
     }
 
     if (this.isEndOfInput()) {
-      // No token could be matched, give up.
       return null;
     }
-    throw Error("hello");
+    return "error";
   }
 
   scanTemplateSequence() {
@@ -633,6 +633,7 @@ export class Lexer {
   }
 
   isEndOfInput() {
-   return this.peek() === -1;
+    const k = this.peek();
+   return k === "";
   }
 }

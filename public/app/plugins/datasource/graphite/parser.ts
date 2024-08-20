@@ -3,19 +3,24 @@ import { GraphiteParserError } from './types';
 import { isGraphiteParserError } from './utils';
 
 export class Parser {
-  expression: string;
-  lexer: Lexer;
-  tokens: AstNode[];
-  index: number;
+  expression!: string;
+  lexer!: Lexer;
+  tokens!: AstNode[];
+  index!: number;
 
-  constructor(expression: string) {
+  getAst(expression: string) {
     this.expression = expression;
     this.lexer = new Lexer(expression);
-    this.tokens = this.lexer.tokenize();
+    const tokens = this.lexer.tokenize();
+    if (tokens === "error") {
+      return {
+        type: 'error',
+        message: 'invalid char',
+        pos: 0,
+      };
+    }
+    this.tokens = tokens;
     this.index = 0;
-  }
-
-  getAst() {
     return this.start();
   }
 

@@ -145,6 +145,9 @@ export class GraphiteDatasource
       getTemplateSrv()
     );
     graphiteQuery.parseTarget();
+    if (graphiteQuery.error != null) {
+      throwError(() => reduceError(graphiteQuery.error))
+    }
 
     let labels: AbstractLabelMatcher[] = [];
     const config = this.getImportQueryConfiguration().loki;
@@ -942,7 +945,7 @@ export class GraphiteDatasource
       .fetch(options)
       .pipe(
         catchError((err) => {
-          return throwError(reduceError(err));
+          return throwError(() => reduceError(err));
         })
       );
   }

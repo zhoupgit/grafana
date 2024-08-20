@@ -62,8 +62,8 @@ export default class GraphiteQuery {
       return;
     }
 
-    const parser = new Parser(this.target.target);
-    const astNode = parser.getAst();
+    const parser = new Parser();
+    const astNode = parser.getAst(this.target.target);
     if (astNode === null) {
       this.checkOtherSegmentsIndex = 0;
       return;
