@@ -31,15 +31,15 @@ func (blobStrategy) NamespaceScoped() bool {
 }
 
 func (blobStrategy) BeginCreateFunc(ctx context.Context, obj runtime.Object) {
-	fmt.Printf("CREATE: %t // %+v\n", obj, obj)
+	fmt.Printf("BeginCreateFunc: %t // %+v\n", obj, obj)
 }
 
 func (blobStrategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
-	fmt.Printf("CREATE: %t // %+v\n", obj, obj)
+	fmt.Printf("PrepareForCreate: %t // %+v\n", obj, obj)
 }
 
 func (blobStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
-	fmt.Printf("UPDATE: %t // %+v\n", obj, obj)
+	fmt.Printf("PrepareForUpdate: %t // %+v\n", obj, obj)
 }
 
 func (blobStrategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorList {
