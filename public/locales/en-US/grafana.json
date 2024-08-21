@@ -1005,7 +1005,6 @@
         "button": "Save and enable"
       }
     },
-    "documentation": "documentation",
     "host": {
       "description": "Hostname or IP address of the LDAP server you wish to connect to.",
       "label": "Server host",
@@ -1021,7 +1020,7 @@
       "label": "Search base DNS *",
       "placeholder": "example: \"dc=grafana.dc=org\""
     },
-    "subtitle": "The LDAP integration in Grafana allows your Grafana users to log in with their LDAP credentials. Find out more in our {documentation}.",
+    "subtitle": "The LDAP integration in Grafana allows your Grafana users to log in with their LDAP credentials. Find out more in our <1>documentation</1>.",
     "title": "Basic Settings"
   },
   "library-panel": {
