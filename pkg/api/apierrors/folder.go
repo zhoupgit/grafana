@@ -31,11 +31,6 @@ func ToFolderErrorResponse(err error) response.Response {
 		return response.JSON(http.StatusNotFound, util.DynMap{"status": "not-found", "message": dashboards.ErrFolderNotFound.Error()})
 	}
 
-	if errors.Is(err, dashboards.ErrFolderSameNameExists) ||
-		errors.Is(err, dashboards.ErrFolderWithSameUIDExists) {
-		return response.Error(http.StatusConflict, err.Error(), nil)
-	}
-
 	if errors.Is(err, dashboards.ErrFolderVersionMismatch) {
 		return response.JSON(http.StatusPreconditionFailed, util.DynMap{"status": "version-mismatch", "message": dashboards.ErrFolderVersionMismatch.Error()})
 	}
