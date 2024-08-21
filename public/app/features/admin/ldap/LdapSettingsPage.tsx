@@ -10,17 +10,11 @@ import { Page } from 'app/core/components/Page/Page';
 import config from 'app/core/config';
 import { t, Trans } from 'app/core/internationalization';
 import { Loader } from 'app/features/plugins/admin/components/Loader';
-import { LdapPayload, StoreState } from 'app/types';
+import { LdapPayload } from 'app/types';
 
 const appEvents = getAppEvents();
 
-const mapStateToProps = (state: StoreState) => ({
-  ldapSsoSettings: state.ldap.ldapSsoSettings,
-});
-
-const mapDispatchToProps = {};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
+const connector = connect(undefined, {});
 
 const pageNav: NavModelItem = {
   text: 'LDAP',
