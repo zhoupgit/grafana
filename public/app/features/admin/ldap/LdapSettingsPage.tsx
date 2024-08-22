@@ -86,6 +86,7 @@ export const LdapSettingsPage = () => {
       setIsLoading(false);
     }
     init();
+    console.log('HI')
   }, [reset]);
 
   /**

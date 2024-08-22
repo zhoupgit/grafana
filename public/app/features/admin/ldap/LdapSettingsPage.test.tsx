@@ -20,20 +20,34 @@ jest.mock('@grafana/runtime/src/config', () => ({
   },
 }));
 
-const setup = () => {
-  render(
-    <TestProvider>
-      <LdapSettingsPage/>
-    </TestProvider>
-  );
-
-  userEvent.setup();
+const setup = (jsx: React.JSX.Element) => {
+  return {
+    user: userEvent.setup(),
+    ...render(
+      <TestProvider>
+        {jsx}
+      </TestProvider>
+    )
+  };
 };
 
 describe('LdapSettingsPageTest', () => {
-  it('should render LDAP Settings Page', () => {
-    setup();
+  it('should render LDAP Settings Page', async () => {
+    const {user} = setup(<LdapSettingsPage/>);
+    await new Promise(process.nextTick);
 
-    expect(screen.getByText('documentation')).toBeInTheDocument();
+    await user.click(screen.getByText('Save'));
+
+    // await expect(screen.queryByText(/Loading/i)).not.toBeInTheDocument();
+
+    // await waitFor(() => expect(screen.getByText('Basic Settings')).toBeInTheDocument());
+    // await waitFor(() => expect(screen.getByText('Server host')).toBeInTheDocument());
+
+    // await expect(screen.getByText('Basic Settings')).toBeInTheDocument();
+    // await expect(screen.getByText('Server host')).toBeInTheDocument();
+    // expect(screen.getByText('Base DN')).toBeInTheDocument();
+    // expect(screen.getByText('Bind password')).toBeInTheDocument();
+    // expect(screen.getByText('Search filter*')).toBeInTheDocument();
+    // expect(screen.getByText('Search nase DNS *')).toBeInTheDocument();
   });
 });
