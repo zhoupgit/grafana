@@ -1,5 +1,4 @@
 import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderRuleEditor, ui } from 'test/helpers/alertingRuleEditor';
 import { clickSelectOption } from 'test/helpers/selectOptionInTest';
@@ -112,20 +111,20 @@ describe('RuleEditor grafana managed rules', () => {
       },
     ] as DashboardSearchHit[]);
 
-    renderRuleEditor();
+    const { user } = renderRuleEditor();
     await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
 
-    await userEvent.type(await ui.inputs.name.find(), 'my great new rule');
+    await user.type(await ui.inputs.name.find(), 'my great new rule');
 
     const folderInput = await ui.inputs.folder.find();
     await clickSelectOption(folderInput, 'Folder A');
     const groupInput = await ui.inputs.group.find();
-    await userEvent.click(await byRole('combobox').find(groupInput));
+    await user.click(await byRole('combobox').find(groupInput));
     await clickSelectOption(groupInput, grafanaRulerGroup.name);
-    await userEvent.type(ui.inputs.annotationValue(1).get(), 'some description');
+    await user.type(ui.inputs.annotationValue(1).get(), 'some description');
 
     // save and check what was sent to backend
-    await userEvent.click(ui.buttons.saveAndExit.get());
+    await user.click(ui.buttons.saveAndExit.get());
     // 9seg
     await waitFor(() => expect(mocks.api.setRulerRuleGroup).toHaveBeenCalled());
     // 9seg

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within, userEvent } from 'test/test-utils';
+import { render, screen, waitFor, within } from 'test/test-utils';
 import { byRole, byTestId, byText } from 'testing-library-selector';
 
 import { AccessControlAction } from 'app/types/accessControl';
@@ -137,9 +137,11 @@ describe('NotificationPreview', () => {
     mockOneAlertManager();
     mockPreviewApiResponse(server, [{ labels: [{ tomato: 'red', avocate: 'green' }] }]);
 
-    render(<NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />);
+    const { user } = render(
+      <NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />
+    );
 
-    await userEvent.click(ui.previewButton.get());
+    await user.click(ui.previewButton.get());
     await waitFor(() => {
       expect(ui.loadingIndicator.query()).not.toBeInTheDocument();
     });
@@ -161,12 +163,14 @@ describe('NotificationPreview', () => {
     mockTwoAlertManagers();
     mockPreviewApiResponse(server, [{ labels: [{ tomato: 'red', avocate: 'green' }] }]);
 
-    render(<NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />);
+    const { user } = render(
+      <NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />
+    );
     await waitFor(() => {
       expect(ui.loadingIndicator.query()).not.toBeInTheDocument();
     });
 
-    await userEvent.click(ui.previewButton.get());
+    await user.click(ui.previewButton.get());
     await waitFor(() => {
       expect(ui.loadingIndicator.query()).not.toBeInTheDocument();
     });
@@ -188,13 +192,15 @@ describe('NotificationPreview', () => {
     mockPreviewApiResponse(server, [{ labels: [{ tomato: 'red', avocate: 'green' }] }]);
     mockHasEditPermission(true);
 
-    render(<NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />);
+    const { user } = render(
+      <NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />
+    );
     await waitFor(() => {
       expect(ui.loadingIndicator.query()).not.toBeInTheDocument();
     });
 
-    await userEvent.click(ui.previewButton.get());
-    await userEvent.click(await ui.seeDetails.find());
+    await user.click(ui.previewButton.get());
+    await user.click(await ui.seeDetails.find());
     expect(ui.details.title.query()).toBeInTheDocument();
     //we expect seeing the default policy
     expect(screen.getByText(/default policy/i)).toBeInTheDocument();
@@ -210,13 +216,15 @@ describe('NotificationPreview', () => {
     mockPreviewApiResponse(server, [{ labels: [{ tomato: 'red', avocate: 'green' }] }]);
     mockHasEditPermission(false);
 
-    render(<NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />);
+    const { user } = render(
+      <NotificationPreview alertQueries={[alertQuery]} customLabels={[]} condition="A" folder={folder} />
+    );
     await waitFor(() => {
       expect(ui.loadingIndicator.query()).not.toBeInTheDocument();
     });
 
-    await userEvent.click(ui.previewButton.get());
-    await userEvent.click(await ui.seeDetails.find());
+    await user.click(ui.previewButton.get());
+    await user.click(await ui.seeDetails.find());
     expect(ui.details.title.query()).toBeInTheDocument();
     //we expect seeing the default policy
     expect(screen.getByText(/default policy/i)).toBeInTheDocument();
@@ -248,9 +256,7 @@ describe('NotificationPreviewByAlertmanager', () => {
         .addReceivers((b) => b.withName('opsgenie'))
     );
 
-    const user = userEvent.setup();
-
-    render(
+    const { user } = render(
       <NotificationPreviewByAlertManager
         alertManagerSource={grafanaAlertManagerDataSource}
         potentialInstances={potentialInstances}
@@ -302,9 +308,7 @@ describe('NotificationPreviewByAlertmanager', () => {
         .addReceivers((b) => b.withName('opsgenie'))
     );
 
-    const user = userEvent.setup();
-
-    render(
+    const { user } = render(
       <NotificationPreviewByAlertManager
         alertManagerSource={grafanaAlertManagerDataSource}
         potentialInstances={potentialInstances}
@@ -356,9 +360,7 @@ describe('NotificationPreviewByAlertmanager', () => {
         .addReceivers((b) => b.withName('opsgenie'))
     );
 
-    const user = userEvent.setup();
-
-    render(
+    const { user } = render(
       <NotificationPreviewByAlertManager
         alertManagerSource={grafanaAlertManagerDataSource}
         potentialInstances={potentialInstances}

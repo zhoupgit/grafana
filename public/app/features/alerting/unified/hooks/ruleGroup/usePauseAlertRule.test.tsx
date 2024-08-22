@@ -1,4 +1,3 @@
-import userEvent from '@testing-library/user-event';
 import { HttpResponse } from 'msw';
 import { render } from 'test/test-utils';
 import { byText, byRole } from 'testing-library-selector';
@@ -27,10 +26,10 @@ describe('pause rule', () => {
     const capture = captureRequests();
     setUpdateRulerRuleNamespaceHandler({ delay: 0 });
 
-    render(<PauseTestComponent />);
+    const { user } = render(<PauseTestComponent />);
     expect(byText(/uninitialized/i).get()).toBeInTheDocument();
 
-    await userEvent.click(byRole('button').get());
+    await user.click(byRole('button').get());
     expect(await byText(/loading/i).find()).toBeInTheDocument();
 
     expect(await byText(/success/i).find()).toBeInTheDocument();
@@ -46,14 +45,14 @@ describe('pause rule', () => {
 
   it('should throw if the rule is not found in the group', async () => {
     setUpdateRulerRuleNamespaceHandler();
-    render(
+    const { user } = render(
       <PauseTestComponent
         rulerRule={mockGrafanaRulerRule({ uid: 'does-not-exist', namespace_uid: grafanaRulerNamespace.uid })}
       />
     );
     expect(byText(/uninitialized/i).get()).toBeInTheDocument();
 
-    await userEvent.click(byRole('button').get());
+    await user.click(byRole('button').get());
     expect(await byText(/error: No rule with UID/i).find()).toBeInTheDocument();
   });
 
@@ -63,11 +62,11 @@ describe('pause rule', () => {
       response: new HttpResponse('oops', { status: 500 }),
     });
 
-    render(<PauseTestComponent />);
+    const { user } = render(<PauseTestComponent />);
 
     expect(await byText(/uninitialized/i).find()).toBeInTheDocument();
 
-    await userEvent.click(byRole('button').get());
+    await user.click(byRole('button').get());
     expect(await byText(/loading/i).find()).toBeInTheDocument();
     expect(byText(/success/i).query()).not.toBeInTheDocument();
     expect(await byText(/error: oops/i).find()).toBeInTheDocument();

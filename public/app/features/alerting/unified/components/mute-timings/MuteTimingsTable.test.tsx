@@ -1,4 +1,4 @@
-import { render, screen, userEvent, within } from 'test/test-utils';
+import { render, screen, within } from 'test/test-utils';
 
 import { config } from '@grafana/runtime';
 import { defaultConfig } from 'app/features/alerting/unified/MuteTimings.test';
@@ -40,16 +40,14 @@ describe('MuteTimingsTable', () => {
     });
 
     it("shows 'export all' drawer when allowed and supported", async () => {
-      const user = userEvent.setup();
-      renderWithProvider();
+      const { user } = renderWithProvider();
       await user.click(await screen.findByRole('button', { name: /export all/i }));
 
       expect(await screen.findByRole('dialog', { name: /drawer title export/i })).toBeInTheDocument();
     });
 
     it("shows individual 'export' drawer when allowed and supported, and can close", async () => {
-      const user = userEvent.setup();
-      renderWithProvider();
+      const { user } = renderWithProvider();
       const table = await screen.findByTestId('dynamic-table');
       const exportMuteTiming = await within(table).findByText(/export/i);
       await user.click(exportMuteTiming);
@@ -70,8 +68,8 @@ describe('MuteTimingsTable', () => {
       // TODO: Don't use captureRequests for this, move to stateful mock server instead
       // and check that the interval is no longer in the list
       const capture = captureRequests();
-      const user = userEvent.setup();
-      renderWithProvider();
+
+      const { user } = renderWithProvider();
 
       await user.click((await screen.findAllByText(/delete/i))[0]);
       await user.click(await screen.findByRole('button', { name: /delete/i }));
@@ -89,8 +87,8 @@ describe('MuteTimingsTable', () => {
       // TODO: Don't use captureRequests for this, move to stateful mock server instead
       // and check that the interval is still in the list
       const capture = captureRequests();
-      const user = userEvent.setup();
-      renderWithProvider();
+
+      const { user } = renderWithProvider();
 
       await user.click((await screen.findAllByText(/delete/i))[0]);
       await user.click(await screen.findByRole('button', { name: /cancel/i }));
@@ -145,8 +143,8 @@ describe('MuteTimingsTable', () => {
       // TODO: Don't use captureRequests for this, move to stateful mock server instead
       // and check that the interval is no longer in the list
       const capture = captureRequests();
-      const user = userEvent.setup();
-      renderWithProvider();
+
+      const { user } = renderWithProvider();
 
       await user.click((await screen.findAllByText(/delete/i))[0]);
       await user.click(await screen.findByRole('button', { name: /delete/i }));

@@ -1,6 +1,4 @@
-import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { render } from 'test/test-utils';
+import { screen, render } from 'test/test-utils';
 
 import { ConnectionStatus } from '../../hooks/useExternalAmSelector';
 
@@ -45,7 +43,7 @@ describe('Alertmanager card', () => {
     const onEnable = jest.fn();
     const onDisable = jest.fn();
 
-    render(
+    const { user } = render(
       <AlertmanagerCard
         name="Grafana built-in"
         onEditConfiguration={onEditConfiguration}
@@ -56,18 +54,18 @@ describe('Alertmanager card', () => {
 
     // check actions
     const enableButton = screen.getByRole('button', { name: 'Enable' });
-    await userEvent.click(enableButton);
+    await user.click(enableButton);
     expect(onEnable).toHaveBeenCalled();
 
     const editConfigurationButton = screen.getByRole('button', { name: 'Edit configuration' });
-    await userEvent.click(editConfigurationButton);
+    await user.click(editConfigurationButton);
     expect(onEditConfiguration).toHaveBeenCalled();
   });
 
   it('should show correct buttons for enabled alertmanager', async () => {
     const onDisable = jest.fn();
 
-    render(
+    const { user } = render(
       <AlertmanagerCard
         name="Grafana built-in"
         receiving={true}
@@ -79,7 +77,7 @@ describe('Alertmanager card', () => {
 
     // check actions
     const disableButton = screen.getByRole('button', { name: 'Disable' });
-    await userEvent.click(disableButton);
+    await user.click(disableButton);
     expect(onDisable).toHaveBeenCalled();
   });
 

@@ -1,6 +1,4 @@
-import { waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { render } from 'test/test-utils';
+import { render, waitFor } from 'test/test-utils';
 import { byRole, byTestId } from 'testing-library-selector';
 
 import { selectors } from '@grafana/e2e-selectors';
@@ -50,15 +48,15 @@ describe('Alerting Settings', () => {
 
   it('should be able to reset alertmanager config', async () => {
     const onReset = jest.fn();
-    renderConfiguration('grafana', { onReset });
+    const { user } = renderConfiguration('grafana', { onReset });
 
-    await userEvent.click(await ui.resetButton.find());
+    await user.click(await ui.resetButton.find());
 
     await waitFor(() => {
       expect(ui.resetConfirmButton.query()).toBeInTheDocument();
     });
 
-    await userEvent.click(ui.resetConfirmButton.get());
+    await user.click(ui.resetConfirmButton.get());
 
     await waitFor(() => expect(onReset).toHaveBeenCalled());
     expect(onReset).toHaveBeenLastCalledWith('grafana');
@@ -66,9 +64,9 @@ describe('Alerting Settings', () => {
 
   it('should be able to cancel', async () => {
     const onDismiss = jest.fn();
-    renderConfiguration('grafana', { onDismiss });
+    const { user } = renderConfiguration('grafana', { onDismiss });
 
-    await userEvent.click(await ui.cancelButton.get());
+    await user.click(await ui.cancelButton.get());
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

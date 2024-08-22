@@ -90,9 +90,7 @@ describe('Can create a new grafana managed alert using simplified routing', () =
   });
 
   it('cannot create new grafana managed alert when using simplified routing and not selecting a contact point', async () => {
-    const user = userEvent.setup();
-
-    renderSimplifiedRuleEditor();
+    const { user } = renderSimplifiedRuleEditor();
     await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
 
     await user.type(await ui.inputs.name.find(), 'my great new rule');
@@ -118,10 +116,9 @@ describe('Can create a new grafana managed alert using simplified routing', () =
   });
 
   it('can create new grafana managed alert when using simplified routing and selecting a contact point', async () => {
-    const user = userEvent.setup();
     const contactPointName = 'lotsa-emails';
 
-    renderSimplifiedRuleEditor();
+    const { user } = renderSimplifiedRuleEditor();
     await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
 
     await user.type(await ui.inputs.name.find(), 'my great new rule');
@@ -176,8 +173,7 @@ describe('Can create a new grafana managed alert using simplified routing', () =
     });
 
     it('allows selecting a contact point when using alerting API server', async () => {
-      const user = userEvent.setup();
-      renderSimplifiedRuleEditor();
+      const { user } = renderSimplifiedRuleEditor();
       await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
 
       await user.click(await ui.inputs.simplifiedRouting.contactPointRouting.find());

@@ -117,8 +117,7 @@ describe('Silences', () => {
   it(
     'loads and shows silences',
     async () => {
-      const user = userEvent.setup();
-      renderSilences();
+      const { user } = renderSilences();
 
       expect(await ui.notExpiredTable.find()).toBeInTheDocument();
 
@@ -167,8 +166,7 @@ describe('Silences', () => {
   it(
     'filters silences by matchers',
     async () => {
-      const user = userEvent.setup();
-      renderSilences();
+      const { user } = renderSilences();
 
       const queryBar = await ui.queryBar.find();
       await user.type(queryBar, 'foo=bar');
@@ -253,8 +251,7 @@ describe('Silence create/edit', () => {
   it(
     'creates a new silence',
     async () => {
-      const user = userEvent.setup();
-      renderSilences(`${baseUrlPath}?alertmanager=${GRAFANA_RULES_SOURCE_NAME}`);
+      const { user } = renderSilences(`${baseUrlPath}?alertmanager=${GRAFANA_RULES_SOURCE_NAME}`);
       expect(await ui.editor.durationField.find()).toBeInTheDocument();
 
       const postRequest = waitForServerRequest(silenceCreateHandler());
@@ -334,11 +331,9 @@ describe('Silence create/edit', () => {
   it(
     'silences page should contain alertmanager parameter after creating a silence',
     async () => {
-      const user = userEvent.setup();
-
       const postRequest = waitForServerRequest(silenceCreateHandler());
 
-      renderSilences(`${baseUrlPath}?alertmanager=${GRAFANA_RULES_SOURCE_NAME}`);
+      const { user } = renderSilences(`${baseUrlPath}?alertmanager=${GRAFANA_RULES_SOURCE_NAME}`);
       await waitFor(() => expect(ui.editor.durationField.query()).not.toBeNull());
 
       await enterSilenceLabel(0, 'foo', MatcherOperator.equal, 'bar');

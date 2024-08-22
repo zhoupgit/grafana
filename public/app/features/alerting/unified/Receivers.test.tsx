@@ -41,9 +41,7 @@ beforeEach(() => {
 });
 
 it('can save a contact point with a select dropdown', async () => {
-  const user = userEvent.setup();
-
-  render(<ContactPoints />, {
+  const { user } = render(<ContactPoints />, {
     historyOptions: {
       initialEntries: [
         {

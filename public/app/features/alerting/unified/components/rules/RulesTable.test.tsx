@@ -1,4 +1,4 @@
-import { render, userEvent, screen } from 'test/test-utils';
+import { render, screen } from 'test/test-utils';
 import { byRole } from 'testing-library-selector';
 
 import { setPluginExtensionsHook } from '@grafana/runtime';
@@ -31,7 +31,6 @@ const ui = {
   },
 };
 
-const user = userEvent.setup();
 setupMswServer();
 
 describe('RulesTable RBAC', () => {
@@ -53,7 +52,7 @@ describe('RulesTable RBAC', () => {
         return action === AlertRuleAction.Delete ? [true, false] : [true, true];
       });
 
-      render(<RulesTable rules={[grafanaRule]} />);
+      const { user } = render(<RulesTable rules={[grafanaRule]} />);
 
       await user.click(ui.actionButtons.more.get());
 
@@ -74,7 +73,7 @@ describe('RulesTable RBAC', () => {
         return action === AlertRuleAction.Delete ? [true, true] : [false, false];
       });
 
-      render(<RulesTable rules={[grafanaRule]} />);
+      const { user } = render(<RulesTable rules={[grafanaRule]} />);
 
       expect(ui.actionButtons.more.get()).toBeInTheDocument();
       await user.click(ui.actionButtons.more.get());
@@ -144,7 +143,7 @@ describe('RulesTable RBAC', () => {
         return action === AlertRuleAction.Delete ? [true, false] : [true, true];
       });
 
-      render(<RulesTable rules={[cloudRule]} />);
+      const { user } = render(<RulesTable rules={[cloudRule]} />);
 
       await user.click(ui.actionButtons.more.get());
       expect(ui.moreActionItems.delete.query()).not.toBeInTheDocument();
@@ -165,7 +164,7 @@ describe('RulesTable RBAC', () => {
         return action === AlertRuleAction.Delete ? [true, true] : [false, false];
       });
 
-      render(<RulesTable rules={[cloudRule]} />);
+      const { user } = render(<RulesTable rules={[cloudRule]} />);
 
       await user.click(ui.actionButtons.more.get());
       expect(ui.moreActionItems.delete.get()).toBeInTheDocument();

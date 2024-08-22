@@ -1,6 +1,5 @@
-import { render } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
+import { render } from 'test/test-utils';
 import { byLabelText, byRole, byTestId } from 'testing-library-selector';
 
 import { PluginExtensionTypes } from '@grafana/data';
@@ -100,9 +99,9 @@ describe('RuleDetailsMatchingInstances', () => {
         [GrafanaAlertState.Error]: ui.grafanaStateButton.error,
       };
 
-      render(<RuleDetailsMatchingInstances rule={rule} enableFiltering />);
+      const { user } = render(<RuleDetailsMatchingInstances rule={rule} enableFiltering />);
 
-      await userEvent.click(buttons[state].get());
+      await user.click(buttons[state].get());
 
       expect(ui.instanceRow.getAll()).toHaveLength(1);
       expect(ui.instanceRow.get()).toHaveTextContent(alertStateToReadable(state));
@@ -139,9 +138,9 @@ describe('RuleDetailsMatchingInstances', () => {
           }),
         });
 
-        render(<RuleDetailsMatchingInstances rule={rule} enableFiltering />);
+        const { user } = render(<RuleDetailsMatchingInstances rule={rule} enableFiltering />);
 
-        await userEvent.click(ui.cloudStateButton[state].get());
+        await user.click(ui.cloudStateButton[state].get());
 
         expect(ui.instanceRow.getAll()).toHaveLength(1);
         expect(ui.instanceRow.get()).toHaveTextContent(alertStateToReadable(state));
@@ -149,8 +148,6 @@ describe('RuleDetailsMatchingInstances', () => {
     );
 
     it('should correctly filter instances', async () => {
-      const event = userEvent.setup();
-
       const rule = mockCombinedRule({
         promRule: mockPromAlertingRule({
           alerts: times(100, () => mockPromAlert({ state: GrafanaAlertState.Normal })),
@@ -160,16 +157,18 @@ describe('RuleDetailsMatchingInstances', () => {
         },
       });
 
-      render(<RuleDetailsMatchingInstances rule={rule} enableFiltering pagination={{ itemsPerPage: 10 }} />);
+      const { user } = render(
+        <RuleDetailsMatchingInstances rule={rule} enableFiltering pagination={{ itemsPerPage: 10 }} />
+      );
 
       // should show all instances by default
       expect(ui.showAllInstances.query()).not.toBeInTheDocument();
 
       // filter by "error" state, should have no instances in that state
-      await event.click(ui.grafanaStateButton.error.get());
+      await user.click(ui.grafanaStateButton.error.get());
 
       // click "show all" instances
-      await event.click(ui.showAllInstances.get());
+      await user.click(ui.showAllInstances.get());
       expect(ui.showAllInstances.query()).not.toBeInTheDocument();
     });
   });

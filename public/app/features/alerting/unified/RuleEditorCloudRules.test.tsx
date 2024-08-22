@@ -1,4 +1,3 @@
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderRuleEditor, ui } from 'test/helpers/alertingRuleEditor';
 import { clickSelectOption } from 'test/helpers/selectOptionInTest';
@@ -110,9 +109,7 @@ describe('RuleEditor cloud', () => {
     });
     mocks.searchFolders.mockResolvedValue([]);
 
-    const user = userEvent.setup();
-
-    renderRuleEditor();
+    const { user } = renderRuleEditor();
     await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
 
     const removeExpressionsButtons = screen.getAllByLabelText('Remove expression');

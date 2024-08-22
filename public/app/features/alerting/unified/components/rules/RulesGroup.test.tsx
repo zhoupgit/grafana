@@ -1,11 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 import { Props } from 'react-virtualized-auto-sizer';
+import { render, screen, waitFor } from 'test/test-utils';
 import { byRole, byTestId, byText } from 'testing-library-selector';
 
 import { contextSrv } from 'app/core/services/context_srv';
-import { configureStore } from 'app/store/configureStore';
 import { AccessControlAction } from 'app/types';
 import { CombinedRuleGroup, CombinedRuleNamespace } from 'app/types/unified-alerting';
 
@@ -78,14 +75,8 @@ afterEach(() => {
 });
 
 describe('Rules group tests', () => {
-  const store = configureStore();
-
   function renderRulesGroup(namespace: CombinedRuleNamespace, group: CombinedRuleGroup) {
-    return render(
-      <Provider store={store}>
-        <RulesGroup group={group} namespace={namespace} expandAll={false} viewMode={'grouped'} />
-      </Provider>
-    );
+    return render(<RulesGroup group={group} namespace={namespace} expandAll={false} viewMode={'grouped'} />);
   }
 
   describe('Grafana rules', () => {
@@ -128,10 +119,8 @@ describe('Rules group tests', () => {
         json: 'Json Export Content',
       });
 
-      const user = userEvent.setup();
-
       // Act
-      renderRulesGroup(namespace, group);
+      const { user } = renderRulesGroup(namespace, group);
       await user.click(await ui.exportGroupButton.find());
 
       // Assert
@@ -200,8 +189,8 @@ describe('Rules group tests', () => {
       mockUseHasRuler(true, true);
 
       // Act
-      renderRulesGroup(namespace, group);
-      await userEvent.click(ui.deleteGroupButton.get());
+      const { user } = renderRulesGroup(namespace, group);
+      await user.click(ui.deleteGroupButton.get());
 
       // Assert
       expect(ui.confirmDeleteModal.header.get()).toBeInTheDocument();
@@ -228,13 +217,13 @@ describe('Rules group tests', () => {
 
     it('Should log info when closing the edit group rule modal without saving', async () => {
       mockUseHasRuler(true, true);
-      renderRulesGroup(namespace, group);
+      const { user } = renderRulesGroup(namespace, group);
 
-      await userEvent.click(ui.editGroupButton.get());
+      await user.click(ui.editGroupButton.get());
 
       expect(screen.getByText('Cancel')).toBeInTheDocument();
 
-      await userEvent.click(screen.getByText('Cancel'));
+      await user.click(screen.getByText('Cancel'));
 
       expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
       expect(analytics.logInfo).toHaveBeenCalledWith(analytics.LogMessages.leavingRuleGroupEdit);

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Route } from 'react-router-dom';
 import { Props } from 'react-virtualized-auto-sizer';
-import { render, waitFor, waitForElementToBeRemoved, userEvent } from 'test/test-utils';
+import { render, waitFor, waitForElementToBeRemoved } from 'test/test-utils';
 import { byRole, byTestId, byText } from 'testing-library-selector';
 
 import { mockExportApi, setupMswServer } from '../../mockApi';
@@ -55,7 +55,7 @@ const dataSources = {
 };
 
 function renderModifyExport(ruleId: string) {
-  render(<Route path="/alerting/:id/modify-export" component={GrafanaModifyExport} />, {
+  return render(<Route path="/alerting/:id/modify-export" component={GrafanaModifyExport} />, {
     historyOptions: { initialEntries: [`/alerting/${ruleId}/modify-export`] },
   });
 }
@@ -71,9 +71,7 @@ describe('GrafanaModifyExport', () => {
       json: 'Json Export Content',
     });
 
-    const user = userEvent.setup();
-
-    renderModifyExport(grafanaRulerRule.grafana_alert.uid);
+    const { user } = renderModifyExport(grafanaRulerRule.grafana_alert.uid);
 
     await waitForElementToBeRemoved(() => ui.loading.get());
     expect(await ui.form.nameInput.find()).toHaveValue('Grafana-rule');

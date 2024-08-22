@@ -1,5 +1,5 @@
 import { clickSelectOption } from 'test/helpers/selectOptionInTest';
-import { render, waitFor, userEvent } from 'test/test-utils';
+import { render, waitFor } from 'test/test-utils';
 import { byLabelText, byRole, byTestId, byText } from 'testing-library-selector';
 
 import { disablePlugin } from 'app/features/alerting/unified/mocks/server/configure';
@@ -67,9 +67,9 @@ describe('GrafanaReceiverForm', () => {
 
       const amConfig = getAmCortexConfig((_) => {});
 
-      const user = userEvent.setup();
-
-      render(<GrafanaReceiverForm alertManagerSourceName={GRAFANA_RULES_SOURCE_NAME} config={amConfig} />);
+      const { user } = render(
+        <GrafanaReceiverForm alertManagerSourceName={GRAFANA_RULES_SOURCE_NAME} config={amConfig} />
+      );
 
       await waitFor(() => expect(ui.loadingIndicator.query()).not.toBeInTheDocument());
 

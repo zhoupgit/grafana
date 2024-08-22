@@ -1,11 +1,11 @@
-import { render, screen, userEvent } from 'test/test-utils';
+import { render, screen } from 'test/test-utils';
 
 import { getEvaluationGroupOptions, EvaluationGroupQuickPick } from './EvaluationGroupQuickPick';
 
 describe('EvaluationGroupQuickPick', () => {
   it('should render the correct default preset, set active element and allow selecting another option', async () => {
     const onSelect = jest.fn();
-    render(<EvaluationGroupQuickPick currentInterval={'10m'} onSelect={onSelect} />);
+    const { user } = render(<EvaluationGroupQuickPick currentInterval={'10m'} onSelect={onSelect} />);
 
     const shouldHaveButtons = ['10s', '30s', '1m', '5m', '10m', '15m', '30m', '1h'];
     const shouldNotHaveButtons = ['0s', '2h'];
@@ -20,7 +20,7 @@ describe('EvaluationGroupQuickPick', () => {
 
     expect(screen.getByRole('option', { selected: true })).toHaveTextContent('10m');
 
-    await userEvent.click(screen.getByRole('option', { name: '30m' }));
+    await user.click(screen.getByRole('option', { name: '30m' }));
     expect(onSelect).toHaveBeenCalledWith('30m');
   });
 });

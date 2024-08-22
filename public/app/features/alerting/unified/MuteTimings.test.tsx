@@ -26,7 +26,7 @@ import { DataSourceType, GRAFANA_RULES_SOURCE_NAME } from './utils/datasource';
 
 const indexPageText = 'redirected routes page';
 const renderMuteTimings = (location: InitialEntry = '/alerting/routes/mute-timing/new') => {
-  render(
+  return render(
     <>
       <Route path="/alerting/routes" exact>
         {indexPageText}
@@ -284,7 +284,7 @@ describe('Mute timings', () => {
   it('prepopulates the form when editing a mute timing', async () => {
     const capture = captureRequests();
 
-    renderMuteTimings({
+    const { user } = renderMuteTimings({
       pathname: '/alerting/routes/mute-timing/edit',
       search: `?muteName=${encodeURIComponent(muteTimeInterval.name)}`,
     });
@@ -293,14 +293,14 @@ describe('Mute timings', () => {
     expect(ui.nameField.get()).toHaveValue(muteTimeInterval.name);
     expect(ui.months.get()).toHaveValue(muteTimeInterval.time_intervals[0].months?.join(', '));
 
-    await userEvent.clear(ui.startsAt.getAll()?.[0]);
-    await userEvent.clear(ui.endsAt.getAll()?.[0]);
-    await userEvent.clear(ui.days.get());
-    await userEvent.clear(ui.months.get());
-    await userEvent.clear(ui.years.get());
+    await user.clear(ui.startsAt.getAll()?.[0]);
+    await user.clear(ui.endsAt.getAll()?.[0]);
+    await user.clear(ui.days.get());
+    await user.clear(ui.months.get());
+    await user.clear(ui.years.get());
 
     const monday = within(ui.weekdays.get()).getByText('Mon');
-    await userEvent.click(monday);
+    await user.click(monday);
 
     const formValues = {
       days: '-7:-1',
@@ -335,7 +335,7 @@ describe('Mute timings', () => {
   });
 
   it('replaces mute timings in routes when the mute timing name is changed', async () => {
-    renderMuteTimings({
+    const { user } = renderMuteTimings({
       pathname: '/alerting/routes/mute-timing/edit',
       search: `?muteName=${encodeURIComponent(muteTimeInterval.name)}`,
     });
@@ -343,7 +343,7 @@ describe('Mute timings', () => {
     expect(await ui.nameField.find()).toBeInTheDocument();
     expect(ui.nameField.get()).toHaveValue(muteTimeInterval.name);
 
-    await userEvent.clear(ui.nameField.get());
+    await user.clear(ui.nameField.get());
     await fillOutForm({ name: 'Lunch breaks' });
     await saveMuteTiming();
 

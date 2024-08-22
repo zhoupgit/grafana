@@ -1,8 +1,7 @@
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { renderRuleEditor, ui } from 'test/helpers/alertingRuleEditor';
 import { clickSelectOption } from 'test/helpers/selectOptionInTest';
+import { screen, waitFor, waitForElementToBeRemoved } from 'test/test-utils';
 import { byText } from 'testing-library-selector';
 
 import { setDataSourceSrv } from '@grafana/runtime';
@@ -146,21 +145,21 @@ describe('RuleEditor recording rules', () => {
       },
     });
 
-    renderRuleEditor(undefined, true);
+    const { user } = renderRuleEditor(undefined, true);
     await waitForElementToBeRemoved(screen.queryAllByTestId('Spinner'));
-    await userEvent.type(await ui.inputs.name.find(), 'my great new recording rule');
+    await user.type(await ui.inputs.name.find(), 'my great new recording rule');
 
     const dataSourceSelect = ui.inputs.dataSource.get();
-    await userEvent.click(dataSourceSelect);
+    await user.click(dataSourceSelect);
 
-    await userEvent.click(screen.getByText('Prom'));
+    await user.click(screen.getByText('Prom'));
     await clickSelectOption(ui.inputs.namespace.get(), 'namespace2');
     await clickSelectOption(ui.inputs.group.get(), 'group2');
 
-    await userEvent.type(await ui.inputs.expr.find(), 'up == 1');
+    await user.type(await ui.inputs.expr.find(), 'up == 1');
 
     // try to save, find out that recording rule name is invalid
-    await userEvent.click(ui.buttons.saveAndExit.get());
+    await user.click(ui.buttons.saveAndExit.get());
     await waitFor(() =>
       expect(
         byText(
@@ -171,11 +170,11 @@ describe('RuleEditor recording rules', () => {
     expect(mocks.api.setRulerRuleGroup).not.toBeCalled();
 
     // fix name and re-submit
-    await userEvent.clear(await ui.inputs.name.find());
-    await userEvent.type(await ui.inputs.name.find(), 'my:great:new:recording:rule');
+    await user.clear(await ui.inputs.name.find());
+    await user.type(await ui.inputs.name.find(), 'my:great:new:recording:rule');
 
     // save and check what was sent to backend
-    await userEvent.click(ui.buttons.saveAndExit.get());
+    await user.click(ui.buttons.saveAndExit.get());
     await waitFor(() => expect(mocks.api.setRulerRuleGroup).toHaveBeenCalled());
     expect(mocks.api.setRulerRuleGroup).toHaveBeenCalledWith(
       { dataSourceName: 'Prom', apiVersion: 'legacy' },

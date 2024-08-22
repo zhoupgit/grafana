@@ -1,5 +1,4 @@
-import { screen, render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, render, waitFor } from 'test/test-utils';
 
 import { AlertLabels } from './AlertLabels';
 
@@ -8,15 +7,15 @@ describe('AlertLabels', () => {
     const labels = { foo: 'bar', bar: 'baz', baz: 'qux' };
     const commonLabels = { foo: 'bar', baz: 'qux' };
 
-    render(<AlertLabels labels={labels} commonLabels={commonLabels} />);
+    const { user } = render(<AlertLabels labels={labels} commonLabels={commonLabels} />);
     expect(screen.getByText('+2 common labels')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
     await waitFor(() => {
       expect(screen.getByText('Hide common labels')).toBeInTheDocument();
     });
 
-    await userEvent.click(screen.getByRole('button'));
+    await user.click(screen.getByRole('button'));
     await waitFor(() => {
       expect(screen.getByText('+2 common labels')).toBeInTheDocument();
     });

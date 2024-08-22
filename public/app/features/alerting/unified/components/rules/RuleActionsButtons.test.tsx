@@ -66,11 +66,10 @@ const clickCopyLink = async () => {
 
 describe('RuleActionsButtons', () => {
   it('renders correct options for grafana managed rule', async () => {
-    const user = userEvent.setup();
     grantAllPermissions();
     const mockRule = getGrafanaRule();
 
-    render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" showCopyLinkButton />);
+    const { user } = render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" showCopyLinkButton />);
 
     await user.click(await ui.moreButton.find());
 
@@ -78,11 +77,10 @@ describe('RuleActionsButtons', () => {
   });
 
   it('should be able to pause a Grafana rule', async () => {
-    const user = userEvent.setup();
     grantAllPermissions();
     const mockRule = getGrafanaRule();
 
-    render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
+    const { user } = render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
 
     await user.click(await ui.moreButton.find());
     await user.click(await ui.pauseButton.find());
@@ -91,13 +89,12 @@ describe('RuleActionsButtons', () => {
   });
 
   it('renders correct options for Cloud rule', async () => {
-    const user = userEvent.setup();
     grantAllPermissions();
     const mockRule = getCloudRule();
     const dataSource = mockDataSource({ id: 1 });
 
     const defaultState = configureStore().getState();
-    render(<RuleActionsButtons rule={mockRule} rulesSource={dataSource} />, {
+    const { user } = render(<RuleActionsButtons rule={mockRule} rulesSource={dataSource} />, {
       preloadedState: produce(defaultState, (store) => {
         store.unifiedAlerting.dataSources[dataSource.name] = {
           loading: false,
@@ -120,12 +117,11 @@ describe('RuleActionsButtons', () => {
   });
 
   it('renders minimal "More" menu when appropriate', async () => {
-    const user = userEvent.setup();
     grantNoPermissions();
 
     const mockRule = getGrafanaRule({ promRule: mockPromAlertingRule({ state: PromAlertingRuleState.Inactive }) });
 
-    render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
+    const { user } = render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
 
     await user.click(await ui.moreButton.find());
 
@@ -133,11 +129,10 @@ describe('RuleActionsButtons', () => {
   });
 
   it('does not allow deletion when rule is provisioned', async () => {
-    const user = userEvent.setup();
     grantAllPermissions();
     const mockRule = getGrafanaRule({ rulerRule: mockGrafanaRulerRule({ provenance: 'file' }) });
 
-    render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
+    const { user } = render(<RuleActionsButtons rule={mockRule} rulesSource="grafana" />);
 
     await user.click(await ui.moreButton.find());
 

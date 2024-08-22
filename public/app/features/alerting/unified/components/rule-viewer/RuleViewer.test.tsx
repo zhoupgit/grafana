@@ -148,7 +148,7 @@ describe('RuleViewer', () => {
     });
 
     it('should render a Grafana managed alert rule', async () => {
-      await renderRuleViewer(mockRule, mockRuleIdentifier);
+      const { user } = await renderRuleViewer(mockRule, mockRuleIdentifier);
 
       // assert on basic info to be visible
       expect(screen.getByText('Test alert')).toBeInTheDocument();
@@ -174,7 +174,7 @@ describe('RuleViewer', () => {
       expect(ELEMENTS.actions.more.button.get()).toBeInTheDocument();
 
       // check the "more actions" button
-      await userEvent.click(ELEMENTS.actions.more.button.get());
+      await user.click(ELEMENTS.actions.more.button.get());
       const menuItems = Object.values(ELEMENTS.actions.more.actions);
       for (const menuItem of menuItems) {
         expect(menuItem.get()).toBeInTheDocument();
@@ -226,9 +226,7 @@ describe('RuleViewer', () => {
       });
       const sloRuleIdentifier = ruleId.fromCombinedRule('mimir-1', sloRule);
 
-      const user = userEvent.setup();
-
-      renderRuleViewer(sloRule, sloRuleIdentifier);
+      const { user } = await renderRuleViewer(sloRule, sloRuleIdentifier);
 
       expect(ELEMENTS.actions.more.button.get()).toBeInTheDocument();
 
@@ -247,11 +245,11 @@ describe('RuleViewer', () => {
       });
       const assertsRuleIdentifier = ruleId.fromCombinedRule('mimir-1', assertsRule);
 
-      renderRuleViewer(assertsRule, assertsRuleIdentifier);
+      const { user } = await renderRuleViewer(assertsRule, assertsRuleIdentifier);
 
       expect(ELEMENTS.actions.more.button.get()).toBeInTheDocument();
 
-      await userEvent.click(ELEMENTS.actions.more.button.get());
+      await user.click(ELEMENTS.actions.more.button.get());
 
       expect(ELEMENTS.actions.more.pluginActions.assertsWorkbench.get()).toBeInTheDocument();
       expect(ELEMENTS.actions.more.pluginActions.sloDashboard.query()).not.toBeInTheDocument();
@@ -262,13 +260,14 @@ describe('RuleViewer', () => {
 });
 
 const renderRuleViewer = async (rule: CombinedRule, identifier: RuleIdentifier) => {
-  render(
+  const utils = render(
     <AlertRuleProvider identifier={identifier} rule={rule}>
       <RuleViewer />
     </AlertRuleProvider>
   );
 
   await waitFor(() => expect(ELEMENTS.loading.query()).not.toBeInTheDocument());
+  return utils;
 };
 
 jest.mock('@grafana/runtime', () => ({

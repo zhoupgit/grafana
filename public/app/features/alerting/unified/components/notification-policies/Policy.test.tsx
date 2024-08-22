@@ -1,7 +1,6 @@
-import { render, renderHook, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { first, noop } from 'lodash';
 import { Router } from 'react-router-dom';
+import { render, renderHook, screen, within } from 'test/test-utils';
 
 import { config, locationService } from '@grafana/runtime';
 import { contextSrv } from 'app/core/core';
@@ -52,9 +51,8 @@ describe('Policy', () => {
     );
 
     const routeTree = mockRoutes;
-    const user = userEvent.setup();
 
-    renderPolicy(
+    const { user } = renderPolicy(
       <Policy
         routeTree={routeTree}
         currentRoute={routeTree}
@@ -160,9 +158,8 @@ describe('Policy', () => {
     );
 
     const routeTree = mockRoutes;
-    const user = userEvent.setup();
 
-    renderPolicy(
+    const { user } = renderPolicy(
       <Policy
         routeTree={routeTree}
         currentRoute={routeTree}
@@ -198,9 +195,7 @@ describe('Policy', () => {
       [false, true],
     ]);
 
-    const user = userEvent.setup();
-
-    renderPolicy(
+    const { user } = renderPolicy(
       <Policy
         routeTree={routeTree}
         currentRoute={routeTree}
@@ -235,9 +230,7 @@ describe('Policy', () => {
       [true, false],
     ]);
 
-    const user = userEvent.setup();
-
-    renderPolicy(
+    const { user } = renderPolicy(
       <Policy
         routeTree={routeTree}
         currentRoute={routeTree}

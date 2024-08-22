@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { times } from 'lodash';
+import { render, screen } from 'test/test-utils';
 
 import { DataFrame, toDataFrame } from '@grafana/data';
 
@@ -46,21 +45,21 @@ describe('TestResult', () => {
   it('should paginate with greater than PAGE_SIZE', async () => {
     const series: DataFrame[] = makeSeries(50);
 
-    render(<ExpressionResult series={series} />);
+    const { user } = render(<ExpressionResult series={series} />);
     expect(screen.getByTestId('paginate-expression')).toBeInTheDocument();
     expect(screen.getByText(`1 - 20 of ${50}`)).toBeInTheDocument();
 
     // click previous page
-    await userEvent.click(screen.getByLabelText('previous-page'));
+    await user.click(screen.getByLabelText('previous-page'));
     expect(screen.getByText(`1 - 20 of ${50}`)).toBeInTheDocument();
 
     // keep clicking next page, should clamp
-    await userEvent.click(screen.getByLabelText('next-page'));
+    await user.click(screen.getByLabelText('next-page'));
     expect(screen.getByText(`21 - 40 of ${50}`)).toBeInTheDocument();
-    await userEvent.click(screen.getByLabelText('next-page'));
+    await user.click(screen.getByLabelText('next-page'));
     expect(screen.getByText(`41 - 50 of ${50}`)).toBeInTheDocument();
     // click one more time, should still be on the last page
-    await userEvent.click(screen.getByLabelText('next-page'));
+    await user.click(screen.getByLabelText('next-page'));
     expect(screen.getByText(`41 - 50 of ${50}`)).toBeInTheDocument();
   });
 });
