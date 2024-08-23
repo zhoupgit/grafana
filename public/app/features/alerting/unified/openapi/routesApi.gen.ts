@@ -1,14 +1,14 @@
 import { alertingApi as api } from '../api/alertingApi';
-export const addTagTypes = ['Receiver'] as const;
+export const addTagTypes = ['Route'] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
     addTagTypes,
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      listNamespacedReceiver: build.query<ListNamespacedReceiverApiResponse, ListNamespacedReceiverApiArg>({
+      listNamespacedRoute: build.query<ListNamespacedRouteApiResponse, ListNamespacedRouteApiArg>({
         query: (queryArg) => ({
-          url: `/apis/notifications.alerting.grafana.app/v0alpha1/namespaces/${queryArg['namespace']}/receivers`,
+          url: `/apis/notifications.alerting.grafana.app/v0alpha1/namespaces/${queryArg['namespace']}/route`,
           params: {
             pretty: queryArg.pretty,
             allowWatchBookmarks: queryArg.allowWatchBookmarks,
@@ -23,15 +23,29 @@ const injectedRtkApi = api
             watch: queryArg.watch,
           },
         }),
-        providesTags: ['Receiver'],
+        providesTags: ['Route'],
+      }),
+      createNamespacedRoute: build.mutation<CreateNamespacedRouteApiResponse, CreateNamespacedRouteApiArg>({
+        query: (queryArg) => ({
+          url: `/apis/notifications.alerting.grafana.app/v0alpha1/namespaces/${queryArg['namespace']}/route`,
+          method: 'POST',
+          body: queryArg.comGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route,
+          params: {
+            pretty: queryArg.pretty,
+            dryRun: queryArg.dryRun,
+            fieldManager: queryArg.fieldManager,
+            fieldValidation: queryArg.fieldValidation,
+          },
+        }),
+        invalidatesTags: ['Route'],
       }),
     }),
     overrideExisting: false,
   });
-export { injectedRtkApi as generatedReceiversApi };
-export type ListNamespacedReceiverApiResponse =
-  /** status 200 OK */ ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1ReceiverList;
-export type ListNamespacedReceiverApiArg = {
+export { injectedRtkApi as generatedRoutesApi };
+export type ListNamespacedRouteApiResponse =
+  /** status 200 OK */ ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route;
+export type ListNamespacedRouteApiArg = {
   /** object name and auth scope, such as for teams and projects */
   namespace: string;
   /** If 'true', then the output is pretty printed. Defaults to 'false' unless the user-agent indicates a browser or command-line HTTP tool (curl and wget). */
@@ -76,6 +90,23 @@ export type ListNamespacedReceiverApiArg = {
   timeoutSeconds?: number;
   /** Watch for changes to the described resources and return them as a stream of add, update, and remove notifications. Specify resourceVersion. */
   watch?: boolean;
+};
+export type CreateNamespacedRouteApiResponse = /** status 200 OK */
+  | ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route
+  | /** status 201 Created */ ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route
+  | /** status 202 Accepted */ ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route;
+export type CreateNamespacedRouteApiArg = {
+  /** object name and auth scope, such as for teams and projects */
+  namespace: string;
+  /** If 'true', then the output is pretty printed. Defaults to 'false' unless the user-agent indicates a browser or command-line HTTP tool (curl and wget). */
+  pretty?: string;
+  /** When present, indicates that modifications should not be persisted. An invalid or unrecognized dryRun directive will result in an error response and no further processing of the request. Valid values are: - All: all dry run stages will be processed */
+  dryRun?: string;
+  /** fieldManager is a name associated with the actor or entity that is making these changes. The value must be less than or 128 characters long, and only contain printable characters, as defined by https://golang.org/pkg/unicode/#IsPrint. */
+  fieldManager?: string;
+  /** fieldValidation instructs the server on how to handle objects in the request (POST/PUT/PATCH) containing unknown or duplicate fields. Valid values are: - Ignore: This will ignore any unknown fields that are silently dropped from the object, and will ignore all but the last duplicate field that the decoder encounters. This is the default behavior prior to v1.23. - Warn: This will send a warning via the standard warning response header for each unknown field that is dropped from the object, and for each duplicate field that is encountered. The request will still succeed if there are no other errors, and will only persist the last of any duplicate fields. This is the default in v1.23+ - Strict: This will fail the request with a BadRequest error if any unknown fields would be dropped from the object, or if any duplicate fields are present. The error returned from the server will contain all unknown and duplicate fields encountered. */
+  fieldValidation?: string;
+  comGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route;
 };
 export type IoK8SApimachineryPkgApisMetaV1Time = string;
 export type IoK8SApimachineryPkgApisMetaV1FieldsV1 = object;
@@ -159,43 +190,35 @@ export type IoK8SApimachineryPkgApisMetaV1ObjectMeta = {
     Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids */
   uid?: string;
 };
-export type ComGithubGrafanaGrafanaPkgApimachineryApisCommonV0Alpha1Unstructured = {
-  [key: string]: any;
-};
-export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Integration = {
-  SecureFields?: ComGithubGrafanaGrafanaPkgApimachineryApisCommonV0Alpha1Unstructured;
-  disableResolveMessage?: boolean;
-  settings: ComGithubGrafanaGrafanaPkgApimachineryApisCommonV0Alpha1Unstructured;
+export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Matcher = {
+  label: string;
   type: string;
-  uid?: string;
+  value: string;
 };
-export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1ReceiverSpec = {
-  integrations: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Integration[];
-  title: string;
+export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1SubRoute = {
+  continue?: boolean;
+  group_by?: string[];
+  group_interval?: string;
+  group_wait?: string;
+  matchers?: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Matcher[];
+  mute_time_intervals?: string[];
+  receiver?: string;
+  repeat_interval?: string;
+  routes?: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1SubRoute[];
 };
-export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Receiver = {
+export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1RouteSpec = {
+  group_by?: string[];
+  group_interval?: string;
+  group_wait?: string;
+  receiver: string;
+  repeat_interval?: string;
+  routes?: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1SubRoute[];
+};
+export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Route = {
   /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
   apiVersion?: string;
   /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
   kind?: string;
   metadata: IoK8SApimachineryPkgApisMetaV1ObjectMeta;
-  spec: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1ReceiverSpec;
-};
-export type IoK8SApimachineryPkgApisMetaV1ListMeta = {
-  /** continue may be set if the user set a limit on the number of items returned, and indicates that the server has more data available. The value is opaque and may be used to issue another request to the endpoint that served this list to retrieve the next set of available objects. Continuing a consistent list may not be possible if the server configuration has changed or more than a few minutes have passed. The resourceVersion field returned when using this continue value will be identical to the value in the first response, unless you have received this token from an error message. */
-  continue?: string;
-  /** remainingItemCount is the number of subsequent items in the list which are not included in this list response. If the list request contained label or field selectors, then the number of remaining items is unknown and the field will be left unset and omitted during serialization. If the list is complete (either because it is not chunking or because this is the last chunk), then there are no more remaining items and this field will be left unset and omitted during serialization. Servers older than v1.15 do not set this field. The intended use of the remainingItemCount is *estimating* the size of a collection. Clients should not rely on the remainingItemCount to be set or to be exact. */
-  remainingItemCount?: number;
-  /** String that identifies the server's internal version of this object that can be used by clients to determine when objects have changed. Value must be treated as opaque by clients and passed unmodified back to the server. Populated by the system. Read-only. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency */
-  resourceVersion?: string;
-  /** Deprecated: selfLink is a legacy read-only field that is no longer populated by the system. */
-  selfLink?: string;
-};
-export type ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1ReceiverList = {
-  /** APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources */
-  apiVersion?: string;
-  items: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1Receiver[];
-  /** Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds */
-  kind?: string;
-  metadata: IoK8SApimachineryPkgApisMetaV1ListMeta;
+  spec: ComGithubGrafanaGrafanaPkgApisAlertingNotificationsV0Alpha1RouteSpec;
 };
