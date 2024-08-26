@@ -2,11 +2,9 @@ package folders
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"testing"
 
-	"github.com/grafana/grafana-openapi-client-go/client/folders"
 	"github.com/grafana/grafana-openapi-client-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -92,14 +90,12 @@ func TestIntegrationCreateFolder(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.Code())
 
-		t.Run("create folder with same name under root should fail", func(t *testing.T) {
+		t.Run("create folder with same name under root should succeed", func(t *testing.T) {
 			_, err := adminClient.Folders.CreateFolder(&models.CreateFolderCommand{
 				Title: "folder",
 			})
-			require.Error(t, err)
-			var conflict *folders.CreateFolderConflict
-			assert.True(t, errors.As(err, &conflict))
-			assert.Equal(t, http.StatusConflict, conflict.Code())
+			require.NoError(t, err)
+			require.Equal(t, http.StatusOK, resp.Code())
 		})
 	})
 }
@@ -133,14 +129,12 @@ func TestIntegrationNestedFoldersOn(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.Code())
 
-		t.Run("create folder with same name under root should fail", func(t *testing.T) {
+		t.Run("create folder with same name under root should succeed", func(t *testing.T) {
 			_, err := adminClient.Folders.CreateFolder(&models.CreateFolderCommand{
 				Title: "folder",
 			})
-			require.Error(t, err)
-			var conflict *folders.CreateFolderConflict
-			assert.True(t, errors.As(err, &conflict))
-			assert.Equal(t, http.StatusConflict, conflict.Code())
+			require.NoError(t, err)
+			require.Equal(t, http.StatusOK, resp.Code())
 		})
 	})
 
@@ -159,15 +153,13 @@ func TestIntegrationNestedFoldersOn(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.Code())
 
-		t.Run("create subfolder with same name should fail", func(t *testing.T) {
+		t.Run("create subfolder with same name should succeed", func(t *testing.T) {
 			resp, err = adminClient.Folders.CreateFolder(&models.CreateFolderCommand{
 				Title:     "subfolder",
 				ParentUID: parentUID,
 			})
-			require.Error(t, err)
-			var conflict *folders.CreateFolderConflict
-			assert.True(t, errors.As(err, &conflict))
-			assert.Equal(t, http.StatusConflict, conflict.Code())
+			require.NoError(t, err)
+			require.Equal(t, http.StatusOK, resp.Code())
 		})
 
 		t.Run("create subfolder with same name under other folder should succeed", func(t *testing.T) {
