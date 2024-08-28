@@ -1,13 +1,14 @@
 package codegen
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"strings"
 
-	copenapi "cuelang.org/go/encoding/openapi"
+	"cuelang.org/go/cue"
 	"github.com/grafana/codejen"
-	"github.com/grafana/grafana/pkg/codegen/generators"
+	"github.com/grafana/cog"
 	"github.com/grafana/grafana/pkg/plugins/pfs"
 )
 
@@ -35,15 +36,14 @@ func (j *pgoJenny) Generate(decl *pfs.PluginDecl) (*codejen.File, error) {
 	}
 
 	slotname := strings.ToLower(decl.SchemaInterface.Name)
-	byt, err := generators.GenerateTypesGo(decl.CueFile, &generators.GoConfig{
-		Config: &generators.OpenApiConfig{
-			Config: &copenapi.Config{
-				MaxCycleDepth: 10,
-			},
-			IsGroup: decl.SchemaInterface.IsGroup,
-		},
-		PackageName: slotname,
-	})
+	schemaPath := decl.CueFile.LookupPath(cue.ParsePath("lineage.schemas[0].schema"))
+
+	envelopeName, err := getEnvelopeName(decl.CueFile)
+	if err != nil {
+		return nil, err
+	}
+
+	byt, err := cog.TypesFromSchema().Golang().CUEValue(slotname, schemaPath, cog.ForceEnvelope(envelopeName)).Run(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -56,4 +56,9 @@ func (j *pgoJenny) Generate(decl *pfs.PluginDecl) (*codejen.File, error) {
 	}
 	filename := fmt.Sprintf("types_%s_gen.go", slotname)
 	return codejen.NewFile(filepath.Join(j.root, pluginfolder, "kinds", slotname, filename), byt, j), nil
+}
+
+func getEnvelopeName(v cue.Value) (string, error) {
+	nameValue := v.LookupPath(cue.ParsePath("name"))
+	return nameValue.String()
 }
