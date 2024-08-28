@@ -79,7 +79,7 @@ func (e *AzureLogAnalyticsDatasource) GetBasicLogsUsage(ctx context.Context, url
 		},
 		TimeColumn: "TimeGenerated",
 		Resources:  []string{payload.Resource},
-		QueryType:  dataquery.AzureQueryTypeAzureLogAnalytics,
+		QueryType:  dataquery.AzureQueryTypeLogAnalytics,
 		URL:        getApiURL(payload.Resource, false, false),
 	}
 
@@ -167,7 +167,7 @@ func buildLogAnalyticsQuery(query backend.DataQuery, dsInfo types.DatasourceInfo
 	azureLogAnalyticsTarget := queryJSONModel.AzureLogAnalytics
 	basicLogsQuery := false
 
-	resultFormat := ParseResultFormat(azureLogAnalyticsTarget.ResultFormat, dataquery.AzureQueryTypeAzureLogAnalytics)
+	resultFormat := ParseResultFormat(azureLogAnalyticsTarget.ResultFormat, dataquery.AzureQueryTypeLogAnalytics)
 
 	basicLogsQueryFlag := false
 	if azureLogAnalyticsTarget.BasicLogsQuery != nil {
@@ -232,7 +232,7 @@ func (e *AzureLogAnalyticsDatasource) buildQueries(ctx context.Context, queries 
 	}
 
 	for _, query := range queries {
-		if query.QueryType == string(dataquery.AzureQueryTypeAzureLogAnalytics) {
+		if query.QueryType == string(dataquery.AzureQueryTypeLogAnalytics) {
 			azureLogAnalyticsQuery, err := buildLogAnalyticsQuery(query, dsInfo, appInsightsRegExp, fromAlert)
 			if err != nil {
 				return nil, fmt.Errorf("failed to build azure log analytics query: %w", err)
@@ -240,8 +240,8 @@ func (e *AzureLogAnalyticsDatasource) buildQueries(ctx context.Context, queries 
 			azureLogAnalyticsQueries = append(azureLogAnalyticsQueries, azureLogAnalyticsQuery)
 		}
 
-		if query.QueryType == string(dataquery.AzureQueryTypeAzureTraces) || query.QueryType == string(dataquery.AzureQueryTypeTraceql) {
-			if query.QueryType == string(dataquery.AzureQueryTypeTraceql) {
+		if query.QueryType == string(dataquery.AzureQueryTypeAzureTraces) || query.QueryType == string(dataquery.AzureQueryTypeTraceExemplar) {
+			if query.QueryType == string(dataquery.AzureQueryTypeTraceExemplar) {
 				cfg := backend.GrafanaConfigFromContext(ctx)
 				hasPromExemplarsToggle := cfg.FeatureToggles().IsEnabled("azureMonitorPrometheusExemplars")
 				if !hasPromExemplarsToggle {
@@ -328,7 +328,7 @@ func (e *AzureLogAnalyticsDatasource) executeQuery(ctx context.Context, query *A
 		return nil, err
 	}
 
-	if (query.QueryType == dataquery.AzureQueryTypeAzureTraces || query.QueryType == dataquery.AzureQueryTypeTraceql) && query.ResultFormat == dataquery.ResultFormatTrace {
+	if (query.QueryType == dataquery.AzureQueryTypeAzureTraces || query.QueryType == dataquery.AzureQueryTypeTraceExemplar) && query.ResultFormat == dataquery.ResultFormatTrace {
 		frame.Meta.PreferredVisualization = data.VisTypeTrace
 	}
 
@@ -405,7 +405,7 @@ func addTraceDataLinksToFields(query *AzureLogAnalyticsQuery, azurePortalBaseUrl
 		queryJSONModel.AzureTraces.OperationId = &traceIdVariable
 	}
 
-	logsQueryType := string(dataquery.AzureQueryTypeAzureLogAnalytics)
+	logsQueryType := string(dataquery.AzureQueryTypeLogAnalytics)
 	logsJSONModel := dataquery.AzureMonitorQuery{
 		QueryType: &logsQueryType,
 		AzureLogAnalytics: &dataquery.AzureLogsQuery{
@@ -479,7 +479,7 @@ func (e *AzureLogAnalyticsDatasource) createRequest(ctx context.Context, queryUR
 		body["query_datetimescope_column"] = query.TimeColumn
 	}
 
-	if len(query.Resources) > 1 && query.QueryType == dataquery.AzureQueryTypeAzureLogAnalytics && !query.AppInsightsQuery {
+	if len(query.Resources) > 1 && query.QueryType == dataquery.AzureQueryTypeLogAnalytics && !query.AppInsightsQuery {
 		str := strings.ToLower(query.Resources[0])
 
 		if strings.Contains(str, "microsoft.operationalinsights/workspaces") {
