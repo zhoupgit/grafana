@@ -43,7 +43,11 @@ func (j *pgoJenny) Generate(decl *pfs.PluginDecl) (*codejen.File, error) {
 		return nil, err
 	}
 
-	byt, err := cog.TypesFromSchema().Golang().CUEValue(slotname, schemaPath, cog.ForceEnvelope(envelopeName)).Run(context.Background())
+	byt, err := cog.
+		TypesFromSchema().
+		Golang().
+		CUEValue(slotname, schemaPath, cog.ForceEnvelope(envelopeName)).
+		Run(context.Background())
 	if err != nil {
 		return nil, err
 	}
