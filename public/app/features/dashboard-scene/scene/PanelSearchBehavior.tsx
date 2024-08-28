@@ -69,12 +69,31 @@ export class PanelSearchBehavior extends SceneObjectBase<SceneObjectState> {
       }
 
       const panelFilterInterpolated = sceneGraph.interpolate(this, panelFilterValue).toLowerCase();
-      const filteredChildren = sceneGridLayout.state.children.filter(
-        (gridItem) =>
+      const filteredChildren = sceneGridLayout.state.children.filter((gridItem) => {
+        //check repeated panels
+
+        if (gridItem instanceof DashboardGridItem && 'repeatdPanels' in gridItem.state) {
+          let repeatedPanels = gridItem.state.repeatedPanels ?? [];
+          if (repeatedPanels) {
+            repeatedPanels.map((repeatedPanel) => {
+              if ('title' in repeatedPanel.state) {
+                const interpolatedRepeatedPanel = sceneGraph.interpolate(this, repeatedPanel.state.title).toLowerCase();
+                //TODO: title interpolation is returning something like 'panel title {val1, val2}' so it will not
+                //match with something like 'panel title val1'
+                return interpolatedRepeatedPanel.includes(panelFilterInterpolated);
+              }
+              return false;
+            });
+          }
+          return false;
+        }
+
+        return (
           gridItem instanceof DashboardGridItem &&
           'title' in gridItem.state.body.state &&
           gridItem.state.body.state.title.toLowerCase().includes(panelFilterInterpolated)
-      );
+        );
+      });
 
       // this._skipOnLayoutChange = true;
       const rowSize = clamp(
