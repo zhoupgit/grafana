@@ -7,46 +7,43 @@
 //
 // Run 'make gen-cue' from repository root to regenerate.
 
+// Code generated - EDITING IS FUTILE. DO NOT EDIT.
+
 package preferences
-
-// CookiePreferences defines model for CookiePreferences.
-type CookiePreferences struct {
-	Analytics   map[string]any `json:"analytics,omitempty"`
-	Functional  map[string]any `json:"functional,omitempty"`
-	Performance map[string]any `json:"performance,omitempty"`
-}
-
-// NavbarPreference defines model for NavbarPreference.
-type NavbarPreference struct {
-	BookmarkUrls []string `json:"bookmarkUrls"`
-}
-
-// QueryHistoryPreference defines model for QueryHistoryPreference.
-type QueryHistoryPreference struct {
-	// HomeTab one of: '' | 'query' | 'starred';
-	HomeTab *string `json:"homeTab,omitempty"`
-}
 
 // Spec defines user, team or org Grafana preferences
 // swagger:model Preferences
 type Spec struct {
-	CookiePreferences *CookiePreferences `json:"cookiePreferences,omitempty"`
-
 	// UID for the home dashboard
 	HomeDashboardUID *string `json:"homeDashboardUID,omitempty"`
-
-	// Selected language (beta)
-	Language     *string                 `json:"language,omitempty"`
-	Navbar       *NavbarPreference       `json:"navbar,omitempty"`
-	QueryHistory *QueryHistoryPreference `json:"queryHistory,omitempty"`
-
-	// Theme light, dark, empty is default
-	Theme *string `json:"theme,omitempty"`
-
 	// The timezone selection
 	// TODO: this should use the timezone defined in common
 	Timezone *string `json:"timezone,omitempty"`
-
-	// WeekStart day of the week (sunday, monday, etc)
+	// day of the week (sunday, monday, etc)
 	WeekStart *string `json:"weekStart,omitempty"`
+	// light, dark, empty is default
+	Theme *string `json:"theme,omitempty"`
+	// Selected language (beta)
+	Language *string `json:"language,omitempty"`
+	// Explore query history preferences
+	QueryHistory *QueryHistoryPreference `json:"queryHistory,omitempty"`
+	// Cookie preferences
+	CookiePreferences *CookiePreferences `json:"cookiePreferences,omitempty"`
+	// Navigation preferences
+	Navbar *NavbarPreference `json:"navbar,omitempty"`
+}
+
+type QueryHistoryPreference struct {
+	// one of: '' | 'query' | 'starred';
+	HomeTab *string `json:"homeTab,omitempty"`
+}
+
+type CookiePreferences struct {
+	Analytics   any `json:"analytics,omitempty"`
+	Performance any `json:"performance,omitempty"`
+	Functional  any `json:"functional,omitempty"`
+}
+
+type NavbarPreference struct {
+	BookmarkUrls []string `json:"bookmarkUrls"`
 }
