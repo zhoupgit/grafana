@@ -64,7 +64,7 @@ func ParseResultFormat(queryResultFormat *dataquery.ResultFormat, queryType data
 		resultFormat = *queryResultFormat
 	}
 	if resultFormat == "" {
-		if queryType == dataquery.AzureQueryTypeAzureLogAnalytics {
+		if queryType == dataquery.AzureQueryTypeLogAnalytics {
 			// Default to logs format for logs queries
 			resultFormat = dataquery.ResultFormatLogs
 		}

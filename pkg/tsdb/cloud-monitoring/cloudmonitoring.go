@@ -615,7 +615,7 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 	return data, nil
 }
 
-func addConfigData(frames data.Frames, dl string, unit string, period *string) data.Frames {
+func addConfigData(frames data.Frames, dl string, unit string, period string) data.Frames {
 	for i := range frames {
 		if frames[i].Fields[1].Config == nil {
 			frames[i].Fields[1].Config = &data.FieldConfig{}
@@ -636,8 +636,8 @@ func addConfigData(frames data.Frames, dl string, unit string, period *string) d
 		if frames[i].Fields[0].Config == nil {
 			frames[i].Fields[0].Config = &data.FieldConfig{}
 		}
-		if period != nil && *period != "" {
-			err := addInterval(*period, frames[i].Fields[0])
+		if period != "" {
+			err := addInterval(period, frames[i].Fields[0])
 			if err != nil {
 				backend.Logger.Error("Failed to add interval", "error", err)
 			}

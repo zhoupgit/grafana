@@ -47,7 +47,7 @@ func parseTimeSeriesResponse(queryRes *backend.DataResponse,
 	if len(response.TimeSeries) > 0 {
 		dl := query.buildDeepLink()
 		aggregationAlignmentString := params.Get("aggregation.alignmentPeriod")
-		frames = addConfigData(frames, dl, response.Unit, &aggregationAlignmentString)
+		frames = addConfigData(frames, dl, response.Unit, aggregationAlignmentString)
 	}
 
 	queryRes.Frames = frames
