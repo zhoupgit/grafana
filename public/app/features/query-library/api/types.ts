@@ -31,3 +31,4 @@ export type DataQuerySpecResponse = {
 };
 
 export const CREATED_BY_KEY = 'grafana.app/createdBy';
+export const USER_NAME_KEY = 'grafana.app/userName';

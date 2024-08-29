@@ -21,6 +21,8 @@ import (
 const AnnoKeyCreatedBy = "grafana.app/createdBy"
 const AnnoKeyUpdatedTimestamp = "grafana.app/updatedTimestamp"
 const AnnoKeyUpdatedBy = "grafana.app/updatedBy"
+const AnnoKeyUserName = "grafana.app/userName"
+const AnnoyKeyAvatarUrl = "grafana.app/avatarUrl"
 const AnnoKeyFolder = "grafana.app/folder"
 const AnnoKeySlug = "grafana.app/slug"
 const AnnoKeyBlob = "grafana.app/blob"
@@ -70,6 +72,10 @@ type GrafanaMetaAccessor interface {
 	SetUpdatedTimestampMillis(unix int64)
 	GetCreatedBy() string
 	SetCreatedBy(user string)
+	GetUserName() string
+	SetUserName(userName string)
+	GetAvatarUrl() string
+	SetAvatarUrl(url string)
 	GetUpdatedBy() string
 	SetUpdatedBy(user string)
 	GetFolder() string
@@ -200,6 +206,22 @@ func (m *grafanaMetaAccessor) GetCreatedBy() string {
 
 func (m *grafanaMetaAccessor) SetCreatedBy(user string) {
 	m.SetAnnotation(AnnoKeyCreatedBy, user)
+}
+
+func (m *grafanaMetaAccessor) GetUserName() string {
+	return m.get(AnnoKeyUserName)
+}
+
+func (m *grafanaMetaAccessor) SetUserName(userName string) {
+	m.SetAnnotation(AnnoKeyUserName, userName)
+}
+
+func (m *grafanaMetaAccessor) GetAvatarUrl() string {
+	return m.get(AnnoyKeyAvatarUrl)
+}
+
+func (m *grafanaMetaAccessor) SetAvatarUrl(url string) {
+	m.SetAnnotation(AnnoyKeyAvatarUrl, url)
 }
 
 func (m *grafanaMetaAccessor) GetUpdatedBy() string {

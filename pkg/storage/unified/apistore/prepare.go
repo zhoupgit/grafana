@@ -9,8 +9,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/storage"
 
+	"github.com/grafana/grafana/pkg/api/dtos"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/apimachinery/utils"
+	"github.com/grafana/grafana/pkg/setting"
 )
 
 // Called on create
@@ -43,6 +45,8 @@ func (s *Storage) prepareObjectForStorage(ctx context.Context, newObject runtime
 	obj.SetUpdatedBy("")
 	obj.SetUpdatedTimestamp(nil)
 	obj.SetCreatedBy(user.GetUID())
+	obj.SetUserName(user.GetName())
+	obj.SetAvatarUrl(dtos.GetGravatarUrl(&setting.Cfg{}, user.GetEmail()))
 
 	var buf bytes.Buffer
 	err = s.codec.Encode(newObject, &buf)

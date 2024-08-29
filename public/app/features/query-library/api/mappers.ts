@@ -1,7 +1,7 @@
 import { AddQueryTemplateCommand, QueryTemplate } from '../types';
 
 import { API_VERSION, QueryTemplateKinds } from './query';
-import { CREATED_BY_KEY, DataQueryFullSpec, DataQuerySpecResponse, DataQueryTarget } from './types';
+import { CREATED_BY_KEY, DataQueryFullSpec, DataQuerySpecResponse, DataQueryTarget, USER_NAME_KEY } from './types';
 
 export const parseCreatedByValue = (value?: string) => {
   // https://github.com/grafana/grafana/blob/main/pkg/services/user/identity.go#L194
@@ -35,7 +35,9 @@ export const convertDataQueryResponseToQueryTemplates = (result: DataQuerySpecRe
       title: spec.spec.title,
       targets: spec.spec.targets.map((target: DataQueryTarget) => target.properties),
       createdAtTimestamp: new Date(spec.metadata.creationTimestamp || '').getTime(),
-      user: parseCreatedByValue(spec.metadata?.annotations?.[CREATED_BY_KEY]),
+      user:
+        parseCreatedByValue(spec.metadata.annotations?.[USER_NAME_KEY]) ??
+        parseCreatedByValue(spec.metadata?.annotations?.[CREATED_BY_KEY]),
     };
   });
 };
