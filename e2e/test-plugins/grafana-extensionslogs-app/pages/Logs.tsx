@@ -31,10 +31,8 @@ const getScene = () => {
       {
         refId: 'A',
         datasource: DATASOURCE_REF,
-        scenarioId: 'random_walk',
-        seriesCount: 5,
-        min: 30,
-        max: 60,
+        scenarioId: 'logs',
+        lines: 100,
       },
     ],
     maxDataPoints: 100,
@@ -47,20 +45,17 @@ const getScene = () => {
       children: [
         new SceneFlexItem({
           minHeight: 300,
-          body: PanelBuilders.timeseries()
-            // Title is using variable value
-            .setTitle('${seriesToShow}')
-            .build(),
+          body: PanelBuilders.logs().setTitle('Logs').build(),
         }),
       ],
     }),
     controls: [
-      new VariableValueSelectors({}),
       new SceneControlsSpacer(),
       new SceneTimePicker({ isOnCanvas: true }),
       new SceneRefreshPicker({
         intervals: ['5s', '1m', '1h'],
         isOnCanvas: true,
+        refresh: 'auto',
       }),
     ],
   });
