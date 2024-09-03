@@ -132,6 +132,7 @@ export function formValuesToRulerRuleDTO(values: RuleFormValues): RulerRuleDTO {
     }
 
     return {
+      __identifier: '',
       alert: name,
       for: `${forTime}${forTimeUnit}`,
       keep_firing_for: keepFiringFor,
@@ -141,6 +142,7 @@ export function formValuesToRulerRuleDTO(values: RuleFormValues): RulerRuleDTO {
     };
   } else if (type === RuleFormType.cloudRecording) {
     return {
+      __identifier: '',
       record: name,
       labels,
       expr: expression,

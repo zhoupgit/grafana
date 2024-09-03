@@ -106,7 +106,7 @@ export function isGrafanaRuleIdentifier(identifier: RuleIdentifier): identifier 
 }
 
 export function isCloudRuleIdentifier(identifier: RuleIdentifier): identifier is CloudRuleIdentifier {
-  return 'rulerRuleHash' in identifier;
+  return 'namespace' in identifier && 'groupName' in identifier && 'ruleUid' in identifier;
 }
 
 export function isPromRuleType(ruleType: string): ruleType is PromRuleType {

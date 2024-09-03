@@ -174,6 +174,7 @@ export type PromRulesResponse = PromResponse<{
 
 // Ruler rule DTOs
 interface RulerRuleBaseDTO {
+  __identifier: string;
   expr: string;
   labels?: Labels;
 }

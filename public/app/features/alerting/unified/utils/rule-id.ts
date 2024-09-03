@@ -38,7 +38,7 @@ export function fromRulerRule(
     namespace,
     groupName,
     ruleName: isAlertingRulerRule(rule) ? rule.alert : rule.record,
-    rulerRuleHash: hashRulerRule(rule),
+    ruleUid: hashRulerRule(rule),
   } satisfies CloudRuleIdentifier;
 }
 
@@ -56,7 +56,7 @@ export function fromRule(ruleSourceName: string, namespace: string, groupName: s
     namespace,
     groupName,
     ruleName: rule.name,
-    ruleHash: hashRule(rule),
+    ruleUid: hashRule(rule),
   };
 }
 
@@ -64,15 +64,20 @@ export function fromCombinedRule(ruleSourceName: string, rule: CombinedRule): Ru
   const namespaceName = rule.namespace.name;
   const groupName = rule.group.name;
 
-  if (rule.rulerRule) {
-    return fromRulerRule(ruleSourceName, namespaceName, groupName, rule.rulerRule);
+  if (rule.rulerRule && isGrafanaRulerRule(rule.rulerRule)) {
+    return {
+      uid: rule.rulerRule.grafana_alert.uid,
+      ruleSourceName: 'grafana',
+    };
   }
 
-  if (rule.promRule) {
-    return fromRule(ruleSourceName, namespaceName, groupName, rule.promRule);
-  }
-
-  throw new Error('Could not create an id for a rule that is missing both `rulerRule` and `promRule`.');
+  return {
+    ruleSourceName,
+    namespace: namespaceName,
+    groupName,
+    ruleName: rule.name,
+    ruleUid: rule.uid,
+  } satisfies CloudRuleIdentifier;
 }
 
 export function fromRuleWithLocation(rule: RuleWithLocation): RuleIdentifier {
@@ -89,39 +94,7 @@ export function equal(a: RuleIdentifier, b: RuleIdentifier) {
       a.groupName === b.groupName &&
       a.namespace === b.namespace &&
       a.ruleName === b.ruleName &&
-      a.rulerRuleHash === b.rulerRuleHash &&
-      a.ruleSourceName === b.ruleSourceName
-    );
-  }
-
-  if (isPrometheusRuleIdentifier(a) && isPrometheusRuleIdentifier(b)) {
-    return (
-      a.groupName === b.groupName &&
-      a.namespace === b.namespace &&
-      a.ruleName === b.ruleName &&
-      a.ruleHash === b.ruleHash &&
-      a.ruleSourceName === b.ruleSourceName
-    );
-  }
-
-  // It might happen to compare Cloud and Prometheus identifiers for datasources with available Ruler API
-  // It happends when the Ruler API timeouts and the UI cannot create Cloud identifiers, so it creates a Prometheus identifier instead.
-  if (isCloudRuleIdentifier(a) && isPrometheusRuleIdentifier(b)) {
-    return (
-      a.groupName === b.groupName &&
-      a.namespace === b.namespace &&
-      a.ruleName === b.ruleName &&
-      a.rulerRuleHash === b.ruleHash &&
-      a.ruleSourceName === b.ruleSourceName
-    );
-  }
-
-  if (isPrometheusRuleIdentifier(a) && isCloudRuleIdentifier(b)) {
-    return (
-      a.groupName === b.groupName &&
-      a.namespace === b.namespace &&
-      a.ruleName === b.ruleName &&
-      a.ruleHash === b.rulerRuleHash &&
+      a.ruleUid === b.ruleUid &&
       a.ruleSourceName === b.ruleSourceName
     );
   }
@@ -164,16 +137,16 @@ export function parse(value: string, decodeFromUri = false): RuleIdentifier {
   }
 
   if (parts.length === 6) {
-    const [prefix, ruleSourceName, namespace, groupName, ruleName, hash] = parts
+    const [prefix, ruleSourceName, namespace, groupName, ruleName, ruleUid] = parts
       .map(unescapeDollars)
       .map(unescapePathSeparators);
 
     if (prefix === cloudRuleIdentifierPrefix) {
-      return { ruleSourceName, namespace, groupName, ruleName, rulerRuleHash: hash };
+      return { ruleSourceName, namespace, groupName, ruleName, ruleUid };
     }
 
     if (prefix === prometheusRuleIdentifierPrefix) {
-      return { ruleSourceName, namespace, groupName, ruleName, ruleHash: hash };
+      return { ruleSourceName, namespace, groupName, ruleName, ruleUid };
     }
   }
 
@@ -197,28 +170,13 @@ export function stringifyIdentifier(identifier: RuleIdentifier): string {
     return identifier.uid;
   }
 
-  if (isCloudRuleIdentifier(identifier)) {
-    return [
-      cloudRuleIdentifierPrefix,
-      identifier.ruleSourceName,
-      identifier.namespace,
-      identifier.groupName,
-      identifier.ruleName,
-      identifier.rulerRuleHash,
-    ]
-      .map(String)
-      .map(escapeDollars)
-      .map(escapePathSeparators)
-      .join('$');
-  }
-
   return [
-    prometheusRuleIdentifierPrefix,
+    cloudRuleIdentifierPrefix,
     identifier.ruleSourceName,
     identifier.namespace,
     identifier.groupName,
     identifier.ruleName,
-    identifier.ruleHash,
+    identifier.ruleUid,
   ]
     .map(String)
     .map(escapeDollars)

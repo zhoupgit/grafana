@@ -164,7 +164,7 @@ describe('CloneRuleEditor', function () {
             namespace: 'namespace-one',
             groupName: 'group1',
             ruleName: 'First Ruler Rule',
-            rulerRuleHash: hashRulerRule(originRule),
+            ruleUid: hashRulerRule(originRule),
           }}
         />,
         { wrapper: Wrapper }

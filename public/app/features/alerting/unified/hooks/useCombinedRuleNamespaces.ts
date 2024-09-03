@@ -350,6 +350,7 @@ function calculateAllGroupsTotals(groups: CombinedRuleGroup[]): AlertGroupTotals
 
 function promRuleToCombinedRule(rule: Rule, namespace: CombinedRuleNamespace, group: CombinedRuleGroup): CombinedRule {
   return {
+    uid: getCombinedRuleUidFromPromRule(rule),
     name: rule.name,
     query: rule.query,
     labels: rule.labels || {},
@@ -369,6 +370,7 @@ function rulerRuleToCombinedRule(
 ): CombinedRule {
   return isAlertingRulerRule(rule)
     ? {
+        uid: getCombinedRuleUidFromRulerRule(rule),
         name: rule.alert,
         query: rule.expr,
         labels: rule.labels || {},
@@ -381,6 +383,7 @@ function rulerRuleToCombinedRule(
       }
     : isRecordingRulerRule(rule)
       ? {
+          uid: getCombinedRuleUidFromRulerRule(rule),
           name: rule.record,
           query: rule.expr,
           labels: rule.labels || {},
@@ -392,6 +395,7 @@ function rulerRuleToCombinedRule(
           filteredInstanceTotals: {},
         }
       : {
+          uid: getCombinedRuleUidFromRulerRule(rule),
           name: rule.grafana_alert.title,
           query: '',
           labels: rule.labels || {},
@@ -402,6 +406,18 @@ function rulerRuleToCombinedRule(
           instanceTotals: {},
           filteredInstanceTotals: {},
         };
+}
+
+function getCombinedRuleUidFromRulerRule(rule: RulerRuleDTO): string {
+  if (isGrafanaRulerRule(rule)) {
+    return rule.grafana_alert.uid;
+  }
+  return rule.__identifier;
+}
+
+function getCombinedRuleUidFromPromRule(rule: Rule): string {
+  // TODO GMA should include GMA rule definition for prom rules as Ruler rules do
+  return rule.__identifier;
 }
 
 // find existing rule in group that matches the given prom rule

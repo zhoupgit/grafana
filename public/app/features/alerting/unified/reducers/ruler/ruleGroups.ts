@@ -106,7 +106,7 @@ const ruleFinder = (identifier: RuleIdentifier) => {
     }
 
     if (isDataSourceManagedRule && dataSourceManagedIdentifier) {
-      return hashRulerRule(rule) === identifier.rulerRuleHash;
+      return hashRulerRule(rule) === identifier.ruleUid;
     }
 
     return;

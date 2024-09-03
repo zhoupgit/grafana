@@ -32,6 +32,7 @@ export function hasAlertState(alert: Alert, state: PromAlertingRuleState | Grafa
 export type RuleHealth = 'nodata' | 'error' | 'err' | string;
 
 interface RuleBase {
+  __identifier: string;
   health: RuleHealth;
   name: string;
   query: string;
@@ -100,6 +101,7 @@ export type RulesSource = DataSourceInstanceSettings<PromOptions | LokiOptions> 
 
 // combined prom and ruler result
 export interface CombinedRule {
+  uid: string;
   name: string;
   query: string;
   labels: Labels;
@@ -171,20 +173,22 @@ export interface CloudRuleIdentifier {
   namespace: string;
   groupName: string;
   ruleName: string;
-  rulerRuleHash: string;
+  ruleUid: string;
 }
 export interface GrafanaRuleIdentifier {
   ruleSourceName: 'grafana';
   uid: string;
 }
 
-// Rule read directly from Prometheus without existing in the ruler API
+/**
+ * @deprecated Cloud rules identifier should be used instead
+ */
 export interface PrometheusRuleIdentifier {
   ruleSourceName: string;
   namespace: string;
   groupName: string;
   ruleName: string;
-  ruleHash: string;
+  ruleUid: string;
 }
 
 export type RuleIdentifier = EditableRuleIdentifier | PrometheusRuleIdentifier;

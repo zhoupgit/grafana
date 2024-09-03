@@ -105,7 +105,7 @@ describe('hashRulerRule', () => {
       namespace: 'folder1/folder2',
       groupName: 'group1/group2',
       ruleName: 'CPU-firing',
-      ruleHash: 'abc123',
+      ruleUid: 'abc123',
     };
 
     const encodedIdentifier = encodeURIComponent(stringifyIdentifier(identifier));
@@ -176,7 +176,7 @@ describe('equal', () => {
       namespace: 'cloud-alerts',
       groupName: 'cpu-usage',
       ruleName: alertingRule.prom.name,
-      ruleHash: hashRule(alertingRule.prom),
+      ruleUid: hashRule(alertingRule.prom),
     };
 
     const cloudIdentifier: RuleIdentifier = {
@@ -184,7 +184,7 @@ describe('equal', () => {
       namespace: 'cloud-alerts',
       groupName: 'cpu-usage',
       ruleName: alertingRule.ruler.alert,
-      ruleHash: hashRulerRule(alertingRule.ruler),
+      ruleUid: hashRulerRule(alertingRule.ruler),
     };
 
     const promToCloud = equal(promIdentifier, cloudIdentifier);

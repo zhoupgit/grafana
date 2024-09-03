@@ -180,7 +180,7 @@ function useRuleLocation(ruleIdentifier: RuleIdentifier): RequestState<RuleLocat
   );
 
   return useMemo(() => {
-    if (isPrometheusRuleIdentifier(ruleIdentifier) || isCloudRuleIdentifier(ruleIdentifier)) {
+    if (isCloudRuleIdentifier(ruleIdentifier)) {
       return {
         result: {
           namespace: ruleIdentifier.namespace,
