@@ -23,6 +23,7 @@ import appEvents from 'app/core/app_events';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 import { ShowModalReactEvent } from 'app/types/events';
 
+import { log } from './log';
 import { AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertLinkPathIsValid, assertStringProps, isPromise } from './validators';
 
@@ -369,6 +370,7 @@ export function getLinkExtensionOnClick(
         category: config.category,
       });
 
+      log.info('clicked something cool');
       const result = onClick(event, getEventHelpers(pluginId, context));
 
       if (isPromise(result)) {
