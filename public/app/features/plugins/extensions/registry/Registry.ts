@@ -1,5 +1,6 @@
 import { Observable, ReplaySubject, Subject, firstValueFrom, map, scan, startWith } from 'rxjs';
 
+import { ExtensionsLog } from '../log';
 import { deepFreeze } from '../utils';
 
 export type PluginExtensionConfigs<T> = {
@@ -17,9 +18,11 @@ type ConstructorOptions<T> = {
 export abstract class Registry<TRegistryValue, TMapType> {
   private resultSubject: Subject<PluginExtensionConfigs<TMapType>>;
   private registrySubject: ReplaySubject<RegistryType<TRegistryValue>>;
+  protected logger: ExtensionsLog;
 
   constructor(options: ConstructorOptions<TRegistryValue>) {
     const { initialState } = options;
+    this.logger = new ExtensionsLog();
     this.resultSubject = new Subject<PluginExtensionConfigs<TMapType>>();
     // This is the subject that we expose.
     // (It will buffer the last value on the stream - the registry - and emit it to new subscribers immediately.)
