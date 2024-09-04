@@ -38,7 +38,7 @@ export function fromRulerRule(
     namespace,
     groupName,
     ruleName: isAlertingRulerRule(rule) ? rule.alert : rule.record,
-    ruleUid: hashRulerRule(rule),
+    ruleUid: rule.__identifier,
   } satisfies CloudRuleIdentifier;
 }
 
@@ -56,7 +56,7 @@ export function fromRule(ruleSourceName: string, namespace: string, groupName: s
     namespace,
     groupName,
     ruleName: rule.name,
-    ruleUid: hashRule(rule),
+    ruleUid: rule.__identifier,
   };
 }
 
@@ -91,11 +91,11 @@ export function equal(a: RuleIdentifier, b: RuleIdentifier) {
 
   if (isCloudRuleIdentifier(a) && isCloudRuleIdentifier(b)) {
     return (
+      a.ruleSourceName === b.ruleSourceName &&
       a.groupName === b.groupName &&
       a.namespace === b.namespace &&
       a.ruleName === b.ruleName &&
-      a.ruleUid === b.ruleUid &&
-      a.ruleSourceName === b.ruleSourceName
+      a.ruleUid === b.ruleUid
     );
   }
 

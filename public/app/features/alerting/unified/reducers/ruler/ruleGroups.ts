@@ -5,7 +5,6 @@ import { EditableRuleIdentifier, GrafanaRuleIdentifier, RuleIdentifier } from 'a
 import { PostableRuleDTO, PostableRulerRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
 import { GRAFANA_RULES_SOURCE_NAME } from '../../utils/datasource';
-import { hashRulerRule } from '../../utils/rule-id';
 import {
   isCloudRuleIdentifier,
   isCloudRulerRule,
@@ -106,7 +105,7 @@ const ruleFinder = (identifier: RuleIdentifier) => {
     }
 
     if (isDataSourceManagedRule && dataSourceManagedIdentifier) {
-      return hashRulerRule(rule) === identifier.ruleUid;
+      return rule.__identifier === identifier.ruleUid;
     }
 
     return;

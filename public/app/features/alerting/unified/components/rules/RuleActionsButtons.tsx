@@ -54,7 +54,6 @@ export const RuleActionsButtons = ({ compact, showViewButton, showCopyLinkButton
     { identifier: RuleIdentifier; isProvisioned: boolean } | undefined
   >(undefined);
 
-  const { namespace, group, rulerRule } = rule;
   const { hasActiveFilters } = useRulesFilter();
 
   const returnTo = location.pathname + location.search;
@@ -92,9 +91,7 @@ export const RuleActionsButtons = ({ compact, showViewButton, showCopyLinkButton
     );
   }
 
-  if (rulerRule && canEditRule) {
-    const identifier = ruleId.fromRulerRule(sourceName, namespace.name, group.name, rulerRule);
-
+  if (canEditRule) {
     const editURL = createRelativeUrl(`/alerting/${encodeURIComponent(ruleId.stringifyIdentifier(identifier))}/edit`, {
       returnTo,
     });
