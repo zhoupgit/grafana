@@ -83,6 +83,16 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      // Exploring some OEM embedding options
+      path: '/dashboards/embedding-iframe-test',
+      component: SafeDynamicImport(
+        () =>
+          import(
+            /* webpackChunkName: "IframedDashboardTestPage"*/ 'app/features/dashboard-scene/embedding/IframedDashboardTestPage'
+          )
+      ),
+    },
+    {
       path: '/d-solo/:uid/:slug?',
       routeName: DashboardRoutes.Normal,
       chromeless: true,
