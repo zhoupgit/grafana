@@ -7,6 +7,7 @@ import (
 
 	openfgav1 "github.com/openfga/api/proto/openfga/v1"
 	"github.com/prometheus/client_golang/prometheus"
+	"go.opentelemetry.io/otel"
 
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/infra/log"
@@ -18,14 +19,25 @@ import (
 
 var (
 	errAccessNotImplemented = errors.New("access control not implemented for resource")
+	tracer                  = otel.Tracer("github.com/grafana/grafana/pkg/services/accesscontrol/acimpl")
 )
 
 var _ accesscontrol.AccessControl = new(AccessControl)
 
 func ProvideAccessControl(features featuremgmt.FeatureToggles, zclient zanzana.Client) *AccessControl {
 	logger := log.New("accesscontrol")
+
+	var m *acMetrics
+	if features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
+		m = initMetrics()
+	}
+
 	return &AccessControl{
-		features, logger, accesscontrol.NewResolvers(logger), zclient,
+		features,
+		logger,
+		accesscontrol.NewResolvers(logger),
+		zclient,
+		m,
 	}
 }
 
@@ -38,9 +50,13 @@ type AccessControl struct {
 	log       log.Logger
 	resolvers accesscontrol.Resolvers
 	zclient   zanzana.Client
+	metrics   *acMetrics
 }
 
 func (a *AccessControl) Evaluate(ctx context.Context, user identity.Requester, evaluator accesscontrol.Evaluator) (bool, error) {
+	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.Evaluate")
+	defer span.End()
+
 	if a.features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
 		return a.evaluateCompare(ctx, user, evaluator)
 	}
@@ -49,6 +65,9 @@ func (a *AccessControl) Evaluate(ctx context.Context, user identity.Requester, e
 }
 
 func (a *AccessControl) evaluate(ctx context.Context, user identity.Requester, evaluator accesscontrol.Evaluator) (bool, error) {
+	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.evaluate")
+	defer span.End()
+
 	timer := prometheus.NewTimer(metrics.MAccessEvaluationsSummary)
 	defer timer.ObserveDuration()
 	metrics.MAccessEvaluationCount.Inc()
@@ -87,6 +106,9 @@ func (a *AccessControl) evaluate(ctx context.Context, user identity.Requester, e
 }
 
 func (a *AccessControl) evaluateZanzana(ctx context.Context, user identity.Requester, evaluator accesscontrol.Evaluator) (bool, error) {
+	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.evaluateZanzana")
+	defer span.End()
+
 	eval, err := evaluator.MutateScopes(ctx, a.resolvers.GetScopeAttributeMutator(user.GetOrgID()))
 	if err != nil {
 		if !errors.Is(err, accesscontrol.ErrResolverNotFound) {
@@ -97,12 +119,13 @@ func (a *AccessControl) evaluateZanzana(ctx context.Context, user identity.Reque
 
 	return eval.EvaluateCustom(func(action, scope string) (bool, error) {
 		kind, _, identifier := accesscontrol.SplitScope(scope)
-		key, ok := zanzana.TranslateToTuple(user.GetUID().String(), action, kind, identifier, user.GetOrgID())
+		key, ok := zanzana.TranslateToTuple(user.GetUID(), action, kind, identifier, user.GetOrgID())
 		if !ok {
 			// unsupported translation
 			return false, errAccessNotImplemented
 		}
 
+		a.log.Debug("evaluating zanzana", "user", key.User, "relation", key.Relation, "object", key.Object)
 		res, err := a.zclient.Check(ctx, &openfgav1.CheckRequest{
 			TupleKey: &openfgav1.CheckRequestTupleKey{
 				User:     key.User,
@@ -128,15 +151,24 @@ type evalResult struct {
 
 // evaluateCompare run RBAC and zanzana checks in parallel and then compare result
 func (a *AccessControl) evaluateCompare(ctx context.Context, user identity.Requester, evaluator accesscontrol.Evaluator) (bool, error) {
+	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.evaluateCompare")
+	defer span.End()
+
 	res := make(chan evalResult, 2)
 	go func() {
+		timer := prometheus.NewTimer(a.metrics.mAccessEngineEvaluationsSeconds.WithLabelValues("zanzana"))
+		defer timer.ObserveDuration()
 		start := time.Now()
+
 		hasAccess, err := a.evaluateZanzana(ctx, user, evaluator)
 		res <- evalResult{"zanzana", hasAccess, err, time.Since(start)}
 	}()
 
 	go func() {
+		timer := prometheus.NewTimer(a.metrics.mAccessEngineEvaluationsSeconds.WithLabelValues("grafana"))
+		defer timer.ObserveDuration()
 		start := time.Now()
+
 		hasAccess, err := a.evaluate(ctx, user, evaluator)
 		res <- evalResult{"grafana", hasAccess, err, time.Since(start)}
 	}()
@@ -151,6 +183,7 @@ func (a *AccessControl) evaluateCompare(ctx context.Context, user identity.Reque
 		if second.err != nil {
 			a.log.Error("zanzana evaluation failed", "error", second.err)
 		} else if first.decision != second.decision {
+			a.metrics.mZanzanaEvaluationStatusTotal.WithLabelValues("error").Inc()
 			a.log.Warn(
 				"zanzana evaluation result does not match grafana",
 				"grafana_decision", first.decision,
@@ -160,6 +193,7 @@ func (a *AccessControl) evaluateCompare(ctx context.Context, user identity.Reque
 				"eval", evaluator.GoString(),
 			)
 		} else {
+			a.metrics.mZanzanaEvaluationStatusTotal.WithLabelValues("success").Inc()
 			a.log.Debug("zanzana evaluation is correct", "grafana_ms", first.duration, "zanzana_ms", second.duration)
 		}
 	}
@@ -172,6 +206,8 @@ func (a *AccessControl) RegisterScopeAttributeResolver(prefix string, resolver a
 }
 
 func (a *AccessControl) debug(ctx context.Context, ident identity.Requester, msg string, eval accesscontrol.Evaluator) {
-	namespace, id := ident.GetNamespacedID()
-	a.log.FromContext(ctx).Debug(msg, "namespace", namespace, "id", id, "orgID", ident.GetOrgID(), "permissions", eval.GoString())
+	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.debug")
+	defer span.End()
+
+	a.log.FromContext(ctx).Debug(msg, "id", ident.GetID(), "orgID", ident.GetOrgID(), "permissions", eval.GoString())
 }
