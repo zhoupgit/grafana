@@ -44,8 +44,8 @@ type APIGroupBuilder interface {
 	GetAuthorizer() authorizer.Authorizer
 }
 
-// If we InitResourceClient a client will be initalized
-// this could also be a parameter to GetAPIGroupInfo
+// If we implement ResourceClientConsumer a client will be initialized before `GetAPIGroupInfo` is called
+// NOTE: this could also be a parameter to GetAPIGroupInfo
 type ResourceClientConsumer interface {
 	InitResourceClient(storage resource.ResourceClient) error
 }
