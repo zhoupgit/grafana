@@ -165,7 +165,7 @@ func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 
 	// Dual writes if a RESTOptionsGetter is provided
 	if optsGetter != nil && dualWriteBuilder != nil {
-		store, err := newStorage(scheme)
+		store, err := newStorage(scheme, b.client)
 		if err != nil {
 			return nil, err
 		}
