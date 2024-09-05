@@ -20,14 +20,6 @@ const GlobalOrgID = int64(0)
 
 var _ identity.Requester = (*Identity)(nil)
 
-type SAMLSession struct {
-	// For backward compatibility, we keep the old name
-	AuthID string
-
-	NameID    string
-	SessionID string
-}
-
 type Identity struct {
 	// ID is the unique identifier for the entity in the Grafana database.
 	ID string
@@ -325,4 +317,12 @@ func (i *Identity) ExternalUserInfo() login.ExternalUserInfo {
 		IsGrafanaAdmin: i.IsGrafanaAdmin,
 		IsDisabled:     i.IsDisabled,
 	}
+}
+
+type SAMLSession struct {
+	// For backward compatibility, we keep the old name
+	AuthID string
+
+	NameID    string
+	SessionID string
 }
