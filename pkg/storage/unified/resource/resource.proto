@@ -414,6 +414,18 @@ message HealthCheckResponse {
   ServingStatus status = 1;
 }
 
+message GetCapabilitiesRequest {
+  // anything?
+}
+
+// Tell the client some implementation details
+message GetCapabilitiesResponse {
+  // The backend implementation (informational)
+  string backend = 1;
+
+  // Indicate if the blob store supports signed URLs
+  bool supports_signed_url_blobs = 2;
+}
 
 //----------------------------
 // Blob Support
@@ -492,7 +504,6 @@ message GetBlobResponse {
   bytes value = 4;
 }
 
-
 // This provides the CRUD+List+Watch support needed for a k8s apiserver
 // The semantics and behaviors of this service are constrained by kubernetes
 // This does not understand the resource schemas, only deals with json bytes 
@@ -543,4 +554,9 @@ service BlobStore {
 service Diagnostics {
   // Check if the service is healthy
   rpc IsHealthy(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+service Capabilities {
+  // Return the server capabilities
+  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
 }

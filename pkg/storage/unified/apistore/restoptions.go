@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"gocloud.dev/blob/fileblob"
 	"gocloud.dev/blob/memblob"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -18,8 +19,6 @@ import (
 	"k8s.io/apiserver/pkg/storage/storagebackend/factory"
 	flowcontrolrequest "k8s.io/apiserver/pkg/util/flowcontrol/request"
 	"k8s.io/client-go/tools/cache"
-
-	"github.com/grafana/grafana/pkg/storage/unified/resource"
 )
 
 var _ generic.RESTOptionsGetter = (*RESTOptionsGetter)(nil)

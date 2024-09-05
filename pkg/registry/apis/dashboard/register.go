@@ -1,16 +1,8 @@
 package dashboard
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
-	"k8s.io/apiserver/pkg/registry/generic"
-	"k8s.io/apiserver/pkg/registry/rest"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	common "k8s.io/kube-openapi/pkg/common"
-	"k8s.io/kube-openapi/pkg/spec3"
+	"context"
+	"fmt"
 
 	dashboard "github.com/grafana/grafana/pkg/apis/dashboard/v0alpha1"
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
@@ -28,18 +20,31 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/storage/legacysql"
 	"github.com/grafana/grafana/pkg/storage/unified/apistore"
+	"github.com/grafana/grafana/pkg/storage/unified/resource"
+	"github.com/prometheus/client_golang/prometheus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/apiserver/pkg/registry/generic"
+	"k8s.io/apiserver/pkg/registry/rest"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	common "k8s.io/kube-openapi/pkg/common"
+	"k8s.io/kube-openapi/pkg/spec3"
 )
 
-var _ builder.APIGroupBuilder = (*DashboardsAPIBuilder)(nil)
+var (
+	_ builder.APIGroupBuilder        = (*DashboardsAPIBuilder)(nil)
+	_ builder.ResourceClientConsumer = (*DashboardsAPIBuilder)(nil)
+)
 
 // This is used just so wire has something unique to return
 type DashboardsAPIBuilder struct {
+	client           resource.ResourceClient
 	dashboardService dashboards.DashboardService
-
-	accessControl accesscontrol.AccessControl
-	legacy        *dashboardStorage
-
-	log log.Logger
+	accessControl    accesscontrol.AccessControl
+	legacy           *dashboardStorage
+	log              log.Logger
 }
 
 func RegisterAPIService(cfg *setting.Cfg, features featuremgmt.FeatureToggles,
@@ -118,12 +123,28 @@ func (b *DashboardsAPIBuilder) InstallSchema(scheme *runtime.Scheme) error {
 	return scheme.SetVersionPriority(resourceInfo.GroupVersion())
 }
 
+func (b *DashboardsAPIBuilder) InitResourceClient(client resource.ResourceClient) error {
+	b.client = client
+	if false { // TODO -- we need a background access token :thinking:
+		caps, err := client.GetCapabilities(context.Background(), &resource.GetCapabilitiesRequest{})
+		if err == nil {
+			b.log.Info("starting dashboard with: %+v", caps)
+		}
+		return err
+	}
+	return nil
+}
+
 func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 	scheme *runtime.Scheme,
 	codecs serializer.CodecFactory, // pointer?
 	optsGetter generic.RESTOptionsGetter,
 	dualWriteBuilder grafanarest.DualWriteBuilder,
 ) (*genericapiserver.APIGroupInfo, error) {
+	if b.client == nil {
+		return nil, fmt.Errorf("expected resource client initialization")
+	}
+
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(dashboard.GROUP, scheme, metav1.ParameterCodec, codecs)
 
 	dash := b.legacy.resource

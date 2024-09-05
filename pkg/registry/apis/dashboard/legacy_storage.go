@@ -58,8 +58,7 @@ func (s *dashboardStorage) newStore(scheme *runtime.Scheme, defaultOptsGetter ge
 		CreateStrategy:            strategy,
 		UpdateStrategy:            strategy,
 		DeleteStrategy:            strategy,
-		//		BeginCreate: ,
-		TableConvertor: s.tableConverter,
+		TableConvertor:            s.tableConverter,
 	}
 
 	options := &generic.StoreOptions{RESTOptions: optsGetter}

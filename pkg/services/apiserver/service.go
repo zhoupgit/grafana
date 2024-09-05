@@ -8,20 +8,6 @@ import (
 
 	"github.com/grafana/dskit/services"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/prometheus/client_golang/prometheus"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
-	"k8s.io/apiserver/pkg/endpoints/responsewriter"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	clientrest "k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	aggregatorapiserver "k8s.io/kube-aggregator/pkg/apiserver"
-
 	dataplaneaggregator "github.com/grafana/grafana/pkg/aggregator/apiserver"
 	"github.com/grafana/grafana/pkg/api/routing"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
@@ -51,6 +37,19 @@ import (
 	"github.com/grafana/grafana/pkg/storage/unified/apistore"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/storage/unified/sql"
+	"github.com/prometheus/client_golang/prometheus"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"k8s.io/apiserver/pkg/endpoints/responsewriter"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	clientrest "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	aggregatorapiserver "k8s.io/kube-aggregator/pkg/apiserver"
 )
 
 var (
@@ -283,6 +282,7 @@ func (s *service) start(ctx context.Context) error {
 	transport := &roundTripperFunc{ready: make(chan struct{})}
 	serverConfig.LoopbackClientConfig.Transport = transport
 	serverConfig.LoopbackClientConfig.TLSClientConfig = clientrest.TLSClientConfig{}
+	var client resource.ResourceClient
 
 	switch o.StorageOptions.StorageType {
 	case grafanaapiserveroptions.StorageTypeEtcd:
@@ -298,7 +298,7 @@ func (s *service) start(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		client := resource.NewLocalResourceClient(server)
+		client = resource.NewLocalResourceClient(server)
 		serverConfig.Config.RESTOptionsGetter = apistore.NewRESTOptionsGetterForClient(client,
 			o.RecommendedOptions.Etcd.StorageConfig)
 
@@ -307,6 +307,7 @@ func (s *service) start(ctx context.Context) error {
 			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		}
+
 		// Create a connection to the gRPC server
 		conn, err := grpc.NewClient(o.StorageOptions.Address, opts...)
 		if err != nil {
@@ -314,7 +315,7 @@ func (s *service) start(ctx context.Context) error {
 		}
 
 		// Create a client instance
-		client := resource.NewResourceClient(conn)
+		client = resource.NewResourceClient(conn)
 		serverConfig.Config.RESTOptionsGetter = apistore.NewRESTOptionsGetterForClient(client, o.RecommendedOptions.Etcd.StorageConfig)
 
 	case grafanaapiserveroptions.StorageTypeLegacy:
@@ -348,9 +349,12 @@ func (s *service) start(ctx context.Context) error {
 	}
 
 	// Install the API group+version
-	err = builder.InstallAPIs(Scheme, Codecs, server, serverConfig.RESTOptionsGetter, builders, o.StorageOptions,
+	err = builder.InstallAPIs(Scheme, Codecs, server, serverConfig.RESTOptionsGetter,
+		client, builders, o.StorageOptions,
 		// Required for the dual writer initialization
-		s.metrics, request.GetNamespaceMapper(s.cfg), kvstore.WithNamespace(s.kvStore, 0, "storage.dualwriting"), s.serverLockService,
+		s.metrics, request.GetNamespaceMapper(s.cfg),
+		kvstore.WithNamespace(s.kvStore, 0, "storage.dualwriting"),
+		s.serverLockService,
 	)
 	if err != nil {
 		return err

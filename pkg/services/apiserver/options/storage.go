@@ -71,6 +71,11 @@ func (o *StorageOptions) Validate() []error {
 	if _, _, err := net.SplitHostPort(o.Address); err != nil {
 		errs = append(errs, fmt.Errorf("--grafana-apiserver-storage-address must be a valid network address: %v", err))
 	}
+
+	// Only works for single tenant grafana right now
+	if o.BlobStore != "" && o.StorageType != StorageTypeUnified {
+		errs = append(errs, fmt.Errorf("blob storage is only valid with unified storage"))
+	}
 	return errs
 }
 

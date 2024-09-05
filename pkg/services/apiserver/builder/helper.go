@@ -23,6 +23,7 @@ import (
 	k8stracing "k8s.io/component-base/tracing"
 	"k8s.io/kube-openapi/pkg/common"
 
+	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/web"
 
 	"github.com/grafana/grafana/pkg/apiserver/endpoints/filters"
@@ -148,6 +149,7 @@ func InstallAPIs(
 	codecs serializer.CodecFactory,
 	server *genericapiserver.GenericAPIServer,
 	optsGetter generic.RESTOptionsGetter,
+	client resource.ResourceClient,
 	builders []APIGroupBuilder,
 	storageOpts *options.StorageOptions,
 	reg prometheus.Registerer,
@@ -196,6 +198,15 @@ func InstallAPIs(
 	}
 
 	for _, b := range builders {
+		// Register the client
+		c, ok := b.(ResourceClientConsumer)
+		if ok {
+			err := c.InitResourceClient(client)
+			if err != nil {
+				return err
+			}
+		}
+
 		g, err := b.GetAPIGroupInfo(scheme, codecs, optsGetter, dualWrite)
 		if err != nil {
 			return err

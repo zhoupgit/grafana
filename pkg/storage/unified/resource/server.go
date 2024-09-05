@@ -24,6 +24,7 @@ type ResourceServer interface {
 	ResourceStoreServer
 	ResourceIndexServer
 	BlobStoreServer
+	CapabilitiesServer
 	DiagnosticsServer
 }
 
@@ -647,6 +648,16 @@ func (s *server) IsHealthy(ctx context.Context, req *HealthCheckRequest) (*Healt
 		return nil, err
 	}
 	return s.diagnostics.IsHealthy(ctx, req)
+}
+
+func (s *server) GetCapabilities(ctx context.Context, _ *GetCapabilitiesRequest) (*GetCapabilitiesResponse, error) {
+	if err := s.Init(ctx); err != nil {
+		return nil, err
+	}
+	return &GetCapabilitiesResponse{
+		Backend:                fmt.Sprintf("%s", s.backend),
+		SupportsSignedUrlBlobs: s.blob.SupportsSignedURLs(),
+	}, nil
 }
 
 // GetBlob implements BlobStore.

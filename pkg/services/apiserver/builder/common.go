@@ -3,6 +3,8 @@ package builder
 import (
 	"net/http"
 
+	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
+	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -11,8 +13,6 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/kube-openapi/pkg/common"
 	"k8s.io/kube-openapi/pkg/spec3"
-
-	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
 )
 
 // TODO: this (or something like it) belongs in grafana-app-sdk,
@@ -42,6 +42,12 @@ type APIGroupBuilder interface {
 	// Standard namespace checking will happen before this is called, specifically
 	// the namespace must matches an org|stack that the user belongs to
 	GetAuthorizer() authorizer.Authorizer
+}
+
+// If we InitResourceClient a client will be initalized
+// this could also be a parameter to GetAPIGroupInfo
+type ResourceClientConsumer interface {
+	InitResourceClient(storage resource.ResourceClient) error
 }
 
 // Builders that implement OpenAPIPostProcessor are given a chance to modify the schema directly
