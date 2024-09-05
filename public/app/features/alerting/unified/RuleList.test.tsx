@@ -9,7 +9,6 @@ import { PluginExtensionTypes } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import {
   DataSourceSrv,
-  getPluginLinkExtensions,
   locationService,
   setAppEvents,
   setDataSourceSrv,
@@ -71,7 +70,6 @@ setupPluginsExtensionsHook();
 
 const mocks = {
   getAllDataSourcesMock: jest.mocked(config.getAllDataSources),
-  getPluginLinkExtensionsMock: jest.mocked(getPluginLinkExtensions),
   usePluginLinkExtensionsMock: jest.mocked(usePluginLinkExtensions),
   rulesInSameGroupHaveInvalidForMock: jest.mocked(actions.rulesInSameGroupHaveInvalidFor),
 
@@ -146,7 +144,6 @@ const ui = {
     more: byRole('button', { name: /More/ }),
   },
   moreActionItems: {
-    pause: byRole('menuitem', { name: /pause evaluation/i }),
     resume: byRole('menuitem', { name: /resume evaluation/i }),
   },
 };
