@@ -8,7 +8,8 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/apiserver/pkg/server/options"
 
-	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/setting"
 )
 
 type StorageType string
@@ -39,7 +40,10 @@ type StorageOptions struct {
 	BlobStore string
 
 	// {resource}.{group} = 1|2|3|4
-	DualWriterDesiredModes map[string]grafanarest.DualWriterMode
+	UnifiedStorageConfig map[string]setting.UnifiedStorageConfig
+
+	// TODO... this will be moved to UnifiedStorageConfig
+	DualWriterDataSyncJobEnabled map[string]bool
 }
 
 func NewStorageOptions() *StorageOptions {
@@ -72,5 +76,23 @@ func (o *StorageOptions) Validate() []error {
 
 func (o *StorageOptions) ApplyTo(serverConfig *genericapiserver.RecommendedConfig, etcdOptions *options.EtcdOptions) error {
 	// TODO: move storage setup here
+	return nil
+}
+
+// EnforceFeatureToggleAfterMode1 makes sure there is a feature toggle set for resources with DualWriterMode > 1.
+// This is needed to ensure that we use the K8s client before enabling dual writing.
+func (o *StorageOptions) EnforceFeatureToggleAfterMode1(features featuremgmt.FeatureToggles) error {
+	if o.StorageType != StorageTypeLegacy {
+		for rg, s := range o.UnifiedStorageConfig {
+			if s.DualWriterMode > 1 {
+				switch rg {
+				case "playlists.playlist.grafana.app":
+					if !features.IsEnabledGlobally(featuremgmt.FlagKubernetesPlaylists) {
+						return fmt.Errorf("feature toggle FlagKubernetesPlaylists to be set")
+					}
+				}
+			}
+		}
+	}
 	return nil
 }

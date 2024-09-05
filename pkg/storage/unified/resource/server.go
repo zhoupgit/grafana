@@ -23,8 +23,8 @@ import (
 type ResourceServer interface {
 	ResourceStoreServer
 	ResourceIndexServer
+	BlobStoreServer
 	DiagnosticsServer
-	LifecycleHooks
 }
 
 type ListIterator interface {
