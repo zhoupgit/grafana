@@ -95,9 +95,22 @@ v1.tagValues(
 ];
 
 class UnthemedFluxQueryEditor extends PureComponent<Props> {
-  onFluxQueryChange = (query: string) => {
-    this.props.onChange({ ...this.props.query, query });
+  onFluxQueryChange = (value: string) => {
+    let modifiedQuery = value;
+  
+    // Check if the query contains a 'map()' function
+    if (value.includes('map(')) {
+      // Ensure drop(columns: ["_start", "_stop"]) is only added once
+      if (!value.includes('drop(columns: ["_start", "_stop"])')) {
+      // Append the drop() function on a new line
+        modifiedQuery += '\n  |> drop(columns: ["_start", "_stop"])';
+      }
+    }
+  
+    // Update the query using this.props.onChange
+    this.props.onChange({ ...this.props.query, query: modifiedQuery });
   };
+  
 
   onSampleChange = (val: SelectableValue<string>) => {
     this.props.onChange({
