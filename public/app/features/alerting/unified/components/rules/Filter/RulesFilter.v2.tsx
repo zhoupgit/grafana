@@ -19,6 +19,7 @@ import {
   TabsBar,
   useStyles2,
 } from '@grafana/ui';
+import { Trans } from 'app/core/internationalization';
 import { RuleHealth } from 'app/types/unified-alerting';
 import { PromAlertingRuleState } from 'app/types/unified-alerting-dto';
 
@@ -100,7 +101,9 @@ export default function RulesFilter({ onClear = () => {} }: RulesFilterProps) {
     <form>
       <Stack direction="row" alignItems="end">
         <Stack direction="column" gap={0} flex={1}>
-          <Label>Search</Label>
+          <Label>
+            <Trans i18nKey="common.search">Search</Trans>
+          </Label>
           <Input prefix={filterOptions} defaultValue={searchQuery} />
         </Stack>
         <Button type="submit" variant="secondary">
@@ -163,15 +166,25 @@ const FilterOptions = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack direction="column" alignItems="end" gap={2}>
         <Grid columns={2} gap={2} alignItems="center">
-          <Label>Folder / Namespace</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.namespace">Folder / Namespace</Trans>
+          </Label>
           <Select {...register('namespace')} options={[]} onBlur={stopPropagation} />
-          <Label>Rule name</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.rule-name">Rule name</Trans>
+          </Label>
           <Input {...register('name')} onBlur={stopPropagation} />
-          <Label>Evaluation group</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.evaluation-group">Evaluation group</Trans>
+          </Label>
           <Input {...register('group')} onBlur={stopPropagation} />
-          <Label>Labels</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.labels">Labels</Trans>
+          </Label>
           <Input {...register('labels')} onBlur={stopPropagation} />
-          <Label>Data source</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.data-source">Data source</Trans>
+          </Label>
           <MultipleDataSourcePicker
             alerting
             noDefault
@@ -196,7 +209,9 @@ const FilterOptions = () => {
               />
             </div>
           )}
-          <Label>State</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.state">State</Trans>
+          </Label>
           <RadioButtonGroup
             options={RuleStateOptions}
             {...register('state')}
@@ -205,7 +220,9 @@ const FilterOptions = () => {
               setValue('state', value);
             }}
           />
-          <Label>Type</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.rule-type">Type</Trans>
+          </Label>
           <RadioButtonGroup
             options={RuleTypeOptions}
             {...register('type')}
@@ -214,7 +231,9 @@ const FilterOptions = () => {
               setValue('type', value);
             }}
           />
-          <Label>Health</Label>
+          <Label>
+            <Trans i18nKey="alerting.search.property.rule-health">Health</Trans>
+          </Label>
           <RadioButtonGroup
             options={RuleHealthOptions}
             {...register('health')}
@@ -226,9 +245,11 @@ const FilterOptions = () => {
         </Grid>
         <Stack direction="row" alignItems="center">
           <Button variant="secondary" onClick={() => reset()}>
-            Clear
+            <Trans i18nKey="common.clear">Clear</Trans>
           </Button>
-          <Button type="submit">Apply</Button>
+          <Button type="submit">
+            <Trans i18nKey="common.apply">Apply</Trans>
+          </Button>
         </Stack>
       </Stack>
     </form>
@@ -247,7 +268,7 @@ const SavedSearches = () => {
     <>
       <Stack direction="column" gap={2} alignItems="flex-end">
         <Button variant="secondary" size="sm">
-          Save current search
+          <Trans i18nKey="alerting.search.save-query">Save current search</Trans>
         </Button>
         <InteractiveTable<TableColumns>
           columns={[
@@ -266,7 +287,7 @@ const SavedSearches = () => {
               cell: ({ row }) => (
                 <Stack direction="row" alignItems="center">
                   <Button variant="secondary" fill="outline" size="sm" onClick={() => applySearch(row.original.name)}>
-                    Apply
+                    <Trans i18nKey="common.apply">Apply</Trans>
                   </Button>
                   <MoreButton size="sm" fill="outline" />
                 </Stack>
@@ -287,7 +308,9 @@ const SavedSearches = () => {
           ]}
           getRowId={(row) => row.name}
         />
-        <Button variant="secondary">Close</Button>
+        <Button variant="secondary">
+          <Trans i18nKey="common.close">Close</Trans>
+        </Button>
       </Stack>
     </>
   );
