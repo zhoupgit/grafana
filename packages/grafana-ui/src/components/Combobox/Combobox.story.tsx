@@ -7,6 +7,7 @@ import { Alert } from '../Alert/Alert';
 import { Field } from '../Forms/Field';
 
 import { Combobox, Option, Value } from './Combobox';
+import { ComboboxCustomValue } from './ComboboxCustomValue';
 
 const chance = new Chance();
 
@@ -120,6 +121,28 @@ export const CustomValue: StoryObj<PropsAndCustomArgs> = {
   args: {
     createCustomValue: true,
   },
+};
+
+const CustomValueComponentStory: StoryFn<PropsAndCustomArgs> = ({ numberOfOptions, ...args }) => {
+  const [value, setValue] = useState(args.value);
+
+  return (
+    <Field label="Test input" description="Input with a few options">
+      <ComboboxCustomValue
+        id="test-combobox"
+        {...args}
+        value={value}
+        onChange={(val) => {
+          setValue(val?.value || null);
+          action('onChange')(val);
+        }}
+      />
+    </Field>
+  );
+};
+
+export const CustomValueComponent: StoryObj<PropsAndCustomArgs> = {
+  render: CustomValueComponentStory,
 };
 
 export default meta;
