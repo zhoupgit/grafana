@@ -6,8 +6,6 @@ import {
   behaviors,
   GroupByVariable,
   sceneGraph,
-  SceneGridItem,
-  SceneGridLayout,
   SceneQueryRunner,
   SceneTimeRange,
   SceneVariableSet,
@@ -16,6 +14,7 @@ import {
 import { AppChrome } from 'app/core/components/AppChrome/AppChrome';
 import { DashboardControls } from 'app/features/dashboard-scene/scene//DashboardControls';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
+import { DefaultGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-default/DefaultGridLayoutManager';
 
 import { ScopesFacade } from '../../ScopesFacadeScene';
 import { scopesDashboardsScene, scopesSelectorScene } from '../../instance';
@@ -52,23 +51,14 @@ export function buildTestScene(overrides: Partial<DashboardScene> = {}) {
         }),
       ],
     }),
-    body: new SceneGridLayout({
-      children: [
-        new SceneGridItem({
-          key: 'griditem-1',
-          x: 0,
-          y: 0,
-          width: 300,
-          height: 300,
-          body: new VizPanel({
-            title: 'Panel A',
-            key: 'panel-1',
-            pluginId: 'table',
-            $data: new SceneQueryRunner({ key: 'data-query-runner', queries: [{ refId: 'A' }] }),
-          }),
-        }),
-      ],
-    }),
+    body: DefaultGridLayoutManager.fromVizPanels([
+      new VizPanel({
+        title: 'Panel A',
+        key: 'panel-1',
+        pluginId: 'table',
+        $data: new SceneQueryRunner({ key: 'data-query-runner', queries: [{ refId: 'A' }] }),
+      }),
+    ]),
     ...overrides,
   });
 }
