@@ -1,18 +1,12 @@
 package resource
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/fullstorydev/grpchan"
 	"github.com/fullstorydev/grpchan/inprocgrpc"
-	authnlib "github.com/grafana/authlib/authn"
-	"github.com/grafana/authlib/claims"
+	"github.com/grafana/authlib/authn"
+	grpcUtils "github.com/grafana/grafana/pkg/storage/unified/resource/grpc"
 	grpcAuth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
-
-	"github.com/grafana/grafana/pkg/services/authn/grpcutils"
-	grpcUtils "github.com/grafana/grafana/pkg/storage/unified/resource/grpc"
 )
 
 type ResourceClient interface {
@@ -38,37 +32,16 @@ func NewResourceClient(channel *grpc.ClientConn) ResourceClient {
 }
 
 func NewLocalResourceClient(server ResourceStoreServer) ResourceStoreClient {
-	// scenario: local in-proc
 	channel := &inprocgrpc.Channel{}
-
-	grpcAuthInt := grpcutils.NewInProcGrpcAuthenticator()
+	auth := authn.LocalAuthenticator{}
 	channel.RegisterService(
 		grpchan.InterceptServer(
 			&ResourceStore_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(grpcAuthInt.Authenticate),
-			grpcAuth.StreamServerInterceptor(grpcAuthInt.Authenticate),
+			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+			grpcAuth.StreamServerInterceptor(auth.Authenticate),
 		),
 		server, // Implements all the things
 	)
-
-	clientInt, _ := authnlib.NewGrpcClientInterceptor(
-		&authnlib.GrpcClientConfig{},
-		authnlib.WithDisableAccessTokenOption(),
-		authnlib.WithIDTokenExtractorOption(idTokenExtractor),
-	)
-	return NewResourceStoreClient(grpchan.InterceptClientConn(channel, clientInt.UnaryClientInterceptor, clientInt.StreamClientInterceptor))
-}
-
-func idTokenExtractor(ctx context.Context) (string, error) {
-	authInfo, ok := claims.From(ctx)
-	if !ok {
-		return "", fmt.Errorf("no claims found")
-	}
-
-	extra := authInfo.GetExtra()
-	if token, exists := extra["id-token"]; exists && len(token) != 0 && token[0] != "" {
-		return token[0], nil
-	}
-
-	return "", fmt.Errorf("id-token not found")
+	cc := grpchan.InterceptClientConn(channel, grpcUtils.UnaryClientInterceptor, grpcUtils.StreamClientInterceptor)
+	return NewResourceStoreClient(cc)
 }

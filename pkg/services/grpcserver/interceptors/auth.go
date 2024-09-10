@@ -4,10 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
-
+	"github.com/grafana/authlib/authn"
 	"github.com/grafana/grafana/pkg/components/satokengen"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
@@ -15,11 +12,10 @@ import (
 	grpccontext "github.com/grafana/grafana/pkg/services/grpcserver/context"
 	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/grafana/grafana/pkg/services/user"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
-
-type Authenticator interface {
-	Authenticate(ctx context.Context) (context.Context, error)
-}
 
 // authenticator can authenticate GRPC requests.
 type authenticator struct {
@@ -31,7 +27,7 @@ type authenticator struct {
 	AccessControlService accesscontrol.Service
 }
 
-func ProvideAuthenticator(apiKeyService apikey.Service, userService user.Service, accessControlService accesscontrol.Service, contextHandler grpccontext.ContextHandler) Authenticator {
+func ProvideAuthenticator(apiKeyService apikey.Service, userService user.Service, accessControlService accesscontrol.Service, contextHandler grpccontext.ContextHandler) authn.ContextAuthenticator {
 	return &authenticator{
 		contextHandler: contextHandler,
 		logger:         log.New("grpc-server-authenticator"),

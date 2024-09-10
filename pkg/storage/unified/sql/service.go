@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 
+	"github.com/grafana/authlib/authn"
 	"github.com/grafana/dskit/services"
 	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -13,7 +14,6 @@ import (
 	"github.com/grafana/grafana/pkg/modules"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/grpcserver"
-	"github.com/grafana/grafana/pkg/services/grpcserver/interceptors"
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/storage/unified/resource/grpc"
@@ -40,7 +40,7 @@ type service struct {
 
 	tracing *tracing.TracingService
 
-	authenticator interceptors.Authenticator
+	authenticator authn.ContextAuthenticator
 
 	log log.Logger
 }

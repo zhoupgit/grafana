@@ -24,8 +24,10 @@ const (
 )
 
 // This is in a package we can no import
-// var _ interceptors.Authenticator = (*Authenticator)(nil)
+var _ authn.ContextAuthenticator = (*Authenticator)(nil)
 
+// NOTE! this because it is used by the standalone SQL based unified storage backend
+// It should be removed soon, but likely after first replacing the request client
 type Authenticator struct {
 	IDTokenVerifier authn.Verifier[authn.IDTokenClaims]
 }
