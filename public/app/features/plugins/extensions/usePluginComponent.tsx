@@ -3,6 +3,7 @@ import { useObservable } from 'react-use';
 
 import { UsePluginComponentResult } from '@grafana/runtime';
 
+import { log } from './log';
 import { ExposedComponentsRegistry } from './registry/ExposedComponentsRegistry';
 import { wrapWithPluginContext } from './utils';
 
@@ -23,10 +24,15 @@ export function createUsePluginComponent(registry: ExposedComponentsRegistry) {
       }
 
       const registryItem = registry[id];
+      const componentLog = log.child({
+        title: registryItem.title,
+        description: registryItem.description,
+        pluginId: registryItem.pluginId,
+      });
 
       return {
         isLoading: false,
-        component: wrapWithPluginContext(registryItem.pluginId, registryItem.component),
+        component: wrapWithPluginContext(registryItem.pluginId, registryItem.component, componentLog),
       };
     }, [id, registry]);
   };

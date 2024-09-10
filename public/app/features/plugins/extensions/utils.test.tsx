@@ -5,6 +5,7 @@ import { dateTime, usePluginContext } from '@grafana/data';
 import appEvents from 'app/core/app_events';
 import { ShowModalReactEvent } from 'app/types/events';
 
+import { log } from './log';
 import { deepFreeze, handleErrorsInFn, getReadOnlyProxy, getEventHelpers, wrapWithPluginContext } from './utils';
 
 jest.mock('app/features/plugins/pluginSettings', () => ({
@@ -324,7 +325,7 @@ describe('Plugin Extensions / Utils', () => {
 
       it('should open modal with provided title and body', async () => {
         const pluginId = 'grafana-worldmap-panel';
-        const { openModal } = getEventHelpers(pluginId);
+        const { openModal } = getEventHelpers(pluginId, log);
 
         openModal({
           title: 'Title in modal',
@@ -338,7 +339,7 @@ describe('Plugin Extensions / Utils', () => {
 
       it('should open modal with default width if not specified', async () => {
         const pluginId = 'grafana-worldmap-panel';
-        const { openModal } = getEventHelpers(pluginId);
+        const { openModal } = getEventHelpers(pluginId, log);
 
         openModal({
           title: 'Title in modal',
@@ -354,7 +355,7 @@ describe('Plugin Extensions / Utils', () => {
 
       it('should open modal with specified width', async () => {
         const pluginId = 'grafana-worldmap-panel';
-        const { openModal } = getEventHelpers(pluginId);
+        const { openModal } = getEventHelpers(pluginId, log);
 
         openModal({
           title: 'Title in modal',
@@ -370,7 +371,7 @@ describe('Plugin Extensions / Utils', () => {
 
       it('should open modal with specified height', async () => {
         const pluginId = 'grafana-worldmap-panel';
-        const { openModal } = getEventHelpers(pluginId);
+        const { openModal } = getEventHelpers(pluginId, log);
 
         openModal({
           title: 'Title in modal',
@@ -386,7 +387,7 @@ describe('Plugin Extensions / Utils', () => {
 
       it('should open modal with the plugin context being available', async () => {
         const pluginId = 'grafana-worldmap-panel';
-        const { openModal } = getEventHelpers(pluginId);
+        const { openModal } = getEventHelpers(pluginId, log);
 
         const ModalContent = () => {
           const context = usePluginContext();
@@ -408,7 +409,7 @@ describe('Plugin Extensions / Utils', () => {
       it('should return same object as passed to getEventHelpers', () => {
         const pluginId = 'grafana-worldmap-panel';
         const source = {};
-        const { context } = getEventHelpers(pluginId, source);
+        const { context } = getEventHelpers(pluginId, log, source);
         expect(context).toBe(source);
       });
     });
@@ -433,7 +434,7 @@ describe('Plugin Extensions / Utils', () => {
 
     it('should make the plugin context available for the wrapped component', async () => {
       const pluginId = 'grafana-worldmap-panel';
-      const Component = wrapWithPluginContext(pluginId, ExampleComponent);
+      const Component = wrapWithPluginContext(pluginId, ExampleComponent, log);
 
       render(<Component />);
 
@@ -443,7 +444,7 @@ describe('Plugin Extensions / Utils', () => {
 
     it('should pass the properties into the wrapped component', async () => {
       const pluginId = 'grafana-worldmap-panel';
-      const Component = wrapWithPluginContext(pluginId, ExampleComponent);
+      const Component = wrapWithPluginContext(pluginId, ExampleComponent, log);
 
       render(<Component audience="folks" />);
 

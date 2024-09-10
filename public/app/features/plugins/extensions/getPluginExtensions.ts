@@ -8,6 +8,7 @@ import {
 } from '@grafana/data';
 import { GetPluginExtensions } from '@grafana/runtime';
 
+import { log } from './log';
 import { AddedComponentRegistryItem } from './registry/AddedComponentsRegistry';
 import { AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { RegistryType } from './registry/Registry';
@@ -124,6 +125,13 @@ export const getPluginExtensions: GetExtensions = ({
     if (extensionsByPlugin[addedComponent.pluginId] === undefined) {
       extensionsByPlugin[addedComponent.pluginId] = 0;
     }
+
+    const componentLog = log.child({
+      title: addedComponent.title,
+      description: addedComponent.description,
+      pluginId: addedComponent.pluginId,
+    });
+
     const extension: PluginExtensionComponent = {
       id: generateExtensionId(addedComponent.pluginId, {
         ...addedComponent,
@@ -134,7 +142,7 @@ export const getPluginExtensions: GetExtensions = ({
       pluginId: addedComponent.pluginId,
       title: addedComponent.title,
       description: addedComponent.description,
-      component: wrapWithPluginContext(addedComponent.pluginId, addedComponent.component),
+      component: wrapWithPluginContext(addedComponent.pluginId, addedComponent.component, componentLog),
     };
 
     extensions.push(extension);

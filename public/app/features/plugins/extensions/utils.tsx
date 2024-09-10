@@ -23,7 +23,7 @@ import appEvents from 'app/core/app_events';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 import { ShowModalReactEvent } from 'app/types/events';
 
-import { log } from './log';
+import { ExtensionsLog, log } from './log';
 import { AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertLinkPathIsValid, assertStringProps, isPromise } from './validators';
 
@@ -50,13 +50,21 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
 }
 
 // Event helpers are designed to make it easier to trigger "core actions" from an extension event handler, e.g. opening a modal or showing a notification.
-export function getEventHelpers(pluginId: string, context?: Readonly<object>): PluginExtensionEventHelpers {
+export function getEventHelpers(
+  pluginId: string,
+  log: ExtensionsLog,
+  context?: Readonly<object>
+): PluginExtensionEventHelpers {
   const openModal: PluginExtensionEventHelpers['openModal'] = async (options) => {
     const { title, body, width, height } = options;
 
     appEvents.publish(
       new ShowModalReactEvent({
-        component: wrapWithPluginContext<ModalWrapperProps>(pluginId, getModalWrapper({ title, body, width, height })),
+        component: wrapWithPluginContext<ModalWrapperProps>(
+          pluginId,
+          getModalWrapper({ title, body, width, height }),
+          log
+        ),
       })
     );
   };
@@ -68,7 +76,7 @@ type ModalWrapperProps = {
   onDismiss: () => void;
 };
 
-export const wrapWithPluginContext = <T,>(pluginId: string, Component: React.ComponentType<T>) => {
+export const wrapWithPluginContext = <T,>(pluginId: string, Component: React.ComponentType<T>, log: ExtensionsLog) => {
   const WrappedExtensionComponent = (props: T & React.JSX.IntrinsicAttributes) => {
     const {
       error,
@@ -371,7 +379,7 @@ export function getLinkExtensionOnClick(
       });
 
       log.info('clicked something cool');
-      const result = onClick(event, getEventHelpers(pluginId, context));
+      const result = onClick(event, getEventHelpers(pluginId, log, context));
 
       if (isPromise(result)) {
         result.catch((e) => {
