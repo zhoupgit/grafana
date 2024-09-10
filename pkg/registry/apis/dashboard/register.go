@@ -141,7 +141,7 @@ func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 	dualWriteBuilder grafanarest.DualWriteBuilder,
 ) (*genericapiserver.APIGroupInfo, error) {
 	if b.client == nil {
-		b.log.Info("expected resource client initialization")
+		b.log.Warn("expected resource client initialization")
 	}
 
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(dashboard.GROUP, scheme, metav1.ParameterCodec, codecs)
