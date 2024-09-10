@@ -54,7 +54,12 @@ export interface WindowOptions extends CumulativeOptions {
 
 export interface UnaryOptions {
   operator: UnaryOperationID;
-  fieldName: string;
+  fieldName: UnaryValue;
+}
+
+export interface UnaryValue {
+  fixed?: string;
+  matcher?: { id?: FieldMatcherID; options?: string };
 }
 
 export interface BinaryOptions {
@@ -91,7 +96,7 @@ const defaultBinaryOptions: BinaryOptions = {
 
 const defaultUnaryOptions: UnaryOptions = {
   operator: UnaryOperationID.Abs,
-  fieldName: '',
+  fieldName: { fixed: '' },
 };
 
 export interface CalculateFieldTransformerOptions {
