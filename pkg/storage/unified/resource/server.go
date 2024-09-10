@@ -306,7 +306,7 @@ func (s *server) Create(ctx context.Context, req *CreateRequest) (*CreateRespons
 	user, ok := claims.From(ctx)
 	if !ok || user == nil {
 		rsp.Error = &ErrorResult{
-			Message: "no user found in context",
+			Message: "no user found in context (create)",
 			Code:    http.StatusUnauthorized,
 		}
 		return rsp, nil
@@ -347,7 +347,7 @@ func (s *server) Update(ctx context.Context, req *UpdateRequest) (*UpdateRespons
 	user, ok := claims.From(ctx)
 	if !ok || user == nil {
 		rsp.Error = &ErrorResult{
-			Message: "no user found in context",
+			Message: "no user found in context (update)",
 			Code:    http.StatusUnauthorized,
 		}
 		return rsp, nil
@@ -396,6 +396,10 @@ func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteRespons
 	if err := s.Init(ctx); err != nil {
 		return nil, err
 	}
+	requester, ok := claims.From(ctx)
+	if !ok {
+		return nil, apierrors.NewBadRequest("no user found in context (delete)")
+	}
 
 	rsp := &DeleteResponse{}
 	if req.ResourceVersion < 0 {
@@ -419,10 +423,6 @@ func (s *server) Delete(ctx context.Context, req *DeleteRequest) (*DeleteRespons
 		Key:        req.Key,
 		Type:       WatchEvent_DELETED,
 		PreviousRV: latest.ResourceVersion,
-	}
-	requester, ok := claims.From(ctx)
-	if !ok {
-		return nil, apierrors.NewBadRequest("unable to get user")
 	}
 	marker := &DeletedMarker{}
 	err := json.Unmarshal(latest.Value, marker)
