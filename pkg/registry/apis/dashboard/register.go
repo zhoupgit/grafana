@@ -2,7 +2,6 @@ package dashboard
 
 import (
 	"context"
-	"fmt"
 
 	dashboard "github.com/grafana/grafana/pkg/apis/dashboard/v0alpha1"
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
@@ -142,7 +141,7 @@ func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 	dualWriteBuilder grafanarest.DualWriteBuilder,
 ) (*genericapiserver.APIGroupInfo, error) {
 	if b.client == nil {
-		return nil, fmt.Errorf("expected resource client initialization")
+		b.log.Info("expected resource client initialization")
 	}
 
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(dashboard.GROUP, scheme, metav1.ParameterCodec, codecs)
