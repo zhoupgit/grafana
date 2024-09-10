@@ -762,4 +762,8 @@ const (
 	// FlagExploreLogsLimitedTimeRange
 	// Used in Explore Logs to limit the time range
 	FlagExploreLogsLimitedTimeRange = "exploreLogsLimitedTimeRange"
+
+	// FlagImprovedSessionStore
+	// Enables the improved session store
+	FlagImprovedSessionStore = "improvedSessionStore"
 )

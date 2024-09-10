@@ -1426,6 +1426,12 @@ var (
 			FrontendOnly: true,
 			Owner:        grafanaObservabilityLogsSquad,
 		},
+		{
+			Name:        "improvedSessionStore",
+			Description: "Enables the improved session store",
+			Stage:       FeatureStageExperimental,
+			Owner:       identityAccessTeam,
+		},
 	}
 )
 

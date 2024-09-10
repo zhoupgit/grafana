@@ -64,8 +64,8 @@ type Identity struct {
 	Groups []string
 	// OAuthToken is the OAuth token used to authenticate the entity.
 	OAuthToken *oauth2.Token
-
-	SAMLSession *SAMLSession
+	// SAMLSession is the SAML session information.
+	SAMLSession *login.SAMLSession
 	// SessionToken is the session token used to authenticate the entity.
 	SessionToken *usertoken.UserToken
 	// ClientParams are hints for the auth service on how to handle the identity.
@@ -306,6 +306,7 @@ func (i *Identity) ExternalUserInfo() login.ExternalUserInfo {
 	id, _ := strconv.ParseInt(i.ID, 10, 64)
 	return login.ExternalUserInfo{
 		OAuthToken:     i.OAuthToken,
+		SAMLSession:    i.SAMLSession,
 		AuthModule:     i.AuthenticatedBy,
 		AuthId:         i.AuthID,
 		UserId:         id,
@@ -317,12 +318,4 @@ func (i *Identity) ExternalUserInfo() login.ExternalUserInfo {
 		IsGrafanaAdmin: i.IsGrafanaAdmin,
 		IsDisabled:     i.IsDisabled,
 	}
-}
-
-type SAMLSession struct {
-	// For backward compatibility, we keep the old name
-	AuthID string
-
-	NameID    string
-	SessionID string
 }

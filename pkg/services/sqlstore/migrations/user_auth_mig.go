@@ -47,11 +47,4 @@ func addUserAuthMigrations(mg *Migrator) {
 		Name: "o_auth_id_token", Type: DB_Text, Nullable: true,
 	}))
 
-	mg.AddMigration("add saml_session user_auth", NewAddColumnMigration(userAuthV1, &Column{
-		Name: "saml_session", Type: DB_Text, Nullable: true,
-	}))
-
-	mg.AddMigration("add saml_nameid to user_auth", NewAddColumnMigration(userAuthV1, &Column{
-		Name: "saml_nameid", Type: DB_Text, Nullable: true,
-	}))
 }
