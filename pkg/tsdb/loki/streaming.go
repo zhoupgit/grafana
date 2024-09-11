@@ -16,6 +16,7 @@ import (
 )
 
 func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
+	s.logger.Debug("Accessing streaming", "path", req.Path, "user", req.PluginContext.User)
 	dsInfo, err := s.getDSInfo(ctx, req.PluginContext)
 	if err != nil {
 		return &backend.SubscribeStreamResponse{
@@ -24,7 +25,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 	}
 
 	// Expect tail/${key}
-	if !strings.HasPrefix(req.Path, "tail/") {
+	if !strings.HasPrefix(req.Path, "tail/") || !strings.HasPrefix(req.Path, LogStreamPath) {
 		return &backend.SubscribeStreamResponse{
 			Status: backend.SubscribeStreamStatusNotFound,
 		}, fmt.Errorf("expected tail in channel path")
@@ -60,11 +61,15 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 
 // Single instance for each channel (results are shared with all listeners)
 func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender) error {
+	s.logger.Debug("New streaming call", "path", req.Path)
 	dsInfo, err := s.getDSInfo(ctx, req.PluginContext)
 	if err != nil {
 		return err
 	}
 
+	if strings.HasPrefix(req.Path, LogStreamPath) {
+		return s.runLogStream(ctx, dsInfo, req, sender)
+	}
 	query, err := parseQueryModel(req.Data)
 	if err != nil {
 		return err

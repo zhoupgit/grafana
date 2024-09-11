@@ -56,6 +56,7 @@ import { transformBackendResult } from './backendResultTransformer';
 import { LokiAnnotationsQueryEditor } from './components/AnnotationsQueryEditor';
 import { placeHolderScopedVars } from './components/monaco-query-field/monaco-completion-provider/validation';
 import { escapeLabelValueInSelector, isRegexSelector, getLabelTypeFromFrame } from './languageUtils';
+import { runStreamingLogQuery } from './loki_streaming_logs';
 import { labelNamesRegex, labelValuesRegex } from './migrations/variableQueryMigrations';
 import {
   addLabelFormatToQuery,
@@ -358,6 +359,10 @@ export class LokiDatasource
 
     if (fixedRequest.liveStreaming) {
       return this.runLiveQueryThroughBackend(fixedRequest);
+    }
+
+    if (config.featureToggles.lokiLogQueryStreaming && requestSupportsSplitting(fixedRequest.targets)) {
+      runStreamingLogQuery(this, fixedRequest);
     }
 
     if (config.featureToggles.lokiQuerySplitting && requestSupportsSplitting(fixedRequest.targets)) {

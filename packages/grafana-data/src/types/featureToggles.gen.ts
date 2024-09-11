@@ -54,6 +54,7 @@ export interface FeatureToggles {
   alertingNoNormalState?: boolean;
   logsContextDatasourceUi?: boolean;
   lokiQuerySplitting?: boolean;
+  lokiLogQueryStreaming?: boolean;
   lokiQuerySplittingConfig?: boolean;
   individualCookiePreferences?: boolean;
   prometheusMetricEncyclopedia?: boolean;
