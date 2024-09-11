@@ -5,13 +5,15 @@ import React, { ComponentProps, useEffect, useState } from 'react';
 
 import { Alert } from '../Alert/Alert';
 import { Field } from '../Forms/Field';
+import { Stack } from '../Layout/Stack/Stack';
 
 import { Combobox, Option, Value } from './Combobox';
 import { ComboboxCustomValue } from './ComboboxCustomValue';
+import { LABEL_NAMES, LABEL_VALUES, METRICS } from './fixtures';
 
 const chance = new Chance();
 
-type PropsAndCustomArgs = ComponentProps<typeof Combobox> & { numberOfOptions: number };
+type PropsAndCustomArgs = ComponentProps<typeof Combobox> & { numberOfOptions: number; useCustomComponent: boolean };
 
 const meta: Meta<PropsAndCustomArgs> = {
   title: 'Forms/Combobox',
@@ -123,26 +125,112 @@ export const CustomValue: StoryObj<PropsAndCustomArgs> = {
   },
 };
 
-const CustomValueComponentStory: StoryFn<PropsAndCustomArgs> = ({ numberOfOptions, ...args }) => {
-  const [value, setValue] = useState(args.value);
+const OPERATORS = [
+  { label: '=', value: '=' },
+  { label: '!=', value: '!=' },
+  { label: '=~', value: '=~' },
+  { label: '~~', value: '~~' },
+];
+
+const LEGENDS = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'Verbose', value: 'Verbose' },
+  { label: 'Custom', value: 'Custom' },
+];
+
+const FORMATS = [
+  { label: 'Time series', value: 'Time series' },
+  { label: 'Table', value: 'Table' },
+  { label: 'Heat map', value: 'Heat map' },
+];
+
+function CustomValueWrapper(props: any) {
+  return <Combobox {...props} createCustomValue={true} />;
+}
+
+const CustomValueComponentStory: StoryFn<PropsAndCustomArgs> = ({ numberOfOptions, useCustomComponent, ...args }) => {
+  const [metric, setMetric] = useState<Value | null>(null);
+  const [labelName, setLabelName] = useState<Value | null>(null);
+  const [labelValue, setLabelValue] = useState<Value | null>(null);
+  const [legend, setLegend] = useState<Value | null>('auto');
+  const [format, setFormat] = useState<Value | null>('Time series');
+
+  const ComponentForCustomValue = useCustomComponent ? ComboboxCustomValue : CustomValueWrapper;
 
   return (
-    <Field label="Test input" description="Input with a few options">
-      <ComboboxCustomValue
-        id="test-combobox"
-        {...args}
-        value={value}
-        onChange={(val) => {
-          setValue(val?.value || null);
-          action('onChange')(val);
-        }}
-      />
-    </Field>
+    <Stack direction="column">
+      <Stack>
+        <Field label="Metric">
+          <ComponentForCustomValue
+            options={METRICS}
+            value={metric}
+            width={20}
+            placeholder="Select metric"
+            onChange={(val) => {
+              setMetric(val?.value || null);
+              action('onChange')(val);
+            }}
+          />
+        </Field>
+
+        <Stack gap={0}>
+          <Field label="Label filters">
+            <ComponentForCustomValue
+              options={LABEL_NAMES}
+              value={labelName}
+              placeholder="Select label"
+              width={20}
+              onChange={(val) => {
+                setLabelName(val?.value || null);
+                action('onChange')(val);
+              }}
+            />
+          </Field>
+
+          <Field label=" ">
+            <Combobox
+              value={'='}
+              options={OPERATORS}
+              width={10}
+              onChange={(val) => {
+                action('onChange')(val);
+              }}
+            />
+          </Field>
+
+          <Field label=" ">
+            <ComponentForCustomValue
+              options={LABEL_VALUES}
+              value={labelValue}
+              placeholder="Select value"
+              width={20}
+              onChange={(val) => {
+                setLabelValue(val?.value || null);
+                action('onChange')(val);
+              }}
+            />
+          </Field>
+        </Stack>
+      </Stack>
+
+      <Stack>
+        <Field label="Legend">
+          <Combobox width={20} options={LEGENDS} value={legend} onChange={(val) => setLegend(val?.value ?? null)} />
+        </Field>
+
+        <Field label="Format">
+          <Combobox width={20} options={FORMATS} value={format} onChange={(val) => setFormat(val?.value ?? null)} />
+        </Field>
+      </Stack>
+    </Stack>
   );
 };
 
 export const CustomValueComponent: StoryObj<PropsAndCustomArgs> = {
   render: CustomValueComponentStory,
+  args: {
+    useCustomComponent: true,
+  },
 };
 
 export default meta;
