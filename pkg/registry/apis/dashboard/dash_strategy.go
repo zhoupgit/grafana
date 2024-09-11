@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/grafana/grafana/pkg/apimachinery/utils"
 	dashboard "github.com/grafana/grafana/pkg/apis/dashboard/v0alpha1"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -38,27 +39,54 @@ func (s *dashStrategy) BeginCreateFunc(ctx context.Context, obj runtime.Object) 
 }
 
 func (s *dashStrategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
+	s.saveSpecBlob(ctx, obj)
+}
+
+func (s *dashStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
+	s.saveSpecBlob(ctx, obj)
+}
+
+func (s *dashStrategy) saveSpecBlob(ctx context.Context, obj runtime.Object) {
 	dash, ok := obj.(*dashboard.Dashboard)
 	if !ok {
 		fmt.Printf("Expecting dashboard: %t // %+v\n", obj, obj)
 		return
 	}
-	fmt.Printf("PrepareForCreate: %+v\n", dash)
-
-	// While dual writing...
-	dash.ResourceVersion = "" // clear any resource version
-	dash.UID = ""             // should not be set
+	dash.UID = "" // don't try to match UIDs
 
 	if s.client != nil {
 		spec, err := dash.Spec.MarshalJSON()
 		if err == nil {
-			fmt.Printf("WRITE BLOB: %d\n", len(spec))
+			meta, err := utils.MetaAccessor(obj)
+			if err == nil {
+				gr := dashboard.DashboardResourceInfo.GroupResource()
+				rsp, err := s.client.PutBlob(ctx, &resource.PutBlobRequest{
+					Resource: &resource.ResourceKey{
+						Namespace: meta.GetNamespace(),
+						Group:     gr.Group,
+						Resource:  gr.Resource,
+						Name:      meta.GetName(),
+					},
+					Method:      resource.PutBlobRequest_GRPC,
+					ContentType: "applicaiton/json",
+					Value:       spec,
+				})
+				if err != nil {
+					fmt.Printf("ERRROR: %s\n", err)
+				} else {
+					// Save a reference to the blob in the metadata
+					meta.SetBlob(&utils.BlobInfo{
+						UID:      rsp.Uid,
+						Size:     rsp.Size,
+						Hash:     rsp.Hash,
+						MimeType: rsp.MimeType,
+						Charset:  rsp.MimeType,
+					})
+					fmt.Printf("WROTE BLOB: %+v\n", rsp)
+				}
+			}
 		}
 	}
-}
-
-func (s *dashStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
-	fmt.Printf("PrepareForUpdate: %t // %+v\n", obj, obj)
 }
 
 func (s *dashStrategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorList {

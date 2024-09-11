@@ -13,7 +13,6 @@ type ResourceClient interface {
 	ResourceStoreClient
 	ResourceIndexClient
 	BlobStoreClient
-	CapabilitiesClient
 	DiagnosticsClient
 }
 
@@ -22,7 +21,6 @@ type resourceClient struct {
 	ResourceStoreClient
 	ResourceIndexClient
 	BlobStoreClient
-	CapabilitiesClient
 	DiagnosticsClient
 }
 
@@ -32,7 +30,6 @@ func NewResourceClient(channel *grpc.ClientConn) ResourceClient {
 		ResourceStoreClient: NewResourceStoreClient(cc),
 		ResourceIndexClient: NewResourceIndexClient(cc),
 		BlobStoreClient:     NewBlobStoreClient(cc),
-		CapabilitiesClient:  NewCapabilitiesClient(cc),
 		DiagnosticsClient:   NewDiagnosticsClient(cc),
 	}
 }
@@ -56,7 +53,6 @@ func NewLocalResourceClient(server ResourceServer) ResourceClient {
 		ResourceStoreClient: NewResourceStoreClient(cc),
 		ResourceIndexClient: NewResourceIndexClient(cc),
 		BlobStoreClient:     NewBlobStoreClient(cc),
-		CapabilitiesClient:  NewCapabilitiesClient(cc),
 		DiagnosticsClient:   NewDiagnosticsClient(cc),
 	}
 }

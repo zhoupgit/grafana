@@ -1,8 +1,6 @@
 package dashboard
 
 import (
-	"context"
-
 	dashboard "github.com/grafana/grafana/pkg/apis/dashboard/v0alpha1"
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
@@ -124,13 +122,6 @@ func (b *DashboardsAPIBuilder) InstallSchema(scheme *runtime.Scheme) error {
 
 func (b *DashboardsAPIBuilder) InitResourceClient(client resource.ResourceClient) error {
 	b.client = client
-	if false { // TODO -- we need a background access token :thinking:
-		caps, err := client.GetCapabilities(context.Background(), &resource.GetCapabilitiesRequest{})
-		if err == nil {
-			b.log.Info("starting dashboard with: %+v", caps)
-		}
-		return err
-	}
 	return nil
 }
 

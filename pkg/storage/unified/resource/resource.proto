@@ -414,19 +414,6 @@ message HealthCheckResponse {
   ServingStatus status = 1;
 }
 
-message GetCapabilitiesRequest {
-  // anything?
-}
-
-// Tell the client some implementation details
-message GetCapabilitiesResponse {
-  // The backend implementation (informational)
-  string backend = 1;
-
-  // Indicate if the blob store supports signed URLs
-  bool supports_signed_url_blobs = 2;
-}
-
 //----------------------------
 // Blob Support
 //----------------------------
@@ -554,9 +541,4 @@ service BlobStore {
 service Diagnostics {
   // Check if the service is healthy
   rpc IsHealthy(HealthCheckRequest) returns (HealthCheckResponse);
-}
-
-service Capabilities {
-  // Return the server capabilities
-  rpc GetCapabilities(GetCapabilitiesRequest) returns (GetCapabilitiesResponse);
 }
