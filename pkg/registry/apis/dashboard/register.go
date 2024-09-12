@@ -67,6 +67,7 @@ func RegisterAPIService(cfg *setting.Cfg, features featuremgmt.FeatureToggles,
 
 		dashboardService: dashboardService,
 		accessControl:    accessControl,
+		client:           unified,
 
 		legacy: &dashboardStorage{
 			resource:       dashboard.DashboardResourceInfo,
