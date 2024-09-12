@@ -3731,16 +3731,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@grafana/plugin-e2e@npm:1.7.2":
-  version: 1.7.2
-  resolution: "@grafana/plugin-e2e@npm:1.7.2"
+"@grafana/plugin-e2e@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@grafana/plugin-e2e@npm:1.8.0"
   dependencies:
     semver: "npm:^7.5.4"
     uuid: "npm:^10.0.0"
     yaml: "npm:^2.3.4"
   peerDependencies:
     "@playwright/test": ^1.41.2
-  checksum: 10/415c83e118e16f93dd5b43f52327160650453d316616c1b9761b6209d128f85927d3672428156d6de1238a79c616ea7e0b098f519c2755e791ef21cb3e7c7cfd
+  checksum: 10/e9fb5fd6e65d9a0c67406f0d15923c7d8bb3756957c71743dacec601138be520bdb066dd505b7a3aa7632f9170d2f0ceb494cfd3d5656c8c2394f5180a468a85
   languageName: node
   linkType: hard
 
@@ -3837,7 +3837,7 @@ __metadata:
     rollup-plugin-esbuild: "npm:5.0.0"
     rollup-plugin-node-externals: "npm:^5.0.0"
     rxjs: "npm:7.8.1"
-    sass: "npm:1.77.8"
+    sass: "npm:1.78.0"
     sass-loader: "npm:14.2.1"
     semver: "npm:7.6.3"
     style-loader: "npm:4.0.0"
@@ -18522,7 +18522,7 @@ __metadata:
     "@grafana/lezer-logql": "npm:0.2.6"
     "@grafana/monaco-logql": "npm:^0.0.7"
     "@grafana/o11y-ds-frontend": "workspace:*"
-    "@grafana/plugin-e2e": "npm:1.7.2"
+    "@grafana/plugin-e2e": "npm:1.8.0"
     "@grafana/prometheus": "workspace:*"
     "@grafana/runtime": "workspace:*"
     "@grafana/saga-icons": "workspace:*"
@@ -18750,7 +18750,7 @@ __metadata:
     pseudoizer: "npm:^0.1.0"
     rc-slider: "npm:11.1.5"
     rc-time-picker: "npm:3.7.3"
-    rc-tree: "npm:5.8.8"
+    rc-tree: "npm:5.9.0"
     re-resizable: "npm:6.9.18"
     react: "npm:18.2.0"
     react-diff-viewer: "npm:^3.1.1"
@@ -18792,7 +18792,7 @@ __metadata:
     rimraf: "npm:6.0.1"
     rudder-sdk-js: "npm:2.48.17"
     rxjs: "npm:7.8.1"
-    sass: "npm:1.77.8"
+    sass: "npm:1.78.0"
     sass-loader: "npm:14.2.1"
     selecto: "npm:1.26.3"
     semver: "npm:7.6.3"
@@ -26714,23 +26714,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rc-tree@npm:5.8.8":
-  version: 5.8.8
-  resolution: "rc-tree@npm:5.8.8"
-  dependencies:
-    "@babel/runtime": "npm:^7.10.1"
-    classnames: "npm:2.x"
-    rc-motion: "npm:^2.0.1"
-    rc-util: "npm:^5.16.1"
-    rc-virtual-list: "npm:^3.5.1"
-  peerDependencies:
-    react: "*"
-    react-dom: "*"
-  checksum: 10/5bcfcf1e82291a930304012655eb59adc348fe8b8d2d4f37660855ca03ba226f1c01bd17c9891757ccc9636e5872253249ec01d459ce690c6c54dff9401df3b6
-  languageName: node
-  linkType: hard
-
-"rc-tree@npm:~5.9.0":
+"rc-tree@npm:5.9.0, rc-tree@npm:~5.9.0":
   version: 5.9.0
   resolution: "rc-tree@npm:5.9.0"
   dependencies:
@@ -28813,16 +28797,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:1.77.8":
-  version: 1.77.8
-  resolution: "sass@npm:1.77.8"
+"sass@npm:1.78.0":
+  version: 1.78.0
+  resolution: "sass@npm:1.78.0"
   dependencies:
     chokidar: "npm:>=3.0.0 <4.0.0"
     immutable: "npm:^4.0.0"
     source-map-js: "npm:>=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 10/4bf6e3007fef62dd6dfc657c89c2890872a6b5dc43e2dc4d61bcf9ae1bdc2dd95b59454a3cbd3c8363c98b673b028e1578b26135190d0f2a8a184a38ab41e99b
+  checksum: 10/a180135addd9108d9a3549e111b2b442a97761bc429ef04374d57ef741d4343378e7092a6cba12e1f94e48b02d9b997cc79e737c0a2b834ad9204a761b14734d
   languageName: node
   linkType: hard
 
