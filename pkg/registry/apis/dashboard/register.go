@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	_ builder.APIGroupBuilder        = (*DashboardsAPIBuilder)(nil)
-	_ builder.ResourceClientConsumer = (*DashboardsAPIBuilder)(nil)
+	_ builder.APIGroupBuilder      = (*DashboardsAPIBuilder)(nil)
+	_ builder.OpenAPIPostProcessor = (*DashboardsAPIBuilder)(nil)
 )
 
 // This is used just so wire has something unique to return
@@ -53,6 +53,7 @@ func RegisterAPIService(cfg *setting.Cfg, features featuremgmt.FeatureToggles,
 	reg prometheus.Registerer,
 	sql db.DB,
 	tracing *tracing.TracingService,
+	unified resource.ResourceClient,
 ) *DashboardsAPIBuilder {
 	if !features.IsEnabledGlobally(featuremgmt.FlagGrafanaAPIServerWithExperimentalAPIs) {
 		return nil // skip registration unless opting into experimental apis
@@ -118,11 +119,6 @@ func (b *DashboardsAPIBuilder) InstallSchema(scheme *runtime.Scheme) error {
 	// }
 	metav1.AddToGroupVersion(scheme, resourceInfo.GroupVersion())
 	return scheme.SetVersionPriority(resourceInfo.GroupVersion())
-}
-
-func (b *DashboardsAPIBuilder) InitResourceClient(client resource.ResourceClient) error {
-	b.client = client
-	return nil
 }
 
 func (b *DashboardsAPIBuilder) GetAPIGroupInfo(

@@ -36,11 +36,7 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/storage/unified/apistore"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
-	"github.com/grafana/grafana/pkg/storage/unified/sql"
 	"github.com/prometheus/client_golang/prometheus"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -127,6 +123,7 @@ type service struct {
 	datasources     datasource.ScopedPluginDatasourceProvider
 	contextProvider datasource.PluginContextWrapper
 	pluginStore     pluginstore.Store
+	unified         resource.ResourceClient
 }
 
 func ProvideService(
@@ -142,6 +139,7 @@ func ProvideService(
 	datasources datasource.ScopedPluginDatasourceProvider,
 	contextProvider datasource.PluginContextWrapper,
 	pluginStore pluginstore.Store,
+	unified resource.ResourceClient,
 ) (*service, error) {
 	s := &service{
 		cfg:               cfg,
@@ -160,6 +158,7 @@ func ProvideService(
 		contextProvider:   contextProvider,
 		pluginStore:       pluginStore,
 		serverLockService: serverLockService,
+		unified:           unified,
 	}
 
 	// This will be used when running as a dskit service
@@ -284,48 +283,17 @@ func (s *service) start(ctx context.Context) error {
 	serverConfig.LoopbackClientConfig.TLSClientConfig = clientrest.TLSClientConfig{}
 	var client resource.ResourceClient
 
-	switch o.StorageOptions.StorageType {
-	case grafanaapiserveroptions.StorageTypeEtcd:
+	if o.StorageOptions.StorageType == grafanaapiserveroptions.StorageTypeEtcd {
 		if err := o.RecommendedOptions.Etcd.Validate(); len(err) > 0 {
 			return err[0]
 		}
 		if err := o.RecommendedOptions.Etcd.ApplyTo(&serverConfig.Config); err != nil {
 			return err
 		}
-
-	case grafanaapiserveroptions.StorageTypeUnified:
-		server, err := sql.ProvideResourceServer(s.db, s.cfg, s.features, s.tracing)
-		if err != nil {
-			return err
-		}
-		client = resource.NewLocalResourceClient(server)
-		serverConfig.Config.RESTOptionsGetter = apistore.NewRESTOptionsGetterForClient(client,
-			o.RecommendedOptions.Etcd.StorageConfig)
-
-	case grafanaapiserveroptions.StorageTypeUnifiedGrpc:
-		opts := []grpc.DialOption{
-			grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		}
-
-		// Create a connection to the gRPC server
-		conn, err := grpc.NewClient(o.StorageOptions.Address, opts...)
-		if err != nil {
-			return err
-		}
-
-		// Create a client instance
-		client = resource.NewResourceClient(conn)
-		serverConfig.Config.RESTOptionsGetter = apistore.NewRESTOptionsGetterForClient(client, o.RecommendedOptions.Etcd.StorageConfig)
-
-	case grafanaapiserveroptions.StorageTypeLegacy:
-		fallthrough
-	case grafanaapiserveroptions.StorageTypeFile:
-		restOptionsGetter, err := apistore.NewRESTOptionsGetterForFile(o.StorageOptions.DataPath, o.RecommendedOptions.Etcd.StorageConfig)
-		if err != nil {
-			return err
-		}
-		serverConfig.RESTOptionsGetter = restOptionsGetter
+	} else {
+		// Use unified storage client
+		serverConfig.Config.RESTOptionsGetter = apistore.NewRESTOptionsGetterForClient(
+			s.unified, o.RecommendedOptions.Etcd.StorageConfig)
 	}
 
 	// Add OpenAPI specs for each group+version
