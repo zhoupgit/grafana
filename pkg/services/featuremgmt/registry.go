@@ -1467,6 +1467,12 @@ var (
 			Owner:        identityAccessTeam,
 			HideFromDocs: true,
 		},
+		{
+			Name:        "prometheusUsesCombobox",
+			Description: "Use new combobox component for Prometheus query editor",
+			Stage:       FeatureStageExperimental,
+			Owner:       grafanaObservabilityMetricsSquad,
+		},
 	}
 )
 
