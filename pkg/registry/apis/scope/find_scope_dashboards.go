@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
+	scope "github.com/grafana/grafana/pkg/apis/scope/v0alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/rest"
-
-	scope "github.com/grafana/grafana/pkg/apis/scope/v0alpha1"
 )
 
 type findScopeDashboardsREST struct {
@@ -64,7 +63,9 @@ func (f *findScopeDashboardsREST) Connect(ctx context.Context, name string, opts
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		raw, err := f.scopeDashboardStorage.List(ctx, &internalversion.ListOptions{})
+		raw, err := f.scopeDashboardStorage.List(ctx, &internalversion.ListOptions{
+			Limit: 10000,
+		})
 		if err != nil {
 			w.WriteHeader(500)
 			return
@@ -90,6 +91,8 @@ func (f *findScopeDashboardsREST) Connect(ctx context.Context, name string, opts
 				}
 			}
 		}
+
+		logger.FromContext(req.Context()).Debug("find scopedashboardbinding", "raw", len(all.Items), "filtered", len(results.Items))
 
 		responder.Object(200, results)
 	}), nil
