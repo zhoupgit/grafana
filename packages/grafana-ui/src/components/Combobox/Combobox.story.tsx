@@ -5,6 +5,7 @@ import React, { ComponentProps, useEffect, useState } from 'react';
 
 import { Alert } from '../Alert/Alert';
 import { Field } from '../Forms/Field';
+import { Input } from '../Input/Input';
 import { Stack } from '../Layout/Stack/Stack';
 
 import { Combobox, Option, Value } from './Combobox';
@@ -154,6 +155,7 @@ const CustomValueComponentStory: StoryFn<PropsAndCustomArgs> = ({ numberOfOption
   const [labelValue, setLabelValue] = useState<Value | null>(null);
   const [legend, setLegend] = useState<Value | null>('auto');
   const [format, setFormat] = useState<Value | null>('Time series');
+  const [customLabel, setCustomLabel] = useState<string | null>('{{name}}');
 
   const ComponentForCustomValue = useCustomComponent ? ComboboxCustomValue : CustomValueWrapper;
 
@@ -217,6 +219,12 @@ const CustomValueComponentStory: StoryFn<PropsAndCustomArgs> = ({ numberOfOption
         <Field label="Legend">
           <Combobox width={20} options={LEGENDS} value={legend} onChange={(val) => setLegend(val?.value ?? null)} />
         </Field>
+
+        {legend === 'Custom' && (
+          <Field label="Custom label">
+            <Input width={20} value={customLabel ?? ''} onChange={(ev) => setCustomLabel(ev.currentTarget.value)} />
+          </Field>
+        )}
 
         <Field label="Format">
           <Combobox width={20} options={FORMATS} value={format} onChange={(val) => setFormat(val?.value ?? null)} />
