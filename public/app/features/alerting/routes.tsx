@@ -5,7 +5,7 @@ import { AccessControlAction } from 'app/types';
 
 import { evaluateAccess } from './unified/utils/access-control';
 
-export function getAlertingRoutes(cfg = config): RouteDescriptor[] {
+export function getAlertingRoutes(): RouteDescriptor[] {
   const routes = [
     {
       path: '/alerting',

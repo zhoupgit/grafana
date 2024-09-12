@@ -66,7 +66,7 @@ interface RulesFilerProps {
   onClear?: () => void;
 }
 
-const RuleStateOptions = Object.entries(PromAlertingRuleState).map(([key, value]) => ({
+const RuleStateOptions = Object.entries(PromAlertingRuleState).map(([_key, value]) => ({
   label: alertStateToReadable(value),
   value,
 }));

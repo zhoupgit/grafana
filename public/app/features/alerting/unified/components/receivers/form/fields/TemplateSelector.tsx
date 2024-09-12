@@ -200,7 +200,7 @@ function TemplateSelector({ onSelect, onClose, option, valueInForm }: TemplateSe
             <Stack direction="row" gap={1} alignItems="center">
               <Select<Template>
                 aria-label="Template"
-                onChange={(value: SelectableValue<Template>, _) => {
+                onChange={(value: SelectableValue<Template>) => {
                   setTemplate(value?.value);
                 }}
                 options={options}
