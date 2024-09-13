@@ -234,6 +234,7 @@ The ex-member is
 If needed, we reserve the right to publicly announce removal.
 
 [coc]: https://github.com/grafana/grafana/blob/main/CODE_OF_CONDUCT.md
+[devs]: https://groups.google.com/forum/#!forum/grafana-developers
 [maintainers]: https://github.com/grafana/grafana/blob/main/MAINTAINERS.md
 [rough]: https://tools.ietf.org/html/rfc7282
 [team]: https://groups.google.com/forum/#!forum/grafana-team
