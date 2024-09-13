@@ -28,6 +28,7 @@ var (
 type AlertInstanceManager interface {
 	GetAll(orgID int64) []*State
 	GetStatesForRuleUID(orgID int64, alertRuleUID string) []*State
+	GetStatesForRuleGroup(orgID int64, alertRuleGroup string) []*State
 }
 
 type StatePersister interface {
@@ -550,11 +551,16 @@ func resultStateReason(result eval.Result, rule *ngModels.AlertRule) string {
 }
 
 func (st *Manager) GetAll(orgID int64) []*State {
-	allStates := st.cache.getAll(orgID, st.doNotSaveNormalState)
+	allStates := st.cache.getAll(orgID, "", st.doNotSaveNormalState)
 	return allStates
 }
+
 func (st *Manager) GetStatesForRuleUID(orgID int64, alertRuleUID string) []*State {
 	return st.cache.getStatesForRuleUID(orgID, alertRuleUID, st.doNotSaveNormalState)
+}
+
+func (st *Manager) GetStatesForRuleGroup(orgID int64, alertRuleGroup string) []*State {
+	return st.cache.getAll(orgID, alertRuleGroup, st.doNotSaveNormalState)
 }
 
 func (st *Manager) Put(states []*State) {
