@@ -53,6 +53,7 @@ interface RowsListProps {
   initialRowIndex?: number;
   headerGroups: HeaderGroup[];
   longestField?: Field;
+  fieldConfig: any;
 }
 
 export const RowsList = (props: RowsListProps) => {
@@ -78,6 +79,7 @@ export const RowsList = (props: RowsListProps) => {
     initialRowIndex = undefined,
     headerGroups,
     longestField,
+    fieldConfig
   } = props;
 
   const [rowHighlightIndex, setRowHighlightIndex] = useState<number | undefined>(initialRowIndex);
@@ -321,6 +323,7 @@ export const RowsList = (props: RowsListProps) => {
               rowIndex={row.index}
               width={width}
               cellHeight={cellHeight}
+              fieldConfig={fieldConfig}
             />
           )}
           {row.cells.map((cell: Cell, index: number) => (
@@ -363,6 +366,7 @@ export const RowsList = (props: RowsListProps) => {
       rowBg,
       headerGroups,
       osContext,
+      fieldConfig
     ]
   );
 

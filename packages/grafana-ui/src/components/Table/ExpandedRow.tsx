@@ -17,9 +17,10 @@ export interface Props {
   rowIndex: number;
   width: number;
   cellHeight: TableCellHeight;
+  fieldConfig: any;
 }
 
-export function ExpandedRow({ tableStyles, nestedData, rowIndex, width, cellHeight }: Props) {
+export function ExpandedRow({ tableStyles, nestedData, rowIndex, width, cellHeight, fieldConfig }: Props) {
   const frames: DataFrame[][] = nestedData.values;
   const subTables: React.ReactNode[] = [];
   const theme = useTheme2();
@@ -48,6 +49,7 @@ export function ExpandedRow({ tableStyles, nestedData, rowIndex, width, cellHeig
           height={tableStyles.rowHeight * (nf.length + 1)}
           noHeader={noHeader}
           cellHeight={cellHeight}
+          fieldConfig={fieldConfig}
         />
       </div>
     );
