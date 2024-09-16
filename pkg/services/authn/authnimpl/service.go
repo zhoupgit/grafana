@@ -497,6 +497,7 @@ func (s *Service) resolveExternalSessionFromIdentity(ctx context.Context, identi
 
 	extSession := &auth.ExternalSession{
 		UserAuthID: info.Id,
+		UserID:     userID,
 	}
 
 	if identity.OAuthToken != nil {

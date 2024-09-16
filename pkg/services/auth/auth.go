@@ -69,6 +69,7 @@ type RotateCommand struct {
 
 type ExternalSession struct {
 	ID           int64     `xorm:"pk autoincr 'id'"`
+	UserID       int64     `xorm:"user_id"`
 	UserAuthID   int64     `xorm:"user_auth_id"`
 	AccessToken  string    `xorm:"access_token"`
 	IDToken      string    `xorm:"id_token"`
@@ -107,7 +108,6 @@ type ExternalSessionService interface {
 type UserTokenService interface {
 	CreateToken(ctx context.Context, user *user.User, clientIP net.IP, userAgent string, externalSession *ExternalSession) (*UserToken, error)
 	LookupToken(ctx context.Context, unhashedToken string) (*UserToken, error)
-	GetTokenForExternalSession(ctx context.Context, externalSessionID int64) (*UserToken, error)
 	// RotateToken will always rotate a valid token
 	RotateToken(ctx context.Context, cmd RotateCommand) (*UserToken, error)
 	RevokeToken(ctx context.Context, token *UserToken, soft bool) error

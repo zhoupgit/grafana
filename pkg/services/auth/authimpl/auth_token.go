@@ -131,31 +131,6 @@ func (s *UserAuthTokenService) CreateToken(ctx context.Context, user *user.User,
 	return &userToken, err
 }
 
-func (s *UserAuthTokenService) GetTokenForExternalSession(ctx context.Context, externalSessionID int64) (*auth.UserToken, error) {
-	var token userAuthToken
-	err := s.sqlStore.WithDbSession(ctx, func(dbSession *db.Session) error {
-		exists, err := dbSession.Where("external_session_id = ?", externalSessionID).Get(&token)
-		if err != nil {
-			return err
-		}
-
-		if !exists {
-			return auth.ErrUserTokenNotFound
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	var userToken auth.UserToken
-	err = token.toUserToken(&userToken)
-
-	return &userToken, err
-}
-
 func (s *UserAuthTokenService) LookupToken(ctx context.Context, unhashedToken string) (*auth.UserToken, error) {
 	hashedToken := hashToken(s.cfg.SecretKey, unhashedToken)
 	var model userAuthToken

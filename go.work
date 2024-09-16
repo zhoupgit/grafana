@@ -20,3 +20,5 @@ use (
 // when we release xorm we would like to release it like github.com/grafana/grafana/pkg/util/xorm
 // but we don't want to change all the imports. so we use replace to handle this situation
 replace xorm.io/xorm => ./pkg/util/xorm
+
+replace github.com/crewjam/saml => github.com/grafana/saml v0.4.15-0.20240916080208-9fa8a464d9f6
