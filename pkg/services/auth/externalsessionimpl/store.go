@@ -23,19 +23,8 @@ func ProvideStore(sqlStore db.DB, secretService secrets.Service) auth.ExternalSe
 	}
 }
 
-func (s *Store) GetExternalSession(ctx context.Context, query *auth.GetExternalSessionQuery) (*auth.ExternalSession, error) {
-	externalSession := &auth.ExternalSession{}
-	if query.ID != 0 {
-		externalSession.ID = query.ID
-	}
-
-	if query.SessionIndex != "" {
-		externalSession.SessionID = query.SessionIndex
-	}
-
-	if query.NameID != "" {
-		externalSession.NameID = query.NameID
-	}
+func (s *Store) GetExternalSession(ctx context.Context, extSessionID int64) (*auth.ExternalSession, error) {
+	externalSession := &auth.ExternalSession{ID: extSessionID}
 
 	err := s.sqlStore.WithDbSession(ctx, func(sess *db.Session) error {
 		found, err := sess.Get(externalSession)
@@ -52,6 +41,31 @@ func (s *Store) GetExternalSession(ctx context.Context, query *auth.GetExternalS
 		return nil, err
 	}
 	return externalSession, nil
+}
+
+func (s *Store) FindExternalSessions(ctx context.Context, query *auth.GetExternalSessionQuery) ([]*auth.ExternalSession, error) {
+	externalSession := &auth.ExternalSession{}
+	if query.ID != 0 {
+		externalSession.ID = query.ID
+	}
+
+	if query.SessionIndex != "" {
+		externalSession.SessionID = query.SessionIndex
+	}
+
+	if query.NameID != "" {
+		externalSession.NameID = query.NameID
+	}
+
+	result := make([]*auth.ExternalSession, 0)
+	err := s.sqlStore.WithDbSession(ctx, func(sess *db.Session) error {
+		return sess.Find(&result, externalSession)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func (s *Store) CreateExternalSession(ctx context.Context, externalSession *auth.ExternalSession) error {

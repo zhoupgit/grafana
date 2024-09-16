@@ -88,7 +88,9 @@ type GetExternalSessionQuery struct {
 
 type ExternalSessionStore interface {
 	// GetExternalSession returns the external session
-	GetExternalSession(ctx context.Context, query *GetExternalSessionQuery) (*ExternalSession, error)
+	GetExternalSession(ctx context.Context, ID int64) (*ExternalSession, error)
+	// FindExternalSessions retuns all external sessions for the given query
+	FindExternalSessions(ctx context.Context, query *GetExternalSessionQuery) ([]*ExternalSession, error)
 	// CreateExternalSession creates a new external session for a user
 	CreateExternalSession(ctx context.Context, externalSession *ExternalSession) error
 	// DeleteExternalSession deletes an external session
@@ -101,13 +103,16 @@ type ExternalSessionStore interface {
 
 type ExternalSessionService interface {
 	// GetExternalSession returns the external session for a user
-	GetExternalSession(ctx context.Context, query *GetExternalSessionQuery) (*ExternalSession, error)
+	GetExternalSession(ctx context.Context, ID int64) (*ExternalSession, error)
+	// FindExternalSessions returns all external sessions for the given query
+	FindExternalSessions(ctx context.Context, query *GetExternalSessionQuery) ([]*ExternalSession, error)
 }
 
 // UserTokenService are used for generating and validating user tokens
 type UserTokenService interface {
 	CreateToken(ctx context.Context, user *user.User, clientIP net.IP, userAgent string, externalSession *ExternalSession) (*UserToken, error)
 	LookupToken(ctx context.Context, unhashedToken string) (*UserToken, error)
+	GetTokenForExternalSession(ctx context.Context, externalSessionID int64) (*UserToken, error)
 	// RotateToken will always rotate a valid token
 	RotateToken(ctx context.Context, cmd RotateCommand) (*UserToken, error)
 	RevokeToken(ctx context.Context, token *UserToken, soft bool) error

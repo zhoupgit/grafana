@@ -787,7 +787,7 @@ const (
 	// Enable the groupsync extension for managing Group Attribute Sync feature
 	FlagGroupAttributeSync = "groupAttributeSync"
 
-	// FlagImprovedSessionStore
-	// Enables the improved session store
-	FlagImprovedSessionStore = "improvedSessionStore"
+	// FlagImprovedExternalSessionHandling
+	// Improvements to how external sessions are handled
+	FlagImprovedExternalSessionHandling = "improvedExternalSessionHandling"
 )

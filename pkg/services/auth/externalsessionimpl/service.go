@@ -15,6 +15,10 @@ func ProvideService(extSessionStore auth.ExternalSessionStore, secretService sec
 	return &Service{store: extSessionStore}
 }
 
-func (s *Service) GetExternalSession(ctx context.Context, query *auth.GetExternalSessionQuery) (*auth.ExternalSession, error) {
-	return s.store.GetExternalSession(ctx, query)
+func (s *Service) GetExternalSession(ctx context.Context, extSessionID int64) (*auth.ExternalSession, error) {
+	return s.store.GetExternalSession(ctx, extSessionID)
+}
+
+func (s *Service) FindExternalSessions(ctx context.Context, query *auth.GetExternalSessionQuery) ([]*auth.ExternalSession, error) {
+	return s.store.FindExternalSessions(ctx, query)
 }

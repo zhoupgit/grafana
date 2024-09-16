@@ -1468,8 +1468,8 @@ var (
 			HideFromDocs: true,
 		},
 		{
-			Name:              "improvedSessionStore",
-			Description:       "Enables the improved session store",
+			Name:              "improvedExternalSessionHandling",
+			Description:       "Improvements to how external sessions are handled",
 			Stage:             FeatureStageExperimental,
 			Owner:             identityAccessTeam,
 			HideFromDocs:      true,
