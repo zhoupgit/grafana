@@ -63,6 +63,8 @@ type receiverAccessControlService interface {
 	AuthorizeCreate(context.Context, identity.Requester) error
 	AuthorizeUpdate(context.Context, identity.Requester, *models.Receiver) error
 	AuthorizeDeleteByUID(context.Context, identity.Requester, string) error
+
+	Access(ctx context.Context, user identity.Requester, receivers ...*models.Receiver) (map[string]models.ReceiverPermissionSet, error)
 }
 
 type alertmanagerConfigStore interface {
@@ -130,7 +132,17 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, q models.GetReceiver
 		return nil, err
 	}
 
-	rs.decryptOrRedactSecureSettings(ctx, rcv, q.Decrypt)
+	if q.Decrypt {
+		err := rcv.Decrypt(rs.decryptor(ctx))
+		if err != nil {
+			rs.log.Warn("Failed to decrypt secure settings", "name", rcv.Name, "error", err)
+		}
+	} else {
+		err := rcv.Encrypt(rs.encryptor(ctx))
+		if err != nil {
+			rs.log.Warn("Failed to encrypt secure settings", "name", rcv.Name, "error", err)
+		}
+	}
 
 	return rcv, nil
 }
@@ -167,8 +179,18 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 		return nil, err
 	}
 
-	for _, r := range filtered {
-		rs.decryptOrRedactSecureSettings(ctx, r, q.Decrypt)
+	for _, rcv := range filtered {
+		if q.Decrypt {
+			err := rcv.Decrypt(rs.decryptor(ctx))
+			if err != nil {
+				rs.log.Warn("Failed to decrypt secure settings", "name", rcv.Name, "error", err)
+			}
+		} else {
+			err := rcv.Encrypt(rs.encryptor(ctx))
+			if err != nil {
+				rs.log.Warn("Failed to encrypt secure settings", "name", rcv.Name, "error", err)
+			}
+		}
 	}
 
 	return limitOffset(filtered, q.Offset, q.Limit), nil
@@ -260,7 +282,7 @@ func (rs *ReceiverService) DeleteReceiver(ctx context.Context, uid string, calle
 			return err
 		}
 	} else {
-		rs.log.Debug("ignoring optimistic concurrency check because version was not provided", "receiver", existing.Name, "operation", "delete")
+		rs.log.Debug("Ignoring optimistic concurrency check because version was not provided", "receiver", existing.Name, "operation", "delete")
 	}
 
 	if err := rs.provenanceValidator(existing.Provenance, models.Provenance(callerProvenance)); err != nil {
@@ -424,6 +446,48 @@ func (rs *ReceiverService) UsedByRules(ctx context.Context, orgID int64, name st
 	return maps.Keys(keys), nil
 }
 
+// AccessControlMetadata returns access control metadata for the given Receivers.
+func (rs *ReceiverService) AccessControlMetadata(ctx context.Context, user identity.Requester, receivers ...*models.Receiver) (map[string]models.ReceiverPermissionSet, error) {
+	return rs.authz.Access(ctx, user, receivers...)
+}
+
+// InUseMetadata returns metadata for the given Receivers about their usage in routes and rules.
+func (rs *ReceiverService) InUseMetadata(ctx context.Context, orgID int64, receivers ...*models.Receiver) (map[string]models.ReceiverMetadata, error) {
+	revision, err := rs.cfgStore.Get(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	receiverUses := revision.ReceiverUseByName()
+
+	q := models.ListNotificationSettingsQuery{OrgID: orgID}
+	if len(receivers) == 1 {
+		q.ReceiverName = receivers[0].Name
+	}
+	keys, err := rs.ruleNotificationsStore.ListNotificationSettings(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	byReceiver := map[string][]models.AlertRuleKey{}
+	for key, settings := range keys {
+		for _, s := range settings {
+			if s.Receiver != "" {
+				byReceiver[s.Receiver] = append(byReceiver[s.Receiver], key)
+			}
+		}
+	}
+
+	results := make(map[string]models.ReceiverMetadata, len(receivers))
+	for _, rcv := range receivers {
+		results[rcv.GetUID()] = models.ReceiverMetadata{
+			InUseByRoutes: receiverUses[rcv.Name],
+			InUseByRules:  byReceiver[rcv.Name],
+		}
+	}
+
+	return results, nil
+}
+
 func removedIntegrations(old, new *models.Receiver) []*models.Integration {
 	updatedUIDs := make(map[string]struct{}, len(new.Integrations))
 	for _, integration := range new.Integrations {
@@ -460,17 +524,6 @@ func (rs *ReceiverService) deleteProvenances(ctx context.Context, orgID int64, i
 	return nil
 }
 
-func (rs *ReceiverService) decryptOrRedactSecureSettings(ctx context.Context, recv *models.Receiver, decrypt bool) {
-	if decrypt {
-		err := recv.Decrypt(rs.decryptor(ctx))
-		if err != nil {
-			rs.log.Warn("failed to decrypt secure settings", "name", recv.Name, "error", err)
-		}
-	} else {
-		recv.Redact(rs.redactor())
-	}
-}
-
 // decryptor returns a models.DecryptFn that decrypts a secure setting. If decryption fails, the fallback value is used.
 func (rs *ReceiverService) decryptor(ctx context.Context) models.DecryptFn {
 	return func(value string) (string, error) {
@@ -483,13 +536,6 @@ func (rs *ReceiverService) decryptor(ctx context.Context) models.DecryptFn {
 			return "", err
 		}
 		return string(decrypted), nil
-	}
-}
-
-// redactor returns a models.RedactFn that redacts a secure setting.
-func (rs *ReceiverService) redactor() models.RedactFn {
-	return func(value string) string {
-		return definitions.RedactedValue
 	}
 }
 
