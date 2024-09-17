@@ -281,7 +281,6 @@ func (s *service) start(ctx context.Context) error {
 	transport := &roundTripperFunc{ready: make(chan struct{})}
 	serverConfig.LoopbackClientConfig.Transport = transport
 	serverConfig.LoopbackClientConfig.TLSClientConfig = clientrest.TLSClientConfig{}
-	var client resource.ResourceClient
 
 	if o.StorageOptions.StorageType == grafanaapiserveroptions.StorageTypeEtcd {
 		if err := o.RecommendedOptions.Etcd.Validate(); len(err) > 0 {
@@ -318,8 +317,8 @@ func (s *service) start(ctx context.Context) error {
 	}
 
 	// Install the API group+version
-	err = builder.InstallAPIs(Scheme, Codecs, server, serverConfig.RESTOptionsGetter,
-		client, builders, o.StorageOptions,
+	err = builder.InstallAPIs(Scheme, Codecs, server,
+		serverConfig.RESTOptionsGetter, builders, o.StorageOptions,
 		// Required for the dual writer initialization
 		s.metrics, request.GetNamespaceMapper(s.cfg),
 		kvstore.WithNamespace(s.kvStore, 0, "storage.dualwriting"),
