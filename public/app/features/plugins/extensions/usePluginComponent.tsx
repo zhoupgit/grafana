@@ -3,7 +3,7 @@ import { useObservable } from 'react-use';
 
 import { UsePluginComponentResult } from '@grafana/runtime';
 
-import { log } from './log';
+import { log } from './logs/log';
 import { ExposedComponentsRegistry } from './registry/ExposedComponentsRegistry';
 import { wrapWithPluginContext } from './utils';
 

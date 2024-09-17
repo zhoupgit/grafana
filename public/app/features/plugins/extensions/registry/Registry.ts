@@ -1,6 +1,6 @@
 import { Observable, ReplaySubject, Subject, firstValueFrom, map, scan, startWith } from 'rxjs';
 
-import { ExtensionsLog } from '../log';
+import { ExtensionsLog } from '../logs/log';
 import { deepFreeze } from '../utils';
 
 export type PluginExtensionConfigs<T> = {
