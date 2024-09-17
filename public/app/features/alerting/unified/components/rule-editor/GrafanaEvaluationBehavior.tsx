@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, RegisterOptions, useFormContext } from 'react-hook-form';
+import { useToggle } from 'react-use';
 
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { Field, Icon, IconButton, Input, Label, Stack, Switch, Text, Tooltip, useStyles2 } from '@grafana/ui';
@@ -8,7 +9,6 @@ import { Trans, t } from 'app/core/internationalization';
 import { isGrafanaAlertingRuleByType } from 'app/features/alerting/unified/utils/rules';
 
 import { CombinedRuleGroup, CombinedRuleNamespace } from '../../../../../types/unified-alerting';
-import { LogMessages, logInfo } from '../../Analytics';
 import { useCombinedRuleNamespaces } from '../../hooks/useCombinedRuleNamespaces';
 import { useUnifiedAlertingSelector } from '../../hooks/useUnifiedAlertingSelector';
 import { RuleFormValues } from '../../types/rule-form';
@@ -84,10 +84,8 @@ function FolderGroupAndEvaluationInterval({
   setEvaluateEvery: (value: string) => void;
   enableProvisionedGroups: boolean;
 }) {
-  const styles = useStyles2(getStyles);
-  const { watch, setValue, getValues } = useFormContext<RuleFormValues>();
-  const [isEditingGroup, setIsEditingGroup] = useState(false);
-
+  const { watch, setValue } = useFormContext<RuleFormValues>();
+  const [showGroupEdit, toggleGroupEdit] = useToggle(false);
   const [groupName, folderUid, folderName] = watch(['group', 'folder.uid', 'folder.title']);
 
   const rulerRuleRequests = useUnifiedAlertingSelector((state) => state.rulerRules);
@@ -105,15 +103,6 @@ function FolderGroupAndEvaluationInterval({
     }
   }, [setEvaluateEvery, isNewGroup, setValue, existingGroup]);
 
-  const closeEditGroupModal = (saved = false) => {
-    if (!saved) {
-      logInfo(LogMessages.leavingRuleGroupEdit);
-    }
-    setIsEditingGroup(false);
-  };
-
-  const onOpenEditGroupModal = () => setIsEditingGroup(true);
-
   const editGroupDisabled = groupfoldersForGrafana?.loading || isNewGroup || !folderUid || !groupName;
 
   const emptyNamespace: CombinedRuleNamespace = {
@@ -124,47 +113,39 @@ function FolderGroupAndEvaluationInterval({
   const emptyGroup: CombinedRuleGroup = { name: groupName, interval: evaluateEvery, rules: [], totals: {} };
 
   return (
-    <div>
+    <>
       <FolderAndGroup
         groupfoldersForGrafana={groupfoldersForGrafana?.result}
         enableProvisionedGroups={enableProvisionedGroups}
       />
-      {folderName && isEditingGroup && (
+
+      {evaluateEvery && (
+        <Text variant="bodySmall" color="secondary">
+          <Trans i18nKey="alert-rule-form.evaluation-behaviour-group.text" values={{ evaluateEvery }}>
+            All rules in the selected group are evaluated every {{ evaluateEvery }}.
+          </Trans>{' '}
+          {!isNewGroup && (
+            <IconButton
+              name="pen"
+              aria-label="Edit"
+              disabled={editGroupDisabled}
+              onClick={() => toggleGroupEdit(true)}
+            />
+          )}
+        </Text>
+      )}
+
+      {showGroupEdit && (
         <EditCloudGroupModal
           namespace={existingNamespace ?? emptyNamespace}
           group={existingGroup ?? emptyGroup}
           folderUid={folderUid}
-          onClose={() => closeEditGroupModal()}
           intervalEditOnly
+          onClose={() => toggleGroupEdit(false)}
           hideFolder={true}
         />
       )}
-      {folderName && groupName && (
-        <div className={styles.evaluationContainer}>
-          <Stack direction="column" gap={0}>
-            <div className={styles.marginTop}>
-              <Stack direction="column" gap={1}>
-                {getValues('group') && getValues('evaluateEvery') && (
-                  <span>
-                    <Trans i18nKey="alert-rule-form.evaluation-behaviour-group.text" values={{ evaluateEvery }}>
-                      All rules in the selected group are evaluated every {{ evaluateEvery }}.
-                    </Trans>
-                    {!isNewGroup && (
-                      <IconButton
-                        name="pen"
-                        aria-label="Edit"
-                        disabled={editGroupDisabled}
-                        onClick={onOpenEditGroupModal}
-                      />
-                    )}
-                  </span>
-                )}
-              </Stack>
-            </div>
-          </Stack>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 
@@ -311,7 +292,7 @@ export function GrafanaEvaluationBehavior({
           <Field htmlFor="pause-alert-switch">
             <Controller
               render={() => (
-                <Stack gap={1} direction="row" alignItems="center">
+                <Stack gap={0.5} direction="row" alignItems="center">
                   <Switch
                     id="pause-alert"
                     onChange={(value) => {
@@ -321,10 +302,10 @@ export function GrafanaEvaluationBehavior({
                   />
                   <label htmlFor="pause-alert" className={styles.switchLabel}>
                     <Trans i18nKey="alert-rule-form.pause">Pause evaluation</Trans>
-                    <Tooltip placement="top" content="Turn on to pause evaluation for this alert rule." theme={'info'}>
-                      <Icon tabIndex={0} name="info-circle" size="sm" className={styles.infoIcon} />
-                    </Tooltip>
                   </label>
+                  <Tooltip placement="top" content="Turn on to pause evaluation for this alert rule." theme={'info'}>
+                    <Icon tabIndex={0} name="info-circle" size="sm" />
+                  </Tooltip>
                 </Stack>
               )}
               name="isPaused"
@@ -383,38 +364,6 @@ export function GrafanaEvaluationBehavior({
 const getStyles = (theme: GrafanaTheme2) => ({
   inlineField: css({
     marginBottom: 0,
-  }),
-  evaluateLabel: css({
-    marginRight: theme.spacing(1),
-  }),
-  evaluationContainer: css({
-    color: theme.colors.text.secondary,
-    maxWidth: `${theme.breakpoints.values.sm}px`,
-    fontSize: theme.typography.size.sm,
-  }),
-  intervalChangedLabel: css({
-    marginBottom: theme.spacing(1),
-  }),
-  warningIcon: css({
-    justifySelf: 'center',
-    marginRight: theme.spacing(1),
-    color: theme.colors.warning.text,
-  }),
-  infoIcon: css({
-    marginLeft: '10px',
-  }),
-  warningMessage: css({
-    color: theme.colors.warning.text,
-  }),
-  bold: css({
-    fontWeight: 'bold',
-  }),
-  alignInterval: css({
-    marginTop: theme.spacing(1),
-    marginLeft: `-${theme.spacing(1)}`,
-  }),
-  marginTop: css({
-    marginTop: theme.spacing(1),
   }),
   switchLabel: css({
     color: theme.colors.text.primary,

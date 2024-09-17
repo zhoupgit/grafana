@@ -1,12 +1,11 @@
 import { css } from '@emotion/css';
 import { debounce, take, uniqueId } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
-import * as React from 'react';
-import { FormProvider, useForm, useFormContext, Controller } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { AppEvents, GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { AsyncSelect, Box, Button, Field, Input, Label, Modal, Stack, Text, useStyles2 } from '@grafana/ui';
+import { AsyncSelect, Button, Field, Input, Label, Modal, Stack, Text, useStyles2 } from '@grafana/ui';
 import appEvents from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { createFolder } from 'app/features/manage-dashboards/state/actions';
@@ -141,77 +140,66 @@ export function FolderAndGroup({
 
   return (
     <div className={styles.container}>
-      <Stack alignItems="center">
-        {
-          <Field
-            label={
-              <Label htmlFor="folder" description={'Select a folder to store your rule.'}>
-                Folder
-              </Label>
-            }
-            className={styles.formInput}
-            error={errors.folder?.message}
-            data-testid="folder-picker"
-          >
-            <Stack direction="row" alignItems="center">
-              {(!isCreatingFolder && (
-                <>
-                  <Controller
-                    render={({ field: { ref, ...field } }) => (
-                      <div style={{ width: 420 }}>
-                        <RuleFolderPicker
-                          inputId="folder"
-                          invalid={!!errors.folder?.message}
-                          {...field}
-                          enableReset={true}
-                          onChange={({ title, uid }) => {
-                            field.onChange({ title, uid });
-                            resetGroup();
-                          }}
-                        />
-                      </div>
-                    )}
-                    name="folder"
-                    rules={{
-                      required: { value: true, message: 'Select a folder' },
-                    }}
-                  />
-                  <Text color="secondary">or</Text>
-                  <Button
-                    onClick={onOpenFolderCreationModal}
-                    type="button"
-                    icon="plus"
-                    fill="outline"
-                    variant="secondary"
-                    disabled={!contextSrv.hasPermission(AccessControlAction.FoldersCreate)}
-                    data-testid={selectors.components.AlertRules.newFolderButton}
-                  >
-                    New folder
-                  </Button>
-                </>
-              )) || <div>Creating new folder...</div>}
-            </Stack>
-          </Field>
+      <Field
+        label={
+          <Label htmlFor="folder" description={'Select a folder to store your rule.'}>
+            Folder
+          </Label>
         }
-        {isCreatingFolder && (
-          <FolderCreationModal onCreate={handleFolderCreation} onClose={() => setIsCreatingFolder(false)} />
-        )}
-      </Stack>
+        className={styles.formInput}
+        error={errors.folder?.message}
+        data-testid="folder-picker"
+      >
+        <Stack direction="row" alignItems="center">
+          <div style={{ flex: 1 }}>
+            <Controller
+              render={({ field: { ref, ...field } }) => (
+                <RuleFolderPicker
+                  inputId="folder"
+                  invalid={!!errors.folder?.message}
+                  {...field}
+                  enableReset={true}
+                  onChange={({ title, uid }) => {
+                    field.onChange({ title, uid });
+                    resetGroup();
+                  }}
+                />
+              )}
+              name="folder"
+              rules={{
+                required: { value: true, message: 'Select a folder' },
+              }}
+            />
+          </div>
+          <Text color="secondary">or</Text>
+          <Button
+            onClick={onOpenFolderCreationModal}
+            type="button"
+            icon="plus"
+            fill="outline"
+            variant="secondary"
+            disabled={!contextSrv.hasPermission(AccessControlAction.FoldersCreate)}
+            data-testid={selectors.components.AlertRules.newFolderButton}
+          >
+            New folder
+          </Button>
+        </Stack>
+      </Field>
 
       {isCreatingFolder && (
         <FolderCreationModal onCreate={handleFolderCreation} onClose={() => setIsCreatingFolder(false)} />
       )}
 
       <Stack alignItems="center">
-        <div style={{ width: 420 }}>
-          <Field
-            label="Evaluation group and interval"
-            data-testid="group-picker"
-            description="Define how often the alert rule is evaluated."
-            className={styles.formInput}
-            error={errors.group?.message}
-            invalid={!!errors.group?.message}
-          >
+        <Field
+          label="Evaluation group and interval"
+          data-testid="group-picker"
+          description="Define how often the alert rule is evaluated."
+          className={styles.formInput}
+          error={errors.group?.message}
+          invalid={!!errors.group?.message}
+        >
+          <Stack direction="row" alignItems="center">
             <Controller
               render={({ field: { ref, ...field }, fieldState }) => (
                 <AsyncSelect
@@ -249,22 +237,20 @@ export function FolderAndGroup({
                 required: { value: true, message: 'Must enter a group name' },
               }}
             />
-          </Field>
-        </div>
-        <Box marginTop={4} gap={1} display={'flex'} alignItems={'center'}>
-          <Text color="secondary">or</Text>
-          <Button
-            onClick={onOpenEvaluationGroupCreationModal}
-            type="button"
-            icon="plus"
-            fill="outline"
-            variant="secondary"
-            disabled={!folder}
-            data-testid={selectors.components.AlertRules.newEvaluationGroupButton}
-          >
-            New evaluation group
-          </Button>
-        </Box>
+            <Text color="secondary">or</Text>
+            <Button
+              onClick={onOpenEvaluationGroupCreationModal}
+              type="button"
+              icon="plus"
+              fill="outline"
+              variant="secondary"
+              disabled={!folder}
+              data-testid={selectors.components.AlertRules.newEvaluationGroupButton}
+            >
+              New evaluation group
+            </Button>
+          </Stack>
+        </Field>
         {isCreatingEvaluationGroup && (
           <EvaluationGroupCreationModal
             onCreate={handleEvalGroupCreation}
@@ -456,9 +442,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'baseline',
-    maxWidth: `${theme.breakpoints.values.lg}px`,
-    justifyContent: 'space-between',
+    width: 580,
   }),
   formInput: css({
     flexGrow: 1,
