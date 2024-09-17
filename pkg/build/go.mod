@@ -37,13 +37,13 @@ require (
 	go.opentelemetry.io/otel/sdk v1.29.0 // indirect; @grafana/grafana-backend-group
 	go.opentelemetry.io/otel/trace v1.29.0 // indirect; @grafana/grafana-backend-group
 	golang.org/x/crypto v0.27.0 // indirect; @grafana/grafana-backend-group
-	golang.org/x/mod v0.20.0 // @grafana/grafana-backend-group
+	golang.org/x/mod v0.21.0 // @grafana/grafana-backend-group
 	golang.org/x/net v0.29.0 // indirect; @grafana/oss-big-tent @grafana/partner-datasources
 	golang.org/x/oauth2 v0.22.0 // @grafana/identity-access-team
 	golang.org/x/sync v0.8.0 // indirect; @grafana/alerting-backend
 	golang.org/x/text v0.18.0 // indirect; @grafana/grafana-backend-group
 	golang.org/x/time v0.6.0 // indirect; @grafana/grafana-backend-group
-	golang.org/x/tools v0.24.0 // indirect; @grafana/grafana-as-code
+	golang.org/x/tools v0.25.0 // indirect; @grafana/grafana-as-code
 	google.golang.org/api v0.191.0 // @grafana/grafana-backend-group
 	google.golang.org/grpc v1.66.0 // indirect; @grafana/plugins-platform-backend
 	google.golang.org/protobuf v1.34.2 // indirect; @grafana/plugins-platform-backend
@@ -106,6 +106,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/term v0.5.0 // indirect
+	github.com/rogpeppe/go-internal v1.12.1-0.20240709150035-ccf4b4329d21 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc v0.0.0-20240518090000-14441aefdf88 // indirect

@@ -1,7 +1,7 @@
 go 1.23.1
 
 // The `skip:golangci-lint` comment tag is used to exclude the package from the `golangci-lint` GitHub Action.
-// The module at the root of the repo (`.`) is excluded because ./pkg/... is included manually in the `golangci-lint` configuration.
+// The module at the root of the repo (`.`) is excluded because ./pkg/... is included manually in the `golangci-lint` configuration.go
 
 use (
 	. // skip:golangci-lint
@@ -11,6 +11,8 @@ use (
 	./pkg/apiserver
 	./pkg/build
 	./pkg/build/wire // skip:golangci-lint
+	./pkg/codegen
+	./pkg/plugins/codegen
 	./pkg/promlib
 	./pkg/semconv
 	./pkg/storage/unified/apistore

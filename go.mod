@@ -78,7 +78,6 @@ require (
 	github.com/grafana/authlib v0.0.0-20240906122029-0100695765b9 // @grafana/identity-access-team
 	github.com/grafana/authlib/claims v0.0.0-20240903121118-16441568af1e // @grafana/identity-access-team
 	github.com/grafana/codejen v0.0.4-0.20230321061741-77f656893a3d // @grafana/dataviz-squad
-	github.com/grafana/cog v0.0.0-20240828114857-e705169a9b4f //@grafana/grafana-as-code
 	github.com/grafana/cuetsy v0.1.11 // @grafana/grafana-as-code
 	github.com/grafana/dataplane/examples v0.0.1 // @grafana/observability-metrics
 	github.com/grafana/dataplane/sdata v0.0.9 // @grafana/observability-metrics
@@ -174,13 +173,13 @@ require (
 	gocloud.dev v0.39.0 // @grafana/grafana-app-platform-squad
 	golang.org/x/crypto v0.27.0 // @grafana/grafana-backend-group
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // @grafana/alerting-backend
-	golang.org/x/mod v0.20.0 // indirect; @grafana/grafana-backend-group
+	golang.org/x/mod v0.21.0 // indirect; @grafana/grafana-backend-group
 	golang.org/x/net v0.29.0 // @grafana/oss-big-tent @grafana/partner-datasources
 	golang.org/x/oauth2 v0.22.0 // @grafana/identity-access-team
 	golang.org/x/sync v0.8.0 // @grafana/alerting-backend
 	golang.org/x/text v0.18.0 // @grafana/grafana-backend-group
 	golang.org/x/time v0.6.0 // @grafana/grafana-backend-group
-	golang.org/x/tools v0.24.0 // indirect; @grafana/grafana-as-code
+	golang.org/x/tools v0.25.0 // indirect; @grafana/grafana-as-code
 	gonum.org/v1/gonum v0.14.0 // @grafana/observability-metrics
 	google.golang.org/api v0.191.0 // @grafana/grafana-backend-group
 	google.golang.org/grpc v1.66.0 // @grafana/plugins-platform-backend
