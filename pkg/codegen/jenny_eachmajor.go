@@ -13,7 +13,7 @@ import (
 func LatestMajorsOrXJenny(parentdir string) OneToMany {
 	return &lmox{
 		parentdir: parentdir,
-		inner:     TSTypesJenny{ApplyFuncs: []ApplyFunc{renameSpecNode}},
+		inner:     TSTypesJenny{ /*ApplyFuncs: []ApplyFunc{renameSpecNode}*/ },
 	}
 }
 

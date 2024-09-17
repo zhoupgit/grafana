@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"cuelang.org/go/cue"
 	"github.com/grafana/codejen"
-	tsast "github.com/grafana/cuetsy/ts/ast"
 	"github.com/grafana/grafana/pkg/codegen"
 	"github.com/grafana/grafana/pkg/plugins/pfs"
 )
@@ -32,58 +32,31 @@ func (j *ptsJenny) JennyName() string {
 }
 
 func (j *ptsJenny) Generate(decl *pfs.PluginDecl) (codejen.Files, error) {
-	genFile := &tsast.File{}
-	versionedFile := &tsast.File{}
-
-	for _, im := range decl.Imports {
-		if tsim, err := codegen.ConvertImport(im); err != nil {
-			return nil, err
-		} else if tsim.From.Value != "" {
-			genFile.Imports = append(genFile.Imports, tsim)
-			versionedFile.Imports = append(versionedFile.Imports, tsim)
-		}
-	}
+	schemaVersionPath := cue.ParsePath("lineage.schemas[0].schema.pluginVersion")
+	decl.CueFile = decl.CueFile.FillPath(schemaVersionPath, getPluginVersion(decl.PluginMeta.Version))
 
 	jf, err := j.inner.Generate(decl)
 	if err != nil {
 		return nil, err
 	}
 
-	rawData := tsast.Raw{Data: string(jf.Data)}
-	rawVersion := tsast.Raw{
-		Data: getPluginVersion(decl.PluginMeta.Version),
-	}
-
-	genFile.Nodes = append(genFile.Nodes, rawData)
-
 	genPath := filepath.Join(j.root, decl.PluginPath, fmt.Sprintf("%s.gen.ts", strings.ToLower(decl.SchemaInterface.Name)))
-	data := []byte(genFile.String())
-	data = data[:len(data)-1] // remove the additional line break added by the inner jenny
-
 	files := make(codejen.Files, 2)
-	files[0] = *codejen.NewFile(genPath, data, append(jf.From, j)...)
-
-	versionedFile.Nodes = append(versionedFile.Nodes, rawVersion, rawData)
-
-	versionedData := []byte(versionedFile.String())
-	versionedData = versionedData[:len(versionedData)-1]
+	files[0] = *codejen.NewFile(genPath, jf.Data, append(jf.From, j)...)
 
 	pluginFolder := strings.ReplaceAll(strings.ToLower(decl.PluginMeta.Name), " ", "")
 	versionedPath := filepath.Join(versionedPluginPath, pluginFolder, strings.ToLower(decl.SchemaInterface.Name), "x", jf.RelativePath)
-	files[1] = *codejen.NewFile(versionedPath, versionedData, append(jf.From, j)...)
+	files[1] = *codejen.NewFile(versionedPath, jf.Data, append(jf.From, j)...)
 
 	return files, nil
 }
 
 func getPluginVersion(pluginVersion *string) string {
-	version := "export const pluginVersion = \"%s\";"
 	if pluginVersion != nil {
-		version = fmt.Sprintf(version, *pluginVersion)
-	} else {
-		version = fmt.Sprintf(version, getGrafanaVersion())
+		return *pluginVersion
 	}
 
-	return version
+	return getGrafanaVersion()
 }
 
 func adaptToPipeline(j codejen.OneToOne[codegen.SchemaForGen]) codejen.OneToOne[*pfs.PluginDecl] {

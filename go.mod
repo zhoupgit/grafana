@@ -10,6 +10,12 @@ replace cuelang.org/go => github.com/grafana/cue v0.0.0-20230926092038-971951014
 // import that instead of v0.X even though v0.X is newer.
 replace github.com/prometheus/prometheus => github.com/prometheus/prometheus v0.52.0
 
+require github.com/grafana/grafana/pkg/codegen v0.0.0 // @grafana/grafana-as-code
+
+replace github.com/grafana/grafana/pkg/codegen => ./pkg/codegen // @grafana/grafana-as-code
+
+replace github.com/grafana/grafana/pkg/plugins/codegen => ./pkg/plugins/codegen // @grafana/grafana-as-code
+
 require (
 	buf.build/gen/go/parca-dev/parca/bufbuild/connect-go v1.10.0-20240523185345-933eab74d046.1 // @grafana/observability-traces-and-profiling
 	buf.build/gen/go/parca-dev/parca/protocolbuffers/go v1.34.1-20240523185345-933eab74d046.1 // @grafana/observability-traces-and-profiling
@@ -45,7 +51,7 @@ require (
 	github.com/bwmarrin/snowflake v0.3.0 // @grafan/grafana-app-platform-squad
 	github.com/centrifugal/centrifuge v0.33.3 // @grafana/grafana-app-platform-squad
 	github.com/crewjam/saml v0.4.13 // @grafana/identity-access-team
-	github.com/dave/dst v0.27.3 // @grafana/grafana-as-code
+	github.com/dave/dst v0.27.3 // indirect; @grafana/grafana-as-code
 	github.com/dlmiddlecote/sqlstats v1.0.2 // @grafana/grafana-backend-group
 	github.com/fatih/color v1.16.0 // @grafana/grafana-backend-group
 	github.com/fullstorydev/grpchan v1.1.1 // @grafana/grafana-backend-group
@@ -77,8 +83,8 @@ require (
 	github.com/grafana/alerting v0.0.0-20240829185616-8454ac21d7e5 // @grafana/alerting-backend
 	github.com/grafana/authlib v0.0.0-20240906122029-0100695765b9 // @grafana/identity-access-team
 	github.com/grafana/authlib/claims v0.0.0-20240903121118-16441568af1e // @grafana/identity-access-team
-	github.com/grafana/codejen v0.0.4-0.20230321061741-77f656893a3d // @grafana/dataviz-squad
-	github.com/grafana/cuetsy v0.1.11 // @grafana/grafana-as-code
+	github.com/grafana/codejen v0.0.4-0.20230321061741-77f656893a3d // indirect; @grafana/dataviz-squad
+	github.com/grafana/cuetsy v0.1.11 // indirect; @grafana/grafana-as-code
 	github.com/grafana/dataplane/examples v0.0.1 // @grafana/observability-metrics
 	github.com/grafana/dataplane/sdata v0.0.9 // @grafana/observability-metrics
 	github.com/grafana/dskit v0.0.0-20240311184239-73feada6c0d7 // @grafana/grafana-backend-group
@@ -120,7 +126,6 @@ require (
 	github.com/m3db/prometheus_remote_client_golang v0.4.4 // @grafana/grafana-backend-group
 	github.com/madflojo/testcerts v1.1.1 // @grafana/alerting-backend
 	github.com/magefile/mage v1.15.0 // @grafana/grafana-release-guild
-	github.com/matryer/is v1.4.0 // @grafana/grafana-as-code
 	github.com/mattn/go-isatty v0.0.20 // @grafana/grafana-backend-group
 	github.com/mattn/go-sqlite3 v1.14.22 // @grafana/grafana-backend-group
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // @grafana/alerting-backend
@@ -482,6 +487,7 @@ require (
 	github.com/dolthub/maphash v0.1.0 // indirect
 	github.com/expr-lang/expr v1.16.9 // indirect
 	github.com/gammazero/deque v0.2.1 // indirect
+	github.com/grafana/cog v0.0.0-20240913130115-62533cb1a0df // indirect
 	github.com/grafana/grafana-app-sdk v0.19.0 // indirect
 	github.com/grafana/grafana/pkg/semconv v0.0.0-20240808213237-f4d2e064f435 // indirect
 	github.com/hairyhenderson/go-which v0.2.0 // indirect
