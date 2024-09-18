@@ -38,42 +38,21 @@ func NewLocalResourceClient(server ResourceServer) ResourceClient {
 	channel := &inprocgrpc.Channel{}
 
 	auth := &grpcUtils.Authenticator{}
-
-	channel.RegisterService(
-		grpchan.InterceptServer(
-			&ResourceStore_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
-			grpcAuth.StreamServerInterceptor(auth.Authenticate),
-		),
-		server,
-	)
-
-	channel.RegisterService(
-		grpchan.InterceptServer(
-			&ResourceIndex_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
-			grpcAuth.StreamServerInterceptor(auth.Authenticate),
-		),
-		server,
-	)
-
-	channel.RegisterService(
-		grpchan.InterceptServer(
-			&BlobStore_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
-			grpcAuth.StreamServerInterceptor(auth.Authenticate),
-		),
-		server,
-	)
-
-	channel.RegisterService(
-		grpchan.InterceptServer(
-			&Diagnostics_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
-			grpcAuth.StreamServerInterceptor(auth.Authenticate),
-		),
-		server,
-	)
+	for _, desc := range []*grpc.ServiceDesc{
+		&ResourceStore_ServiceDesc,
+		&ResourceIndex_ServiceDesc,
+		&BlobStore_ServiceDesc,
+		&Diagnostics_ServiceDesc,
+	} {
+		channel.RegisterService(
+			grpchan.InterceptServer(
+				desc,
+				grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+				grpcAuth.StreamServerInterceptor(auth.Authenticate),
+			),
+			server,
+		)
+	}
 
 	cc := grpchan.InterceptClientConn(channel, grpcUtils.UnaryClientInterceptor, grpcUtils.StreamClientInterceptor)
 	return &resourceClient{
