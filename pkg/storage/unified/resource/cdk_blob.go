@@ -14,8 +14,13 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
 	"gocloud.dev/blob"
+
+	// Supported drivers
+	_ "gocloud.dev/blob/azureblob"
 	_ "gocloud.dev/blob/fileblob"
+	_ "gocloud.dev/blob/gcsblob"
 	_ "gocloud.dev/blob/memblob"
+	_ "gocloud.dev/blob/s3blob"
 )
 
 type CDKBlobSupportOptions struct {
@@ -23,6 +28,11 @@ type CDKBlobSupportOptions struct {
 	Bucket        *blob.Bucket
 	RootFolder    string
 	URLExpiration time.Duration
+}
+
+// Called in a context that loaded the possible drivers
+func OpenBlobBucket(ctx context.Context, url string) (*blob.Bucket, error) {
+	return blob.OpenBucket(ctx, url)
 }
 
 func NewCDKBlobSupport(ctx context.Context, opts CDKBlobSupportOptions) (BlobSupport, error) {

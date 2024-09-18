@@ -35,7 +35,7 @@ type StorageOptions struct { // The desired storage type
 	// gs://my-bucket (using default credentials)
 	// s3://my-bucket?region=us-west-1 (using default credentials)
 	// azblob://my-container
-	BlobStore string
+	BlobStoreURL string
 
 	// {resource}.{group} = 1|2|3|4
 	UnifiedStorageConfig map[string]setting.UnifiedStorageConfig
@@ -71,7 +71,7 @@ func (o *StorageOptions) Validate() []error {
 	}
 
 	// Only works for single tenant grafana right now
-	if o.BlobStore != "" && o.StorageType != StorageTypeUnified {
+	if o.BlobStoreURL != "" && o.StorageType != StorageTypeUnified {
 		errs = append(errs, fmt.Errorf("blob storage is only valid with unified storage"))
 	}
 	return errs

@@ -37,11 +37,12 @@ var (
 
 // This is used just so wire has something unique to return
 type DashboardsAPIBuilder struct {
-	client           resource.ResourceClient
 	dashboardService dashboards.DashboardService
-	accessControl    accesscontrol.AccessControl
-	legacy           *dashboardStorage
-	log              log.Logger
+
+	accessControl accesscontrol.AccessControl
+	legacy        *dashboardStorage
+
+	log log.Logger
 }
 
 func RegisterAPIService(cfg *setting.Cfg, features featuremgmt.FeatureToggles,
@@ -67,7 +68,6 @@ func RegisterAPIService(cfg *setting.Cfg, features featuremgmt.FeatureToggles,
 
 		dashboardService: dashboardService,
 		accessControl:    accessControl,
-		client:           unified,
 
 		legacy: &dashboardStorage{
 			resource:       dashboard.DashboardResourceInfo,
@@ -128,10 +128,6 @@ func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 	optsGetter generic.RESTOptionsGetter,
 	dualWriteBuilder grafanarest.DualWriteBuilder,
 ) (*genericapiserver.APIGroupInfo, error) {
-	if b.client == nil {
-		b.log.Warn("expected resource client initialization")
-	}
-
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(dashboard.GROUP, scheme, metav1.ParameterCodec, codecs)
 
 	dash := b.legacy.resource
@@ -152,7 +148,7 @@ func (b *DashboardsAPIBuilder) GetAPIGroupInfo(
 
 	// Dual writes if a RESTOptionsGetter is provided
 	if optsGetter != nil && dualWriteBuilder != nil {
-		store, err := newStorage(scheme, b.client)
+		store, err := newStorage(scheme)
 		if err != nil {
 			return nil, err
 		}

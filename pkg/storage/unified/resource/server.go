@@ -92,6 +92,14 @@ type BlobSupport interface {
 	// TODO? List+Delete?  This is for admin access
 }
 
+type BlobConfig struct {
+	// The CDK configuration URL
+	URL string
+
+	// Directly implemented blob support
+	Backend BlobSupport
+}
+
 type ResourceServerOptions struct {
 	// OTel tracer
 	Tracer trace.Tracer
@@ -99,8 +107,8 @@ type ResourceServerOptions struct {
 	// Real storage backend
 	Backend StorageBackend
 
-	// The blob storage engine
-	Blob BlobSupport
+	// The blob configuration
+	Blob BlobConfig
 
 	// Requests based on a search index
 	Index ResourceIndexServer
@@ -139,6 +147,24 @@ func NewResourceServer(opts ResourceServerOptions) (ResourceServer, error) {
 		}
 	}
 
+	// Initialize the blob storage
+	blobstore := opts.Blob.Backend
+	if blobstore == nil && opts.Blob.URL != "" {
+		ctx := context.Background()
+		bucket, err := OpenBlobBucket(ctx, opts.Blob.URL)
+		if err != nil {
+			return nil, err
+		}
+
+		blobstore, err = NewCDKBlobSupport(ctx, CDKBlobSupportOptions{
+			Tracer: opts.Tracer,
+			Bucket: bucket,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Make this cancelable
 	ctx, cancel := context.WithCancel(claims.WithClaims(context.Background(),
 		&identity.StaticRequester{
@@ -152,7 +178,7 @@ func NewResourceServer(opts ResourceServerOptions) (ResourceServer, error) {
 		log:         slog.Default().With("logger", "resource-server"),
 		backend:     opts.Backend,
 		index:       opts.Index,
-		blob:        opts.Blob,
+		blob:        blobstore,
 		diagnostics: opts.Diagnostics,
 		access:      opts.WriteAccess,
 		lifecycle:   opts.Lifecycle,

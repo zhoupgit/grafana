@@ -45,7 +45,34 @@ func NewLocalResourceClient(server ResourceServer) ResourceClient {
 			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
 			grpcAuth.StreamServerInterceptor(auth.Authenticate),
 		),
-		server, // Implements all the things
+		server,
+	)
+
+	channel.RegisterService(
+		grpchan.InterceptServer(
+			&ResourceIndex_ServiceDesc,
+			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+			grpcAuth.StreamServerInterceptor(auth.Authenticate),
+		),
+		server,
+	)
+
+	channel.RegisterService(
+		grpchan.InterceptServer(
+			&BlobStore_ServiceDesc,
+			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+			grpcAuth.StreamServerInterceptor(auth.Authenticate),
+		),
+		server,
+	)
+
+	channel.RegisterService(
+		grpchan.InterceptServer(
+			&Diagnostics_ServiceDesc,
+			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+			grpcAuth.StreamServerInterceptor(auth.Authenticate),
+		),
+		server,
 	)
 
 	cc := grpchan.InterceptClientConn(channel, grpcUtils.UnaryClientInterceptor, grpcUtils.StreamClientInterceptor)
