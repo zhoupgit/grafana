@@ -749,7 +749,7 @@ func (d *dashboardStore) GetDashboard(ctx context.Context, query *dashboards.Get
 		dashboard := dashboards.Dashboard{OrgID: query.OrgID, ID: query.ID, UID: query.UID}
 		mustCols := []string{}
 		if query.Title != nil { // nolint:staticcheck
-			dashboard.Title = *query.Title
+			dashboard.Title = *query.Title // nolint:staticcheck
 			mustCols = append(mustCols, "title")
 		}
 
@@ -757,8 +757,7 @@ func (d *dashboardStore) GetDashboard(ctx context.Context, query *dashboards.Get
 			dashboard.FolderUID = *query.FolderUID
 			mustCols = append(mustCols, "folder_uid")
 		} else if query.FolderID != nil { // nolint:staticcheck
-			// nolint:staticcheck
-			dashboard.FolderID = *query.FolderID
+			dashboard.FolderID = *query.FolderID // nolint:staticcheck
 			mustCols = append(mustCols, "folder_id")
 			metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Dashboard).Inc()
 		}
