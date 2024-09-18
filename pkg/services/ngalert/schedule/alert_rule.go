@@ -85,6 +85,7 @@ func newRuleFactory(
 		return newAlertRule(
 			ctx,
 			rule.GetKey(),
+			rule.RuleGroup,
 			appURL,
 			disableGrafanaFolder,
 			maxAttempts,
@@ -110,7 +111,8 @@ type ruleProvider interface {
 }
 
 type alertRule struct {
-	key ngmodels.AlertRuleKey
+	key       ngmodels.AlertRuleKey
+	ruleGroup string
 
 	evalCh   chan *Evaluation
 	updateCh chan RuleVersionAndPauseStatus
@@ -139,6 +141,7 @@ type alertRule struct {
 func newAlertRule(
 	parent context.Context,
 	key ngmodels.AlertRuleKey,
+	ruleGroup string,
 	appURL *url.URL,
 	disableGrafanaFolder bool,
 	maxAttempts int64,
@@ -156,6 +159,7 @@ func newAlertRule(
 	ctx, stop := util.WithCancelCause(ngmodels.WithRuleKey(parent, key))
 	return &alertRule{
 		key:                  key,
+		ruleGroup:            ruleGroup,
 		evalCh:               make(chan *Evaluation),
 		updateCh:             make(chan RuleVersionAndPauseStatus),
 		ctx:                  ctx,
@@ -346,7 +350,8 @@ func (a *alertRule) Run() error {
 				// cases.
 				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute)
 				defer cancelFunc()
-				states := a.stateManager.DeleteStateByRuleUID(ngmodels.WithRuleKey(ctx, a.key), a.key, ngmodels.StateReasonRuleDeleted)
+				keyWithGroup := ngmodels.AlertRuleKeyWithGroup{AlertRuleKey: a.key, RuleGroup: a.ruleGroup}
+				states := a.stateManager.DeleteStateByRuleUID(ngmodels.WithRuleKey(ctx, a.key), keyWithGroup, ngmodels.StateReasonRuleDeleted)
 				a.expireAndSend(grafanaCtx, states)
 			}
 			a.logger.Debug("Stopping alert rule routine")
