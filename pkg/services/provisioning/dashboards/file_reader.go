@@ -352,6 +352,8 @@ func (fr *FileReader) getOrCreateFolder(ctx context.Context, cfg *config, servic
 	if cfg.FolderUID != "" {
 		cmd.UID = cfg.FolderUID
 	} else {
+		// provisioning depends on unique names
+		//nolint:staticcheck
 		cmd.Title = &folderName
 	}
 

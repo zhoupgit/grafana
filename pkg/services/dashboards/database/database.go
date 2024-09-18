@@ -795,7 +795,7 @@ func (d *dashboardStore) GetDashboard(ctx context.Context, query *dashboards.Get
 
 		dashboard := dashboards.Dashboard{OrgID: query.OrgID, ID: query.ID, UID: query.UID}
 		mustCols := []string{}
-		if query.Title != nil {
+		if query.Title != nil { // nolint:staticcheck
 			dashboard.Title = *query.Title
 			mustCols = append(mustCols, "title")
 		}
