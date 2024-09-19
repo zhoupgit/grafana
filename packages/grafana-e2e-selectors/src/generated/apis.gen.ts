@@ -1,5 +1,5 @@
 ;
-export const versionedAPIs = {
+export const APIs = {
     Alerting: {
         eval: '/api/v1/eval',
     },

@@ -73,6 +73,8 @@ const replaceVersions = (context: ts.TransformationContext) => (rootNode: ts.Nod
         return propertyAssignment.initializer;
       } else if (ts.isArrowFunction(propertyAssignment.initializer)) {
         return propertyAssignment.initializer;
+      } else if (ts.isPropertyAccessExpression(propertyAssignment.initializer)) {
+        return propertyAssignment.initializer;
       }
     }
 
@@ -86,7 +88,10 @@ const transformationResult = ts.transform(sourceFiles, [replaceVersions]);
 const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
 for (const transformed of transformationResult.transformed) {
-  const output = printer.printNode(ts.EmitHint.Unspecified, transformed, transformed.getSourceFile());
+  let output = printer.printNode(ts.EmitHint.Unspecified, transformed, transformed.getSourceFile());
+  output = output.replace(/export const versioned/g, 'export const ');
+  output = output.replace(/..\/generated\//g, './');
+  output = output.replace(/versionedComponents./g, 'Components.');
   const fileName = transformed.getSourceFile().fileName.replace(/\.ts$/, '.gen.ts');
   writeFile(resolve(join(process.cwd(), destDir, fileName)), output);
 }

@@ -7,7 +7,7 @@ import { MIN_GRAFANA_VERSION } from './constants';
  *
  * @alpha
  */
-export const Pages = {
+export const versionedPages = {
   Login: {
     url: {
       [MIN_GRAFANA_VERSION]: '/login',

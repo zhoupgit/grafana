@@ -1,4 +1,4 @@
-import { Components } from '../generated/components.gen';
+import { Components } from './components.gen';
 ;
 /**
  * Selectors grouped/defined in Pages
@@ -169,10 +169,7 @@ export const Pages = {
                         applyButton: 'data-testid Variable editor Apply button',
                     },
                     QueryVariable: {
-                        queryOptionsDataSourceSelect: {
-                            '10.4.0': Components.DataSourcePicker.inputV2,
-                            '8.0.0': Components.DataSourcePicker.container,
-                        },
+                        queryOptionsDataSourceSelect: Components.DataSourcePicker.inputV2,
                         queryOptionsRefreshSelect: 'Variable editor Form Query Refresh select',
                         queryOptionsRefreshSelectV2: 'data-testid Variable editor Form Query Refresh select',
                         queryOptionsRegExInput: 'Variable editor Form Query RegEx field',
@@ -210,7 +207,7 @@ export const Pages = {
                         modeToggle: 'data-testid group by variable mode toggle',
                     },
                     AdHocFiltersVariable: {
-                        datasourceSelect: { '10.4.0': Components.DataSourcePicker.inputV2 },
+                        datasourceSelect: Components.DataSourcePicker.inputV2,
                         infoText: 'data-testid ad-hoc filters variable info text',
                         modeToggle: 'data-testid ad-hoc filters variable mode toggle',
                     },

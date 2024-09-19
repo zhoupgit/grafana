@@ -10,7 +10,7 @@ import { MIN_GRAFANA_VERSION } from './constants';
 /**
  * Selectors grouped/defined in Components
  */
-export const Components = {
+export const versionedComponents = {
   RadioButton: {
     container: {
       '10.2.3': 'data-testid radio-button',
@@ -1042,7 +1042,7 @@ export const Components = {
       [MIN_GRAFANA_VERSION]: (sectionId: string) => `data-testid Expand folder ${sectionId}`,
     },
     dashboardItem: {
-      [MIN_GRAFANA_VERSION]: (item: string) => `${Components.Search.dashboardItems} ${item}`,
+      [MIN_GRAFANA_VERSION]: (item: string) => `${versionedComponents.Search.dashboardItems} ${item}`,
     },
     dashboardCard: {
       [MIN_GRAFANA_VERSION]: (item: string) => `data-testid Search card ${item}`,
