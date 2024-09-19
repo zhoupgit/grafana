@@ -17,7 +17,7 @@ import (
 )
 
 type streamDecoder struct {
-	client    resource.ResourceStore_WatchClient
+	client    resource.ResourceRead_WatchClient
 	newFunc   func() runtime.Object
 	predicate storage.SelectionPredicate
 	codec     runtime.Codec
