@@ -1,4 +1,4 @@
-# NanoMQ MQTT broker
+# TLS Caddy Server
 
 Starts a [Caddy server](https://caddyserver.com/) with TLS configured.
 
