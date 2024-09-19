@@ -352,6 +352,7 @@ export const versionedComponents = {
       },
       status: {
         '10.2.0': (status: string) => `data-testid Panel status ${status}`,
+        [MIN_GRAFANA_VERSION]: (_: string) => 'Panel status',
       },
       loadingBar: {
         '10.0.0': () => `Panel loading bar`,
@@ -491,7 +492,7 @@ export const versionedComponents = {
       '9.2.0': 'data-testid Apply changes and go back to dashboard',
     },
     toggleVizPicker: {
-      '10.1.0': 'data-testid toggle-viz-picker',
+      '10.0.0': 'data-testid toggle-viz-picker',
       [MIN_GRAFANA_VERSION]: 'toggle-viz-picker',
     },
     toggleVizOptions: {
@@ -592,6 +593,7 @@ export const versionedComponents = {
     },
     addQuery: {
       '10.2.0': 'data-testid query-tab-add-query',
+      [MIN_GRAFANA_VERSION]: 'Query editor add query button',
     },
     queryGroupTopSection: {
       '11.2.0': 'data-testid query group top section',
@@ -618,7 +620,10 @@ export const versionedComponents = {
     container: (refId: string) => `Query editor row ${refId}`,
   },
   AlertTab: {
-    content: 'data-testid Alert editor tab content',
+    content: {
+      '10.2.3': 'data-testid Alert editor tab content',
+      [MIN_GRAFANA_VERSION]: 'Alert editor tab content',
+    },
   },
   AlertRules: {
     groupToggle: {
@@ -863,13 +868,11 @@ export const versionedComponents = {
       '11.1.0': (title?: string) => (title ? `data-testid Options group ${title}` : 'data-testid Options group'),
       [MIN_GRAFANA_VERSION]: (title?: string) => (title ? `Options group ${title}` : 'Options group'),
     },
-    toggle: (title?: string) =>
-      title
-        ? `data-testid Options group ${title} toggle`
-        : {
-            '11.1.0': 'data-testid Options group toggle',
-            [MIN_GRAFANA_VERSION]: 'Options group toggle',
-          },
+    toggle: {
+      '11.1.0': (title?: string) =>
+        title ? `data-testid Options group ${title} toggle` : 'data-testid Options group toggle',
+      [MIN_GRAFANA_VERSION]: (title?: string) => (title ? `Options group ${title} toggle` : 'Options group toggle'),
+    },
   },
   PluginVisualization: {
     item: {
@@ -922,7 +925,7 @@ export const versionedComponents = {
   },
   DataSourcePicker: {
     container: {
-      '10.1.0': 'data-testid Data source picker select container',
+      '10.0.0': 'data-testid Data source picker select container',
       [MIN_GRAFANA_VERSION]: 'Data source picker select container',
     },
     /**
@@ -1128,7 +1131,9 @@ export const versionedComponents = {
     },
   },
   ColorSwatch: {
-    name: `data-testid-colorswatch`, //*
+    name: {
+      [MIN_GRAFANA_VERSION]: 'data-testid-colorswatch',
+    },
   },
   DashboardRow: {
     title: {

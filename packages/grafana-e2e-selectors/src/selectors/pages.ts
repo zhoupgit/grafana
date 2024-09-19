@@ -8,6 +8,19 @@ import { MIN_GRAFANA_VERSION } from './constants';
  * @alpha
  */
 export const versionedPages = {
+  Alerting: {
+    AddAlertRule: {
+      url: {
+        ['10.1.0']: '/alerting/new/alerting',
+        [MIN_GRAFANA_VERSION]: '/alerting/new',
+      },
+    },
+    EditAlertRule: {
+      url: {
+        [MIN_GRAFANA_VERSION]: (alertRuleUid: string) => `alerting/${alertRuleUid}/edit`,
+      },
+    },
+  },
   Login: {
     url: {
       [MIN_GRAFANA_VERSION]: '/login',
@@ -25,9 +38,7 @@ export const versionedPages = {
       [MIN_GRAFANA_VERSION]: 'Login button',
     },
     skip: {
-      '10.2.3': {
-        '10.2.3': 'data-testid Skip change password button',
-      },
+      '10.2.3': 'data-testid Skip change password button',
     },
   },
   Home: {
@@ -49,6 +60,7 @@ export const versionedPages = {
     },
     saveAndTest: {
       '10.0.0': 'data-testid Data source settings page Save and Test button',
+      [MIN_GRAFANA_VERSION]: 'Data source settings page Save and Test button',
     },
     alert: {
       '10.3.0': 'data-testid Data source settings page Alert',
@@ -100,6 +112,9 @@ export const versionedPages = {
       '11.1.0': 'data-testid Add new panel',
       [MIN_GRAFANA_VERSION]: 'Add new panel',
     },
+    itemButtonAddViz: {
+      [MIN_GRAFANA_VERSION]: 'Add new visualization menu item',
+    },
     addNewRow: {
       '11.1.0': 'data-testid Add new row',
       [MIN_GRAFANA_VERSION]: 'Add new row',
@@ -107,6 +122,34 @@ export const versionedPages = {
     addNewPanelLibrary: {
       '11.1.0': 'data-testid Add new panel from panel library',
       [MIN_GRAFANA_VERSION]: 'Add new panel from panel library',
+    },
+    Settings: {
+      Annotations: {
+        List: {
+          url: {
+            [MIN_GRAFANA_VERSION]: '/dashboard/new?orgId=1&editview=annotations',
+          },
+        },
+        Edit: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (annotationIndex: string) =>
+              `/dashboard/new?editview=annotations&editIndex=${annotationIndex}`,
+          },
+        },
+      },
+      Variables: {
+        List: {
+          url: {
+            [MIN_GRAFANA_VERSION]: '/dashboard/new?orgId=1&editview=templating',
+          },
+        },
+        Edit: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (annotationIndex: string) =>
+              `/dashboard/new?orgId=1&editview=templating&editIndex=${annotationIndex}`,
+          },
+        },
+      },
     },
   },
   Dashboard: {
@@ -246,7 +289,16 @@ export const versionedPages = {
         },
       },
       Annotations: {
+        Edit: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (dashboardUid: string, annotationIndex: string) =>
+              `/d/${dashboardUid}?editview=annotations&editIndex=${annotationIndex}`,
+          },
+        },
         List: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (dashboardUid: string) => `/d/${dashboardUid}?editview=annotations`,
+          },
           addAnnotationCTAV2: {
             [MIN_GRAFANA_VERSION]: Components.CallToActionCard.buttonV2('Add annotation query'),
           },
@@ -286,6 +338,9 @@ export const versionedPages = {
       },
       Variables: {
         List: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (dashboardUid: string) => `/d/${dashboardUid}?editview=templating`,
+          },
           addVariableCTAV2: {
             [MIN_GRAFANA_VERSION]: Components.CallToActionCard.buttonV2('Add variable'),
           },
@@ -315,6 +370,10 @@ export const versionedPages = {
           },
         },
         Edit: {
+          url: {
+            [MIN_GRAFANA_VERSION]: (dashboardUid: string, editIndex: string) =>
+              `/d/${dashboardUid}?editview=templating&editIndex=${editIndex}`,
+          },
           General: {
             headerLink: {
               [MIN_GRAFANA_VERSION]: 'Variable editor Header link',
@@ -370,7 +429,7 @@ export const versionedPages = {
             },
             submitButton: {
               '10.4.0': 'data-testid Variable editor Run Query button',
-              [MIN_GRAFANA_VERSION]: 'Variable editor Run Query button',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Submit button',
             },
             applyButton: {
               '9.3.0': 'data-testid Variable editor Apply button',
@@ -453,7 +512,7 @@ export const versionedPages = {
             },
           },
           GroupByVariable: {
-            dataSourceSelect: Components.DataSourcePicker.inputV2, //10.4.0*
+            dataSourceSelect: { '10.4.0': Components.DataSourcePicker.inputV2 },
             infoText: {
               '10.4.0': 'data-testid group by variable info text',
             },
@@ -855,7 +914,9 @@ export const versionedPages = {
       },
     },
     UserAnonListPage: {
-      container: 'data-testid user-anon-list-page',
+      container: {
+        '10.4.0': 'data-testid user-anon-list-page',
+      },
     },
     UsersListPublicDashboardsPage: {
       container: {
@@ -871,6 +932,11 @@ export const versionedPages = {
   ProfilePage: {
     url: {
       '10.2.0': '/profile',
+    },
+  },
+  Plugin: {
+    url: {
+      [MIN_GRAFANA_VERSION]: (pluginId: string) => `/plugins/${pluginId}`,
     },
   },
 };

@@ -69,11 +69,14 @@ const replaceVersions = (context: ts.TransformationContext) => (rootNode: ts.Nod
         return newNode;
       }
 
-      if (ts.isStringLiteral(propertyAssignment.initializer)) {
-        return propertyAssignment.initializer;
-      } else if (ts.isArrowFunction(propertyAssignment.initializer)) {
-        return propertyAssignment.initializer;
-      } else if (ts.isPropertyAccessExpression(propertyAssignment.initializer)) {
+      const shouldReplace = [
+        ts.isStringLiteral,
+        ts.isArrowFunction,
+        ts.isPropertyAccessExpression,
+        ts.isCallExpression,
+      ].some((typeAssertion) => typeAssertion(propertyAssignment.initializer));
+
+      if (shouldReplace) {
         return propertyAssignment.initializer;
       }
     }

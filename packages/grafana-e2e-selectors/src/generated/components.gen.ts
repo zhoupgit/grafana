@@ -409,10 +409,7 @@ export const Components = {
     },
     OptionsGroup: {
         group: (title?: string) => (title ? `data-testid Options group ${title}` : 'data-testid Options group'),
-        toggle: (title?: string) => title
-            ? `data-testid Options group ${title} toggle`
-            :
-                'data-testid Options group toggle',
+        toggle: (title?: string) => title ? `data-testid Options group ${title} toggle` : 'data-testid Options group toggle',
     },
     PluginVisualization: {
         item: (title: string) => `Plugin visualization item ${title}`,

@@ -6,6 +6,14 @@ import { Components } from './components.gen';
  * @alpha
  */
 export const Pages = {
+    Alerting: {
+        AddAlertRule: {
+            url: '/alerting/new',
+        },
+        EditAlertRule: {
+            url: (alertRuleUid: string) => `alerting/${alertRuleUid}/edit`,
+        },
+    },
     Login: {
         url: '/login',
         username: 'data-testid Username input field',
@@ -44,8 +52,27 @@ export const Pages = {
         url: '/dashboard/new',
         itemButton: (title: string) => `data-testid ${title}`,
         addNewPanel: 'data-testid Add new panel',
+        itemButtonAddViz: 'Add new visualization menu item',
         addNewRow: 'data-testid Add new row',
         addNewPanelLibrary: 'data-testid Add new panel from panel library',
+        Settings: {
+            Annotations: {
+                List: {
+                    url: '/dashboard/new?orgId=1&editview=annotations',
+                },
+                Edit: {
+                    url: (annotationIndex: string) => `/dashboard/new?editview=annotations&editIndex=${annotationIndex}`,
+                },
+            },
+            Variables: {
+                List: {
+                    url: '/dashboard/new?orgId=1&editview=templating',
+                },
+                Edit: {
+                    url: (annotationIndex: string) => `/dashboard/new?orgId=1&editview=templating&editIndex=${annotationIndex}`,
+                },
+            },
+        },
     },
     Dashboard: {
         url: (uid: string) => `/d/${uid}`,
@@ -110,10 +137,12 @@ export const Pages = {
                 title: 'General',
             },
             Annotations: {
+                Edit: {
+                    url: (dashboardUid: string, annotationIndex: string) => `/d/${dashboardUid}?editview=annotations&editIndex=${annotationIndex}`,
+                },
                 List: {
-                    addAnnotationCTAV2: {
-                        '8.0.0': Components.CallToActionCard.buttonV2('Add annotation query'),
-                    },
+                    url: (dashboardUid: string) => `/d/${dashboardUid}?editview=annotations`,
+                    addAnnotationCTAV2: Components.CallToActionCard.buttonV2('Add annotation query'),
                     annotations: 'data-testid list-annotations',
                 },
                 Settings: {
@@ -131,9 +160,8 @@ export const Pages = {
             },
             Variables: {
                 List: {
-                    addVariableCTAV2: {
-                        '8.0.0': Components.CallToActionCard.buttonV2('Add variable'),
-                    },
+                    url: (dashboardUid: string) => `/d/${dashboardUid}?editview=templating`,
+                    addVariableCTAV2: Components.CallToActionCard.buttonV2('Add variable'),
                     newButton: 'Variable editor New variable button',
                     table: 'Variable editor Table',
                     tableRowNameFields: (variableName: string) => `Variable editor Table Name field ${variableName}`,
@@ -144,6 +172,7 @@ export const Pages = {
                     tableRowRemoveButtons: (variableName: string) => `Variable editor Table Remove button ${variableName}`,
                 },
                 Edit: {
+                    url: (dashboardUid: string, editIndex: string) => `/d/${dashboardUid}?editview=templating&editIndex=${editIndex}`,
                     General: {
                         headerLink: 'Variable editor Header link',
                         modeLabelNew: 'Variable editor Header mode New',
@@ -200,7 +229,7 @@ export const Pages = {
                         minIntervalInput: 'data-testid interval variable mininum interval input',
                     },
                     GroupByVariable: {
-                        dataSourceSelect: Components.DataSourcePicker.inputV2, //10.4.0*
+                        dataSourceSelect: Components.DataSourcePicker.inputV2,
                         infoText: 'data-testid group by variable info text',
                         modeToggle: 'data-testid group by variable mode toggle',
                     },
@@ -410,5 +439,8 @@ export const Pages = {
     },
     ProfilePage: {
         url: '/profile',
+    },
+    Plugin: {
+        url: (pluginId: string) => `/plugins/${pluginId}`,
     },
 };
