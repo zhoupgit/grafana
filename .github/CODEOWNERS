@@ -200,6 +200,7 @@
 /devenv/docker/blocks/memcached/ @grafana/grafana-backend-group
 /devenv/docker/blocks/mimir_backend/ @grafana/alerting-backend
 /devenv/docker/blocks/mqtt/ @grafana/alerting-backend
+/devenv/docker/blocks/caddy_tls/ @grafana/alerting-backend
 /devenv/docker/blocks/mssql/ @grafana/partner-datasources
 /devenv/docker/blocks/mssql_arm64/ @grafana/partner-datasources
 /devenv/docker/blocks/mssql_tests/ @grafana/partner-datasources
