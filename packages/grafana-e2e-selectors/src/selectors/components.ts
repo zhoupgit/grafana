@@ -4,10 +4,11 @@
 // but you still might need to select it for testing,
 // in that case please add the attribute data-testid={selector} in the component and
 // prefix your selector string with 'data-testid' so that when create the selectors we know to search for it on the right attribute
+
+import { MIN_GRAFANA_VERSION } from './constants';
+
 /**
  * Selectors grouped/defined in Components
- *
- * @alpha
  */
 export const Components = {
   RadioButton: {
@@ -22,21 +23,21 @@ export const Components = {
   },
   TimePicker: {
     openButton: {
-      '8.5.0': 'data-testid TimePicker Open Button',
+      [MIN_GRAFANA_VERSION]: 'data-testid TimePicker Open Button',
     },
     overlayContent: {
       '10.2.3': 'data-testid TimePicker Overlay Content',
     },
     fromField: {
       '10.2.3': 'data-testid Time Range from field',
-      '8.5.0': 'Time Range from field',
+      [MIN_GRAFANA_VERSION]: 'Time Range from field',
     },
     toField: {
       '10.2.3': 'data-testid Time Range to field',
-      '8.5.0': 'Time Range to field',
+      [MIN_GRAFANA_VERSION]: 'Time Range to field',
     },
     applyTimeRange: {
-      '8.5.0': 'data-testid TimePicker submit button',
+      [MIN_GRAFANA_VERSION]: 'data-testid TimePicker submit button',
     },
     copyTimeRange: {
       '10.4.0': 'data-testid TimePicker copy button',
@@ -47,19 +48,19 @@ export const Components = {
     calendar: {
       label: {
         '10.2.3': 'data-testid Time Range calendar',
-        '8.5.0': 'Time Range calendar',
+        [MIN_GRAFANA_VERSION]: 'Time Range calendar',
       },
       openButton: {
         '10.2.3': 'data-testid Open time range calendar',
-        '8.5.0': 'Open time range calendar',
+        [MIN_GRAFANA_VERSION]: 'Open time range calendar',
       },
       closeButton: {
         '10.2.3': 'data-testid Close time range Calendar',
-        '8.5.0': 'Close time range Calendar',
+        [MIN_GRAFANA_VERSION]: 'Close time range Calendar',
       },
     },
     absoluteTimeRangeTitle: {
-      '8.5.0': 'data-testid-absolute-time-range-narrow',
+      [MIN_GRAFANA_VERSION]: 'data-testid-absolute-time-range-narrow',
     },
   },
   DataSourcePermissions: {
@@ -83,48 +84,48 @@ export const Components = {
     TestData: {
       QueryTab: {
         scenarioSelectContainer: {
-          '8.5.0': 'Test Data Query scenario select container',
+          [MIN_GRAFANA_VERSION]: 'Test Data Query scenario select container',
         },
         scenarioSelect: {
-          '8.5.0': 'Test Data Query scenario select',
+          [MIN_GRAFANA_VERSION]: 'Test Data Query scenario select',
         },
         max: {
-          '8.5.0': 'TestData max',
+          [MIN_GRAFANA_VERSION]: 'TestData max',
         },
         min: {
-          '8.5.0': 'TestData min',
+          [MIN_GRAFANA_VERSION]: 'TestData min',
         },
         noise: {
-          '8.5.0': 'TestData noise',
+          [MIN_GRAFANA_VERSION]: 'TestData noise',
         },
         seriesCount: {
-          '8.5.0': 'TestData series count',
+          [MIN_GRAFANA_VERSION]: 'TestData series count',
         },
         spread: {
-          '8.5.0': 'TestData spread',
+          [MIN_GRAFANA_VERSION]: 'TestData spread',
         },
         startValue: {
-          '8.5.0': 'TestData start value',
+          [MIN_GRAFANA_VERSION]: 'TestData start value',
         },
         drop: {
-          '8.5.0': 'TestData drop values',
+          [MIN_GRAFANA_VERSION]: 'TestData drop values',
         },
       },
     },
     DataSourceHttpSettings: {
       urlInput: {
         '10.4.0': 'data-testid Datasource HTTP settings url',
-        '8.5.0': 'Datasource HTTP settings url',
+        [MIN_GRAFANA_VERSION]: 'Datasource HTTP settings url',
       },
     },
     Jaeger: {
       traceIDInput: {
-        '8.5.0': 'Trace ID',
+        [MIN_GRAFANA_VERSION]: 'Trace ID',
       },
     },
     Prometheus: {
       configPage: {
-        connectionSettings: { '8.5.0': 'Data source connection URL' }, // aria-label in grafana experimental
+        connectionSettings: { [MIN_GRAFANA_VERSION]: 'Data source connection URL' }, // aria-label in grafana experimental
         manageAlerts: { '10.4.0': 'prometheus-alerts-manager' }, // id for switch component
         scrapeInterval: {
           '10.4.0': 'data-testid scrape interval',
@@ -156,11 +157,11 @@ export const Components = {
         },
         exemplarsAddButton: {
           '10.3.0': 'data-testid Add exemplar config button',
-          '8.5.0': 'Add exemplar config button',
+          [MIN_GRAFANA_VERSION]: 'Add exemplar config button',
         },
         internalLinkSwitch: {
           '10.3.0': 'data-testid Internal link switch',
-          '8.5.0': 'Internal link switch',
+          [MIN_GRAFANA_VERSION]: 'Internal link switch',
         },
         codeModeMetricNamesSuggestionLimit: {
           '11.1.0': 'data-testid code mode metric names suggestion limit',
@@ -253,7 +254,7 @@ export const Components = {
       },
       exemplarMarker: {
         '10.3.0': 'data-testid Exemplar marker',
-        '8.5.0': 'Exemplar marker',
+        [MIN_GRAFANA_VERSION]: 'Exemplar marker',
       },
       variableQueryEditor: {
         queryType: {
@@ -307,29 +308,29 @@ export const Components = {
   },
   Menu: {
     MenuComponent: {
-      '8.5.0': (title: string) => `${title} menu`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `${title} menu`,
     },
     MenuGroup: {
-      '8.5.0': (title: string) => `${title} menu group`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `${title} menu group`,
     },
     MenuItem: {
-      '8.5.0': (title: string) => `${title} menu item`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `${title} menu item`,
     },
     SubMenu: {
       container: {
         '10.3.0': 'data-testid SubMenu container',
-        '8.5.0': 'SubMenu container',
+        [MIN_GRAFANA_VERSION]: 'SubMenu container',
       },
       icon: {
         '10.3.0': 'data-testid SubMenu icon',
-        '8.5.0': 'SubMenu icon',
+        [MIN_GRAFANA_VERSION]: 'SubMenu icon',
       },
     },
   },
   Panels: {
     Panel: {
       title: {
-        '8.5.0': (title: string) => `data-testid Panel header ${title}`,
+        [MIN_GRAFANA_VERSION]: (title: string) => `data-testid Panel header ${title}`,
       },
       content: {
         '11.1.0': 'data-testid panel content',
@@ -344,10 +345,10 @@ export const Components = {
         '9.5.0': (title: string) => `data-testid Panel menu ${title}`,
       },
       containerByTitle: {
-        '8.5.0': (title: string) => `${title} panel`,
+        [MIN_GRAFANA_VERSION]: (title: string) => `${title} panel`,
       },
       headerCornerInfo: {
-        '8.5.0': (mode: string) => `Panel header ${mode}`,
+        [MIN_GRAFANA_VERSION]: (mode: string) => `Panel header ${mode}`,
       },
       status: {
         '10.2.0': (status: string) => `data-testid Panel status ${status}`,
@@ -358,7 +359,7 @@ export const Components = {
       HoverWidget: {
         container: {
           '10.1.0': 'data-testid hover-header-container',
-          '8.5.0': 'hover-header-container',
+          [MIN_GRAFANA_VERSION]: 'hover-header-container',
         },
         dragIcon: {
           '10.0.0': 'data-testid drag-icon',
@@ -375,19 +376,19 @@ export const Components = {
         },
         VisualizationTab: {
           legendSection: {
-            '8.5.0': 'Legend section',
+            [MIN_GRAFANA_VERSION]: 'Legend section',
           },
         },
         Legend: {
           legendItemAlias: {
-            '8.5.0': (name: string) => `gpl alias ${name}`,
+            [MIN_GRAFANA_VERSION]: (name: string) => `gpl alias ${name}`,
           },
           showLegendSwitch: {
-            '8.5.0': 'gpl show legend',
+            [MIN_GRAFANA_VERSION]: 'gpl show legend',
           },
         },
         xAxis: {
-          labels: { '8.5.0': () => 'div.flot-x-axis > div.flot-tick-label' },
+          labels: { [MIN_GRAFANA_VERSION]: () => 'div.flot-x-axis > div.flot-tick-label' },
         },
       },
       BarGauge: {
@@ -396,7 +397,7 @@ export const Components = {
          */
         value: 'Bar gauge value',
         valueV2: {
-          '8.5.0': 'data-testid Bar gauge value',
+          [MIN_GRAFANA_VERSION]: 'data-testid Bar gauge value',
         },
       },
       PieChart: {
@@ -405,14 +406,14 @@ export const Components = {
         },
       },
       Text: {
-        container: { '8.5.0': () => '.markdown-html' },
+        container: { [MIN_GRAFANA_VERSION]: () => '.markdown-html' },
       },
       Table: {
         header: {
-          '8.5.0': 'table header',
+          [MIN_GRAFANA_VERSION]: 'table header',
         },
         footer: {
-          '8.5.0': 'table-footer',
+          [MIN_GRAFANA_VERSION]: 'table-footer',
         },
         body: {
           '10.2.0': 'data-testid table body',
@@ -428,17 +429,17 @@ export const Components = {
   Drawer: {
     General: {
       title: {
-        '8.5.0': (title: string) => `Drawer title ${title}`,
+        [MIN_GRAFANA_VERSION]: (title: string) => `Drawer title ${title}`,
       },
       expand: {
-        '8.5.0': 'Drawer expand',
+        [MIN_GRAFANA_VERSION]: 'Drawer expand',
       },
       contract: {
-        '8.5.0': 'Drawer contract',
+        [MIN_GRAFANA_VERSION]: 'Drawer contract',
       },
       close: {
         '10.3.0': 'data-testid Drawer close',
-        '8.5.0': 'Drawer close',
+        [MIN_GRAFANA_VERSION]: 'Drawer close',
       },
       rcContentWrapper: { '9.4.0': () => '.rc-drawer-content-wrapper' },
       subtitle: {
@@ -461,19 +462,19 @@ export const Components = {
     General: {
       content: {
         '11.1.0': 'data-testid Panel editor content',
-        '8.5.0': 'Panel editor content',
+        [MIN_GRAFANA_VERSION]: 'Panel editor content',
       },
     },
     OptionsPane: {
       content: {
         '11.1.0': 'data-testid Panel editor option pane content',
-        '8.5.0': 'Panel editor option pane content',
+        [MIN_GRAFANA_VERSION]: 'Panel editor option pane content',
       },
       select: {
-        '8.5.0': 'Panel editor option pane select',
+        [MIN_GRAFANA_VERSION]: 'Panel editor option pane select',
       },
       fieldLabel: {
-        '8.5.0': (type: string) => `${type} field property editor`,
+        [MIN_GRAFANA_VERSION]: (type: string) => `${type} field property editor`,
       },
       fieldInput: {
         '11.0.0': (title: string) => `data-testid Panel editor option pane field input ${title}`,
@@ -483,7 +484,7 @@ export const Components = {
     DataPane: {
       content: {
         '11.1.0': 'data-testid Panel editor data pane content',
-        '8.5.0': 'Panel editor data pane content',
+        [MIN_GRAFANA_VERSION]: 'Panel editor data pane content',
       },
     },
     applyButton: {
@@ -491,15 +492,15 @@ export const Components = {
     },
     toggleVizPicker: {
       '10.1.0': 'data-testid toggle-viz-picker',
-      '8.5.0': 'toggle-viz-picker',
+      [MIN_GRAFANA_VERSION]: 'toggle-viz-picker',
     },
     toggleVizOptions: {
       '10.1.0': 'data-testid toggle-viz-options',
-      '8.5.0': 'toggle-viz-options',
+      [MIN_GRAFANA_VERSION]: 'toggle-viz-options',
     },
     toggleTableView: {
       '11.1.0': 'data-testid toggle-table-view',
-      '8.5.0': 'toggle-table-view',
+      [MIN_GRAFANA_VERSION]: 'toggle-table-view',
     },
 
     // [Geomap] Map controls
@@ -526,29 +527,29 @@ export const Components = {
   PanelInspector: {
     Data: {
       content: {
-        '8.5.0': 'Panel inspector Data content',
+        [MIN_GRAFANA_VERSION]: 'Panel inspector Data content',
       },
     },
     Stats: {
       content: {
-        '8.5.0': 'Panel inspector Stats content',
+        [MIN_GRAFANA_VERSION]: 'Panel inspector Stats content',
       },
     },
     Json: {
       content: {
         '11.1.0': 'data-testid Panel inspector Json content',
-        '8.5.0': 'Panel inspector Json content',
+        [MIN_GRAFANA_VERSION]: 'Panel inspector Json content',
       },
     },
     Query: {
       content: {
-        '8.5.0': 'Panel inspector Query content',
+        [MIN_GRAFANA_VERSION]: 'Panel inspector Query content',
       },
       refreshButton: {
-        '8.5.0': 'Panel inspector Query refresh button',
+        [MIN_GRAFANA_VERSION]: 'Panel inspector Query refresh button',
       },
       jsonObjectKeys: {
-        '8.5.0': () => '.json-formatter-key',
+        [MIN_GRAFANA_VERSION]: () => '.json-formatter-key',
       },
     },
   },
@@ -556,38 +557,38 @@ export const Components = {
     title: {
       '11.2.0': (title: string) => `data-testid Tab ${title}`,
     },
-    active: { '8.5.0': () => '[class*="-activeTabStyle"]' },
+    active: { [MIN_GRAFANA_VERSION]: () => '[class*="-activeTabStyle"]' },
   },
   RefreshPicker: {
     /**
      * @deprecated use runButtonV2 from Grafana 8.3 instead
      */
     runButton: {
-      '8.5.0': 'RefreshPicker run button',
+      [MIN_GRAFANA_VERSION]: 'RefreshPicker run button',
     },
     /**
      * @deprecated use intervalButtonV2 from Grafana 8.3 instead
      */
     intervalButton: {
-      '8.5.0': 'RefreshPicker interval button',
+      [MIN_GRAFANA_VERSION]: 'RefreshPicker interval button',
     },
     runButtonV2: {
-      '8.5.0': 'data-testid RefreshPicker run button',
+      [MIN_GRAFANA_VERSION]: 'data-testid RefreshPicker run button',
     },
     intervalButtonV2: {
-      '8.5.0': 'data-testid RefreshPicker interval button',
+      [MIN_GRAFANA_VERSION]: 'data-testid RefreshPicker interval button',
     },
   },
   QueryTab: {
     content: {
-      '8.5.0': 'Query editor tab content',
+      [MIN_GRAFANA_VERSION]: 'Query editor tab content',
     },
     queryInspectorButton: {
-      '8.5.0': 'Query inspector button',
+      [MIN_GRAFANA_VERSION]: 'Query inspector button',
     },
     queryHistoryButton: {
       '10.2.0': 'data-testid query-history-button',
-      '8.5.0': 'query-history-button',
+      [MIN_GRAFANA_VERSION]: 'query-history-button',
     },
     addQuery: {
       '10.2.0': 'data-testid query-tab-add-query',
@@ -606,7 +607,7 @@ export const Components = {
   },
   QueryEditorRows: {
     rows: {
-      '8.5.0': 'Query editor row',
+      [MIN_GRAFANA_VERSION]: 'Query editor row',
     },
   },
   QueryEditorRow: {
@@ -662,16 +663,16 @@ export const Components = {
      * @deprecated use alertV2 from Grafana 8.3 instead
      */
     alert: {
-      '8.5.0': (severity: string) => `Alert ${severity}`,
+      [MIN_GRAFANA_VERSION]: (severity: string) => `Alert ${severity}`,
     },
     alertV2: {
-      '8.5.0': (severity: string) => `data-testid Alert ${severity}`,
+      [MIN_GRAFANA_VERSION]: (severity: string) => `data-testid Alert ${severity}`,
     },
   },
   TransformTab: {
     content: {
       '10.1.0': 'data-testid Transform editor tab content',
-      '8.5.0': 'Transform editor tab content',
+      [MIN_GRAFANA_VERSION]: 'Transform editor tab content',
     },
     newTransform: {
       '10.1.0': (name: string) => `data-testid New transform ${name}`,
@@ -693,11 +694,11 @@ export const Components = {
     Reduce: {
       modeLabel: {
         '10.2.3': 'data-testid Transform mode label',
-        '8.5.0': 'Transform mode label',
+        [MIN_GRAFANA_VERSION]: 'Transform mode label',
       },
       calculationsLabel: {
         '10.2.3': 'data-testid Transform calculations label',
-        '8.5.0': 'Transform calculations label',
+        [MIN_GRAFANA_VERSION]: 'Transform calculations label',
       },
     },
     SpatialOperations: {
@@ -745,14 +746,14 @@ export const Components = {
     },
     searchInput: {
       '10.2.3': 'data-testid search transformations',
-      '8.5.0': 'search transformations',
+      [MIN_GRAFANA_VERSION]: 'search transformations',
     },
     noTransformationsMessage: {
       '10.2.3': 'data-testid no transformations message',
     },
     addTransformationButton: {
       '10.1.0': 'data-testid add transformation button',
-      '8.5.0': 'add transformation button',
+      [MIN_GRAFANA_VERSION]: 'add transformation button',
     },
     removeAllTransformationsButton: {
       '10.4.0': 'data-testid remove all transformations button',
@@ -767,7 +768,7 @@ export const Components = {
     Toggle: {
       button: {
         '10.2.3': 'data-testid Toggle menu',
-        '8.5.0': 'Toggle menu',
+        [MIN_GRAFANA_VERSION]: 'Toggle menu',
       },
     },
     Reporting: {
@@ -838,9 +839,9 @@ export const Components = {
   },
 
   PageToolbar: {
-    container: { '8.5.0': () => '.page-toolbar' },
+    container: { [MIN_GRAFANA_VERSION]: () => '.page-toolbar' },
     item: {
-      '8.5.0': (tooltip: string) => `${tooltip}`,
+      [MIN_GRAFANA_VERSION]: (tooltip: string) => `${tooltip}`,
     },
     itemButton: {
       '9.5.0': (title: string) => `data-testid ${title}`,
@@ -848,56 +849,56 @@ export const Components = {
   },
   QueryEditorToolbarItem: {
     button: {
-      '8.5.0': (title: string) => `QueryEditor toolbar item button ${title}`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `QueryEditor toolbar item button ${title}`,
     },
   },
   BackButton: {
     backArrow: {
       '10.3.0': 'data-testid Go Back',
-      '8.5.0': 'Go Back',
+      [MIN_GRAFANA_VERSION]: 'Go Back',
     },
   },
   OptionsGroup: {
     group: {
       '11.1.0': (title?: string) => (title ? `data-testid Options group ${title}` : 'data-testid Options group'),
-      '8.5.0': (title?: string) => (title ? `Options group ${title}` : 'Options group'),
+      [MIN_GRAFANA_VERSION]: (title?: string) => (title ? `Options group ${title}` : 'Options group'),
     },
     toggle: (title?: string) =>
       title
         ? `data-testid Options group ${title} toggle`
         : {
             '11.1.0': 'data-testid Options group toggle',
-            '8.5.0': 'Options group toggle',
+            [MIN_GRAFANA_VERSION]: 'Options group toggle',
           },
   },
   PluginVisualization: {
     item: {
-      '8.5.0': (title: string) => `Plugin visualization item ${title}`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `Plugin visualization item ${title}`,
     },
     current: {
-      '8.5.0': () => '[class*="-currentVisualizationItem"]',
+      [MIN_GRAFANA_VERSION]: () => '[class*="-currentVisualizationItem"]',
     },
   },
   Select: {
     option: {
       '11.1.0': 'data-testid Select option',
-      '8.5.0': 'Select option',
+      [MIN_GRAFANA_VERSION]: 'Select option',
     },
     input: {
-      '8.5.0': () => 'input[id*="time-options-input"]',
+      [MIN_GRAFANA_VERSION]: () => 'input[id*="time-options-input"]',
     },
     singleValue: {
-      '8.5.0': () => 'div[class*="-singleValue"]',
+      [MIN_GRAFANA_VERSION]: () => 'div[class*="-singleValue"]',
     },
   },
   FieldConfigEditor: {
     content: {
-      '8.5.0': 'Field config editor content',
+      [MIN_GRAFANA_VERSION]: 'Field config editor content',
     },
   },
   OverridesConfigEditor: {
     content: {
-      '8.5.0': 'Field overrides editor content',
+      [MIN_GRAFANA_VERSION]: 'Field overrides editor content',
     },
   },
   FolderPicker: {
@@ -905,10 +906,10 @@ export const Components = {
      * @deprecated use containerV2 from Grafana 8.3 instead
      */
     container: {
-      '8.5.0': 'Folder picker select container',
+      [MIN_GRAFANA_VERSION]: 'Folder picker select container',
     },
     containerV2: {
-      '8.5.0': 'data-testid Folder picker select container',
+      [MIN_GRAFANA_VERSION]: 'data-testid Folder picker select container',
     },
     input: {
       '10.4.0': 'data-testid folder-picker-input',
@@ -916,23 +917,23 @@ export const Components = {
   },
   ReadonlyFolderPicker: {
     container: {
-      '8.5.0': 'data-testid Readonly folder picker select container',
+      [MIN_GRAFANA_VERSION]: 'data-testid Readonly folder picker select container',
     },
   },
   DataSourcePicker: {
     container: {
       '10.1.0': 'data-testid Data source picker select container',
-      '8.5.0': 'Data source picker select container',
+      [MIN_GRAFANA_VERSION]: 'Data source picker select container',
     },
     /**
      * @deprecated use inputV2 instead
      */
     input: {
-      '8.5.0': () => 'input[id="data-source-picker"]',
+      [MIN_GRAFANA_VERSION]: () => 'input[id="data-source-picker"]',
     },
     inputV2: {
       '10.1.0': 'data-testid Select a data source',
-      '8.5.0': 'Select a data source',
+      [MIN_GRAFANA_VERSION]: 'Select a data source',
     },
     dataSourceList: {
       '10.4.0': 'data-testid Data source list dropdown',
@@ -951,10 +952,10 @@ export const Components = {
      * @deprecated use TimeZonePicker.containerV2 from Grafana 8.3 instead
      */
     container: {
-      '8.5.0': 'Time zone picker select container',
+      [MIN_GRAFANA_VERSION]: 'Time zone picker select container',
     },
     containerV2: {
-      '8.5.0': 'data-testid Time zone picker select container',
+      [MIN_GRAFANA_VERSION]: 'data-testid Time zone picker select container',
     },
     changeTimeSettingsButton: {
       '11.0.0': 'data-testid Time zone picker Change time settings button',
@@ -965,13 +966,13 @@ export const Components = {
      * @deprecated use WeekStartPicker.containerV2 from Grafana 8.3 instead
      */
     container: {
-      '8.5.0': 'Choose starting day of the week',
+      [MIN_GRAFANA_VERSION]: 'Choose starting day of the week',
     },
     containerV2: {
-      '8.5.0': 'data-testid Choose starting day of the week',
+      [MIN_GRAFANA_VERSION]: 'data-testid Choose starting day of the week',
     },
     placeholder: {
-      '8.5.0': 'Choose starting day of the week',
+      [MIN_GRAFANA_VERSION]: 'Choose starting day of the week',
     },
   },
   TraceViewer: {
@@ -982,26 +983,26 @@ export const Components = {
   QueryField: {
     container: {
       '10.3.0': 'data-testid Query field',
-      '8.5.0': 'Query field',
+      [MIN_GRAFANA_VERSION]: 'Query field',
     },
   },
   QueryBuilder: {
     queryPatterns: {
       '10.3.0': 'data-testid Query patterns',
-      '8.5.0': 'Query patterns',
+      [MIN_GRAFANA_VERSION]: 'Query patterns',
     },
     labelSelect: {
       '10.3.0': 'data-testid Select label',
-      '8.5.0': 'Select label',
+      [MIN_GRAFANA_VERSION]: 'Select label',
     },
     inputSelect: 'data-testid Select label-input',
     valueSelect: {
       '10.3.0': 'data-testid Select value',
-      '8.5.0': 'Select value',
+      [MIN_GRAFANA_VERSION]: 'Select value',
     },
     matchOperatorSelect: {
       '10.3.0': 'data-testid Select match operator',
-      '8.5.0': 'Select match operator',
+      [MIN_GRAFANA_VERSION]: 'Select match operator',
     },
   },
   ValuePicker: {
@@ -1017,34 +1018,34 @@ export const Components = {
      * @deprecated use sectionV2 from Grafana 8.3 instead
      */
     section: {
-      '8.5.0': 'Search section',
+      [MIN_GRAFANA_VERSION]: 'Search section',
     },
     sectionV2: {
-      '8.5.0': 'data-testid Search section',
+      [MIN_GRAFANA_VERSION]: 'data-testid Search section',
     },
     /**
      * @deprecated use itemsV2 from Grafana 8.3 instead
      */
     items: {
-      '8.5.0': 'Search items',
+      [MIN_GRAFANA_VERSION]: 'Search items',
     },
     itemsV2: {
-      '8.5.0': 'data-testid Search items',
+      [MIN_GRAFANA_VERSION]: 'data-testid Search items',
     },
     cards: {
-      '8.5.0': 'data-testid Search cards',
+      [MIN_GRAFANA_VERSION]: 'data-testid Search cards',
     },
     collapseFolder: {
-      '8.5.0': (sectionId: string) => `data-testid Collapse folder ${sectionId}`,
+      [MIN_GRAFANA_VERSION]: (sectionId: string) => `data-testid Collapse folder ${sectionId}`,
     },
     expandFolder: {
-      '8.5.0': (sectionId: string) => `data-testid Expand folder ${sectionId}`,
+      [MIN_GRAFANA_VERSION]: (sectionId: string) => `data-testid Expand folder ${sectionId}`,
     },
     dashboardItem: {
-      '8.5.0': (item: string) => `${Components.Search.dashboardItems} ${item}`,
+      [MIN_GRAFANA_VERSION]: (item: string) => `${Components.Search.dashboardItems} ${item}`,
     },
     dashboardCard: {
-      '8.5.0': (item: string) => `data-testid Search card ${item}`,
+      [MIN_GRAFANA_VERSION]: (item: string) => `data-testid Search card ${item}`,
     },
     folderHeader: {
       '9.3.0': (folderName: string) => `data-testid Folder header ${folderName}`,
@@ -1056,19 +1057,19 @@ export const Components = {
   },
   DashboardLinks: {
     container: {
-      '8.5.0': 'data-testid Dashboard link container',
+      [MIN_GRAFANA_VERSION]: 'data-testid Dashboard link container',
     },
     dropDown: {
-      '8.5.0': 'data-testid Dashboard link dropdown',
+      [MIN_GRAFANA_VERSION]: 'data-testid Dashboard link dropdown',
     },
     link: {
-      '8.5.0': 'data-testid Dashboard link',
+      [MIN_GRAFANA_VERSION]: 'data-testid Dashboard link',
     },
   },
   LoadingIndicator: {
     icon: {
       '10.4.0': 'data-testid Loading indicator',
-      '8.5.0': 'Loading indicator',
+      [MIN_GRAFANA_VERSION]: 'Loading indicator',
     },
   },
   CallToActionCard: {
@@ -1076,22 +1077,22 @@ export const Components = {
      * @deprecated use buttonV2 from Grafana 8.3 instead
      */
     button: {
-      '8.5.0': (name: string) => `Call to action button ${name}`,
+      [MIN_GRAFANA_VERSION]: (name: string) => `Call to action button ${name}`,
     },
     buttonV2: {
-      '8.5.0': (name: string) => `data-testid Call to action button ${name}`,
+      [MIN_GRAFANA_VERSION]: (name: string) => `data-testid Call to action button ${name}`,
     },
   },
   DataLinksContextMenu: {
     singleLink: {
       '10.3.0': 'data-testid Data link',
-      '8.5.0': 'Data link',
+      [MIN_GRAFANA_VERSION]: 'Data link',
     },
   },
   CodeEditor: {
     container: {
       '10.2.3': 'data-testid Code editor container',
-      '8.5.0': 'Code editor container',
+      [MIN_GRAFANA_VERSION]: 'Code editor container',
     },
   },
   ReactMonacoEditor: {
@@ -1101,29 +1102,29 @@ export const Components = {
   },
   DashboardImportPage: {
     textarea: {
-      '8.5.0': 'data-testid-import-dashboard-textarea',
+      [MIN_GRAFANA_VERSION]: 'data-testid-import-dashboard-textarea',
     },
     submit: {
-      '8.5.0': 'data-testid-load-dashboard',
+      [MIN_GRAFANA_VERSION]: 'data-testid-load-dashboard',
     },
   },
   ImportDashboardForm: {
     name: {
-      '8.5.0': 'data-testid-import-dashboard-title',
+      [MIN_GRAFANA_VERSION]: 'data-testid-import-dashboard-title',
     },
     submit: {
-      '8.5.0': 'data-testid-import-dashboard-submit',
+      [MIN_GRAFANA_VERSION]: 'data-testid-import-dashboard-submit',
     },
   },
   PanelAlertTabContent: {
     content: {
       '10.2.3': 'data-testid Unified alert editor tab content',
-      '8.5.0': 'Unified alert editor tab content',
+      [MIN_GRAFANA_VERSION]: 'Unified alert editor tab content',
     },
   },
   VisualizationPreview: {
     card: {
-      '8.5.0': (name: string) => `data-testid suggestion-${name}`,
+      [MIN_GRAFANA_VERSION]: (name: string) => `data-testid suggestion-${name}`,
     },
   },
   ColorSwatch: {
@@ -1131,21 +1132,21 @@ export const Components = {
   },
   DashboardRow: {
     title: {
-      '8.5.0': (title: string) => `data-testid dashboard-row-title-${title}`,
+      [MIN_GRAFANA_VERSION]: (title: string) => `data-testid dashboard-row-title-${title}`,
     },
   },
   UserProfile: {
     profileSaveButton: {
-      '8.5.0': 'data-testid-user-profile-save',
+      [MIN_GRAFANA_VERSION]: 'data-testid-user-profile-save',
     },
     preferencesSaveButton: {
-      '8.5.0': 'data-testid-shared-prefs-save',
+      [MIN_GRAFANA_VERSION]: 'data-testid-shared-prefs-save',
     },
     orgsTable: {
-      '8.5.0': 'data-testid-user-orgs-table',
+      [MIN_GRAFANA_VERSION]: 'data-testid-user-orgs-table',
     },
     sessionsTable: {
-      '8.5.0': 'data-testid-user-sessions-table',
+      [MIN_GRAFANA_VERSION]: 'data-testid-user-sessions-table',
     },
     extensionPointTabs: {
       '10.2.3': 'data-testid-extension-point-tabs',
@@ -1188,11 +1189,11 @@ export const Components = {
   Annotations: {
     annotationsTypeInput: {
       '11.1.0': 'data-testid annotations-type-input',
-      '8.5.0': 'annotations-type-input',
+      [MIN_GRAFANA_VERSION]: 'annotations-type-input',
     },
     annotationsChoosePanelInput: {
       '11.1.0': 'data-testid choose-panels-input',
-      '8.5.0': 'choose-panels-input',
+      [MIN_GRAFANA_VERSION]: 'choose-panels-input',
     },
     editor: {
       testButton: {

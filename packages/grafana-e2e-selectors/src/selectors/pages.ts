@@ -1,4 +1,6 @@
-import { versionedComponents as Components } from '../generated/components.gen';
+import { Components } from '../generated/components.gen';
+
+import { MIN_GRAFANA_VERSION } from './constants';
 
 /**
  * Selectors grouped/defined in Pages
@@ -8,19 +10,19 @@ import { versionedComponents as Components } from '../generated/components.gen';
 export const Pages = {
   Login: {
     url: {
-      '8.5.0': '/login',
+      [MIN_GRAFANA_VERSION]: '/login',
     },
     username: {
       '10.2.3': 'data-testid Username input field',
-      '8.5.0': 'Username input field',
+      [MIN_GRAFANA_VERSION]: 'Username input field',
     },
     password: {
       '10.2.3': 'data-testid Password input field',
-      '8.5.0': 'Password input field',
+      [MIN_GRAFANA_VERSION]: 'Password input field',
     },
     submit: {
       '10.2.3': 'data-testid Login button',
-      '8.5.0': 'Login button',
+      [MIN_GRAFANA_VERSION]: 'Login button',
     },
     skip: {
       '10.2.3': {
@@ -30,35 +32,35 @@ export const Pages = {
   },
   Home: {
     url: {
-      '8.5.0': '/',
+      [MIN_GRAFANA_VERSION]: '/',
     },
   },
   DataSource: {
     name: {
       '10.3.0': 'data-testid Data source settings page name input field',
-      '8.5.0': 'Data source settings page name input field',
+      [MIN_GRAFANA_VERSION]: 'Data source settings page name input field',
     },
     delete: {
-      '8.5.0': 'Data source settings page Delete button',
+      [MIN_GRAFANA_VERSION]: 'Data source settings page Delete button',
     },
     readOnly: {
       '10.3.0': 'data-testid Data source settings page read only message',
-      '8.5.0': 'Data source settings page read only message',
+      [MIN_GRAFANA_VERSION]: 'Data source settings page read only message',
     },
     saveAndTest: {
       '10.0.0': 'data-testid Data source settings page Save and Test button',
     },
     alert: {
       '10.3.0': 'data-testid Data source settings page Alert',
-      '8.5.0': 'Data source settings page Alert',
+      [MIN_GRAFANA_VERSION]: 'Data source settings page Alert',
     },
   },
   DataSources: {
     url: {
-      '8.5.0': '/datasources',
+      [MIN_GRAFANA_VERSION]: '/datasources',
     },
     dataSources: {
-      '8.5.0': (dataSourceName: string) => `Data source list item ${dataSourceName}`,
+      [MIN_GRAFANA_VERSION]: (dataSourceName: string) => `Data source list item ${dataSourceName}`,
     },
   },
   EditDataSource: {
@@ -71,11 +73,11 @@ export const Pages = {
   },
   AddDataSource: {
     url: {
-      '8.5.0': '/datasources/new',
+      [MIN_GRAFANA_VERSION]: '/datasources/new',
     },
     /** @deprecated Use dataSourcePluginsV2 */
     dataSourcePlugins: {
-      '8.5.0': (pluginName: string) => `Data source plugin item ${pluginName}`,
+      [MIN_GRAFANA_VERSION]: (pluginName: string) => `Data source plugin item ${pluginName}`,
     },
     dataSourcePluginsV2: {
       '9.3.1': (pluginName: string) => `Add new data source ${pluginName}`,
@@ -84,39 +86,39 @@ export const Pages = {
   ConfirmModal: {
     delete: {
       '10.0.0': 'data-testid Confirm Modal Danger Button',
-      '8.5.0': 'Confirm Modal Danger Button',
+      [MIN_GRAFANA_VERSION]: 'Confirm Modal Danger Button',
     },
   },
   AddDashboard: {
     url: {
-      '8.5.0': '/dashboard/new',
+      [MIN_GRAFANA_VERSION]: '/dashboard/new',
     },
     itemButton: {
       '9.5.0': (title: string) => `data-testid ${title}`,
     },
     addNewPanel: {
       '11.1.0': 'data-testid Add new panel',
-      '8.5.0': 'Add new panel',
+      [MIN_GRAFANA_VERSION]: 'Add new panel',
     },
     addNewRow: {
       '11.1.0': 'data-testid Add new row',
-      '8.5.0': 'Add new row',
+      [MIN_GRAFANA_VERSION]: 'Add new row',
     },
     addNewPanelLibrary: {
       '11.1.0': 'data-testid Add new panel from panel library',
-      '8.5.0': 'Add new panel from panel library',
+      [MIN_GRAFANA_VERSION]: 'Add new panel from panel library',
     },
   },
   Dashboard: {
     url: {
-      '8.5.0': (uid: string) => `/d/${uid}`,
+      [MIN_GRAFANA_VERSION]: (uid: string) => `/d/${uid}`,
     },
     DashNav: {
       nav: {
-        '8.5.0': 'Dashboard navigation',
+        [MIN_GRAFANA_VERSION]: 'Dashboard navigation',
       },
       navV2: {
-        '8.5.0': 'data-testid Dashboard navigation',
+        [MIN_GRAFANA_VERSION]: 'data-testid Dashboard navigation',
       },
       publicDashboardTag: {
         '9.1.0': 'data-testid public dashboard tag',
@@ -183,23 +185,23 @@ export const Pages = {
     },
     SubMenu: {
       submenu: {
-        '8.5.0': 'Dashboard submenu',
+        [MIN_GRAFANA_VERSION]: 'Dashboard submenu',
       },
       submenuItem: {
-        '8.5.0': 'data-testid template variable',
+        [MIN_GRAFANA_VERSION]: 'data-testid template variable',
       },
       submenuItemLabels: {
-        '8.5.0': (item: string) => `data-testid Dashboard template variables submenu Label ${item}`,
+        [MIN_GRAFANA_VERSION]: (item: string) => `data-testid Dashboard template variables submenu Label ${item}`,
       },
       submenuItemValueDropDownValueLinkTexts: {
-        '8.5.0': (item: string) =>
+        [MIN_GRAFANA_VERSION]: (item: string) =>
           `data-testid Dashboard template variables Variable Value DropDown value link text ${item}`,
       },
       submenuItemValueDropDownDropDown: {
-        '8.5.0': 'Variable options',
+        [MIN_GRAFANA_VERSION]: 'Variable options',
       },
       submenuItemValueDropDownOptionTexts: {
-        '8.5.0': (item: string) =>
+        [MIN_GRAFANA_VERSION]: (item: string) =>
           `data-testid Dashboard template variables Variable Value DropDown option text ${item}`,
       },
       Annotations: {
@@ -225,19 +227,19 @@ export const Pages = {
           '11.1.0': 'data-testid Dashboard settings page delete dashboard button',
         },
         sectionItems: {
-          '8.5.0': (item: string) => `Dashboard settings section item ${item}`,
+          [MIN_GRAFANA_VERSION]: (item: string) => `Dashboard settings section item ${item}`,
         },
         saveDashBoard: {
-          '8.5.0': 'Dashboard settings aside actions Save button',
+          [MIN_GRAFANA_VERSION]: 'Dashboard settings aside actions Save button',
         },
         saveAsDashBoard: {
-          '8.5.0': 'Dashboard settings aside actions Save As button',
+          [MIN_GRAFANA_VERSION]: 'Dashboard settings aside actions Save As button',
         },
         /**
          * @deprecated use components.TimeZonePicker.containerV2 from Grafana 8.3 instead
          */
         timezone: {
-          '8.5.0': 'Time zone picker select container',
+          [MIN_GRAFANA_VERSION]: 'Time zone picker select container',
         },
         title: {
           '11.2.0': 'General',
@@ -246,7 +248,7 @@ export const Pages = {
       Annotations: {
         List: {
           addAnnotationCTAV2: {
-            '8.5.0': Components.CallToActionCard.buttonV2('Add annotation query'),
+            [MIN_GRAFANA_VERSION]: Components.CallToActionCard.buttonV2('Add annotation query'),
           },
           annotations: {
             '10.4.0': 'data-testid list-annotations',
@@ -255,7 +257,7 @@ export const Pages = {
         Settings: {
           name: {
             '11.1.0': 'data-testid Annotations settings name input',
-            '8.5.0': 'Annotations settings name input',
+            [MIN_GRAFANA_VERSION]: 'Annotations settings name input',
           },
         },
         NewAnnotation: {
@@ -285,90 +287,90 @@ export const Pages = {
       Variables: {
         List: {
           addVariableCTAV2: {
-            '8.5.0': Components.CallToActionCard.buttonV2('Add variable'),
+            [MIN_GRAFANA_VERSION]: Components.CallToActionCard.buttonV2('Add variable'),
           },
           newButton: {
-            '8.5.0': 'Variable editor New variable button',
+            [MIN_GRAFANA_VERSION]: 'Variable editor New variable button',
           },
           table: {
-            '8.5.0': 'Variable editor Table',
+            [MIN_GRAFANA_VERSION]: 'Variable editor Table',
           },
           tableRowNameFields: {
-            '8.5.0': (variableName: string) => `Variable editor Table Name field ${variableName}`,
+            [MIN_GRAFANA_VERSION]: (variableName: string) => `Variable editor Table Name field ${variableName}`,
           },
           tableRowDefinitionFields: {
             '10.1.0': (variableName: string) => `Variable editor Table Definition field ${variableName}`,
           },
           tableRowArrowUpButtons: {
-            '8.5.0': (variableName: string) => `Variable editor Table ArrowUp button ${variableName}`,
+            [MIN_GRAFANA_VERSION]: (variableName: string) => `Variable editor Table ArrowUp button ${variableName}`,
           },
           tableRowArrowDownButtons: {
-            '8.5.0': (variableName: string) => `Variable editor Table ArrowDown button ${variableName}`,
+            [MIN_GRAFANA_VERSION]: (variableName: string) => `Variable editor Table ArrowDown button ${variableName}`,
           },
           tableRowDuplicateButtons: {
-            '8.5.0': (variableName: string) => `Variable editor Table Duplicate button ${variableName}`,
+            [MIN_GRAFANA_VERSION]: (variableName: string) => `Variable editor Table Duplicate button ${variableName}`,
           },
           tableRowRemoveButtons: {
-            '8.5.0': (variableName: string) => `Variable editor Table Remove button ${variableName}`,
+            [MIN_GRAFANA_VERSION]: (variableName: string) => `Variable editor Table Remove button ${variableName}`,
           },
         },
         Edit: {
           General: {
             headerLink: {
-              '8.5.0': 'Variable editor Header link',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Header link',
             },
             modeLabelNew: {
-              '8.5.0': 'Variable editor Header mode New',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Header mode New',
             },
             /**
              * @deprecated
              */
             modeLabelEdit: {
-              '8.5.0': 'Variable editor Header mode Edit',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Header mode Edit',
             },
             generalNameInput: {
-              '8.5.0': 'Variable editor Form Name field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Name field',
             },
             generalNameInputV2: {
-              '8.5.0': 'data-testid Variable editor Form Name field',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Name field',
             },
             generalTypeSelect: {
-              '8.5.0': 'Variable editor Form Type select',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Type select',
             },
             generalTypeSelectV2: {
-              '8.5.0': 'data-testid Variable editor Form Type select',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Type select',
             },
             generalLabelInput: {
-              '8.5.0': 'Variable editor Form Label field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Label field',
             },
             generalLabelInputV2: {
-              '8.5.0': 'data-testid Variable editor Form Label field',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Label field',
             },
             generalHideSelect: {
-              '8.5.0': 'Variable editor Form Hide select',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Hide select',
             },
             generalHideSelectV2: {
-              '8.5.0': 'data-testid Variable editor Form Hide select',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Hide select',
             },
             selectionOptionsMultiSwitch: {
               '10.4.0': 'data-testid Variable editor Form Multi switch',
-              '8.5.0': 'Variable editor Form Multi switch',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Multi switch',
             },
             selectionOptionsIncludeAllSwitch: {
               '10.4.0': 'data-testid Variable editor Form IncludeAll switch',
-              '8.5.0': 'Variable editor Form IncludeAll switch',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form IncludeAll switch',
             },
             selectionOptionsCustomAllInput: {
               '10.4.0': 'data-testid Variable editor Form IncludeAll field',
-              '8.5.0': 'Variable editor Form IncludeAll field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form IncludeAll field',
             },
             previewOfValuesOption: {
               '10.4.0': 'data-testid Variable editor Preview of Values option',
-              '8.5.0': 'Variable editor Preview of Values option',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Preview of Values option',
             },
             submitButton: {
               '10.4.0': 'data-testid Variable editor Run Query button',
-              '8.5.0': 'Variable editor Run Query button',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Run Query button',
             },
             applyButton: {
               '9.3.0': 'data-testid Variable editor Apply button',
@@ -377,68 +379,68 @@ export const Pages = {
           QueryVariable: {
             queryOptionsDataSourceSelect: {
               '10.4.0': Components.DataSourcePicker.inputV2,
-              '8.5.0': Components.DataSourcePicker.container,
+              [MIN_GRAFANA_VERSION]: Components.DataSourcePicker.container,
             },
             queryOptionsRefreshSelect: {
-              '8.5.0': 'Variable editor Form Query Refresh select',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query Refresh select',
             },
             queryOptionsRefreshSelectV2: {
-              '8.5.0': 'data-testid Variable editor Form Query Refresh select',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Query Refresh select',
             },
             queryOptionsRegExInput: {
-              '8.5.0': 'Variable editor Form Query RegEx field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query RegEx field',
             },
             queryOptionsRegExInputV2: {
-              '8.5.0': 'data-testid Variable editor Form Query RegEx field',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Query RegEx field',
             },
             queryOptionsSortSelect: {
-              '8.5.0': 'Variable editor Form Query Sort select',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query Sort select',
             },
             queryOptionsSortSelectV2: {
-              '8.5.0': 'data-testid Variable editor Form Query Sort select',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Query Sort select',
             },
             queryOptionsQueryInput: {
               '10.4.0': 'data-testid Variable editor Form Default Variable Query Editor textarea',
             },
             valueGroupsTagsEnabledSwitch: {
-              '8.5.0': 'Variable editor Form Query UseTags switch',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query UseTags switch',
             },
             valueGroupsTagsTagsQueryInput: {
-              '8.5.0': 'Variable editor Form Query TagsQuery field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query TagsQuery field',
             },
             valueGroupsTagsTagsValuesQueryInput: {
-              '8.5.0': 'Variable editor Form Query TagsValuesQuery field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Query TagsValuesQuery field',
             },
           },
           ConstantVariable: {
             constantOptionsQueryInput: {
-              '8.5.0': 'Variable editor Form Constant Query field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form Constant Query field',
             },
             constantOptionsQueryInputV2: {
-              '8.5.0': 'data-testid Variable editor Form Constant Query field',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form Constant Query field',
             },
           },
           DatasourceVariable: {
             datasourceSelect: {
-              '8.5.0': 'data-testid datasource variable datasource type',
+              [MIN_GRAFANA_VERSION]: 'data-testid datasource variable datasource type',
             },
           },
           TextBoxVariable: {
             textBoxOptionsQueryInput: {
-              '8.5.0': 'Variable editor Form TextBox Query field',
+              [MIN_GRAFANA_VERSION]: 'Variable editor Form TextBox Query field',
             },
             textBoxOptionsQueryInputV2: {
-              '8.5.0': 'data-testid Variable editor Form TextBox Query field',
+              [MIN_GRAFANA_VERSION]: 'data-testid Variable editor Form TextBox Query field',
             },
           },
           CustomVariable: {
             customValueInput: {
-              '8.5.0': 'data-testid custom-variable-input',
+              [MIN_GRAFANA_VERSION]: 'data-testid custom-variable-input',
             },
           },
           IntervalVariable: {
             intervalsValueInput: {
-              '8.5.0': 'data-testid interval variable intervals input',
+              [MIN_GRAFANA_VERSION]: 'data-testid interval variable intervals input',
             },
             autoEnabledCheckbox: {
               '10.4.0': 'data-testid interval variable auto value checkbox',
@@ -488,7 +490,7 @@ export const Pages = {
   },
   Dashboards: {
     url: {
-      '8.5.0': '/dashboards',
+      [MIN_GRAFANA_VERSION]: '/dashboards',
     },
     /**
      * @deprecated use components.Search.dashboardItem from Grafana 8.3 instead
@@ -521,7 +523,7 @@ export const Pages = {
   },
   SharePanelModal: {
     linkToRenderedImage: {
-      '8.5.0': 'Link to rendered image',
+      [MIN_GRAFANA_VERSION]: 'Link to rendered image',
     },
   },
   ShareDashboardModal: {
@@ -693,17 +695,17 @@ export const Pages = {
   },
   Explore: {
     url: {
-      '8.5.0': '/explore',
+      [MIN_GRAFANA_VERSION]: '/explore',
     },
     General: {
       container: {
-        '8.5.0': 'data-testid Explore',
+        [MIN_GRAFANA_VERSION]: 'data-testid Explore',
       },
       graph: {
-        '8.5.0': 'Explore Graph',
+        [MIN_GRAFANA_VERSION]: 'Explore Graph',
       },
       table: {
-        '8.5.0': 'Explore Table',
+        [MIN_GRAFANA_VERSION]: 'Explore Table',
       },
       scrollView: {
         '9.0.0': 'data-testid explorer scroll view',
@@ -717,43 +719,43 @@ export const Pages = {
   },
   SoloPanel: {
     url: {
-      '8.5.0': (page: string) => `/d-solo/${page}`,
+      [MIN_GRAFANA_VERSION]: (page: string) => `/d-solo/${page}`,
     },
   },
   PluginsList: {
     page: {
-      '8.5.0': 'Plugins list page',
+      [MIN_GRAFANA_VERSION]: 'Plugins list page',
     },
     list: {
-      '8.5.0': 'Plugins list',
+      [MIN_GRAFANA_VERSION]: 'Plugins list',
     },
     listItem: {
-      '8.5.0': 'Plugins list item',
+      [MIN_GRAFANA_VERSION]: 'Plugins list item',
     },
     signatureErrorNotice: {
       '10.3.0': 'data-testid Unsigned plugins notice',
-      '8.5.0': 'Unsigned plugins notice',
+      [MIN_GRAFANA_VERSION]: 'Unsigned plugins notice',
     },
   },
   PluginPage: {
     page: {
-      '8.5.0': 'Plugin page',
+      [MIN_GRAFANA_VERSION]: 'Plugin page',
     },
     signatureInfo: {
       '10.3.0': 'data-testid Plugin signature info',
-      '8.5.0': 'Plugin signature info',
+      [MIN_GRAFANA_VERSION]: 'Plugin signature info',
     },
     disabledInfo: {
       '10.3.0': 'data-testid Plugin disabled info',
-      '8.5.0': 'Plugin disabled info',
+      [MIN_GRAFANA_VERSION]: 'Plugin disabled info',
     },
   },
   PlaylistForm: {
     name: {
-      '8.5.0': 'Playlist name',
+      [MIN_GRAFANA_VERSION]: 'Playlist name',
     },
     interval: {
-      '8.5.0': 'Playlist interval',
+      [MIN_GRAFANA_VERSION]: 'Playlist interval',
     },
     itemDelete: {
       '10.2.0': 'data-testid playlist-form-delete-item',

@@ -4,11 +4,11 @@ import { resolve, join } from 'path';
 import * as semver from 'semver';
 import * as ts from 'typescript';
 
-import { MIN_GRAFANA_VERSION } from '../src/versioned/constants';
+import { MIN_GRAFANA_VERSION } from '../src/selectors/constants';
 
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json')).toString());
 const version = packageJson.version.replace(/\-.*/, ''); // remove any pre-release tags. we may want to add support build number in the future though
-const sourceDir = 'src/versioned';
+const sourceDir = 'src/selectors';
 const destDir = 'src/generated';
 const fileNames = ['components.ts', 'pages.ts', 'apis.ts'];
 const sourceFiles = fileNames.map((fileName) => {
