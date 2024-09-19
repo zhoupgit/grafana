@@ -10,14 +10,16 @@ import (
 )
 
 type ResourceClient interface {
-	ResourceStoreClient
+	ResourceReadClient
+	ResourceWriteClient
 	ResourceIndexClient
 	DiagnosticsClient
 }
 
 // Internal implementation
 type resourceClient struct {
-	ResourceStoreClient
+	ResourceReadClient
+	ResourceWriteClient
 	ResourceIndexClient
 	DiagnosticsClient
 }
@@ -25,7 +27,8 @@ type resourceClient struct {
 func NewResourceClient(channel *grpc.ClientConn) ResourceClient {
 	cc := grpchan.InterceptClientConn(channel, grpcUtils.UnaryClientInterceptor, grpcUtils.StreamClientInterceptor)
 	return &resourceClient{
-		ResourceStoreClient: NewResourceStoreClient(cc),
+		ResourceReadClient:  NewResourceReadClient(cc),
+		ResourceWriteClient: NewResourceWriteClient(cc),
 		ResourceIndexClient: NewResourceIndexClient(cc),
 		DiagnosticsClient:   NewDiagnosticsClient(cc),
 	}
@@ -35,19 +38,26 @@ func NewLocalResourceClient(server ResourceServer) ResourceClient {
 	channel := &inprocgrpc.Channel{}
 
 	auth := &grpcUtils.Authenticator{}
-
-	channel.RegisterService(
-		grpchan.InterceptServer(
-			&ResourceStore_ServiceDesc,
-			grpcAuth.UnaryServerInterceptor(auth.Authenticate),
-			grpcAuth.StreamServerInterceptor(auth.Authenticate),
-		),
-		server, // Implements all the things
-	)
+	for _, desc := range []*grpc.ServiceDesc{
+		&ResourceRead_ServiceDesc,
+		&ResourceWrite_ServiceDesc,
+		&ResourceIndex_ServiceDesc,
+		&Diagnostics_ServiceDesc,
+	} {
+		channel.RegisterService(
+			grpchan.InterceptServer(
+				desc,
+				grpcAuth.UnaryServerInterceptor(auth.Authenticate),
+				grpcAuth.StreamServerInterceptor(auth.Authenticate),
+			),
+			server,
+		)
+	}
 
 	cc := grpchan.InterceptClientConn(channel, grpcUtils.UnaryClientInterceptor, grpcUtils.StreamClientInterceptor)
 	return &resourceClient{
-		ResourceStoreClient: NewResourceStoreClient(cc),
+		ResourceReadClient:  NewResourceReadClient(cc),
+		ResourceWriteClient: NewResourceWriteClient(cc),
 		ResourceIndexClient: NewResourceIndexClient(cc),
 		DiagnosticsClient:   NewDiagnosticsClient(cc),
 	}

@@ -416,15 +416,11 @@ message HealthCheckResponse {
 }
 
 
-// This provides the CRUD+List+Watch support needed for a k8s apiserver
+// This provides the Read+List+Watch support needed for a k8s apiserver
 // The semantics and behaviors of this service are constrained by kubernetes
 // This does not understand the resource schemas, only deals with json bytes 
-// Clients should not use this interface directly; it is for use in API Servers
-service ResourceStore {
+service ResourceRead {
   rpc Read(ReadRequest) returns (ReadResponse);
-  rpc Create(CreateRequest) returns (CreateResponse);
-  rpc Update(UpdateRequest) returns (UpdateResponse);
-  rpc Delete(DeleteRequest) returns (DeleteResponse);
 
   // The results *may* include values that should not be returned to the user
   // This will perform best-effort filtering to increase performace. 
@@ -435,6 +431,16 @@ service ResourceStore {
   // This will perform best-effort filtering to increase performace. 
   // NOTE: storage.Interface is ultimatly responsible for the final filtering
   rpc Watch(WatchRequest) returns (stream WatchEvent);
+}
+
+// This provides the Create+Update+Delete support needed for a k8s apiserver
+// The semantics and behaviors of this service are constrained by kubernetes
+// This does not understand the resource schemas, only deals with json bytes 
+// Clients should not use this interface directly; it is for use in API Servers
+service ResourceWrite {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
 }
 
 // Unlike the ResourceStore, this service can be exposed to clients directly

@@ -19,27 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	ResourceStore_Read_FullMethodName   = "/resource.ResourceStore/Read"
-	ResourceStore_Create_FullMethodName = "/resource.ResourceStore/Create"
-	ResourceStore_Update_FullMethodName = "/resource.ResourceStore/Update"
-	ResourceStore_Delete_FullMethodName = "/resource.ResourceStore/Delete"
-	ResourceStore_List_FullMethodName   = "/resource.ResourceStore/List"
-	ResourceStore_Watch_FullMethodName  = "/resource.ResourceStore/Watch"
+	ResourceRead_Read_FullMethodName  = "/resource.ResourceRead/Read"
+	ResourceRead_List_FullMethodName  = "/resource.ResourceRead/List"
+	ResourceRead_Watch_FullMethodName = "/resource.ResourceRead/Watch"
 )
 
-// ResourceStoreClient is the client API for ResourceStore service.
+// ResourceReadClient is the client API for ResourceRead service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// This provides the CRUD+List+Watch support needed for a k8s apiserver
+// This provides the Read+List+Watch support needed for a k8s apiserver
 // The semantics and behaviors of this service are constrained by kubernetes
 // This does not understand the resource schemas, only deals with json bytes
-// Clients should not use this interface directly; it is for use in API Servers
-type ResourceStoreClient interface {
+type ResourceReadClient interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error)
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
-	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	// The results *may* include values that should not be returned to the user
 	// This will perform best-effort filtering to increase performace.
 	// NOTE: storage.Interface is ultimatly responsible for the final filtering
@@ -47,74 +40,44 @@ type ResourceStoreClient interface {
 	// The results *may* include values that should not be returned to the user
 	// This will perform best-effort filtering to increase performace.
 	// NOTE: storage.Interface is ultimatly responsible for the final filtering
-	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (ResourceStore_WatchClient, error)
+	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (ResourceRead_WatchClient, error)
 }
 
-type resourceStoreClient struct {
+type resourceReadClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewResourceStoreClient(cc grpc.ClientConnInterface) ResourceStoreClient {
-	return &resourceStoreClient{cc}
+func NewResourceReadClient(cc grpc.ClientConnInterface) ResourceReadClient {
+	return &resourceReadClient{cc}
 }
 
-func (c *resourceStoreClient) Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error) {
+func (c *resourceReadClient) Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ReadResponse)
-	err := c.cc.Invoke(ctx, ResourceStore_Read_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ResourceRead_Read_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *resourceStoreClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, ResourceStore_Create_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceStoreClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateResponse)
-	err := c.cc.Invoke(ctx, ResourceStore_Update_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceStoreClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteResponse)
-	err := c.cc.Invoke(ctx, ResourceStore_Delete_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceStoreClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+func (c *resourceReadClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListResponse)
-	err := c.cc.Invoke(ctx, ResourceStore_List_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ResourceRead_List_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *resourceStoreClient) Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (ResourceStore_WatchClient, error) {
+func (c *resourceReadClient) Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (ResourceRead_WatchClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ResourceStore_ServiceDesc.Streams[0], ResourceStore_Watch_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &ResourceRead_ServiceDesc.Streams[0], ResourceRead_Watch_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &resourceStoreWatchClient{ClientStream: stream}
+	x := &resourceReadWatchClient{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -124,16 +87,16 @@ func (c *resourceStoreClient) Watch(ctx context.Context, in *WatchRequest, opts 
 	return x, nil
 }
 
-type ResourceStore_WatchClient interface {
+type ResourceRead_WatchClient interface {
 	Recv() (*WatchEvent, error)
 	grpc.ClientStream
 }
 
-type resourceStoreWatchClient struct {
+type resourceReadWatchClient struct {
 	grpc.ClientStream
 }
 
-func (x *resourceStoreWatchClient) Recv() (*WatchEvent, error) {
+func (x *resourceReadWatchClient) Recv() (*WatchEvent, error) {
 	m := new(WatchEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -141,19 +104,15 @@ func (x *resourceStoreWatchClient) Recv() (*WatchEvent, error) {
 	return m, nil
 }
 
-// ResourceStoreServer is the server API for ResourceStore service.
-// All implementations should embed UnimplementedResourceStoreServer
+// ResourceReadServer is the server API for ResourceRead service.
+// All implementations should embed UnimplementedResourceReadServer
 // for forward compatibility
 //
-// This provides the CRUD+List+Watch support needed for a k8s apiserver
+// This provides the Read+List+Watch support needed for a k8s apiserver
 // The semantics and behaviors of this service are constrained by kubernetes
 // This does not understand the resource schemas, only deals with json bytes
-// Clients should not use this interface directly; it is for use in API Servers
-type ResourceStoreServer interface {
+type ResourceReadServer interface {
 	Read(context.Context, *ReadRequest) (*ReadResponse, error)
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
-	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	// The results *may* include values that should not be returned to the user
 	// This will perform best-effort filtering to increase performace.
 	// NOTE: storage.Interface is ultimatly responsible for the final filtering
@@ -161,189 +120,289 @@ type ResourceStoreServer interface {
 	// The results *may* include values that should not be returned to the user
 	// This will perform best-effort filtering to increase performace.
 	// NOTE: storage.Interface is ultimatly responsible for the final filtering
-	Watch(*WatchRequest, ResourceStore_WatchServer) error
+	Watch(*WatchRequest, ResourceRead_WatchServer) error
 }
 
-// UnimplementedResourceStoreServer should be embedded to have forward compatible implementations.
-type UnimplementedResourceStoreServer struct {
+// UnimplementedResourceReadServer should be embedded to have forward compatible implementations.
+type UnimplementedResourceReadServer struct {
 }
 
-func (UnimplementedResourceStoreServer) Read(context.Context, *ReadRequest) (*ReadResponse, error) {
+func (UnimplementedResourceReadServer) Read(context.Context, *ReadRequest) (*ReadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Read not implemented")
 }
-func (UnimplementedResourceStoreServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (UnimplementedResourceStoreServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
-}
-func (UnimplementedResourceStoreServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (UnimplementedResourceStoreServer) List(context.Context, *ListRequest) (*ListResponse, error) {
+func (UnimplementedResourceReadServer) List(context.Context, *ListRequest) (*ListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedResourceStoreServer) Watch(*WatchRequest, ResourceStore_WatchServer) error {
+func (UnimplementedResourceReadServer) Watch(*WatchRequest, ResourceRead_WatchServer) error {
 	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
 
-// UnsafeResourceStoreServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ResourceStoreServer will
+// UnsafeResourceReadServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ResourceReadServer will
 // result in compilation errors.
-type UnsafeResourceStoreServer interface {
-	mustEmbedUnimplementedResourceStoreServer()
+type UnsafeResourceReadServer interface {
+	mustEmbedUnimplementedResourceReadServer()
 }
 
-func RegisterResourceStoreServer(s grpc.ServiceRegistrar, srv ResourceStoreServer) {
-	s.RegisterService(&ResourceStore_ServiceDesc, srv)
+func RegisterResourceReadServer(s grpc.ServiceRegistrar, srv ResourceReadServer) {
+	s.RegisterService(&ResourceRead_ServiceDesc, srv)
 }
 
-func _ResourceStore_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ResourceRead_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceStoreServer).Read(ctx, in)
+		return srv.(ResourceReadServer).Read(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceStore_Read_FullMethodName,
+		FullMethod: ResourceRead_Read_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceStoreServer).Read(ctx, req.(*ReadRequest))
+		return srv.(ResourceReadServer).Read(ctx, req.(*ReadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceStore_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceStoreServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceStore_Create_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceStoreServer).Create(ctx, req.(*CreateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceStore_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceStoreServer).Update(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceStore_Update_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceStoreServer).Update(ctx, req.(*UpdateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceStore_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceStoreServer).Delete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceStore_Delete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceStoreServer).Delete(ctx, req.(*DeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceStore_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ResourceRead_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceStoreServer).List(ctx, in)
+		return srv.(ResourceReadServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceStore_List_FullMethodName,
+		FullMethod: ResourceRead_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceStoreServer).List(ctx, req.(*ListRequest))
+		return srv.(ResourceReadServer).List(ctx, req.(*ListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceStore_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _ResourceRead_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(WatchRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(ResourceStoreServer).Watch(m, &resourceStoreWatchServer{ServerStream: stream})
+	return srv.(ResourceReadServer).Watch(m, &resourceReadWatchServer{ServerStream: stream})
 }
 
-type ResourceStore_WatchServer interface {
+type ResourceRead_WatchServer interface {
 	Send(*WatchEvent) error
 	grpc.ServerStream
 }
 
-type resourceStoreWatchServer struct {
+type resourceReadWatchServer struct {
 	grpc.ServerStream
 }
 
-func (x *resourceStoreWatchServer) Send(m *WatchEvent) error {
+func (x *resourceReadWatchServer) Send(m *WatchEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// ResourceStore_ServiceDesc is the grpc.ServiceDesc for ResourceStore service.
+// ResourceRead_ServiceDesc is the grpc.ServiceDesc for ResourceRead service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ResourceStore_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "resource.ResourceStore",
-	HandlerType: (*ResourceStoreServer)(nil),
+var ResourceRead_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "resource.ResourceRead",
+	HandlerType: (*ResourceReadServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Read",
-			Handler:    _ResourceStore_Read_Handler,
-		},
-		{
-			MethodName: "Create",
-			Handler:    _ResourceStore_Create_Handler,
-		},
-		{
-			MethodName: "Update",
-			Handler:    _ResourceStore_Update_Handler,
-		},
-		{
-			MethodName: "Delete",
-			Handler:    _ResourceStore_Delete_Handler,
+			Handler:    _ResourceRead_Read_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _ResourceStore_List_Handler,
+			Handler:    _ResourceRead_List_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Watch",
-			Handler:       _ResourceStore_Watch_Handler,
+			Handler:       _ResourceRead_Watch_Handler,
 			ServerStreams: true,
 		},
 	},
+	Metadata: "resource.proto",
+}
+
+const (
+	ResourceWrite_Create_FullMethodName = "/resource.ResourceWrite/Create"
+	ResourceWrite_Update_FullMethodName = "/resource.ResourceWrite/Update"
+	ResourceWrite_Delete_FullMethodName = "/resource.ResourceWrite/Delete"
+)
+
+// ResourceWriteClient is the client API for ResourceWrite service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// This provides the Create+Update+Delete support needed for a k8s apiserver
+// The semantics and behaviors of this service are constrained by kubernetes
+// This does not understand the resource schemas, only deals with json bytes
+// Clients should not use this interface directly; it is for use in API Servers
+type ResourceWriteClient interface {
+	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+}
+
+type resourceWriteClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewResourceWriteClient(cc grpc.ClientConnInterface) ResourceWriteClient {
+	return &resourceWriteClient{cc}
+}
+
+func (c *resourceWriteClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateResponse)
+	err := c.cc.Invoke(ctx, ResourceWrite_Create_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *resourceWriteClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateResponse)
+	err := c.cc.Invoke(ctx, ResourceWrite_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *resourceWriteClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, ResourceWrite_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ResourceWriteServer is the server API for ResourceWrite service.
+// All implementations should embed UnimplementedResourceWriteServer
+// for forward compatibility
+//
+// This provides the Create+Update+Delete support needed for a k8s apiserver
+// The semantics and behaviors of this service are constrained by kubernetes
+// This does not understand the resource schemas, only deals with json bytes
+// Clients should not use this interface directly; it is for use in API Servers
+type ResourceWriteServer interface {
+	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+}
+
+// UnimplementedResourceWriteServer should be embedded to have forward compatible implementations.
+type UnimplementedResourceWriteServer struct {
+}
+
+func (UnimplementedResourceWriteServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedResourceWriteServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedResourceWriteServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+
+// UnsafeResourceWriteServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ResourceWriteServer will
+// result in compilation errors.
+type UnsafeResourceWriteServer interface {
+	mustEmbedUnimplementedResourceWriteServer()
+}
+
+func RegisterResourceWriteServer(s grpc.ServiceRegistrar, srv ResourceWriteServer) {
+	s.RegisterService(&ResourceWrite_ServiceDesc, srv)
+}
+
+func _ResourceWrite_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourceWriteServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ResourceWrite_Create_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourceWriteServer).Create(ctx, req.(*CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ResourceWrite_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourceWriteServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ResourceWrite_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourceWriteServer).Update(ctx, req.(*UpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ResourceWrite_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourceWriteServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ResourceWrite_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourceWriteServer).Delete(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ResourceWrite_ServiceDesc is the grpc.ServiceDesc for ResourceWrite service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ResourceWrite_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "resource.ResourceWrite",
+	HandlerType: (*ResourceWriteServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Create",
+			Handler:    _ResourceWrite_Create_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _ResourceWrite_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _ResourceWrite_Delete_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "resource.proto",
 }
 

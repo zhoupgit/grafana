@@ -335,7 +335,7 @@ func TestClientServer(t *testing.T) {
 
 	svc, err := sql.ProvideUnifiedStorageGrpcService(cfg, features, dbstore, nil)
 	require.NoError(t, err)
-	var client resource.ResourceStoreClient
+	var client resource.ResourceClient
 
 	// Test with an admin identity
 	clientCtx := identity.WithRequester(ctx, &identity.StaticRequester{

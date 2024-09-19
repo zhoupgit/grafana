@@ -22,7 +22,8 @@ import (
 
 // ResourceServer implements all gRPC services
 type ResourceServer interface {
-	ResourceStoreServer
+	ResourceReadServer
+	ResourceWriteServer
 	ResourceIndexServer
 	DiagnosticsServer
 }
@@ -545,7 +546,7 @@ func (s *server) initWatcher() error {
 	return err
 }
 
-func (s *server) Watch(req *WatchRequest, srv ResourceStore_WatchServer) error {
+func (s *server) Watch(req *WatchRequest, srv ResourceRead_WatchServer) error {
 	ctx := srv.Context()
 
 	if err := s.Init(ctx); err != nil {
