@@ -1,4 +1,4 @@
-import { Components } from './components';
+import { versionedComponents as Components } from '../generated/components.gen';
 
 /**
  * Selectors grouped/defined in Pages
@@ -7,406 +7,868 @@ import { Components } from './components';
  */
 export const Pages = {
   Login: {
-    url: '/login', //*
-    username: 'data-testid Username input field', //10.2.3 dti*
-    password: 'data-testid Password input field', //10.2.3 dti*
-    submit: 'data-testid Login button', //10.2.3 dti*
-    skip: 'data-testid Skip change password button', //10.2.3 dti*
+    url: {
+      '8.5.0': '/login',
+    },
+    username: {
+      '10.2.3': 'data-testid Username input field',
+      '8.5.0': 'Username input field',
+    },
+    password: {
+      '10.2.3': 'data-testid Password input field',
+      '8.5.0': 'Password input field',
+    },
+    submit: {
+      '10.2.3': 'data-testid Login button',
+      '8.5.0': 'Login button',
+    },
+    skip: {
+      '10.2.3': {
+        '10.2.3': 'data-testid Skip change password button',
+      },
+    },
   },
   Home: {
-    url: '/', //*
+    url: {
+      '8.5.0': '/',
+    },
   },
   DataSource: {
-    name: 'data-testid Data source settings page name input field', //10.3.0 dti*
-    delete: 'Data source settings page Delete button', //*
-    readOnly: 'data-testid Data source settings page read only message', //10.3.0 dti*
-    saveAndTest: 'data-testid Data source settings page Save and Test button', //10.0.0*
-    alert: 'data-testid Data source settings page Alert', //10.3.0 dti*
+    name: {
+      '10.3.0': 'data-testid Data source settings page name input field',
+      '8.5.0': 'Data source settings page name input field',
+    },
+    delete: {
+      '8.5.0': 'Data source settings page Delete button',
+    },
+    readOnly: {
+      '10.3.0': 'data-testid Data source settings page read only message',
+      '8.5.0': 'Data source settings page read only message',
+    },
+    saveAndTest: {
+      '10.0.0': 'data-testid Data source settings page Save and Test button',
+    },
+    alert: {
+      '10.3.0': 'data-testid Data source settings page Alert',
+      '8.5.0': 'Data source settings page Alert',
+    },
   },
   DataSources: {
-    url: '/datasources', //*
-    dataSources: (dataSourceName: string) => `Data source list item ${dataSourceName}`, //*
+    url: {
+      '8.5.0': '/datasources',
+    },
+    dataSources: {
+      '8.5.0': (dataSourceName: string) => `Data source list item ${dataSourceName}`,
+    },
   },
   EditDataSource: {
-    url: (dataSourceUid: string) => `/datasources/edit/${dataSourceUid}`, //9.5.0 new*
-    settings: 'Datasource settings page basic settings', //9.5.0 new*
+    url: {
+      '9.5.0': (dataSourceUid: string) => `/datasources/edit/${dataSourceUid}`,
+    },
+    settings: {
+      '9.5.0': 'Datasource settings page basic settings',
+    },
   },
   AddDataSource: {
-    url: '/datasources/new', //*
+    url: {
+      '8.5.0': '/datasources/new',
+    },
     /** @deprecated Use dataSourcePluginsV2 */
-    dataSourcePlugins: (pluginName: string) => `Data source plugin item ${pluginName}`, //*
-    dataSourcePluginsV2: (pluginName: string) => `Add new data source ${pluginName}`, //9.3.1 '(pluginName: string) => `Add new data source ${pluginName}`' before that*
+    dataSourcePlugins: {
+      '8.5.0': (pluginName: string) => `Data source plugin item ${pluginName}`,
+    },
+    dataSourcePluginsV2: {
+      '9.3.1': (pluginName: string) => `Add new data source ${pluginName}`,
+    },
   },
   ConfirmModal: {
-    delete: 'data-testid Confirm Modal Danger Button', //10.0.0 dti*
+    delete: {
+      '10.0.0': 'data-testid Confirm Modal Danger Button',
+      '8.5.0': 'Confirm Modal Danger Button',
+    },
   },
   AddDashboard: {
-    url: '/dashboard/new', //*
-    itemButton: (title: string) => `data-testid ${title}`, //9.5.0*
-    addNewPanel: 'data-testid Add new panel', //11.1.0 dti*
-    addNewRow: 'data-testid Add new row', //11.1.0 dti*
-    addNewPanelLibrary: 'data-testid Add new panel from panel library', //11.1.0 dti*
+    url: {
+      '8.5.0': '/dashboard/new',
+    },
+    itemButton: {
+      '9.5.0': (title: string) => `data-testid ${title}`,
+    },
+    addNewPanel: {
+      '11.1.0': 'data-testid Add new panel',
+      '8.5.0': 'Add new panel',
+    },
+    addNewRow: {
+      '11.1.0': 'data-testid Add new row',
+      '8.5.0': 'Add new row',
+    },
+    addNewPanelLibrary: {
+      '11.1.0': 'data-testid Add new panel from panel library',
+      '8.5.0': 'Add new panel from panel library',
+    },
   },
   Dashboard: {
-    url: (uid: string) => `/d/${uid}`, //*
+    url: {
+      '8.5.0': (uid: string) => `/d/${uid}`,
+    },
     DashNav: {
-      nav: 'Dashboard navigation', //*
-      navV2: 'data-testid Dashboard navigation', //*
-      publicDashboardTag: 'data-testid public dashboard tag', //9.1.0*
+      nav: {
+        '8.5.0': 'Dashboard navigation',
+      },
+      navV2: {
+        '8.5.0': 'data-testid Dashboard navigation',
+      },
+      publicDashboardTag: {
+        '9.1.0': 'data-testid public dashboard tag',
+      },
       shareButton: 'data-testid share-button',
-      scrollContainer: 'data-testid Dashboard canvas scroll container', //11.1.0*
+      scrollContainer: {
+        '11.1.0': 'data-testid Dashboard canvas scroll container',
+      },
       newShareButton: {
-        container: 'data-testid new share button', //11.1.0*
-        shareLink: 'data-testid new share link-button', //11.1.0*
-        arrowMenu: 'data-testid new share button arrow menu', //11.1.0*
+        container: {
+          '11.1.0': 'data-testid new share button',
+        },
+        shareLink: {
+          '11.1.0': 'data-testid new share link-button',
+        },
+        arrowMenu: {
+          '11.1.0': 'data-testid new share button arrow menu',
+        },
         menu: {
-          container: 'data-testid new share button menu', //11.1.0*
-          shareInternally: 'data-testid new share button share internally', //11.1.0*
-          shareExternally: 'data-testid new share button share externally', //11.1.1*
-          shareSnapshot: 'data-testid new share button share snapshot', //11.2.0*
+          container: {
+            '11.1.0': 'data-testid new share button menu',
+          },
+          shareInternally: {
+            '11.1.0': 'data-testid new share button share internally',
+          },
+          shareExternally: {
+            '11.1.1': 'data-testid new share button share externally',
+          },
+          shareSnapshot: {
+            '11.2.0': 'data-testid new share button share snapshot',
+          },
         },
       },
       NewExportButton: {
-        container: 'data-testid new export button', //11.2.0*
-        arrowMenu: 'data-testid new export button arrow menu', //11.2.0*
+        container: {
+          '11.2.0': 'data-testid new export button',
+        },
+        arrowMenu: {
+          '11.2.0': 'data-testid new export button arrow menu',
+        },
         Menu: {
-          container: 'data-testid new export button menu', //11.2.0*
-          exportAsJson: 'data-testid new export button export as json', //11.2.0*
+          container: {
+            '11.2.0': 'data-testid new export button menu',
+          },
+          exportAsJson: {
+            '11.2.0': 'data-testid new export button export as json',
+          },
         },
       },
       playlistControls: {
-        prev: 'data-testid playlist previous dashboard button', //11.0.0*
-        stop: 'data-testid playlist stop dashboard button', //11.0.0*
-        next: 'data-testid playlist next dashboard button', //11.0.0*
+        prev: {
+          '11.0.0': 'data-testid playlist previous dashboard button',
+        },
+        stop: {
+          '11.0.0': 'data-testid playlist stop dashboard button',
+        },
+        next: {
+          '11.0.0': 'data-testid playlist next dashboard button',
+        },
       },
     },
-    Controls: 'data-testid dashboard controls', //11.1.0*
+    Controls: {
+      '11.1.0': 'data-testid dashboard controls',
+    },
     SubMenu: {
-      submenu: 'Dashboard submenu', //*
-      submenuItem: 'data-testid template variable', //*
-      submenuItemLabels: (item: string) => `data-testid Dashboard template variables submenu Label ${item}`, //*
-      submenuItemValueDropDownValueLinkTexts: (item: string) =>
-        `data-testid Dashboard template variables Variable Value DropDown value link text ${item}`, //*
-      submenuItemValueDropDownDropDown: 'Variable options', //*
-      submenuItemValueDropDownOptionTexts: (item: string) =>
-        `data-testid Dashboard template variables Variable Value DropDown option text ${item}`, //*
+      submenu: {
+        '8.5.0': 'Dashboard submenu',
+      },
+      submenuItem: {
+        '8.5.0': 'data-testid template variable',
+      },
+      submenuItemLabels: {
+        '8.5.0': (item: string) => `data-testid Dashboard template variables submenu Label ${item}`,
+      },
+      submenuItemValueDropDownValueLinkTexts: {
+        '8.5.0': (item: string) =>
+          `data-testid Dashboard template variables Variable Value DropDown value link text ${item}`,
+      },
+      submenuItemValueDropDownDropDown: {
+        '8.5.0': 'Variable options',
+      },
+      submenuItemValueDropDownOptionTexts: {
+        '8.5.0': (item: string) =>
+          `data-testid Dashboard template variables Variable Value DropDown option text ${item}`,
+      },
       Annotations: {
-        annotationsWrapper: 'data-testid annotation-wrapper', //10.0.0*
-        annotationLabel: (label: string) => `data-testid Dashboard annotations submenu Label ${label}`, //10.0.0*
-        annotationToggle: (label: string) => `data-testid Dashboard annotations submenu Toggle ${label}`, //10.0.0*
+        annotationsWrapper: {
+          '10.0.0': 'data-testid annotation-wrapper',
+        },
+        annotationLabel: {
+          '10.0.0': (label: string) => `data-testid Dashboard annotations submenu Label ${label}`,
+        },
+        annotationToggle: {
+          '10.0.0': (label: string) => `data-testid Dashboard annotations submenu Toggle ${label}`,
+        },
       },
     },
     Settings: {
       Actions: {
-        close: 'data-testid dashboard-settings-close', //9.5.0*
+        close: {
+          '9.5.0': 'data-testid dashboard-settings-close',
+        },
       },
       General: {
-        deleteDashBoard: 'data-testid Dashboard settings page delete dashboard button', //11.1.0*
-        sectionItems: (item: string) => `Dashboard settings section item ${item}`, //*
-        saveDashBoard: 'Dashboard settings aside actions Save button', //*
-        saveAsDashBoard: 'Dashboard settings aside actions Save As button', //*
+        deleteDashBoard: {
+          '11.1.0': 'data-testid Dashboard settings page delete dashboard button',
+        },
+        sectionItems: {
+          '8.5.0': (item: string) => `Dashboard settings section item ${item}`,
+        },
+        saveDashBoard: {
+          '8.5.0': 'Dashboard settings aside actions Save button',
+        },
+        saveAsDashBoard: {
+          '8.5.0': 'Dashboard settings aside actions Save As button',
+        },
         /**
          * @deprecated use components.TimeZonePicker.containerV2 from Grafana 8.3 instead
          */
-        timezone: 'Time zone picker select container', //*
-        title: 'General', //11.2.0 'Tab General' before that*
+        timezone: {
+          '8.5.0': 'Time zone picker select container',
+        },
+        title: {
+          '11.2.0': 'General',
+        },
       },
       Annotations: {
         List: {
-          addAnnotationCTAV2: Components.CallToActionCard.buttonV2('Add annotation query'), //*
-          annotations: 'data-testid list-annotations', //10.4.0*
+          addAnnotationCTAV2: {
+            '8.5.0': Components.CallToActionCard.buttonV2('Add annotation query'),
+          },
+          annotations: {
+            '10.4.0': 'data-testid list-annotations',
+          },
         },
         Settings: {
-          name: 'data-testid Annotations settings name input', //11.1.0 dti*
+          name: {
+            '11.1.0': 'data-testid Annotations settings name input',
+            '8.5.0': 'Annotations settings name input',
+          },
         },
         NewAnnotation: {
-          panelFilterSelect: 'data-testid annotations-panel-filter', //10.0.0*
-          showInLabel: 'data-testid show-in-label', //11.1.0 dti 10.0.0*
-          previewInDashboard: 'data-testid annotations-preview', //10.0.0*
-          delete: 'data-testid annotations-delete', //10.4.0*
-          apply: 'data-testid annotations-apply', //10.4.0*
-          enable: 'data-testid annotation-enable', //10.4.0*
-          hide: 'data-testid annotation-hide', //10.4.0*
+          panelFilterSelect: {
+            '10.0.0': 'data-testid annotations-panel-filter',
+          },
+          showInLabel: {
+            '11.1.0': 'data-testid show-in-label',
+          },
+          previewInDashboard: {
+            '10.0.0': 'data-testid annotations-preview',
+          },
+          delete: {
+            '10.4.0': 'data-testid annotations-delete',
+          },
+          apply: {
+            '10.4.0': 'data-testid annotations-apply',
+          },
+          enable: {
+            '10.4.0': 'data-testid annotation-enable',
+          },
+          hide: {
+            '10.4.0': 'data-testid annotation-hide',
+          },
         },
       },
       Variables: {
         List: {
-          addVariableCTAV2: Components.CallToActionCard.buttonV2('Add variable'), //*
-          newButton: 'Variable editor New variable button', //*
-          table: 'Variable editor Table', //*
-          tableRowNameFields: (variableName: string) => `Variable editor Table Name field ${variableName}`, //*
-          tableRowDefinitionFields: (variableName: string) => `Variable editor Table Definition field ${variableName}`, //10.1.0 (variableName: string) => `Variable editor Table Description field ${variableName}` before that*
-          tableRowArrowUpButtons: (variableName: string) => `Variable editor Table ArrowUp button ${variableName}`, //*
-          tableRowArrowDownButtons: (variableName: string) => `Variable editor Table ArrowDown button ${variableName}`, //*
-          tableRowDuplicateButtons: (variableName: string) => `Variable editor Table Duplicate button ${variableName}`, //*
-          tableRowRemoveButtons: (variableName: string) => `Variable editor Table Remove button ${variableName}`, //*
+          addVariableCTAV2: {
+            '8.5.0': Components.CallToActionCard.buttonV2('Add variable'),
+          },
+          newButton: {
+            '8.5.0': 'Variable editor New variable button',
+          },
+          table: {
+            '8.5.0': 'Variable editor Table',
+          },
+          tableRowNameFields: {
+            '8.5.0': (variableName: string) => `Variable editor Table Name field ${variableName}`,
+          },
+          tableRowDefinitionFields: {
+            '10.1.0': (variableName: string) => `Variable editor Table Definition field ${variableName}`,
+          },
+          tableRowArrowUpButtons: {
+            '8.5.0': (variableName: string) => `Variable editor Table ArrowUp button ${variableName}`,
+          },
+          tableRowArrowDownButtons: {
+            '8.5.0': (variableName: string) => `Variable editor Table ArrowDown button ${variableName}`,
+          },
+          tableRowDuplicateButtons: {
+            '8.5.0': (variableName: string) => `Variable editor Table Duplicate button ${variableName}`,
+          },
+          tableRowRemoveButtons: {
+            '8.5.0': (variableName: string) => `Variable editor Table Remove button ${variableName}`,
+          },
         },
         Edit: {
           General: {
-            headerLink: 'Variable editor Header link', //*
-            modeLabelNew: 'Variable editor Header mode New', //*
+            headerLink: {
+              '8.5.0': 'Variable editor Header link',
+            },
+            modeLabelNew: {
+              '8.5.0': 'Variable editor Header mode New',
+            },
             /**
              * @deprecated
              */
-            modeLabelEdit: 'Variable editor Header mode Edit', //*
-            generalNameInput: 'Variable editor Form Name field', //*
-            generalNameInputV2: 'data-testid Variable editor Form Name field', //*
-            generalTypeSelect: 'Variable editor Form Type select', //*
-            generalTypeSelectV2: 'data-testid Variable editor Form Type select', //*
-            generalLabelInput: 'Variable editor Form Label field', //*
-            generalLabelInputV2: 'data-testid Variable editor Form Label field', //*
-            generalHideSelect: 'Variable editor Form Hide select', //*
-            generalHideSelectV2: 'data-testid Variable editor Form Hide select', //*
-            selectionOptionsMultiSwitch: 'data-testid Variable editor Form Multi switch', //10.4.0 dti*
-            selectionOptionsIncludeAllSwitch: 'data-testid Variable editor Form IncludeAll switch', //10.4.0 dti*
-            selectionOptionsCustomAllInput: 'data-testid Variable editor Form IncludeAll field', //10.4.0 dti*
-            previewOfValuesOption: 'data-testid Variable editor Preview of Values option', //10.4.0 dti*
-            submitButton: 'data-testid Variable editor Run Query button', //10.4.0 dti*
-            applyButton: 'data-testid Variable editor Apply button', //9.3.0*
+            modeLabelEdit: {
+              '8.5.0': 'Variable editor Header mode Edit',
+            },
+            generalNameInput: {
+              '8.5.0': 'Variable editor Form Name field',
+            },
+            generalNameInputV2: {
+              '8.5.0': 'data-testid Variable editor Form Name field',
+            },
+            generalTypeSelect: {
+              '8.5.0': 'Variable editor Form Type select',
+            },
+            generalTypeSelectV2: {
+              '8.5.0': 'data-testid Variable editor Form Type select',
+            },
+            generalLabelInput: {
+              '8.5.0': 'Variable editor Form Label field',
+            },
+            generalLabelInputV2: {
+              '8.5.0': 'data-testid Variable editor Form Label field',
+            },
+            generalHideSelect: {
+              '8.5.0': 'Variable editor Form Hide select',
+            },
+            generalHideSelectV2: {
+              '8.5.0': 'data-testid Variable editor Form Hide select',
+            },
+            selectionOptionsMultiSwitch: {
+              '10.4.0': 'data-testid Variable editor Form Multi switch',
+              '8.5.0': 'Variable editor Form Multi switch',
+            },
+            selectionOptionsIncludeAllSwitch: {
+              '10.4.0': 'data-testid Variable editor Form IncludeAll switch',
+              '8.5.0': 'Variable editor Form IncludeAll switch',
+            },
+            selectionOptionsCustomAllInput: {
+              '10.4.0': 'data-testid Variable editor Form IncludeAll field',
+              '8.5.0': 'Variable editor Form IncludeAll field',
+            },
+            previewOfValuesOption: {
+              '10.4.0': 'data-testid Variable editor Preview of Values option',
+              '8.5.0': 'Variable editor Preview of Values option',
+            },
+            submitButton: {
+              '10.4.0': 'data-testid Variable editor Run Query button',
+              '8.5.0': 'Variable editor Run Query button',
+            },
+            applyButton: {
+              '9.3.0': 'data-testid Variable editor Apply button',
+            },
           },
           QueryVariable: {
-            queryOptionsDataSourceSelect: Components.DataSourcePicker.inputV2, //10.4.0 Components.DataSourcePicker.container before that*
-            queryOptionsRefreshSelect: 'Variable editor Form Query Refresh select', //*
-            queryOptionsRefreshSelectV2: 'data-testid Variable editor Form Query Refresh select', //*
-            queryOptionsRegExInput: 'Variable editor Form Query RegEx field', //*
-            queryOptionsRegExInputV2: 'data-testid Variable editor Form Query RegEx field', //*
-            queryOptionsSortSelect: 'Variable editor Form Query Sort select', //*
-            queryOptionsSortSelectV2: 'data-testid Variable editor Form Query Sort select', //*
-            queryOptionsQueryInput: 'data-testid Variable editor Form Default Variable Query Editor textarea', //10.4.0*
-            valueGroupsTagsEnabledSwitch: 'Variable editor Form Query UseTags switch', //*
-            valueGroupsTagsTagsQueryInput: 'Variable editor Form Query TagsQuery field', //*
-            valueGroupsTagsTagsValuesQueryInput: 'Variable editor Form Query TagsValuesQuery field', //*
+            queryOptionsDataSourceSelect: {
+              '10.4.0': Components.DataSourcePicker.inputV2,
+              '8.5.0': Components.DataSourcePicker.container,
+            },
+            queryOptionsRefreshSelect: {
+              '8.5.0': 'Variable editor Form Query Refresh select',
+            },
+            queryOptionsRefreshSelectV2: {
+              '8.5.0': 'data-testid Variable editor Form Query Refresh select',
+            },
+            queryOptionsRegExInput: {
+              '8.5.0': 'Variable editor Form Query RegEx field',
+            },
+            queryOptionsRegExInputV2: {
+              '8.5.0': 'data-testid Variable editor Form Query RegEx field',
+            },
+            queryOptionsSortSelect: {
+              '8.5.0': 'Variable editor Form Query Sort select',
+            },
+            queryOptionsSortSelectV2: {
+              '8.5.0': 'data-testid Variable editor Form Query Sort select',
+            },
+            queryOptionsQueryInput: {
+              '10.4.0': 'data-testid Variable editor Form Default Variable Query Editor textarea',
+            },
+            valueGroupsTagsEnabledSwitch: {
+              '8.5.0': 'Variable editor Form Query UseTags switch',
+            },
+            valueGroupsTagsTagsQueryInput: {
+              '8.5.0': 'Variable editor Form Query TagsQuery field',
+            },
+            valueGroupsTagsTagsValuesQueryInput: {
+              '8.5.0': 'Variable editor Form Query TagsValuesQuery field',
+            },
           },
           ConstantVariable: {
-            constantOptionsQueryInput: 'Variable editor Form Constant Query field', //*
-            constantOptionsQueryInputV2: 'data-testid Variable editor Form Constant Query field', //*
+            constantOptionsQueryInput: {
+              '8.5.0': 'Variable editor Form Constant Query field',
+            },
+            constantOptionsQueryInputV2: {
+              '8.5.0': 'data-testid Variable editor Form Constant Query field',
+            },
           },
           DatasourceVariable: {
-            datasourceSelect: 'data-testid datasource variable datasource type', //*
+            datasourceSelect: {
+              '8.5.0': 'data-testid datasource variable datasource type',
+            },
           },
           TextBoxVariable: {
-            textBoxOptionsQueryInput: 'Variable editor Form TextBox Query field', //*
-            textBoxOptionsQueryInputV2: 'data-testid Variable editor Form TextBox Query field', //*
+            textBoxOptionsQueryInput: {
+              '8.5.0': 'Variable editor Form TextBox Query field',
+            },
+            textBoxOptionsQueryInputV2: {
+              '8.5.0': 'data-testid Variable editor Form TextBox Query field',
+            },
           },
           CustomVariable: {
-            customValueInput: 'data-testid custom-variable-input', //*
+            customValueInput: {
+              '8.5.0': 'data-testid custom-variable-input',
+            },
           },
           IntervalVariable: {
-            intervalsValueInput: 'data-testid interval variable intervals input', //*
-            autoEnabledCheckbox: 'data-testid interval variable auto value checkbox', //10.4.0*
-            stepCountIntervalSelect: 'data-testid interval variable step count input', //10.4.0*
-            minIntervalInput: 'data-testid interval variable mininum interval input', //10.4.0*
+            intervalsValueInput: {
+              '8.5.0': 'data-testid interval variable intervals input',
+            },
+            autoEnabledCheckbox: {
+              '10.4.0': 'data-testid interval variable auto value checkbox',
+            },
+            stepCountIntervalSelect: {
+              '10.4.0': 'data-testid interval variable step count input',
+            },
+            minIntervalInput: {
+              '10.4.0': 'data-testid interval variable mininum interval input',
+            },
           },
           GroupByVariable: {
             dataSourceSelect: Components.DataSourcePicker.inputV2, //10.4.0*
-            infoText: 'data-testid group by variable info text', //10.4.0*
-            modeToggle: 'data-testid group by variable mode toggle', //10.4.0*
+            infoText: {
+              '10.4.0': 'data-testid group by variable info text',
+            },
+            modeToggle: {
+              '10.4.0': 'data-testid group by variable mode toggle',
+            },
           },
           AdHocFiltersVariable: {
-            datasourceSelect: Components.DataSourcePicker.inputV2, //10.4.0*
-            infoText: 'data-testid ad-hoc filters variable info text', //10.4.0*
-            modeToggle: 'data-testid ad-hoc filters variable mode toggle', //11.0.0*
+            datasourceSelect: { '10.4.0': Components.DataSourcePicker.inputV2 },
+            infoText: {
+              '10.4.0': 'data-testid ad-hoc filters variable info text',
+            },
+            modeToggle: {
+              '11.0.0': 'data-testid ad-hoc filters variable mode toggle',
+            },
           },
         },
       },
     },
     Annotations: {
-      marker: 'data-testid annotation-marker', //10.0.0*
+      marker: {
+        '10.0.0': 'data-testid annotation-marker',
+      },
     },
     Rows: {
       Repeated: {
         ConfigSection: {
-          warningMessage: 'data-testid Repeated rows warning message', //10.2.0*
+          warningMessage: {
+            '10.2.0': 'data-testid Repeated rows warning message',
+          },
         },
       },
     },
   },
   Dashboards: {
-    url: '/dashboards', //*
+    url: {
+      '8.5.0': '/dashboards',
+    },
     /**
      * @deprecated use components.Search.dashboardItem from Grafana 8.3 instead
      */
-    dashboards: (title: string) => `Dashboard search item ${title}`, //10.2.0*
+    dashboards: {
+      '10.2.0': (title: string) => `Dashboard search item ${title}`,
+    },
   },
   SaveDashboardAsModal: {
-    newName: 'Save dashboard title field', //10.2.0*
-    save: 'Save dashboard button', //10.2.0*
+    newName: {
+      '10.2.0': 'Save dashboard title field',
+    },
+    save: {
+      '10.2.0': 'Save dashboard button',
+    },
   },
   SaveDashboardModal: {
-    save: 'Dashboard settings Save Dashboard Modal Save button', //10.2.0*
-    saveVariables: 'Dashboard settings Save Dashboard Modal Save variables checkbox', //10.2.0*
-    saveTimerange: 'Dashboard settings Save Dashboard Modal Save timerange checkbox', //10.2.0*
-    saveRefresh: 'Dashboard settings Save Dashboard Modal Save refresh checkbox', //11.1.0*
+    save: {
+      '10.2.0': 'Dashboard settings Save Dashboard Modal Save button',
+    },
+    saveVariables: {
+      '10.2.0': 'Dashboard settings Save Dashboard Modal Save variables checkbox',
+    },
+    saveTimerange: {
+      '10.2.0': 'Dashboard settings Save Dashboard Modal Save timerange checkbox',
+    },
+    saveRefresh: {
+      '11.1.0': 'Dashboard settings Save Dashboard Modal Save refresh checkbox',
+    },
   },
   SharePanelModal: {
-    linkToRenderedImage: 'Link to rendered image', //*
+    linkToRenderedImage: {
+      '8.5.0': 'Link to rendered image',
+    },
   },
   ShareDashboardModal: {
     PublicDashboard: {
-      WillBePublicCheckbox: 'data-testid public dashboard will be public checkbox', //9.1.0*
-      LimitedDSCheckbox: 'data-testid public dashboard limited datasources checkbox', //9.1.0*
-      CostIncreaseCheckbox: 'data-testid public dashboard cost may increase checkbox', //9.1.0*
-      PauseSwitch: 'data-testid public dashboard pause switch', //9.5.0*
-      EnableAnnotationsSwitch: 'data-testid public dashboard on off switch for annotations', //9.3.0*
-      CreateButton: 'data-testid public dashboard create button', //9.5.0*
-      DeleteButton: 'data-testid public dashboard delete button', //9.3.0*
-      CopyUrlInput: 'data-testid public dashboard copy url input', //9.1.0*
-      CopyUrlButton: 'data-testid public dashboard copy url button', //9.1.0*
+      WillBePublicCheckbox: {
+        '9.1.0': 'data-testid public dashboard will be public checkbox',
+      },
+      LimitedDSCheckbox: {
+        '9.1.0': 'data-testid public dashboard limited datasources checkbox',
+      },
+      CostIncreaseCheckbox: {
+        '9.1.0': 'data-testid public dashboard cost may increase checkbox',
+      },
+      PauseSwitch: {
+        '9.5.0': 'data-testid public dashboard pause switch',
+      },
+      EnableAnnotationsSwitch: {
+        '9.3.0': 'data-testid public dashboard on off switch for annotations',
+      },
+      CreateButton: {
+        '9.5.0': 'data-testid public dashboard create button',
+      },
+      DeleteButton: {
+        '9.3.0': 'data-testid public dashboard delete button',
+      },
+      CopyUrlInput: {
+        '9.1.0': 'data-testid public dashboard copy url input',
+      },
+      CopyUrlButton: {
+        '9.1.0': 'data-testid public dashboard copy url button',
+      },
       SettingsDropdown: 'data-testid public dashboard settings dropdown',
-      TemplateVariablesWarningAlert: 'data-testid public dashboard disabled template variables alert', //9.1.0*
-      UnsupportedDataSourcesWarningAlert: 'data-testid public dashboard unsupported data sources alert', //9.5.0*
-      NoUpsertPermissionsWarningAlert: 'data-testid public dashboard no upsert permissions alert', //9.5.0*
-      EnableTimeRangeSwitch: 'data-testid public dashboard on off switch for time range', //9.4.0*
+      TemplateVariablesWarningAlert: {
+        '9.1.0': 'data-testid public dashboard disabled template variables alert',
+      },
+      UnsupportedDataSourcesWarningAlert: {
+        '9.5.0': 'data-testid public dashboard unsupported data sources alert',
+      },
+      NoUpsertPermissionsWarningAlert: {
+        '9.5.0': 'data-testid public dashboard no upsert permissions alert',
+      },
+      EnableTimeRangeSwitch: {
+        '9.4.0': 'data-testid public dashboard on off switch for time range',
+      },
       EmailSharingConfiguration: {
-        Container: 'data-testid email sharing config container', //9.5.0*
-        ShareType: 'data-testid public dashboard share type', //9.5.0*
-        EmailSharingInput: 'data-testid public dashboard email sharing input', //9.5.0*
-        EmailSharingInviteButton: 'data-testid public dashboard email sharing invite button', //9.5.0*
-        EmailSharingList: 'data-testid public dashboard email sharing list', //9.5.0*
-        DeleteEmail: 'data-testid public dashboard delete email button', //9.5.0*
-        ReshareLink: 'data-testid public dashboard reshare link button', //9.5.0*
+        Container: {
+          '9.5.0': 'data-testid email sharing config container',
+        },
+        ShareType: {
+          '9.5.0': 'data-testid public dashboard share type',
+        },
+        EmailSharingInput: {
+          '9.5.0': 'data-testid public dashboard email sharing input',
+        },
+        EmailSharingInviteButton: {
+          '9.5.0': 'data-testid public dashboard email sharing invite button',
+        },
+        EmailSharingList: {
+          '9.5.0': 'data-testid public dashboard email sharing list',
+        },
+        DeleteEmail: {
+          '9.5.0': 'data-testid public dashboard delete email button',
+        },
+        ReshareLink: {
+          '9.5.0': 'data-testid public dashboard reshare link button',
+        },
       },
     },
     SnapshotScene: {
-      url: (key: string) => `/dashboard/snapshot/${key}`, //11.1.0*
-      PublishSnapshot: 'data-testid publish snapshot button', //11.1.0*
-      CopyUrlButton: 'data-testid snapshot copy url button', //11.1.0*
-      CopyUrlInput: 'data-testid snapshot copy url input', //11.1.0*
+      url: {
+        '11.1.0': (key: string) => `/dashboard/snapshot/${key}`,
+      },
+      PublishSnapshot: {
+        '11.1.0': 'data-testid publish snapshot button',
+      },
+      CopyUrlButton: {
+        '11.1.0': 'data-testid snapshot copy url button',
+      },
+      CopyUrlInput: {
+        '11.1.0': 'data-testid snapshot copy url input',
+      },
     },
   },
   ShareDashboardDrawer: {
     ShareExternally: {
-      container: 'data-testid share externally drawer container', //11.1.1*
-      copyUrlButton: 'data-testid share externally copy url button', //11.1.1*
-      shareTypeSelect: 'data-testid share externally share type select', //11.1.1*
+      container: {
+        '11.1.1': 'data-testid share externally drawer container',
+      },
+      copyUrlButton: {
+        '11.1.1': 'data-testid share externally copy url button',
+      },
+      shareTypeSelect: {
+        '11.1.1': 'data-testid share externally share type select',
+      },
     },
     ShareSnapshot: {
-      container: 'data-testid share snapshot drawer container', //11.2.0*
+      container: {
+        '11.2.0': 'data-testid share snapshot drawer container',
+      },
     },
   },
   ExportDashboardDrawer: {
     ExportAsJson: {
-      container: 'data-testid export as Json drawer container', //11.2.0*
-      codeEditor: 'data-testid export as Json code editor', //11.2.0*
-      exportExternallyToggle: 'data-testid export externally toggle type select', //11.2.0*
-      saveToFileButton: 'data-testid save to file button', //11.2.0*
-      copyToClipboardButton: 'data-testid copy to clipboard button', //11.2.0*
-      cancelButton: 'data-testid cancel button', //11.2.0*
+      container: {
+        '11.2.0': 'data-testid export as Json drawer container',
+      },
+      codeEditor: {
+        '11.2.0': 'data-testid export as Json code editor',
+      },
+      exportExternallyToggle: {
+        '11.2.0': 'data-testid export externally toggle type select',
+      },
+      saveToFileButton: {
+        '11.2.0': 'data-testid save to file button',
+      },
+      copyToClipboardButton: {
+        '11.2.0': 'data-testid copy to clipboard button',
+      },
+      cancelButton: {
+        '11.2.0': 'data-testid cancel button',
+      },
     },
   },
   PublicDashboard: {
-    page: 'public-dashboard-page', //9.5.0*
-    NotAvailable: {
-      container: 'public-dashboard-not-available', //9.5.0*
-      title: 'public-dashboard-title', //9.5.0*
-      pausedDescription: 'public-dashboard-paused-description', //9.5.0*
+    page: {
+      '9.5.0': 'public-dashboard-page',
     },
-    footer: 'public-dashboard-footer', //11.0.0*
+    NotAvailable: {
+      container: {
+        '9.5.0': 'public-dashboard-not-available',
+      },
+      title: {
+        '9.5.0': 'public-dashboard-title',
+      },
+      pausedDescription: {
+        '9.5.0': 'public-dashboard-paused-description',
+      },
+    },
+    footer: {
+      '11.0.0': 'public-dashboard-footer',
+    },
   },
   PublicDashboardScene: {
-    loadingPage: 'public-dashboard-scene-loading-page', //11.0.0*
-    page: 'public-dashboard-scene-page', //11.0.0*
-    controls: 'public-dashboard-controls', //11.0.0*
+    loadingPage: {
+      '11.0.0': 'public-dashboard-scene-loading-page',
+    },
+    page: {
+      '11.0.0': 'public-dashboard-scene-page',
+    },
+    controls: {
+      '11.0.0': 'public-dashboard-controls',
+    },
   },
   RequestViewAccess: {
-    form: 'request-view-access-form', //9.5.0*
-    recipientInput: 'request-view-access-recipient-input', //9.5.0*
-    submitButton: 'request-view-access-submit-button', //9.5.0*
+    form: {
+      '9.5.0': 'request-view-access-form',
+    },
+    recipientInput: {
+      '9.5.0': 'request-view-access-recipient-input',
+    },
+    submitButton: {
+      '9.5.0': 'request-view-access-submit-button',
+    },
   },
   PublicDashboardConfirmAccess: {
-    submitButton: 'data-testid confirm-access-submit-button', //10.2.0*
+    submitButton: {
+      '10.2.0': 'data-testid confirm-access-submit-button',
+    },
   },
   Explore: {
-    url: '/explore', //*
+    url: {
+      '8.5.0': '/explore',
+    },
     General: {
-      container: 'data-testid Explore', //*
-      graph: 'Explore Graph', //*
-      table: 'Explore Table', //*
-      scrollView: 'data-testid explorer scroll view', //9.0.0 '.scrollbar-view' before that*
+      container: {
+        '8.5.0': 'data-testid Explore',
+      },
+      graph: {
+        '8.5.0': 'Explore Graph',
+      },
+      table: {
+        '8.5.0': 'Explore Table',
+      },
+      scrollView: {
+        '9.0.0': 'data-testid explorer scroll view',
+      },
     },
     QueryHistory: {
-      container: 'data-testid QueryHistory', //11.1.0*
+      container: {
+        '11.1.0': 'data-testid QueryHistory',
+      },
     },
   },
   SoloPanel: {
-    url: (page: string) => `/d-solo/${page}`, //*
+    url: {
+      '8.5.0': (page: string) => `/d-solo/${page}`,
+    },
   },
   PluginsList: {
-    page: 'Plugins list page', //*
-    list: 'Plugins list', //*
-    listItem: 'Plugins list item', //*
-    signatureErrorNotice: 'data-testid Unsigned plugins notice', //10.3.0 dti*
+    page: {
+      '8.5.0': 'Plugins list page',
+    },
+    list: {
+      '8.5.0': 'Plugins list',
+    },
+    listItem: {
+      '8.5.0': 'Plugins list item',
+    },
+    signatureErrorNotice: {
+      '10.3.0': 'data-testid Unsigned plugins notice',
+      '8.5.0': 'Unsigned plugins notice',
+    },
   },
   PluginPage: {
-    page: 'Plugin page', //*
-    signatureInfo: 'data-testid Plugin signature info', //10.3.0 dti*
-    disabledInfo: 'data-testid Plugin disabled info', //10.3.0 dti*
+    page: {
+      '8.5.0': 'Plugin page',
+    },
+    signatureInfo: {
+      '10.3.0': 'data-testid Plugin signature info',
+      '8.5.0': 'Plugin signature info',
+    },
+    disabledInfo: {
+      '10.3.0': 'data-testid Plugin disabled info',
+      '8.5.0': 'Plugin disabled info',
+    },
   },
   PlaylistForm: {
-    name: 'Playlist name', //*
-    interval: 'Playlist interval', //*
-    itemDelete: 'data-testid playlist-form-delete-item', //10.2.0 'Delete playlist item' before that*
+    name: {
+      '8.5.0': 'Playlist name',
+    },
+    interval: {
+      '8.5.0': 'Playlist interval',
+    },
+    itemDelete: {
+      '10.2.0': 'data-testid playlist-form-delete-item',
+    },
   },
   BrowseDashboards: {
     table: {
-      body: 'data-testid browse-dashboards-table', //10.2.0*
-      row: (name: string) => `data-testid browse dashboards row ${name}`, //10.2.0 (uid: string) => `data-testid ${uid} row` before that*
-      checkbox: (uid: string) => `data-testid ${uid} checkbox`, //10.0.0*
+      body: {
+        '10.2.0': 'data-testid browse-dashboards-table',
+      },
+      row: {
+        '10.2.0': (name: string) => `data-testid browse dashboards row ${name}`,
+      },
+      checkbox: {
+        '10.0.0': (uid: string) => `data-testid ${uid} checkbox`,
+      },
     },
     NewFolderForm: {
-      form: 'data-testid new folder form', //10.2.0*
-      nameInput: 'data-testid new-folder-name-input', //10.2.0*
-      createButton: 'data-testid new-folder-create-button', //10.2.0*
+      form: {
+        '10.2.0': 'data-testid new folder form',
+      },
+      nameInput: {
+        '10.2.0': 'data-testid new-folder-name-input',
+      },
+      createButton: {
+        '10.2.0': 'data-testid new-folder-create-button',
+      },
     },
   },
   Search: {
-    url: '/?search=openn', //9.3.0*
+    url: {
+      '9.3.0': '/?search=openn',
+    },
     FolderView: {
-      url: '/?search=open&layout=folders', //9.3.0*
+      url: {
+        '9.3.0': '/?search=open&layout=folders',
+      },
     },
   },
   PublicDashboards: {
     ListItem: {
-      linkButton: 'public-dashboard-link-button', //9.3.0*
-      configButton: 'public-dashboard-configuration-button', //9.3.0*
-      trashcanButton: 'public-dashboard-remove-button', //9.3.0*
-      pauseSwitch: 'data-testid public dashboard pause switch', //10.1.0*
+      linkButton: {
+        '9.3.0': 'public-dashboard-link-button',
+      },
+      configButton: {
+        '9.3.0': 'public-dashboard-configuration-button',
+      },
+      trashcanButton: {
+        '9.3.0': 'public-dashboard-remove-button',
+      },
+      pauseSwitch: {
+        '10.1.0': 'data-testid public dashboard pause switch',
+      },
     },
   },
   UserListPage: {
     tabs: {
-      allUsers: 'data-testid all-users-tab', //10.0.0*
-      orgUsers: 'data-testid org-users-tab', //10.0.0*
-      anonUserDevices: 'data-testid anon-user-devices-tab', //10.2.3*
-      publicDashboardsUsers: 'data-testid public-dashboards-users-tab', //10.0.0*
-      users: 'data-testid users-tab', //10.0.0*
+      allUsers: {
+        '10.0.0': 'data-testid all-users-tab',
+      },
+      orgUsers: {
+        '10.0.0': 'data-testid org-users-tab',
+      },
+      anonUserDevices: {
+        '10.2.3': 'data-testid anon-user-devices-tab',
+      },
+      publicDashboardsUsers: {
+        '10.0.0': 'data-testid public-dashboards-users-tab',
+      },
+      users: {
+        '10.0.0': 'data-testid users-tab',
+      },
     },
     org: {
-      url: '/org/users', //9.5.0 new*
+      url: {
+        '9.5.0': '/org/users',
+      },
     },
     admin: {
-      url: '/admin/users', //9.5.0 new*
+      url: {
+        '9.5.0': '/admin/users',
+      },
     },
     publicDashboards: {
-      container: 'data-testid public-dashboards-users-list', //11.1.0*
+      container: {
+        '11.1.0': 'data-testid public-dashboards-users-list',
+      },
     },
     UserListAdminPage: {
-      container: 'data-testid user-list-admin-page', //10.0.0*
+      container: {
+        '10.0.0': 'data-testid user-list-admin-page',
+      },
     },
     UsersListPage: {
-      container: 'data-testid users-list-page', //10.0.0*
+      container: {
+        '10.0.0': 'data-testid users-list-page',
+      },
     },
     UserAnonListPage: {
       container: 'data-testid user-anon-list-page',
     },
     UsersListPublicDashboardsPage: {
-      container: 'data-testid users-list-public-dashboards-page', //10.0.0*
+      container: {
+        '10.0.0': 'data-testid users-list-public-dashboards-page',
+      },
       DashboardsListModal: {
-        listItem: (uid: string) => `data-testid dashboards-list-item-${uid}`, //10.0.0*
+        listItem: {
+          '10.0.0': (uid: string) => `data-testid dashboards-list-item-${uid}`,
+        },
       },
     },
   },
   ProfilePage: {
-    url: '/profile', //10.2.0*
+    url: {
+      '10.2.0': '/profile',
+    },
   },
 };

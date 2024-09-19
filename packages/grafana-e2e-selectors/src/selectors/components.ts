@@ -11,177 +11,383 @@
  */
 export const Components = {
   RadioButton: {
-    container: 'data-testid radio-button', //10.2.3 new*,
+    container: {
+      '10.2.3': 'data-testid radio-button',
+    },
   },
   Breadcrumbs: {
-    breadcrumb: (title: string) => `data-testid ${title} breadcrumb`, //9.4.0 new*,
+    breadcrumb: {
+      '9.4.0': (title: string) => `data-testid ${title} breadcrumb`,
+    },
   },
   TimePicker: {
-    openButton: 'data-testid TimePicker Open Button', //*
-    overlayContent: 'data-testid TimePicker Overlay Content', // 10.2.3 new*,
-    fromField: 'data-testid Time Range from field', //10.2.3 data-test-id*
-    toField: 'data-testid Time Range to field', //10.2.3 data-test-id*
-    applyTimeRange: 'data-testid TimePicker submit button', //*
-    copyTimeRange: 'data-testid TimePicker copy button', // 10.4.0 new*,
-    pasteTimeRange: 'data-testid TimePicker paste button', // 10.4.0 new*,
-    calendar: {
-      label: 'data-testid Time Range calendar', //10.2.3 data-test-id*
-      openButton: 'data-testid Open time range calendar', //10.2.3 data-test-id*
-      closeButton: 'data-testid Close time range Calendar', //10.2.3 data-test-id*
+    openButton: {
+      '8.5.0': 'data-testid TimePicker Open Button',
     },
-    absoluteTimeRangeTitle: 'data-testid-absolute-time-range-narrow', //*
+    overlayContent: {
+      '10.2.3': 'data-testid TimePicker Overlay Content',
+    },
+    fromField: {
+      '10.2.3': 'data-testid Time Range from field',
+      '8.5.0': 'Time Range from field',
+    },
+    toField: {
+      '10.2.3': 'data-testid Time Range to field',
+      '8.5.0': 'Time Range to field',
+    },
+    applyTimeRange: {
+      '8.5.0': 'data-testid TimePicker submit button',
+    },
+    copyTimeRange: {
+      '10.4.0': 'data-testid TimePicker copy button',
+    },
+    pasteTimeRange: {
+      '10.4.0': 'data-testid TimePicker paste button',
+    },
+    calendar: {
+      label: {
+        '10.2.3': 'data-testid Time Range calendar',
+        '8.5.0': 'Time Range calendar',
+      },
+      openButton: {
+        '10.2.3': 'data-testid Open time range calendar',
+        '8.5.0': 'Open time range calendar',
+      },
+      closeButton: {
+        '10.2.3': 'data-testid Close time range Calendar',
+        '8.5.0': 'Close time range Calendar',
+      },
+    },
+    absoluteTimeRangeTitle: {
+      '8.5.0': 'data-testid-absolute-time-range-narrow',
+    },
   },
   DataSourcePermissions: {
-    form: () => 'form[name="addPermission"]', //9.5.0 new**
-    roleType: 'Role to add new permission to', //9.5.0 new**
-    rolePicker: 'Built-in role picker', //9.5.0 new**
-    permissionLevel: 'Permission Level', //9.5.0 new**
+    form: { '9.5.0': () => 'form[name="addPermission"]' },
+    roleType: {
+      '9.5.0': 'Role to add new permission to',
+    },
+    rolePicker: {
+      '9.5.0': 'Built-in role picker',
+    },
+    permissionLevel: {
+      '9.5.0': 'Permission Level',
+    },
   },
   DateTimePicker: {
-    input: 'data-testid date-time-input', //10.2.3 new**
+    input: {
+      '10.2.3': 'data-testid date-time-input',
+    },
   },
   DataSource: {
     TestData: {
       QueryTab: {
-        scenarioSelectContainer: 'Test Data Query scenario select container', //*
-        scenarioSelect: 'Test Data Query scenario select', //*
-        max: 'TestData max', //*
-        min: 'TestData min', //*
-        noise: 'TestData noise', //*
-        seriesCount: 'TestData series count', //*
-        spread: 'TestData spread', //*
-        startValue: 'TestData start value', //*
-        drop: 'TestData drop values', //*
+        scenarioSelectContainer: {
+          '8.5.0': 'Test Data Query scenario select container',
+        },
+        scenarioSelect: {
+          '8.5.0': 'Test Data Query scenario select',
+        },
+        max: {
+          '8.5.0': 'TestData max',
+        },
+        min: {
+          '8.5.0': 'TestData min',
+        },
+        noise: {
+          '8.5.0': 'TestData noise',
+        },
+        seriesCount: {
+          '8.5.0': 'TestData series count',
+        },
+        spread: {
+          '8.5.0': 'TestData spread',
+        },
+        startValue: {
+          '8.5.0': 'TestData start value',
+        },
+        drop: {
+          '8.5.0': 'TestData drop values',
+        },
       },
     },
     DataSourceHttpSettings: {
-      urlInput: 'data-testid Datasource HTTP settings url', //10.4.0 dti*
+      urlInput: {
+        '10.4.0': 'data-testid Datasource HTTP settings url',
+        '8.5.0': 'Datasource HTTP settings url',
+      },
     },
     Jaeger: {
-      traceIDInput: 'Trace ID', //*
+      traceIDInput: {
+        '8.5.0': 'Trace ID',
+      },
     },
     Prometheus: {
       configPage: {
-        connectionSettings: 'Data source connection URL', // aria-label in grafana experimental //*
-        manageAlerts: 'prometheus-alerts-manager', // id for switch component //10.4.0*
-        scrapeInterval: 'data-testid scrape interval', //10.4.0*
-        queryTimeout: 'data-testid query timeout', //10.4.0*
+        connectionSettings: { '8.5.0': 'Data source connection URL' }, // aria-label in grafana experimental
+        manageAlerts: { '10.4.0': 'prometheus-alerts-manager' }, // id for switch component
+        scrapeInterval: {
+          '10.4.0': 'data-testid scrape interval',
+        },
+        queryTimeout: {
+          '10.4.0': 'data-testid query timeout',
+        },
         defaultEditor: 'data-testid default editor',
-        disableMetricLookup: 'disable-metric-lookup', // id for switch component //10.4.0*
-        prometheusType: 'data-testid prometheus type', //10.4.0*
-        prometheusVersion: 'data-testid prometheus version', //10.4.0*
-        cacheLevel: 'data-testid cache level', //10.4.0*
-        incrementalQuerying: 'prometheus-incremental-querying', // id for switch component //10.4.0*
-        queryOverlapWindow: 'data-testid query overlap window', //10.4.0*
-        disableRecordingRules: 'disable-recording-rules', // id for switch component //10.4.0*
-        customQueryParameters: 'data-testid custom query parameters', //10.4.0*
-        httpMethod: 'data-testid http method', //10.4.0*
-        exemplarsAddButton: 'data-testid Add exemplar config button', //10.3.0 dti*
-        internalLinkSwitch: 'data-testid Internal link switch', //10.3.0 dti*
-        codeModeMetricNamesSuggestionLimit: 'data-testid code mode metric names suggestion limit', //11.1.0*
+        disableMetricLookup: { '10.4.0': 'disable-metric-lookup' }, // id for switch component
+        prometheusType: {
+          '10.4.0': 'data-testid prometheus type',
+        },
+        prometheusVersion: {
+          '10.4.0': 'data-testid prometheus version',
+        },
+        cacheLevel: {
+          '10.4.0': 'data-testid cache level',
+        },
+        incrementalQuerying: { '10.4.0': 'prometheus-incremental-querying' }, // id for switch component
+        queryOverlapWindow: {
+          '10.4.0': 'data-testid query overlap window',
+        },
+        disableRecordingRules: { '10.4.0': 'disable-recording-rules' }, // id for switch component
+        customQueryParameters: {
+          '10.4.0': 'data-testid custom query parameters',
+        },
+        httpMethod: {
+          '10.4.0': 'data-testid http method',
+        },
+        exemplarsAddButton: {
+          '10.3.0': 'data-testid Add exemplar config button',
+          '8.5.0': 'Add exemplar config button',
+        },
+        internalLinkSwitch: {
+          '10.3.0': 'data-testid Internal link switch',
+          '8.5.0': 'Internal link switch',
+        },
+        codeModeMetricNamesSuggestionLimit: {
+          '11.1.0': 'data-testid code mode metric names suggestion limit',
+        },
       },
       queryEditor: {
         // kickstart: '', see QueryBuilder queryPatterns below
-        explain: 'data-testid prometheus explain switch wrapper', //10.4.0*
-        editorToggle: 'data-testid QueryEditorModeToggle', // wrapper for toggle //10.4.0*
-        options: 'data-testid prometheus options', // wrapper for options group //10.4.0*
-        legend: 'data-testid prometheus legend wrapper', // wrapper for multiple compomnents //10.4.0*
-        format: 'data-testid prometheus format', //10.4.0*
-        step: 'prometheus-step', // id for autosize component //10.4.0*
-        type: 'data-testid prometheus type', //wrapper for radio button group //10.4.0*
-        exemplars: 'prometheus-exemplars', // id for editor switch component //10.4.0*
+        explain: {
+          '10.4.0': 'data-testid prometheus explain switch wrapper',
+        },
+        editorToggle: {
+          '10.4.0': 'data-testid QueryEditorModeToggle', // wrapper for toggle
+        },
+        options: {
+          '10.4.0': 'data-testid prometheus options', // wrapper for options group
+        },
+        legend: {
+          '10.4.0': 'data-testid prometheus legend wrapper', // wrapper for multiple compomnents
+        },
+        format: {
+          '10.4.0': 'data-testid prometheus format',
+        },
+        step: {
+          '10.4.0': 'prometheus-step', // id for autosize component
+        },
+        type: {
+          '10.4.0': 'data-testid prometheus type', //wrapper for radio button group
+        },
+        exemplars: {
+          '10.4.0': 'prometheus-exemplars', // id for editor switch component
+        },
         builder: {
           // see QueryBuilder below for commented selectors
           // labelSelect: 'data-testid Select label',
           // valueSelect: 'data-testid Select value',
           // matchOperatorSelect: 'data-testid Select match operator',
-          metricSelect: 'data-testid metric select', //10.4.0*
-          hints: 'data-testid prometheus hints', // wrapper for hints component //10.4.0*
-          metricsExplorer: 'data-testid metrics explorer', //10.4.0*
-          queryAdvisor: 'data-testid query advisor', //10.4.0*
+          metricSelect: {
+            '10.4.0': 'data-testid metric select',
+          },
+          hints: {
+            '10.4.0': 'data-testid prometheus hints', // wrapper for hints component
+          },
+          metricsExplorer: {
+            '10.4.0': 'data-testid metrics explorer',
+          },
+          queryAdvisor: {
+            '10.4.0': 'data-testid query advisor',
+          },
         },
         code: {
-          queryField: 'data-testid prometheus query field', //10.4.0*
-          metricsCountInfo: 'data-testid metrics count disclaimer', //11.1.0*
+          queryField: {
+            '10.4.0': 'data-testid prometheus query field',
+          },
+          metricsCountInfo: {
+            '11.1.0': 'data-testid metrics count disclaimer',
+          },
           metricsBrowser: {
-            openButton: 'data-testid open metrics browser', //10.4.0*
-            selectMetric: 'data-testid select a metric', //10.4.0*
-            seriesLimit: 'data-testid series limit', //10.3.1*
-            metricList: 'data-testid metric list', //10.4.0*
-            labelNamesFilter: 'data-testid label names filter', //10.4.0*
-            labelValuesFilter: 'data-testid label values filter', //10.4.0*
-            useQuery: 'data-testid use query', //10.4.0*
-            useAsRateQuery: 'data-testid use as rate query', //10.4.0*
-            validateSelector: 'data-testid validate selector', //10.4.0*
-            clear: 'data-testid clear', //10.4.0*
+            openButton: {
+              '10.4.0': 'data-testid open metrics browser',
+            },
+            selectMetric: {
+              '10.4.0': 'data-testid select a metric',
+            },
+            seriesLimit: {
+              '10.3.1': 'data-testid series limit',
+            },
+            metricList: {
+              '10.4.0': 'data-testid metric list',
+            },
+            labelNamesFilter: {
+              '10.4.0': 'data-testid label names filter',
+            },
+            labelValuesFilter: {
+              '10.4.0': 'data-testid label values filter',
+            },
+            useQuery: {
+              '10.4.0': 'data-testid use query',
+            },
+            useAsRateQuery: {
+              '10.4.0': 'data-testid use as rate query',
+            },
+            validateSelector: {
+              '10.4.0': 'data-testid validate selector',
+            },
+            clear: {
+              '10.4.0': 'data-testid clear',
+            },
           },
         },
       },
-      exemplarMarker: 'data-testid Exemplar marker', //10.3.0 dti*
+      exemplarMarker: {
+        '10.3.0': 'data-testid Exemplar marker',
+        '8.5.0': 'Exemplar marker',
+      },
       variableQueryEditor: {
-        queryType: 'data-testid query type', //10.4.0*
+        queryType: {
+          '10.4.0': 'data-testid query type',
+        },
         labelnames: {
-          metricRegex: 'data-testid label names metric regex', //10.4.0*
+          metricRegex: {
+            '10.4.0': 'data-testid label names metric regex',
+          },
         },
         labelValues: {
-          labelSelect: 'data-testid label values label select', //10.4.0*
+          labelSelect: {
+            '10.4.0': 'data-testid label values label select',
+          },
           // metric select see queryEditor: builder for more context
           // label select for metric filtering see queryEditor: builder for more context
         },
         metricNames: {
-          metricRegex: 'data-testid metric names metric regex', //10.4.0*
+          metricRegex: {
+            '10.4.0': 'data-testid metric names metric regex',
+          },
         },
-        varQueryResult: 'data-testid variable query result', //10.4.0*
-        seriesQuery: 'data-testid prometheus series query', //10.4.0*
-        classicQuery: 'data-testid prometheus classic query', //10.4.0*
+        varQueryResult: {
+          '10.4.0': 'data-testid variable query result',
+        },
+        seriesQuery: {
+          '10.4.0': 'data-testid prometheus series query',
+        },
+        classicQuery: {
+          '10.4.0': 'data-testid prometheus classic query',
+        },
       },
       annotations: {
-        minStep: 'prometheus-annotation-min-step', // id for autosize input //10.4.0*
-        title: 'data-testid prometheus annotation title', //10.4.0*
-        tags: 'data-testid prometheus annotation tags', //10.4.0*
-        text: 'data-testid prometheus annotation text', //10.4.0*
-        seriesValueAsTimestamp: 'data-testid prometheus annotation series value as timestamp', //10.4.0*
+        minStep: {
+          '10.4.0': 'prometheus-annotation-min-step', // id for autosize input
+        },
+        title: {
+          '10.4.0': 'data-testid prometheus annotation title',
+        },
+        tags: {
+          '10.4.0': 'data-testid prometheus annotation tags',
+        },
+        text: {
+          '10.4.0': 'data-testid prometheus annotation text',
+        },
+        seriesValueAsTimestamp: {
+          '10.4.0': 'data-testid prometheus annotation series value as timestamp',
+        },
       },
     },
   },
   Menu: {
-    MenuComponent: (title: string) => `${title} menu`, //*
-    MenuGroup: (title: string) => `${title} menu group`, //*
-    MenuItem: (title: string) => `${title} menu item`, //*
+    MenuComponent: {
+      '8.5.0': (title: string) => `${title} menu`,
+    },
+    MenuGroup: {
+      '8.5.0': (title: string) => `${title} menu group`,
+    },
+    MenuItem: {
+      '8.5.0': (title: string) => `${title} menu item`,
+    },
     SubMenu: {
-      container: 'data-testid SubMenu container', //10.3.0 dti*
-      icon: 'data-testid SubMenu icon', //10.3.0 dti*
+      container: {
+        '10.3.0': 'data-testid SubMenu container',
+        '8.5.0': 'SubMenu container',
+      },
+      icon: {
+        '10.3.0': 'data-testid SubMenu icon',
+        '8.5.0': 'SubMenu icon',
+      },
     },
   },
   Panels: {
     Panel: {
-      title: (title: string) => `data-testid Panel header ${title}`, //*
-      content: 'data-testid panel content', //11.1.0*
-      headerItems: (item: string) => `data-testid Panel header item ${item}`, //10.2.0 dti*
-      menuItems: (item: string) => `data-testid Panel menu item ${item}`, //9.5.0*
-      menu: (title: string) => `data-testid Panel menu ${title}`, //9.5.0*
-      containerByTitle: (title: string) => `${title} panel`, //*
-      headerCornerInfo: (mode: string) => `Panel header ${mode}`, //*
-      status: (status: string) => `data-testid Panel status ${status}`, //10.2.0 dti*
-      loadingBar: () => `Panel loading bar`, //10.0.0*
-      HoverWidget: {
-        container: 'data-testid hover-header-container', //10.1.0 dti*
-        dragIcon: 'data-testid drag-icon', //10.0.0*
+      title: {
+        '8.5.0': (title: string) => `data-testid Panel header ${title}`,
       },
-      PanelDataErrorMessage: 'data-testid Panel data error message', //10.4.0*
+      content: {
+        '11.1.0': 'data-testid panel content',
+      },
+      headerItems: {
+        '10.2.0': (item: string) => `data-testid Panel header item ${item}`,
+      },
+      menuItems: {
+        '9.5.0': (item: string) => `data-testid Panel menu item ${item}`,
+      },
+      menu: {
+        '9.5.0': (title: string) => `data-testid Panel menu ${title}`,
+      },
+      containerByTitle: {
+        '8.5.0': (title: string) => `${title} panel`,
+      },
+      headerCornerInfo: {
+        '8.5.0': (mode: string) => `Panel header ${mode}`,
+      },
+      status: {
+        '10.2.0': (status: string) => `data-testid Panel status ${status}`,
+      },
+      loadingBar: {
+        '10.0.0': () => `Panel loading bar`,
+      },
+      HoverWidget: {
+        container: {
+          '10.1.0': 'data-testid hover-header-container',
+          '8.5.0': 'hover-header-container',
+        },
+        dragIcon: {
+          '10.0.0': 'data-testid drag-icon',
+        },
+      },
+      PanelDataErrorMessage: {
+        '10.4.0': 'data-testid Panel data error message',
+      },
     },
     Visualization: {
       Graph: {
-        container: 'Graph container', //9.5.0 new**
+        container: {
+          '9.5.0': 'Graph container',
+        },
         VisualizationTab: {
-          legendSection: 'Legend section', //*
+          legendSection: {
+            '8.5.0': 'Legend section',
+          },
         },
         Legend: {
-          legendItemAlias: (name: string) => `gpl alias ${name}`, //*
-          showLegendSwitch: 'gpl show legend', //*
+          legendItemAlias: {
+            '8.5.0': (name: string) => `gpl alias ${name}`,
+          },
+          showLegendSwitch: {
+            '8.5.0': 'gpl show legend',
+          },
         },
         xAxis: {
-          labels: () => 'div.flot-x-axis > div.flot-tick-label', //*
+          labels: { '8.5.0': () => 'div.flot-x-axis > div.flot-tick-label' },
         },
       },
       BarGauge: {
@@ -189,115 +395,224 @@ export const Components = {
          * @deprecated use valueV2 from Grafana 8.3 instead
          */
         value: 'Bar gauge value',
-        valueV2: 'data-testid Bar gauge value', //*
+        valueV2: {
+          '8.5.0': 'data-testid Bar gauge value',
+        },
       },
       PieChart: {
-        svgSlice: 'data testid Pie Chart Slice', //10.3.0 dti*
+        svgSlice: {
+          '10.3.0': 'data testid Pie Chart Slice',
+        },
       },
       Text: {
-        container: () => '.markdown-html', //*
+        container: { '8.5.0': () => '.markdown-html' },
       },
       Table: {
-        header: 'table header', //*
-        footer: 'table-footer', //*
-        body: 'data-testid table body', //10.2.0*
+        header: {
+          '8.5.0': 'table header',
+        },
+        footer: {
+          '8.5.0': 'table-footer',
+        },
+        body: {
+          '10.2.0': 'data-testid table body',
+        },
       },
     },
   },
   VizLegend: {
-    seriesName: (name: string) => `data-testid VizLegend series ${name}`, //10.3.0 dti*
+    seriesName: {
+      '10.3.0': (name: string) => `data-testid VizLegend series ${name}`,
+    },
   },
   Drawer: {
     General: {
-      title: (title: string) => `Drawer title ${title}`, //*
-      expand: 'Drawer expand', //*
-      contract: 'Drawer contract', //*
-      close: 'data-testid Drawer close', //10.3.0 dti*
-      rcContentWrapper: () => '.rc-drawer-content-wrapper', //9.4.0*
-      subtitle: 'data-testid drawer subtitle', //10.4.0*
+      title: {
+        '8.5.0': (title: string) => `Drawer title ${title}`,
+      },
+      expand: {
+        '8.5.0': 'Drawer expand',
+      },
+      contract: {
+        '8.5.0': 'Drawer contract',
+      },
+      close: {
+        '10.3.0': 'data-testid Drawer close',
+        '8.5.0': 'Drawer close',
+      },
+      rcContentWrapper: { '9.4.0': () => '.rc-drawer-content-wrapper' },
+      subtitle: {
+        '10.4.0': 'data-testid drawer subtitle',
+      },
     },
     DashboardSaveDrawer: {
-      saveButton: 'data-testid Save dashboard drawer button', //11.1.0*
-      saveAsButton: 'data-testid Save as dashboard drawer button', //11.1.0*
-      saveAsTitleInput: 'Save dashboard title field', //11.1.0*
+      saveButton: {
+        '11.1.0': 'data-testid Save dashboard drawer button',
+      },
+      saveAsButton: {
+        '11.1.0': 'data-testid Save as dashboard drawer button',
+      },
+      saveAsTitleInput: {
+        '11.1.0': 'Save dashboard title field',
+      },
     },
   },
   PanelEditor: {
     General: {
-      content: 'data-testid Panel editor content', //11.1.0 dti*
+      content: {
+        '11.1.0': 'data-testid Panel editor content',
+        '8.5.0': 'Panel editor content',
+      },
     },
     OptionsPane: {
-      content: 'data-testid Panel editor option pane content', //11.1.0 dti*
-      select: 'Panel editor option pane select', //*
-      fieldLabel: (type: string) => `${type} field property editor`, //*
-      fieldInput: (title: string) => `data-testid Panel editor option pane field input ${title}`, //11.0.0*
+      content: {
+        '11.1.0': 'data-testid Panel editor option pane content',
+        '8.5.0': 'Panel editor option pane content',
+      },
+      select: {
+        '8.5.0': 'Panel editor option pane select',
+      },
+      fieldLabel: {
+        '8.5.0': (type: string) => `${type} field property editor`,
+      },
+      fieldInput: {
+        '11.0.0': (title: string) => `data-testid Panel editor option pane field input ${title}`,
+      },
     },
     // not sure about the naming *DataPane*
     DataPane: {
-      content: 'data-testid Panel editor data pane content', //11.1.0 dti*
+      content: {
+        '11.1.0': 'data-testid Panel editor data pane content',
+        '8.5.0': 'Panel editor data pane content',
+      },
     },
-    applyButton: 'data-testid Apply changes and go back to dashboard', //9.2.0 dti*
-    toggleVizPicker: 'data-testid toggle-viz-picker', //10.1.0 dti*
-    toggleVizOptions: 'data-testid toggle-viz-options', //10.1.0 dti*
-    toggleTableView: 'data-testid toggle-table-view', //11.1.0 dti*
+    applyButton: {
+      '9.2.0': 'data-testid Apply changes and go back to dashboard',
+    },
+    toggleVizPicker: {
+      '10.1.0': 'data-testid toggle-viz-picker',
+      '8.5.0': 'toggle-viz-picker',
+    },
+    toggleVizOptions: {
+      '10.1.0': 'data-testid toggle-viz-options',
+      '8.5.0': 'toggle-viz-options',
+    },
+    toggleTableView: {
+      '11.1.0': 'data-testid toggle-table-view',
+      '8.5.0': 'toggle-table-view',
+    },
 
     // [Geomap] Map controls
-    showZoomField: 'Map controls Show zoom control field property editor', //10.2.0*
-    showAttributionField: 'Map controls Show attribution field property editor', //10.2.0*
-    showScaleField: 'Map controls Show scale field property editor', //10.2.0*
-    showMeasureField: 'Map controls Show measure tools field property editor', //10.2.0*
-    showDebugField: 'Map controls Show debug field property editor', //10.2.0*
+    showZoomField: {
+      '10.2.0': 'Map controls Show zoom control field property editor',
+    },
+    showAttributionField: {
+      '10.2.0': 'Map controls Show attribution field property editor',
+    },
+    showScaleField: {
+      '10.2.0': 'Map controls Show scale field property editor',
+    },
+    showMeasureField: {
+      '10.2.0': 'Map controls Show measure tools field property editor',
+    },
+    showDebugField: {
+      '10.2.0': 'Map controls Show debug field property editor',
+    },
 
-    measureButton: 'show measure tools', //9.2.0*
+    measureButton: {
+      '9.2.0': 'show measure tools',
+    },
   },
   PanelInspector: {
     Data: {
-      content: 'Panel inspector Data content', //*
+      content: {
+        '8.5.0': 'Panel inspector Data content',
+      },
     },
     Stats: {
-      content: 'Panel inspector Stats content', //*
+      content: {
+        '8.5.0': 'Panel inspector Stats content',
+      },
     },
     Json: {
-      content: 'data-testid Panel inspector Json content', //11.1.0 dti*
+      content: {
+        '11.1.0': 'data-testid Panel inspector Json content',
+        '8.5.0': 'Panel inspector Json content',
+      },
     },
     Query: {
-      content: 'Panel inspector Query content', //*
-      refreshButton: 'Panel inspector Query refresh button', //*
-      jsonObjectKeys: () => '.json-formatter-key', //*
+      content: {
+        '8.5.0': 'Panel inspector Query content',
+      },
+      refreshButton: {
+        '8.5.0': 'Panel inspector Query refresh button',
+      },
+      jsonObjectKeys: {
+        '8.5.0': () => '.json-formatter-key',
+      },
     },
   },
   Tab: {
-    title: (title: string) => `data-testid Tab ${title}`, //11.2.0 dti*
-    active: () => '[class*="-activeTabStyle"]', //*
+    title: {
+      '11.2.0': (title: string) => `data-testid Tab ${title}`,
+    },
+    active: { '8.5.0': () => '[class*="-activeTabStyle"]' },
   },
   RefreshPicker: {
     /**
      * @deprecated use runButtonV2 from Grafana 8.3 instead
      */
-    runButton: 'RefreshPicker run button', //*
+    runButton: {
+      '8.5.0': 'RefreshPicker run button',
+    },
     /**
      * @deprecated use intervalButtonV2 from Grafana 8.3 instead
      */
-    intervalButton: 'RefreshPicker interval button', //*
-    runButtonV2: 'data-testid RefreshPicker run button', //*
-    intervalButtonV2: 'data-testid RefreshPicker interval button', //*
+    intervalButton: {
+      '8.5.0': 'RefreshPicker interval button',
+    },
+    runButtonV2: {
+      '8.5.0': 'data-testid RefreshPicker run button',
+    },
+    intervalButtonV2: {
+      '8.5.0': 'data-testid RefreshPicker interval button',
+    },
   },
   QueryTab: {
-    content: 'Query editor tab content', //*
-    queryInspectorButton: 'Query inspector button', //*
-    queryHistoryButton: 'data-testid query-history-button', //10.2.0 dti*
-    addQuery: 'data-testid query-tab-add-query', //10.2.0 'Query editor add query button' before that*
-    queryGroupTopSection: 'data-testid query group top section', //11.2.0*
-    addExpression: 'data-testid query-tab-add-expression', //11.2.0*
+    content: {
+      '8.5.0': 'Query editor tab content',
+    },
+    queryInspectorButton: {
+      '8.5.0': 'Query inspector button',
+    },
+    queryHistoryButton: {
+      '10.2.0': 'data-testid query-history-button',
+      '8.5.0': 'query-history-button',
+    },
+    addQuery: {
+      '10.2.0': 'data-testid query-tab-add-query',
+    },
+    queryGroupTopSection: {
+      '11.2.0': 'data-testid query group top section',
+    },
+    addExpression: {
+      '11.2.0': 'data-testid query-tab-add-expression',
+    },
   },
   QueryHistory: {
-    queryText: 'Query text', //9.0.0*
+    queryText: {
+      '9.0.0': 'Query text',
+    },
   },
   QueryEditorRows: {
-    rows: 'Query editor row', //*
+    rows: {
+      '8.5.0': 'Query editor row',
+    },
   },
   QueryEditorRow: {
-    actionButton: (title: string) => `data-testid ${title}`, //10.4.0 dti*
+    actionButton: {
+      '10.4.0': (title: string) => `data-testid ${title}`,
+    },
     title: (refId: string) => `Query editor row title ${refId}`,
     container: (refId: string) => `Query editor row ${refId}`,
   },
@@ -305,306 +620,643 @@ export const Components = {
     content: 'data-testid Alert editor tab content',
   },
   AlertRules: {
-    groupToggle: 'data-testid group-collapse-toggle', //11.0.0*
-    toggle: 'data-testid collapse-toggle', //11.0.0*
-    expandedContent: 'data-testid expanded-content', //11.0.0*
-    previewButton: 'data-testid alert-rule preview-button', //11.1.0*
-    ruleNameField: 'data-testid alert-rule name-field', //11.1.0*
-    newFolderButton: 'data-testid alert-rule new-folder-button', //11.1.0*
-    newFolderNameField: 'data-testid alert-rule name-folder-name-field', //11.1.0*
-    newFolderNameCreateButton: 'data-testid alert-rule name-folder-name-create-button', //11.1.0*
-    newEvaluationGroupButton: 'data-testid alert-rule new-evaluation-group-button', //11.1.0*
-    newEvaluationGroupName: 'data-testid alert-rule new-evaluation-group-name', //11.1.0*
-    newEvaluationGroupInterval: 'data-testid alert-rule new-evaluation-group-interval', //11.1.0*
-    newEvaluationGroupCreate: 'data-testid alert-rule new-evaluation-group-create-button', //11.1.0*
+    groupToggle: {
+      '11.0.0': 'data-testid group-collapse-toggle',
+    },
+    toggle: {
+      '11.0.0': 'data-testid collapse-toggle',
+    },
+    expandedContent: {
+      '11.0.0': 'data-testid expanded-content',
+    },
+    previewButton: {
+      '11.1.0': 'data-testid alert-rule preview-button',
+    },
+    ruleNameField: {
+      '11.1.0': 'data-testid alert-rule name-field',
+    },
+    newFolderButton: {
+      '11.1.0': 'data-testid alert-rule new-folder-button',
+    },
+    newFolderNameField: {
+      '11.1.0': 'data-testid alert-rule name-folder-name-field',
+    },
+    newFolderNameCreateButton: {
+      '11.1.0': 'data-testid alert-rule name-folder-name-create-button',
+    },
+    newEvaluationGroupButton: {
+      '11.1.0': 'data-testid alert-rule new-evaluation-group-button',
+    },
+    newEvaluationGroupName: {
+      '11.1.0': 'data-testid alert-rule new-evaluation-group-name',
+    },
+    newEvaluationGroupInterval: {
+      '11.1.0': 'data-testid alert-rule new-evaluation-group-interval',
+    },
+    newEvaluationGroupCreate: {
+      '11.1.0': 'data-testid alert-rule new-evaluation-group-create-button',
+    },
   },
   Alert: {
     /**
      * @deprecated use alertV2 from Grafana 8.3 instead
      */
-    alert: (severity: string) => `Alert ${severity}`, //*
-    alertV2: (severity: string) => `data-testid Alert ${severity}`, //*
+    alert: {
+      '8.5.0': (severity: string) => `Alert ${severity}`,
+    },
+    alertV2: {
+      '8.5.0': (severity: string) => `data-testid Alert ${severity}`,
+    },
   },
   TransformTab: {
-    content: 'data-testid Transform editor tab content', //10.1.0 dti*
-    newTransform: (name: string) => `data-testid New transform ${name}`, //10.1.0 dti*
-    transformationEditor: (name: string) => `data-testid Transformation editor ${name}`, //10.1.0 dti*
-    transformationEditorDebugger: (name: string) => `data-testid Transformation editor debugger ${name}`, //10.1.0 dti*
+    content: {
+      '10.1.0': 'data-testid Transform editor tab content',
+      '8.5.0': 'Transform editor tab content',
+    },
+    newTransform: {
+      '10.1.0': (name: string) => `data-testid New transform ${name}`,
+    },
+    transformationEditor: {
+      '10.1.0': (name: string) => `data-testid Transformation editor ${name}`,
+    },
+    transformationEditorDebugger: {
+      '10.1.0': (name: string) => `data-testid Transformation editor debugger ${name}`,
+    },
   },
   Transforms: {
-    card: (name: string) => `data-testid New transform ${name}`, //10.1.0 dti*
-    disableTransformationButton: 'data-testid Disable transformation button', //10.4.0*
+    card: {
+      '10.1.0': (name: string) => `data-testid New transform ${name}`,
+    },
+    disableTransformationButton: {
+      '10.4.0': 'data-testid Disable transformation button',
+    },
     Reduce: {
-      modeLabel: 'data-testid Transform mode label', //10.2.3 dti*
-      calculationsLabel: 'data-testid Transform calculations label', //10.2.3 dti*
+      modeLabel: {
+        '10.2.3': 'data-testid Transform mode label',
+        '8.5.0': 'Transform mode label',
+      },
+      calculationsLabel: {
+        '10.2.3': 'data-testid Transform calculations label',
+        '8.5.0': 'Transform calculations label',
+      },
     },
     SpatialOperations: {
-      actionLabel: 'root Action field property editor', //9.1.2*
-      locationLabel: 'root Location Mode field property editor', //10.2.0 'root Action field property editor' since 9.1.2*
+      actionLabel: {
+        '9.1.2': 'root Action field property editor',
+      },
+      locationLabel: {
+        '10.2.0': 'root Location Mode field property editor',
+      },
       location: {
-        autoOption: 'Auto location option', //9.1.2*
+        autoOption: {
+          '9.1.2': 'Auto location option',
+        },
         coords: {
-          option: 'Coords location option', //9.1.2*
-          latitudeFieldLabel: 'root Latitude field field property editor', //9.1.2*
-          longitudeFieldLabel: 'root Longitude field field property editor', //9.1.2*
+          option: {
+            '9.1.2': 'Coords location option',
+          },
+          latitudeFieldLabel: {
+            '9.1.2': 'root Latitude field field property editor',
+          },
+          longitudeFieldLabel: {
+            '9.1.2': 'root Longitude field field property editor',
+          },
         },
         geohash: {
-          option: 'Geohash location option', //9.1.2*
-          geohashFieldLabel: 'root Geohash field field property editor', //9.1.2*
+          option: {
+            '9.1.2': 'Geohash location option',
+          },
+          geohashFieldLabel: {
+            '9.1.2': 'root Geohash field field property editor',
+          },
         },
         lookup: {
-          option: 'Lookup location option', //9.1.2*
-          lookupFieldLabel: 'root Lookup field field property editor', //9.1.2*
-          gazetteerFieldLabel: 'root Gazetteer field property editor', //9.1.2*
+          option: {
+            '9.1.2': 'Lookup location option',
+          },
+          lookupFieldLabel: {
+            '9.1.2': 'root Lookup field field property editor',
+          },
+          gazetteerFieldLabel: {
+            '9.1.2': 'root Gazetteer field property editor',
+          },
         },
       },
     },
-    searchInput: 'data-testid search transformations', //10.2.3 dti*
-    noTransformationsMessage: 'data-testid no transformations message', //10.2.3*
-    addTransformationButton: 'data-testid add transformation button', //10.1.0 dti*
-    removeAllTransformationsButton: 'data-testid remove all transformations button', //10.4.0*
+    searchInput: {
+      '10.2.3': 'data-testid search transformations',
+      '8.5.0': 'search transformations',
+    },
+    noTransformationsMessage: {
+      '10.2.3': 'data-testid no transformations message',
+    },
+    addTransformationButton: {
+      '10.1.0': 'data-testid add transformation button',
+      '8.5.0': 'add transformation button',
+    },
+    removeAllTransformationsButton: {
+      '10.4.0': 'data-testid remove all transformations button',
+    },
   },
   NavBar: {
     Configuration: {
-      button: 'Configuration', //9.5.0 new**
+      button: {
+        '9.5.0': 'Configuration',
+      },
     },
     Toggle: {
-      button: 'data-testid Toggle menu', //10.2.3 dti*
+      button: {
+        '10.2.3': 'data-testid Toggle menu',
+        '8.5.0': 'Toggle menu',
+      },
     },
     Reporting: {
-      button: 'Reporting', //9.5.0 new**
+      button: {
+        '9.5.0': 'Reporting',
+      },
     },
   },
   NavMenu: {
-    Menu: 'data-testid navigation mega-menu', //10.2.3*
-    item: 'data-testid Nav menu item', //9.5.0*
+    Menu: {
+      '10.2.3': 'data-testid navigation mega-menu',
+    },
+    item: {
+      '9.5.0': 'data-testid Nav menu item',
+    },
   },
   NavToolbar: {
-    container: 'data-testid Nav toolbar', //9.4.0 new!
-    shareDashboard: 'data-testid Share dashboard', //11.1.0*
-    markAsFavorite: 'data-testid Mark as favorite', //11.1.0*
+    container: {
+      '9.4.0': 'data-testid Nav toolbar',
+    },
+    shareDashboard: {
+      '11.1.0': 'data-testid Share dashboard',
+    },
+    markAsFavorite: {
+      '11.1.0': 'data-testid Mark as favorite',
+    },
     editDashboard: {
-      editButton: 'data-testid Edit dashboard button', //11.1.0*
-      saveButton: 'data-testid Save dashboard button', //11.1.0*
-      exitButton: 'data-testid Exit edit mode button', //11.1.0*
-      settingsButton: 'data-testid Dashboard settings', //11.1.0*
-      addRowButton: 'data-testid Add row button', //11.1.0*
-      addLibraryPanelButton: 'data-testid Add a panel from the panel library button', //11.1.0*
-      addVisualizationButton: 'data-testid Add new visualization menu item', //11.1.0*
-      pastePanelButton: 'data-testid Paste panel button', //11.1.0*
-      discardChangesButton: 'data-testid Discard changes button', //11.1.0*
-      discardLibraryPanelButton: 'data-testid Discard library panel button', //11.1.0*
-      unlinkLibraryPanelButton: 'data-testid Unlink library panel button', //11.1.0*
-      saveLibraryPanelButton: 'data-testid Save library panel button', //11.1.0*
-      backToDashboardButton: 'data-testid Back to dashboard button', //11.1.0*
+      editButton: {
+        '11.1.0': 'data-testid Edit dashboard button',
+      },
+      saveButton: {
+        '11.1.0': 'data-testid Save dashboard button',
+      },
+      exitButton: {
+        '11.1.0': 'data-testid Exit edit mode button',
+      },
+      settingsButton: {
+        '11.1.0': 'data-testid Dashboard settings',
+      },
+      addRowButton: {
+        '11.1.0': 'data-testid Add row button',
+      },
+      addLibraryPanelButton: {
+        '11.1.0': 'data-testid Add a panel from the panel library button',
+      },
+      addVisualizationButton: {
+        '11.1.0': 'data-testid Add new visualization menu item',
+      },
+      pastePanelButton: {
+        '11.1.0': 'data-testid Paste panel button',
+      },
+      discardChangesButton: {
+        '11.1.0': 'data-testid Discard changes button',
+      },
+      discardLibraryPanelButton: {
+        '11.1.0': 'data-testid Discard library panel button',
+      },
+      unlinkLibraryPanelButton: {
+        '11.1.0': 'data-testid Unlink library panel button',
+      },
+      saveLibraryPanelButton: {
+        '11.1.0': 'data-testid Save library panel button',
+      },
+      backToDashboardButton: {
+        '11.1.0': 'data-testid Back to dashboard button',
+      },
     },
   },
 
   PageToolbar: {
-    container: () => '.page-toolbar', //*
-    item: (tooltip: string) => `${tooltip}`, //*
-    itemButton: (title: string) => `data-testid ${title}`, //9.5.0 dti*
+    container: { '8.5.0': () => '.page-toolbar' },
+    item: {
+      '8.5.0': (tooltip: string) => `${tooltip}`,
+    },
+    itemButton: {
+      '9.5.0': (title: string) => `data-testid ${title}`,
+    },
   },
   QueryEditorToolbarItem: {
-    button: (title: string) => `QueryEditor toolbar item button ${title}`, //*
+    button: {
+      '8.5.0': (title: string) => `QueryEditor toolbar item button ${title}`,
+    },
   },
   BackButton: {
-    backArrow: 'data-testid Go Back', //10.3.0 dti*
+    backArrow: {
+      '10.3.0': 'data-testid Go Back',
+      '8.5.0': 'Go Back',
+    },
   },
   OptionsGroup: {
-    group: (title?: string) => (title ? `data-testid Options group ${title}` : 'data-testid Options group'), //11.1.0 dti*
+    group: {
+      '11.1.0': (title?: string) => (title ? `data-testid Options group ${title}` : 'data-testid Options group'),
+      '8.5.0': (title?: string) => (title ? `Options group ${title}` : 'Options group'),
+    },
     toggle: (title?: string) =>
-      title ? `data-testid Options group ${title} toggle` : 'data-testid Options group toggle', //11.1.0 dti*
+      title
+        ? `data-testid Options group ${title} toggle`
+        : {
+            '11.1.0': 'data-testid Options group toggle',
+            '8.5.0': 'Options group toggle',
+          },
   },
   PluginVisualization: {
-    item: (title: string) => `Plugin visualization item ${title}`, //*
-    current: () => '[class*="-currentVisualizationItem"]', //*
+    item: {
+      '8.5.0': (title: string) => `Plugin visualization item ${title}`,
+    },
+    current: {
+      '8.5.0': () => '[class*="-currentVisualizationItem"]',
+    },
   },
   Select: {
-    option: 'data-testid Select option', //11.1.0 dti*
-    input: () => 'input[id*="time-options-input"]', //*
-    singleValue: () => 'div[class*="-singleValue"]', //*
+    option: {
+      '11.1.0': 'data-testid Select option',
+      '8.5.0': 'Select option',
+    },
+    input: {
+      '8.5.0': () => 'input[id*="time-options-input"]',
+    },
+    singleValue: {
+      '8.5.0': () => 'div[class*="-singleValue"]',
+    },
   },
   FieldConfigEditor: {
-    content: 'Field config editor content', //*
+    content: {
+      '8.5.0': 'Field config editor content',
+    },
   },
   OverridesConfigEditor: {
-    content: 'Field overrides editor content', //*
+    content: {
+      '8.5.0': 'Field overrides editor content',
+    },
   },
   FolderPicker: {
     /**
      * @deprecated use containerV2 from Grafana 8.3 instead
      */
-    container: 'Folder picker select container', //*
-    containerV2: 'data-testid Folder picker select container', //*
-    input: 'data-testid folder-picker-input', //10.4.0 'Select a folder' before that*
+    container: {
+      '8.5.0': 'Folder picker select container',
+    },
+    containerV2: {
+      '8.5.0': 'data-testid Folder picker select container',
+    },
+    input: {
+      '10.4.0': 'data-testid folder-picker-input',
+    },
   },
   ReadonlyFolderPicker: {
-    container: 'data-testid Readonly folder picker select container', //*
+    container: {
+      '8.5.0': 'data-testid Readonly folder picker select container',
+    },
   },
   DataSourcePicker: {
-    container: 'data-testid Data source picker select container', //10.1.0 dti*
+    container: {
+      '10.1.0': 'data-testid Data source picker select container',
+      '8.5.0': 'Data source picker select container',
+    },
     /**
      * @deprecated use inputV2 instead
      */
-    input: () => 'input[id="data-source-picker"]', //*
-    inputV2: 'data-testid Select a data source', //10.1.0 dti*
-    dataSourceList: 'data-testid Data source list dropdown', //10.4.0*
+    input: {
+      '8.5.0': () => 'input[id="data-source-picker"]',
+    },
+    inputV2: {
+      '10.1.0': 'data-testid Select a data source',
+      '8.5.0': 'Select a data source',
+    },
+    dataSourceList: {
+      '10.4.0': 'data-testid Data source list dropdown',
+    },
     advancedModal: {
-      dataSourceList: 'data-testid Data source list', //10.4.0*
-      builtInDataSourceList: 'data-testid Built in data source list', //10.4.0*
+      dataSourceList: {
+        '10.4.0': 'data-testid Data source list',
+      },
+      builtInDataSourceList: {
+        '10.4.0': 'data-testid Built in data source list',
+      },
     },
   },
   TimeZonePicker: {
     /**
      * @deprecated use TimeZonePicker.containerV2 from Grafana 8.3 instead
      */
-    container: 'Time zone picker select container', //*
-    containerV2: 'data-testid Time zone picker select container', //*
-    changeTimeSettingsButton: 'data-testid Time zone picker Change time settings button', //11.0.0*
+    container: {
+      '8.5.0': 'Time zone picker select container',
+    },
+    containerV2: {
+      '8.5.0': 'data-testid Time zone picker select container',
+    },
+    changeTimeSettingsButton: {
+      '11.0.0': 'data-testid Time zone picker Change time settings button',
+    },
   },
   WeekStartPicker: {
     /**
      * @deprecated use WeekStartPicker.containerV2 from Grafana 8.3 instead
      */
-    container: 'Choose starting day of the week', //*
-    containerV2: 'data-testid Choose starting day of the week', //*
-    placeholder: 'Choose starting day of the week', //*
+    container: {
+      '8.5.0': 'Choose starting day of the week',
+    },
+    containerV2: {
+      '8.5.0': 'data-testid Choose starting day of the week',
+    },
+    placeholder: {
+      '8.5.0': 'Choose starting day of the week',
+    },
   },
   TraceViewer: {
-    spanBar: 'data-testid SpanBar--wrapper', //9.0.0 '[data-test-id="SpanBar--wrapper"]' before that*
+    spanBar: {
+      '9.0.0': 'data-testid SpanBar--wrapper',
+    },
   },
-  QueryField: { container: 'data-testid Query field' }, //10.3.0 dti*
+  QueryField: {
+    container: {
+      '10.3.0': 'data-testid Query field',
+      '8.5.0': 'Query field',
+    },
+  },
   QueryBuilder: {
-    queryPatterns: 'data-testid Query patterns', //10.3.0 dti*
-    labelSelect: 'data-testid Select label', //10.3.0 dti*
+    queryPatterns: {
+      '10.3.0': 'data-testid Query patterns',
+      '8.5.0': 'Query patterns',
+    },
+    labelSelect: {
+      '10.3.0': 'data-testid Select label',
+      '8.5.0': 'Select label',
+    },
     inputSelect: 'data-testid Select label-input',
-    valueSelect: 'data-testid Select value', //10.3.0 dti*
-    matchOperatorSelect: 'data-testid Select match operator', //10.3.0 dti*
+    valueSelect: {
+      '10.3.0': 'data-testid Select value',
+      '8.5.0': 'Select value',
+    },
+    matchOperatorSelect: {
+      '10.3.0': 'data-testid Select match operator',
+      '8.5.0': 'Select match operator',
+    },
   },
   ValuePicker: {
-    button: (name: string) => `data-testid Value picker button ${name}`, //10.3.0 dti*
-    select: (name: string) => `data-testid Value picker select ${name}`, //10.3.0 dti*
+    button: {
+      '10.3.0': (name: string) => `data-testid Value picker button ${name}`,
+    },
+    select: {
+      '10.3.0': (name: string) => `data-testid Value picker select ${name}`,
+    },
   },
   Search: {
     /**
      * @deprecated use sectionV2 from Grafana 8.3 instead
      */
-    section: 'Search section', //*
-    sectionV2: 'data-testid Search section', //*
+    section: {
+      '8.5.0': 'Search section',
+    },
+    sectionV2: {
+      '8.5.0': 'data-testid Search section',
+    },
     /**
      * @deprecated use itemsV2 from Grafana 8.3 instead
      */
-    items: 'Search items', //*
-    itemsV2: 'data-testid Search items', //*
-    cards: 'data-testid Search cards', //*
-    collapseFolder: (sectionId: string) => `data-testid Collapse folder ${sectionId}`, //*
-    expandFolder: (sectionId: string) => `data-testid Expand folder ${sectionId}`, //*
-    dashboardItem: (item: string) => `${Components.Search.dashboardItems} ${item}`, //*
-    dashboardCard: (item: string) => `data-testid Search card ${item}`, //*
-    folderHeader: (folderName: string) => `data-testid Folder header ${folderName}`, //9.3.0*
-    folderContent: (folderName: string) => `data-testid Folder content ${folderName}`, //9.3.0*
+    items: {
+      '8.5.0': 'Search items',
+    },
+    itemsV2: {
+      '8.5.0': 'data-testid Search items',
+    },
+    cards: {
+      '8.5.0': 'data-testid Search cards',
+    },
+    collapseFolder: {
+      '8.5.0': (sectionId: string) => `data-testid Collapse folder ${sectionId}`,
+    },
+    expandFolder: {
+      '8.5.0': (sectionId: string) => `data-testid Expand folder ${sectionId}`,
+    },
+    dashboardItem: {
+      '8.5.0': (item: string) => `${Components.Search.dashboardItems} ${item}`,
+    },
+    dashboardCard: {
+      '8.5.0': (item: string) => `data-testid Search card ${item}`,
+    },
+    folderHeader: {
+      '9.3.0': (folderName: string) => `data-testid Folder header ${folderName}`,
+    },
+    folderContent: {
+      '9.3.0': (folderName: string) => `data-testid Folder content ${folderName}`,
+    },
     dashboardItems: 'data-testid Dashboard search item',
   },
   DashboardLinks: {
-    container: 'data-testid Dashboard link container', //*
-    dropDown: 'data-testid Dashboard link dropdown', //*
-    link: 'data-testid Dashboard link', //*
+    container: {
+      '8.5.0': 'data-testid Dashboard link container',
+    },
+    dropDown: {
+      '8.5.0': 'data-testid Dashboard link dropdown',
+    },
+    link: {
+      '8.5.0': 'data-testid Dashboard link',
+    },
   },
   LoadingIndicator: {
-    icon: 'data-testid Loading indicator', //10.4.0 dti*
+    icon: {
+      '10.4.0': 'data-testid Loading indicator',
+      '8.5.0': 'Loading indicator',
+    },
   },
   CallToActionCard: {
     /**
      * @deprecated use buttonV2 from Grafana 8.3 instead
      */
-    button: (name: string) => `Call to action button ${name}`, //*
-    buttonV2: (name: string) => `data-testid Call to action button ${name}`, //*
+    button: {
+      '8.5.0': (name: string) => `Call to action button ${name}`,
+    },
+    buttonV2: {
+      '8.5.0': (name: string) => `data-testid Call to action button ${name}`,
+    },
   },
   DataLinksContextMenu: {
-    singleLink: 'data-testid Data link', //10.3.0 dti*
+    singleLink: {
+      '10.3.0': 'data-testid Data link',
+      '8.5.0': 'Data link',
+    },
   },
   CodeEditor: {
-    container: 'data-testid Code editor container', //10.2.3 dti*
+    container: {
+      '10.2.3': 'data-testid Code editor container',
+      '8.5.0': 'Code editor container',
+    },
   },
   ReactMonacoEditor: {
-    editorLazy: 'data-testid ReactMonacoEditor editorLazy', //11.1.0
+    editorLazy: {
+      '11.1.0': 'data-testid ReactMonacoEditor editorLazy',
+    },
   },
   DashboardImportPage: {
-    textarea: 'data-testid-import-dashboard-textarea', //*
-    submit: 'data-testid-load-dashboard', //*
+    textarea: {
+      '8.5.0': 'data-testid-import-dashboard-textarea',
+    },
+    submit: {
+      '8.5.0': 'data-testid-load-dashboard',
+    },
   },
   ImportDashboardForm: {
-    name: 'data-testid-import-dashboard-title', //*
-    submit: 'data-testid-import-dashboard-submit', //*
+    name: {
+      '8.5.0': 'data-testid-import-dashboard-title',
+    },
+    submit: {
+      '8.5.0': 'data-testid-import-dashboard-submit',
+    },
   },
   PanelAlertTabContent: {
-    content: 'data-testid Unified alert editor tab content', //10.2.3 dti*
+    content: {
+      '10.2.3': 'data-testid Unified alert editor tab content',
+      '8.5.0': 'Unified alert editor tab content',
+    },
   },
   VisualizationPreview: {
-    card: (name: string) => `data-testid suggestion-${name}`, //*
+    card: {
+      '8.5.0': (name: string) => `data-testid suggestion-${name}`,
+    },
   },
   ColorSwatch: {
     name: `data-testid-colorswatch`, //*
   },
   DashboardRow: {
-    title: (title: string) => `data-testid dashboard-row-title-${title}`, //*
+    title: {
+      '8.5.0': (title: string) => `data-testid dashboard-row-title-${title}`,
+    },
   },
   UserProfile: {
-    profileSaveButton: 'data-testid-user-profile-save', //*
-    preferencesSaveButton: 'data-testid-shared-prefs-save', //*
-    orgsTable: 'data-testid-user-orgs-table', //*
-    sessionsTable: 'data-testid-user-sessions-table', //*
-    extensionPointTabs: 'data-testid-extension-point-tabs', //10.2.3*
-    extensionPointTab: (tabId: string) => `data-testid-extension-point-tab-${tabId}`, //10.2.3*
+    profileSaveButton: {
+      '8.5.0': 'data-testid-user-profile-save',
+    },
+    preferencesSaveButton: {
+      '8.5.0': 'data-testid-shared-prefs-save',
+    },
+    orgsTable: {
+      '8.5.0': 'data-testid-user-orgs-table',
+    },
+    sessionsTable: {
+      '8.5.0': 'data-testid-user-sessions-table',
+    },
+    extensionPointTabs: {
+      '10.2.3': 'data-testid-extension-point-tabs',
+    },
+    extensionPointTab: {
+      '10.2.3': (tabId: string) => `data-testid-extension-point-tab-${tabId}`,
+    },
   },
   FileUpload: {
-    inputField: 'data-testid-file-upload-input-field', //9.0.0*
-    fileNameSpan: 'data-testid-file-upload-file-name', //9.0.0*
+    inputField: {
+      '9.0.0': 'data-testid-file-upload-input-field',
+    },
+    fileNameSpan: {
+      '9.0.0': 'data-testid-file-upload-file-name',
+    },
   },
   DebugOverlay: {
-    wrapper: 'debug-overlay', //9.2.0*
+    wrapper: {
+      '9.2.0': 'debug-overlay',
+    },
   },
   OrgRolePicker: {
-    input: 'Role', //9.5.0 new*
+    input: {
+      '9.5.0': 'Role',
+    },
   },
   AnalyticsToolbarButton: {
-    button: 'Dashboard insights', //9.5.0 new**
+    button: {
+      '9.5.0': 'Dashboard insights',
+    },
   },
   Variables: {
-    variableOption: 'data-testid variable-option', //9.5.0*
-    variableLinkWrapper: 'data-testid variable-link-wrapper', //11.1.1*
+    variableOption: {
+      '9.5.0': 'data-testid variable-option',
+    },
+    variableLinkWrapper: {
+      '11.1.1': 'data-testid variable-link-wrapper',
+    },
   },
   Annotations: {
-    annotationsTypeInput: 'data-testid annotations-type-input', //11.1.0 dti*
-    annotationsChoosePanelInput: 'data-testid choose-panels-input', //11.1.0 dti*
+    annotationsTypeInput: {
+      '11.1.0': 'data-testid annotations-type-input',
+      '8.5.0': 'annotations-type-input',
+    },
+    annotationsChoosePanelInput: {
+      '11.1.0': 'data-testid choose-panels-input',
+      '8.5.0': 'choose-panels-input',
+    },
     editor: {
-      testButton: 'data-testid annotations-test-button', //11.0.0*
-      resultContainer: 'data-testid annotations-query-result-container', //11.0.0*
+      testButton: {
+        '11.0.0': 'data-testid annotations-test-button',
+      },
+      resultContainer: {
+        '11.0.0': 'data-testid annotations-query-result-container',
+      },
     },
   },
   Tooltip: {
-    container: 'data-testid tooltip', //10.2.0*
+    container: {
+      '10.2.0': 'data-testid tooltip',
+    },
   },
   ReturnToPrevious: {
-    buttonGroup: 'data-testid dismissable button group', //11.0.0*
-    backButton: 'data-testid back', //11.0.0*
-    dismissButton: 'data-testid dismiss', //11.0.0*
+    buttonGroup: {
+      '11.0.0': 'data-testid dismissable button group',
+    },
+    backButton: {
+      '11.0.0': 'data-testid back',
+    },
+    dismissButton: {
+      '11.0.0': 'data-testid dismiss',
+    },
   },
   SQLQueryEditor: {
-    selectColumn: 'data-testid select-column', //11.0.0*
-    selectAggregation: 'data-testid select-aggregation', //11.0.0*
-    selectAlias: 'data-testid select-alias', //11.0.0*
-    filterConjunction: 'data-testid filter-conjunction', //11.0.0*
-    filterField: 'data-testid filter-field', //11.0.0*
-    filterOperator: 'data-testid filter-operator', //11.0.0*
-    headerTableSelector: 'data-testid header-table-selector', //11.0.0*
-    headerFilterSwitch: 'data-testid header-filter-switch', //11.0.0*
-    headerGroupSwitch: 'data-testid header-group-switch', //11.0.0*
-    headerOrderSwitch: 'data-testid header-order-switch', //11.0.0*
-    headerPreviewSwitch: 'data-testid header-preview-switch', //11.0.0*
+    selectColumn: {
+      '11.0.0': 'data-testid select-column',
+    },
+    selectAggregation: {
+      '11.0.0': 'data-testid select-aggregation',
+    },
+    selectAlias: {
+      '11.0.0': 'data-testid select-alias',
+    },
+    filterConjunction: {
+      '11.0.0': 'data-testid filter-conjunction',
+    },
+    filterField: {
+      '11.0.0': 'data-testid filter-field',
+    },
+    filterOperator: {
+      '11.0.0': 'data-testid filter-operator',
+    },
+    headerTableSelector: {
+      '11.0.0': 'data-testid header-table-selector',
+    },
+    headerFilterSwitch: {
+      '11.0.0': 'data-testid header-filter-switch',
+    },
+    headerGroupSwitch: {
+      '11.0.0': 'data-testid header-group-switch',
+    },
+    headerOrderSwitch: {
+      '11.0.0': 'data-testid header-order-switch',
+    },
+    headerPreviewSwitch: {
+      '11.0.0': 'data-testid header-preview-switch',
+    },
   },
   EntityNotFound: {
-    container: 'data-testid entity-not-found', //11.2.0*
+    container: {
+      '11.2.0': 'data-testid entity-not-found',
+    },
   },
 };
