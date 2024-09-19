@@ -11,9 +11,7 @@ export const Pages = {
         username: 'data-testid Username input field',
         password: 'data-testid Password input field',
         submit: 'data-testid Login button',
-        skip: {
-            '10.2.3': 'data-testid Skip change password button',
-        },
+        skip: 'data-testid Skip change password button',
     },
     Home: {
         url: '/',
