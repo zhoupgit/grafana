@@ -4,6 +4,10 @@
  * @alpha
  */
 
+import { versionedAPIs } from '../selectors/apis';
+import { versionedComponents } from '../selectors/components';
+import { versionedPages } from '../selectors/pages';
+
 export type StringSelector = string;
 
 /**
@@ -40,3 +44,9 @@ export type E2ESelectors<S extends Selectors> = {
 export interface UrlSelector extends Selectors {
   url: string | FunctionSelector;
 }
+
+export type VersionedSelectors = {
+  pages: typeof versionedPages;
+  components: typeof versionedComponents;
+  apis: typeof versionedAPIs;
+};
