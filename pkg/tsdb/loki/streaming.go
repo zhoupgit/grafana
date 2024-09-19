@@ -25,7 +25,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 	}
 
 	// Expect tail/${key}
-	if !strings.HasPrefix(req.Path, "tail/") || !strings.HasPrefix(req.Path, LogStreamPath) {
+	if !strings.HasPrefix(req.Path, "tail/") && !strings.HasPrefix(req.Path, LogStreamPath) {
 		return &backend.SubscribeStreamResponse{
 			Status: backend.SubscribeStreamStatusNotFound,
 		}, fmt.Errorf("expected tail in channel path")

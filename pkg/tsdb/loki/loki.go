@@ -188,6 +188,10 @@ func (s *Service) applyHeaders(ctx context.Context, req backend.ForwardHTTPHeade
 	}
 }
 
+func (s *Service) ExecuteQuery(ctx context.Context, query *lokiQuery, req *backend.QueryDataRequest, runInParallel bool, api *LokiAPI, responseOpts ResponseOpts, tracer tracing.Tracer, plog log.Logger) backend.DataResponse {
+	return executeQuery(ctx, query, req, runInParallel, api, responseOpts, tracer, plog)
+}
+
 func queryData(ctx context.Context, req *backend.QueryDataRequest, dsInfo *datasourceInfo, responseOpts ResponseOpts, tracer tracing.Tracer, plog log.Logger, runInParallel bool, requestStructuredMetadata bool) (*backend.QueryDataResponse, error) {
 	result := backend.NewQueryDataResponse()
 

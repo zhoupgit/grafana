@@ -333,7 +333,14 @@ export class LokiDatasource
     };
 
     fixedRequest.headers = this.getQueryHeaders(request);
-
+    const logQueries = fixedRequest.targets.filter((q) => isLogsQuery(q.expr));
+    if (logQueries.length > 0) {
+      const logReq = {
+        ...fixedRequest,
+        targets: logQueries,
+      }
+      return runStreamingLogQuery(this, logReq);
+    }
     const streamQueries = fixedRequest.targets.filter((q) => q.queryType === LokiQueryType.Stream);
     if (
       config.featureToggles.lokiExperimentalStreaming &&
@@ -359,10 +366,6 @@ export class LokiDatasource
 
     if (fixedRequest.liveStreaming) {
       return this.runLiveQueryThroughBackend(fixedRequest);
-    }
-
-    if (config.featureToggles.lokiLogQueryStreaming && requestSupportsSplitting(fixedRequest.targets)) {
-      runStreamingLogQuery(this, fixedRequest);
     }
 
     if (config.featureToggles.lokiQuerySplitting && requestSupportsSplitting(fixedRequest.targets)) {

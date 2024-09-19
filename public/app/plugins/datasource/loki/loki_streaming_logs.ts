@@ -8,15 +8,22 @@ import {LokiDatasource} from "./datasource";
 import {LokiQuery} from "./types";
 
 
-export function runStreamingLogQuery(query: LokiQuery, ds: LokiDatasource, request: DataQueryRequest<LokiQuery>): Observable<DataQueryResponse> {
+export function runStreamingLogQuery(ds: LokiDatasource, request: DataQueryRequest<LokiQuery>): Observable<DataQueryResponse> {
   console.log('runStreamingLogQuery', ds, request);
   let state: LoadingState = LoadingState.NotStarted;
+  const query = request.targets.map((target) => {
+    return {
+      expr: target.expr,
+      refId: target.refId,
+    }
+  });
+  
   return getGrafanaLiveSrv().getStream<StreamingDataFrame>({
     scope: LiveChannelScope.DataSource,
     namespace: ds.uid,
     path: `logStream/${liveStreamKey()}`,
     data: {
-      ...query,
+      query,
       timeRange: {
         from: request.range.from.valueOf().toString(),
         to: request.range.to.valueOf().toString()
