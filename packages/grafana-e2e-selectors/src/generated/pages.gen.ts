@@ -1,4 +1,4 @@
-;
+import { Components } from '../generated/components.gen';
 ;
 /**
  * Selectors grouped/defined in Pages

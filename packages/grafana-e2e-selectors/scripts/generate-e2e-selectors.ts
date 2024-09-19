@@ -51,6 +51,10 @@ const getSelectorValue = (
 
 const replaceVersions = (context: ts.TransformationContext) => (rootNode: ts.Node) => {
   const visit = (node: ts.Node): ts.Node => {
+    if (ts.isImportDeclaration(node) && node.getFullText().includes('.gen')) {
+      return node;
+    }
+
     // remove all nodes that are not source files or variable statements
     if (!ts.isSourceFile(node) && ts.isSourceFile(node.parent) && !ts.isVariableStatement(node)) {
       return ts.factory.createEmptyStatement();
