@@ -35,22 +35,6 @@ type WebhookClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-var netTransport = &http.Transport{
-	TLSClientConfig: &tls.Config{
-		Renegotiation: tls.RenegotiateFreelyAsClient,
-	},
-	Proxy: http.ProxyFromEnvironment,
-	Dial: (&net.Dialer{
-		Timeout: 30 * time.Second,
-	}).Dial,
-	TLSHandshakeTimeout: 5 * time.Second,
-}
-
-var netClient WebhookClient = &http.Client{
-	Timeout:   time.Second * 30,
-	Transport: netTransport,
-}
-
 func (ns *NotificationService) sendWebRequestSync(ctx context.Context, webhook *Webhook) error {
 	if webhook.HttpMethod == "" {
 		webhook.HttpMethod = http.MethodPost
