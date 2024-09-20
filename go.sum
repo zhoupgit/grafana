@@ -2261,6 +2261,8 @@ github.com/grafana/alerting v0.0.0-20240920105402-141512b9caef h1:bR7gEg9SGmcVNW
 github.com/grafana/alerting v0.0.0-20240920105402-141512b9caef/go.mod h1:GMLi6d09Xqo96fCVUjNk//rcjP5NKEdjOzfWIffD5r4=
 github.com/grafana/alerting v0.0.0-20240920110352-d07c072bf268 h1:9xKQo2YLTmyPLmN56SDMMrhnBgnBbxUbyq+BX7vr2Bg=
 github.com/grafana/alerting v0.0.0-20240920110352-d07c072bf268/go.mod h1:GMLi6d09Xqo96fCVUjNk//rcjP5NKEdjOzfWIffD5r4=
+github.com/grafana/alerting v0.0.0-20240920111425-7d34808d9b59 h1:Rt8gxMQPBsuY5r6Ib2hq4Po1wtaKGSnqoa2j/2YSXb8=
+github.com/grafana/alerting v0.0.0-20240920111425-7d34808d9b59/go.mod h1:GMLi6d09Xqo96fCVUjNk//rcjP5NKEdjOzfWIffD5r4=
 github.com/grafana/authlib v0.0.0-20240827201526-24af227df935 h1:nT4UY61s2flsiLkU2jDqtqFhOLwqh355+8ZhnavKoMQ=
 github.com/grafana/authlib v0.0.0-20240827201526-24af227df935/go.mod h1:ER7bMzNNWTN/5Zl3pwqfgS6XEhcanjrvL7lOp8Ow6oc=
 github.com/grafana/authlib/claims v0.0.0-20240827210201-19d5347dd8dd h1:sIlR7n38/MnZvX2qxDEszywXdI5soCwQ78aTDSARvus=
