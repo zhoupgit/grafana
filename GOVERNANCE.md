@@ -104,7 +104,6 @@ The current team members are:
 - Ivana Huckova ([Grafana Labs](https://grafana.com/))
 - Jeroen Op 't Eynde ([Grafana Labs](https://grafana.com/))
 - Julien Pivotto ([Inuits](https://inuits.eu/))
-- Karl Persson ([Grafana Labs](https://grafana.com/))
 - Kay Delaney ([Grafana Labs](https://grafana.com/))
 - Kyle Brandt ([Grafana Labs](https://grafana.com/))
 - Malcolm Holmes ([Grafana Labs](https://grafana.com/))
