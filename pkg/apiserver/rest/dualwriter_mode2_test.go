@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apiserver/pkg/apis/example"
+	"k8s.io/apiserver/pkg/endpoints/request"
 )
 
 var createFn = func(context.Context, runtime.Object) error { return nil }
@@ -67,7 +69,7 @@ func TestMode2_Create(t *testing.T) {
 				tt.setupStorageFn(m, tt.input)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, err := dw.Create(context.Background(), tt.input, createFn, &metav1.CreateOptions{})
 
@@ -79,7 +81,7 @@ func TestMode2_Create(t *testing.T) {
 			assert.Equal(t, exampleObj, obj)
 			accessor, err := meta.Accessor(obj)
 			assert.NoError(t, err)
-			assert.Equal(t, accessor.GetResourceVersion(), "")
+			assert.Equal(t, accessor.GetResourceVersion(), "1")
 		})
 	}
 }
@@ -143,7 +145,7 @@ func TestMode2_Get(t *testing.T) {
 				tt.setupStorageFn(m, tt.input)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, err := dw.Get(context.Background(), tt.input, &metav1.GetOptions{})
 
@@ -196,7 +198,7 @@ func TestMode2_List(t *testing.T) {
 				tt.setupStorageFn(m)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, err := dw.List(context.Background(), &metainternalversion.ListOptions{})
 
@@ -289,7 +291,7 @@ func TestMode2_Delete(t *testing.T) {
 				tt.setupStorageFn(m, tt.input)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, _, err := dw.Delete(context.Background(), tt.input, func(context.Context, runtime.Object) error { return nil }, &metav1.DeleteOptions{})
 
@@ -361,7 +363,7 @@ func TestMode2_DeleteCollection(t *testing.T) {
 				tt.setupStorageFn(m)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, err := dw.DeleteCollection(context.Background(), func(ctx context.Context, obj runtime.Object) error { return nil }, &metav1.DeleteOptions{TypeMeta: metav1.TypeMeta{Kind: tt.input}}, &metainternalversion.ListOptions{})
 
@@ -469,7 +471,7 @@ func TestMode2_Update(t *testing.T) {
 				tt.setupStorageFn(m, tt.input)
 			}
 
-			dw := NewDualWriter(Mode2, ls, us)
+			dw := NewDualWriter(Mode2, ls, us, p, kind)
 
 			obj, _, err := dw.Update(context.Background(), tt.input, updatedObjInfoObj{}, func(ctx context.Context, obj runtime.Object) error { return nil }, func(ctx context.Context, obj, old runtime.Object) error { return nil }, false, &metav1.UpdateOptions{})
 
@@ -493,83 +495,7 @@ func TestEnrichReturnedObject(t *testing.T) {
 		wantErr        bool
 	}{
 		{
-			name: "create: original object does not have labels and annotations",
-			inputOriginal: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5")},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			inputReturned: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "2", UID: types.UID("6"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			isCreated: true,
-			expectedObject: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "", UID: types.UID("")},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-		},
-		{
-			name: "create: returned object does not have labels and annotations",
-			inputOriginal: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			inputReturned: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "2", UID: types.UID("6")},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			isCreated: true,
-			expectedObject: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "", UID: types.UID(""), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-		},
-		{
-			name: "create: both objects have labels and annotations",
-			inputOriginal: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			inputReturned: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "2", UID: types.UID("6"), Labels: map[string]string{"label2": "2"}, Annotations: map[string]string{"annotation2": "2"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			isCreated: true,
-			expectedObject: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "", UID: types.UID(""), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-		},
-		{
-			name: "create: both objects have labels and annotations with duplicated keys",
-			inputOriginal: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			inputReturned: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "2", UID: types.UID("6"), Labels: map[string]string{"label1": "11"}, Annotations: map[string]string{"annotation1": "11"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-			isCreated: true,
-			expectedObject: &example.Pod{
-				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
-				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "", UID: types.UID(""), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
-				Spec:       example.PodSpec{}, Status: example.PodStatus{},
-			},
-		},
-		{
-			name: "update: original object does not have labels and annotations",
+			name: "original object does not have labels and annotations",
 			inputOriginal: &example.Pod{
 				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
 				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5")},
@@ -587,7 +513,7 @@ func TestEnrichReturnedObject(t *testing.T) {
 			},
 		},
 		{
-			name: "update: returned object does not have labels and annotations",
+			name: "returned object does not have labels and annotations",
 			inputOriginal: &example.Pod{
 				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
 				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
@@ -605,7 +531,7 @@ func TestEnrichReturnedObject(t *testing.T) {
 			},
 		},
 		{
-			name: "update: both objects have labels and annotations",
+			name: "both objects have labels and annotations",
 			inputOriginal: &example.Pod{
 				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
 				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
@@ -623,7 +549,7 @@ func TestEnrichReturnedObject(t *testing.T) {
 			},
 		},
 		{
-			name: "update: both objects have labels and annotations with duplicated keys",
+			name: "both objects have labels and annotations with duplicated keys",
 			inputOriginal: &example.Pod{
 				TypeMeta:   metav1.TypeMeta{Kind: "foo"},
 				ObjectMeta: metav1.ObjectMeta{Name: "foo", ResourceVersion: "1", UID: types.UID("5"), Labels: map[string]string{"label1": "1"}, Annotations: map[string]string{"annotation1": "1"}},
@@ -658,13 +584,13 @@ func TestEnrichReturnedObject(t *testing.T) {
 
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
-			returned, err := enrichLegacyObject(tt.inputOriginal, tt.inputReturned, tt.isCreated)
+			err := enrichLegacyObject(tt.inputOriginal, tt.inputReturned)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
 
-			accessorReturned, err := meta.Accessor(returned)
+			accessorReturned, err := meta.Accessor(tt.inputReturned)
 			assert.NoError(t, err)
 
 			accessorExpected, err := meta.Accessor(tt.expectedObject)
@@ -680,6 +606,200 @@ func TestEnrichReturnedObject(t *testing.T) {
 
 			assert.Equal(t, accessorExpected.GetResourceVersion(), accessorReturned.GetResourceVersion())
 			assert.Equal(t, accessorExpected.GetUID(), accessorReturned.GetUID())
+		})
+	}
+}
+
+var legacyObj1 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo1", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var legacyObj2 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo2", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var legacyObj3 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo3", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var legacyObj4 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo4", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+
+var legacyObj2WithHostname = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo2", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{Hostname: "hostname"}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+
+var storageObj1 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo1", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var storageObj2 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo2", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var storageObj3 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo3", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+var storageObj4 = &example.Pod{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ObjectMeta: metav1.ObjectMeta{Name: "foo4", ResourceVersion: "1", CreationTimestamp: metav1.Time{}}, Spec: example.PodSpec{}, Status: example.PodStatus{StartTime: &metav1.Time{Time: time.Now()}}}
+
+var legacyListWith3items = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*legacyObj1,
+		*legacyObj2,
+		*legacyObj3,
+	}}
+
+var legacyListWith4items = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*legacyObj1,
+		*legacyObj2,
+		*legacyObj3,
+		*legacyObj4,
+	}}
+
+var legacyListWith3itemsObj2IsDifferent = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*legacyObj1,
+		*legacyObj2WithHostname,
+		*legacyObj3,
+	}}
+
+var storageListWith3items = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*storageObj1,
+		*storageObj2,
+		*storageObj3,
+	}}
+
+var storageListWith4items = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*storageObj1,
+		*storageObj2,
+		*storageObj3,
+		*storageObj4,
+	}}
+
+var storageListWith3itemsMissingFoo2 = &example.PodList{TypeMeta: metav1.TypeMeta{Kind: "foo"}, ListMeta: metav1.ListMeta{},
+	Items: []example.Pod{
+		*storageObj1,
+		*storageObj3,
+		*storageObj4,
+	}}
+
+func TestMode2_DataSyncer(t *testing.T) {
+	type testCase struct {
+		setupLegacyFn   func(m *mock.Mock)
+		setupStorageFn  func(m *mock.Mock)
+		name            string
+		expectedOutcome bool
+		wantErr         bool
+	}
+	tests :=
+		[]testCase{
+			{
+				name: "both stores are in sync",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, nil)
+				},
+				expectedOutcome: true,
+			},
+			{
+				name: "both stores are in sync - fail to list from legacy",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, errors.New("error"))
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, nil)
+				},
+				expectedOutcome: false,
+			},
+			{
+				name: "both stores are in sync - fail to list from storage",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, errors.New("error"))
+				},
+				expectedOutcome: false,
+			},
+			{
+				name: "storage is missing 1 entry (foo4)",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith4items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, nil)
+					m.On("Update", mock.Anything, "foo4", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(exampleObj, false, nil)
+				},
+				expectedOutcome: true,
+			},
+			{
+				name: "storage needs to be update (foo2 is different)",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3itemsObj2IsDifferent, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, nil)
+					m.On("Update", mock.Anything, "foo2", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(exampleObj, false, nil)
+				},
+				expectedOutcome: true,
+			},
+			{
+				name: "storage is missing 1 entry (foo4) - fail to upsert",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith4items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3items, nil)
+					m.On("Update", mock.Anything, "foo4", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(exampleObj, false, errors.New("error"))
+				},
+				expectedOutcome: false,
+			},
+			{
+				name: "storage has an extra 1 entry (foo4)",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith4items, nil)
+					m.On("Delete", mock.Anything, "foo4", mock.Anything, mock.Anything).Return(exampleObj, false, nil)
+				},
+				expectedOutcome: true,
+			},
+			{
+				name: "storage has an extra 1 entry (foo4) - fail to delete",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith4items, nil)
+					m.On("Delete", mock.Anything, "foo4", mock.Anything, mock.Anything).Return(exampleObj, false, errors.New("error"))
+				},
+				expectedOutcome: false,
+			},
+			{
+				name: "storage is missing 1 entry (foo3) and has an extra 1 entry (foo4)",
+				setupLegacyFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(legacyListWith3items, nil)
+				},
+				setupStorageFn: func(m *mock.Mock) {
+					m.On("List", mock.Anything, mock.Anything).Return(storageListWith3itemsMissingFoo2, nil)
+					m.On("Update", mock.Anything, "foo2", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(exampleObj, false, nil)
+					m.On("Delete", mock.Anything, "foo4", mock.Anything, mock.Anything).Return(exampleObj, false, nil)
+				},
+				expectedOutcome: true,
+			},
+		}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := (LegacyStorage)(nil)
+			s := (Storage)(nil)
+			lm := &mock.Mock{}
+			um := &mock.Mock{}
+
+			ls := legacyStoreMock{lm, l}
+			us := storageMock{um, s}
+
+			if tt.setupLegacyFn != nil {
+				tt.setupLegacyFn(lm)
+			}
+			if tt.setupStorageFn != nil {
+				tt.setupStorageFn(um)
+			}
+
+			outcome, err := mode2DataSyncer(context.Background(), ls, us, "test.kind", p, &fakeServerLock{}, &request.RequestInfo{})
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expectedOutcome, outcome)
 		})
 	}
 }

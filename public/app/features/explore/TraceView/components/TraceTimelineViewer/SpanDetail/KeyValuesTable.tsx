@@ -14,14 +14,15 @@
 
 import { css } from '@emotion/css';
 import cx from 'classnames';
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
+import * as React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2, TraceKeyValuePair } from '@grafana/data';
 import { Icon, useStyles2 } from '@grafana/ui';
 
 import { autoColor } from '../../Theme';
 import CopyIcon from '../../common/CopyIcon';
-import { TraceKeyValuePair, TraceLink, TNil } from '../../types';
+import { TraceLink, TNil } from '../../types';
 
 import jsonMarkup from './jsonMarkup';
 
@@ -47,7 +48,7 @@ export const getStyles = (theme: GrafanaTheme2) => {
     row: css`
       label: row;
       & > td {
-        padding: 0rem 0.5rem;
+        padding: 0.5rem 0.5rem;
         height: 30px;
       }
       &:nth-child(2n) > td {
@@ -62,6 +63,7 @@ export const getStyles = (theme: GrafanaTheme2) => {
       color: ${autoColor(theme, '#888')};
       white-space: pre;
       width: 125px;
+      vertical-align: top;
     `,
     copyColumn: css`
       label: copyColumn;

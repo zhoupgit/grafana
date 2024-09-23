@@ -18,6 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/apimachinery/errutil"
 	"github.com/grafana/grafana/pkg/expr"
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/tracing"
@@ -33,7 +34,6 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/tests/testinfra"
 	"github.com/grafana/grafana/pkg/util"
-	"github.com/grafana/grafana/pkg/util/errutil"
 )
 
 type Response struct {
@@ -151,7 +151,6 @@ func TestIntegrationAMConfigAccess(t *testing.T) {
 			"template_files": null,
 			"alertmanager_config": {
 				"route": %s,
-				"templates": null,
 				"receivers": [{
 					"name": "grafana-default-email",
 					"grafana_managed_receiver_configs": [{
@@ -791,7 +790,12 @@ func TestIntegrationDeleteFolderWithRules(t *testing.T) {
 								"namespace_uid": %q,
 								"rule_group": "arulegroup",
 								"no_data_state": "NoData",
-								"exec_err_state": "Alerting"
+								"exec_err_state": "Alerting",
+								"metadata": {
+									"editor_settings": {
+										"simplified_query_and_expressions_section": false
+									}
+								}
 							}
 						}
 					]
@@ -1269,7 +1273,12 @@ func TestIntegrationAlertRuleCRUD(t *testing.T) {
 						  "namespace_uid":"nsuid",
 						  "rule_group":"arulegroup",
 						  "no_data_state":"NoData",
-						  "exec_err_state":"Alerting"
+						  "exec_err_state":"Alerting",
+						  "metadata": {
+						      "editor_settings": {
+							      "simplified_query_and_expressions_section": false
+							  }
+						  }
 					   }
 					},
 					{
@@ -1305,7 +1314,12 @@ func TestIntegrationAlertRuleCRUD(t *testing.T) {
 						  "namespace_uid":"nsuid",
 						  "rule_group":"arulegroup",
 						  "no_data_state":"Alerting",
-						  "exec_err_state":"Alerting"
+						  "exec_err_state":"Alerting",
+						  "metadata": {
+						      "editor_settings": {
+							      "simplified_query_and_expressions_section": false
+							  }
+						  }
 					   }
 					}
 				 ]
@@ -1613,7 +1627,12 @@ func TestIntegrationAlertRuleCRUD(t *testing.T) {
 		                  "namespace_uid":"nsuid",
 		                  "rule_group":"arulegroup",
 		                  "no_data_state":"Alerting",
-		                  "exec_err_state":"Alerting"
+		                  "exec_err_state":"Alerting",
+						  "metadata": {
+						      "editor_settings": {
+							      "simplified_query_and_expressions_section": false
+							  }
+						  }
 		               }
 		            }
 		         ]
@@ -1722,8 +1741,13 @@ func TestIntegrationAlertRuleCRUD(t *testing.T) {
 					  "namespace_uid":"nsuid",
 					  "rule_group":"arulegroup",
 					  "no_data_state":"Alerting",
-					  "exec_err_state":"Alerting"
-				       }
+					  "exec_err_state":"Alerting",
+					  "metadata": {
+				        "editor_settings": {
+					      "simplified_query_and_expressions_section": false
+					    }
+					   }
+				      }
 				    }
 				 ]
 			      }
@@ -1810,8 +1834,13 @@ func TestIntegrationAlertRuleCRUD(t *testing.T) {
 					  "namespace_uid":"nsuid",
 					  "rule_group":"arulegroup",
 					  "no_data_state":"Alerting",
-					  "exec_err_state":"Alerting"
-				       }
+					  "exec_err_state":"Alerting",
+					  "metadata": {
+				        "editor_settings": {
+					      "simplified_query_and_expressions_section": false
+					    }
+					   }
+				      }
 				    }
 				 ]
 			      }
@@ -1975,7 +2004,7 @@ func TestIntegrationAlertmanagerCreateSilence(t *testing.T) {
 				StartsAt: util.Pointer(strfmt.DateTime(time.Now())),
 			},
 		},
-		expErr: "unable to upsert silence: silence invalid: invalid label matcher 0: invalid label name \"\": unable to create silence",
+		expErr: "unable to upsert silence: invalid silence: invalid label matcher 0: invalid label name \"\": unable to create silence",
 	}, {
 		name: "can't create silence for missing label value",
 		silence: apimodels.PostableSilence{
@@ -1992,7 +2021,7 @@ func TestIntegrationAlertmanagerCreateSilence(t *testing.T) {
 				StartsAt: util.Pointer(strfmt.DateTime(time.Now())),
 			},
 		},
-		expErr: "unable to upsert silence: silence invalid: at least one matcher must not match the empty string: unable to create silence",
+		expErr: "unable to upsert silence: invalid silence: at least one matcher must not match the empty string: unable to create silence",
 	}}
 
 	for _, tc := range cases {
@@ -2058,7 +2087,6 @@ func TestIntegrationAlertmanagerStatus(t *testing.T) {
 	},
 	"config": {
 		"route": %s,
-		"templates": null,
 		"receivers": [{
 			"name": "grafana-default-email",
 			"grafana_managed_receiver_configs": [{
@@ -2068,8 +2096,7 @@ func TestIntegrationAlertmanagerStatus(t *testing.T) {
 				"disableResolveMessage": false,
 				"settings": {
 					"addresses": "\u003cexample@email.com\u003e"
-				},
-				"secureSettings": null
+				}
 			}]
 		}]
 	},
@@ -2339,8 +2366,13 @@ func TestIntegrationQuota(t *testing.T) {
 						  "namespace_uid":"nsuid",
 						  "rule_group":"arulegroup",
 						  "no_data_state":"NoData",
-						  "exec_err_state":"Alerting"
-					       }
+						  "exec_err_state":"Alerting",
+						  "metadata": {
+						    "editor_settings": {
+							  "simplified_query_and_expressions_section": false
+							 }
+						   }
+					      }
 					    }
 					 ]
 				      }
@@ -2422,7 +2454,11 @@ func TestIntegrationEval(t *testing.T) {
 								"nullable": true
 							  }
 							}
-						  ]
+						  ],
+						  "meta": {
+						    "type": "numeric-multi",
+							"typeVersion": [0, 1]
+						  }
 						},
 						"data": {
 						  "values": [
@@ -2480,7 +2516,11 @@ func TestIntegrationEval(t *testing.T) {
 								"nullable": true
 							  }
 							}
-						  ]
+						  ],
+						  "meta": {
+						    "type": "numeric-multi",
+							"typeVersion": [0, 1]
+						  }
 						},
 						"data": {
 						  "values": [
@@ -2571,7 +2611,11 @@ func TestIntegrationEval(t *testing.T) {
 								"nullable": true
 							  }
 							}
-						  ]
+						  ],
+						  "meta": {
+						    "type": "numeric-multi",
+							"typeVersion": [0, 1]
+						  }
 						},
 						"data": {
 						  "values": [
@@ -2647,17 +2691,17 @@ func rulesNamespaceWithoutVariableValues(t *testing.T, b []byte) (string, map[st
 	return string(json), m
 }
 
-func createUser(t *testing.T, db db.DB, cfg *setting.Cfg, cmd user.CreateUserCommand) int64 {
+func createUser(t *testing.T, store db.DB, cfg *setting.Cfg, cmd user.CreateUserCommand) int64 {
 	t.Helper()
 
 	cfg.AutoAssignOrg = true
 	cfg.AutoAssignOrgId = 1
 
-	quotaService := quotaimpl.ProvideService(db, cfg)
-	orgService, err := orgimpl.ProvideService(db, cfg, quotaService)
+	quotaService := quotaimpl.ProvideService(db.FakeReplDBFromDB(store), cfg)
+	orgService, err := orgimpl.ProvideService(store, cfg, quotaService)
 	require.NoError(t, err)
 	usrSvc, err := userimpl.ProvideService(
-		db, orgService, cfg, nil, nil, tracing.InitializeTracerForTest(),
+		store, orgService, cfg, nil, nil, tracing.InitializeTracerForTest(),
 		quotaService, supportbundlestest.NewFakeBundleService(),
 	)
 	require.NoError(t, err)

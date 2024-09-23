@@ -5,7 +5,6 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 
-	"github.com/grafana/grafana/pkg/apis/folder/v0alpha1"
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
 )
@@ -17,14 +16,15 @@ type storage struct {
 }
 
 func newStorage(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter, legacy *legacyStorage) (*storage, error) {
-	strategy := grafanaregistry.NewStrategy(scheme)
+	strategy := grafanaregistry.NewStrategy(scheme, resourceInfo.GroupVersion())
 
-	resource := v0alpha1.FolderResourceInfo
 	store := &genericregistry.Store{
-		NewFunc:                   resource.NewFunc,
-		NewListFunc:               resource.NewListFunc,
+		NewFunc:                   resourceInfo.NewFunc,
+		NewListFunc:               resourceInfo.NewListFunc,
+		KeyRootFunc:               grafanaregistry.KeyRootFunc(resourceInfo.GroupResource()),
+		KeyFunc:                   grafanaregistry.NamespaceKeyFunc(resourceInfo.GroupResource()),
 		PredicateFunc:             grafanaregistry.Matcher,
-		DefaultQualifiedResource:  resource.GroupResource(),
+		DefaultQualifiedResource:  resourceInfo.GroupResource(),
 		SingularQualifiedResource: resourceInfo.SingularGroupResource(),
 		TableConvertor:            legacy.tableConverter,
 
@@ -37,10 +37,4 @@ func newStorage(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter, le
 		return nil, err
 	}
 	return &storage{Store: store}, nil
-}
-
-// Compare asserts on the equality of objects returned from both stores	(object storage and legacy storage)
-func (s *storage) Compare(storageObj, legacyObj runtime.Object) bool {
-	//TODO: define the comparison logic between a folder returned by the storage and a folder returned by the legacy storage
-	return false
 }

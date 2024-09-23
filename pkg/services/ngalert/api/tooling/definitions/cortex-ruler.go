@@ -434,6 +434,16 @@ const (
 )
 
 // swagger:model
+type AlertRuleMetadata struct {
+	EditorSettings AlertRuleEditorSettings `json:"editor_settings" yaml:"editor_settings"`
+}
+
+// swagger:model
+type AlertRuleEditorSettings struct {
+	SimplifiedQueryAndExpressionsSection bool `json:"simplified_query_and_expressions_section" yaml:"simplified_query_and_expressions_section"`
+}
+
+// swagger:model
 type AlertRuleNotificationSettings struct {
 	// Name of the receiver to send notifications to.
 	// required: true
@@ -478,6 +488,18 @@ type AlertRuleNotificationSettings struct {
 }
 
 // swagger:model
+type Record struct {
+	// Name of the recorded metric.
+	// required: true
+	// example: grafana_alerts_ratio
+	Metric string `json:"metric" yaml:"metric"`
+	// Which expression node should be used as the input for the recorded metric.
+	// required: true
+	// example: A
+	From string `json:"from" yaml:"from"`
+}
+
+// swagger:model
 type PostableGrafanaRule struct {
 	Title                string                         `json:"title" yaml:"title"`
 	Condition            string                         `json:"condition" yaml:"condition"`
@@ -488,6 +510,7 @@ type PostableGrafanaRule struct {
 	IsPaused             *bool                          `json:"is_paused" yaml:"is_paused"`
 	NotificationSettings *AlertRuleNotificationSettings `json:"notification_settings" yaml:"notification_settings"`
 	Record               *Record                        `json:"record" yaml:"record"`
+	Metadata             *AlertRuleMetadata             `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 }
 
 // swagger:model
@@ -509,6 +532,7 @@ type GettableGrafanaRule struct {
 	IsPaused             bool                           `json:"is_paused" yaml:"is_paused"`
 	NotificationSettings *AlertRuleNotificationSettings `json:"notification_settings,omitempty" yaml:"notification_settings,omitempty"`
 	Record               *Record                        `json:"record,omitempty" yaml:"record,omitempty"`
+	Metadata             *AlertRuleMetadata             `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 }
 
 // AlertQuery represents a single query associated with an alert definition.
@@ -576,12 +600,6 @@ func (d *Duration) UnmarshalYAML(unmarshal func(any) error) error {
 	default:
 		return fmt.Errorf("invalid duration %v", v)
 	}
-}
-
-// Record defines how data produced by a recording rule is written.
-type Record struct {
-	Metric string `json:"metric" yaml:"metric"`
-	From   string `json:"from" yaml:"from"`
 }
 
 // swagger:model

@@ -658,6 +658,7 @@ export enum BarGaugeValueMode {
  */
 export enum BarGaugeNamePlacement {
   Auto = 'auto',
+  Hidden = 'hidden',
   Left = 'left',
   Top = 'top',
 }
@@ -749,6 +750,7 @@ export const defaultTableFooterOptions: Partial<TableFooterOptions> = {
  */
 export interface TableAutoCellOptions {
   type: TableCellDisplayMode.Auto;
+  wrapText?: boolean;
 }
 
 /**
@@ -756,6 +758,7 @@ export interface TableAutoCellOptions {
  */
 export interface TableColorTextCellOptions {
   type: TableCellDisplayMode.ColorText;
+  wrapText?: boolean;
 }
 
 /**
@@ -769,6 +772,8 @@ export interface TableJsonViewCellOptions {
  * Json view cell options
  */
 export interface TableImageCellOptions {
+  alt?: string;
+  title?: string;
   type: TableCellDisplayMode.Image;
 }
 
@@ -803,12 +808,14 @@ export interface TableColoredBackgroundCellOptions {
   applyToRow?: boolean;
   mode?: TableCellBackgroundDisplayMode;
   type: TableCellDisplayMode.ColorBackground;
+  wrapText?: boolean;
 }
 
 /**
  * Height of a table cell
  */
 export enum TableCellHeight {
+  Auto = 'auto',
   Lg = 'lg',
   Md = 'md',
   Sm = 'sm',
@@ -855,6 +862,10 @@ export enum VariableFormatID {
 }
 
 export interface DataSourceRef {
+  /**
+   *  Datasource API version
+   */
+  apiVersion?: string;
   /**
    * The plugin type-id
    */

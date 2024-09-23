@@ -9,12 +9,14 @@ import (
 	"github.com/grafana/grafana/pkg/services/notifications"
 	"github.com/grafana/grafana/pkg/services/oauthtoken/oauthtokentest"
 	"github.com/grafana/grafana/pkg/setting"
+	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/web"
 )
 
 func ProvideTestEnv(
 	server *Server,
 	db db.DB,
+	repldb db.ReplDB,
 	cfg *setting.Cfg,
 	ns *notifications.NotificationServiceMock,
 	grpcServer grpcserver.Provider,
@@ -22,10 +24,12 @@ func ProvideTestEnv(
 	httpClientProvider httpclient.Provider,
 	oAuthTokenService *oauthtokentest.Service,
 	featureMgmt featuremgmt.FeatureToggles,
+	resourceClient resource.ResourceClient,
 ) (*TestEnv, error) {
 	return &TestEnv{
 		Server:              server,
 		SQLStore:            db,
+		ReadReplStore:       repldb,
 		Cfg:                 cfg,
 		NotificationService: ns,
 		GRPCServer:          grpcServer,
@@ -33,12 +37,14 @@ func ProvideTestEnv(
 		HTTPClientProvider:  httpClientProvider,
 		OAuthTokenService:   oAuthTokenService,
 		FeatureToggles:      featureMgmt,
+		ResourceClient:      resourceClient,
 	}, nil
 }
 
 type TestEnv struct {
 	Server              *Server
 	SQLStore            db.DB
+	ReadReplStore       db.ReplDB
 	Cfg                 *setting.Cfg
 	NotificationService *notifications.NotificationServiceMock
 	GRPCServer          grpcserver.Provider
@@ -47,4 +53,5 @@ type TestEnv struct {
 	OAuthTokenService   *oauthtokentest.Service
 	RequestMiddleware   web.Middleware
 	FeatureToggles      featuremgmt.FeatureToggles
+	ResourceClient      resource.ResourceClient
 }

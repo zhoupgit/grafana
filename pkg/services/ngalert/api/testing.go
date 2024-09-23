@@ -9,9 +9,8 @@ import (
 
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
-	"github.com/grafana/grafana/pkg/services/auth/identity"
-	"github.com/grafana/grafana/pkg/services/ngalert/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/ngalert/eval"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/ngalert/state"
@@ -87,7 +86,7 @@ func (f *fakeAlertInstanceManager) GenerateAlertInstances(orgID int64, alertRule
 			LatestResult: &state.Evaluation{
 				EvaluationTime:  evaluationTime.Add(1 * time.Minute),
 				EvaluationState: eval.Normal,
-				Values:          make(map[string]*float64),
+				Values:          make(map[string]float64),
 			},
 			LastEvaluationTime: evaluationTime.Add(1 * time.Minute),
 			EvaluationDuration: evaluationDuration,
@@ -130,6 +129,11 @@ func (a *recordingAccessControlFake) RegisterScopeAttributeResolver(prefix strin
 	panic("implement me")
 }
 
+func (a *recordingAccessControlFake) WithoutResolvers() ac.AccessControl {
+	// TODO implement me
+	panic("implement me")
+}
+
 func (a *recordingAccessControlFake) IsDisabled() bool {
 	return a.Disabled
 }
@@ -147,7 +151,7 @@ func (f fakeRuleAccessControlService) AuthorizeAccessToRuleGroup(ctx context.Con
 	return nil
 }
 
-func (f fakeRuleAccessControlService) AuthorizeAccessInFolder(ctx context.Context, user identity.Requester, namespaced accesscontrol.Namespaced) error {
+func (f fakeRuleAccessControlService) AuthorizeAccessInFolder(ctx context.Context, user identity.Requester, namespaced models.Namespaced) error {
 	return nil
 }
 

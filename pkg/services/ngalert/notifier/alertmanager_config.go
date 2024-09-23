@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/grafana/grafana/pkg/apimachinery/errutil"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/ngalert/store"
 	"github.com/grafana/grafana/pkg/util"
-	"github.com/grafana/grafana/pkg/util/errutil"
 )
 
 var (
@@ -47,6 +47,22 @@ func (e AlertmanagerConfigRejectedError) Error() string {
 
 type configurationStore interface {
 	GetLatestAlertmanagerConfiguration(ctx context.Context, orgID int64) (*models.AlertConfiguration, error)
+}
+
+func (moa *MultiOrgAlertmanager) SaveAndApplyDefaultConfig(ctx context.Context, orgId int64) error {
+	moa.alertmanagersMtx.RLock()
+	defer moa.alertmanagersMtx.RUnlock()
+
+	orgAM, err := moa.alertmanagerForOrg(orgId)
+	if err != nil {
+		return err
+	}
+
+	err = orgAM.SaveAndApplyDefaultConfig(ctx)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ApplyConfig will apply the given alertmanager configuration for a given org.

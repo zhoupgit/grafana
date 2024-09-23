@@ -28,11 +28,13 @@ refs:
 
 # Alert list
 
-Alert lists allow you to display a list of important alerts that you want to track. You can configure the alert list to show the current state of your alert, such as firing, pending, or normal. Learn more about alerts in [Grafana Alerting overview][].
+Alert lists allow you to display a list of important alerts that you want to track. You can configure the alert list to show the current state of your alert, such as firing, pending, or normal. Learn more about alerts in [Grafana Alerting overview](ref:grafana-alerting-overview).
 
 {{< figure src="/static/img/docs/alert-list-panel/alert-list-panel.png" max-width="850px" alt="An alert list visualization" >}}
 
 On each dashboard load, this visualization queries the alert list, always providing the most up-to-date results.
+
+{{< docs/play title="Alert List" url="https://play.grafana.org/d/bdodlcyou483ke/" >}}
 
 ## Configure an alert list
 
@@ -47,6 +49,10 @@ Once you’ve created a [dashboard](https://grafana.com/docs/grafana/<GRAFANA_VE
 ## Options
 
 Use the following options to refine your alert list visualization.
+
+### View mode
+
+Choose between **List** to display alerts in a detailed list format with comprehensive information, or **Stat** to show alerts as a summarized single-value statistic.
 
 ### Group mode
 
@@ -101,8 +107,8 @@ Filter alerts by the selected folder. Only alerts from dashboards in this folder
 
 Choose which alert states to display in this visualization.
 
-- Alerting / Firing
-- Pending
-- No Data
-- Normal
-- Error
+- **Alerting / Firing -** Shows alerts that are currently active and triggering an alert condition.
+- **Pending -** Shows alerts that are in a transitional state, waiting for conditions to be met before triggering.
+- **No Data -** Shows alerts where the data source is not returning any data, which could indicate an issue with data collection.
+- **Normal -** Shows alerts that are in a normal or resolved state, where no alert condition is currently met.
+- **Error -** Shows alerts where an error has occurred, typically related to an issue in the alerting process.

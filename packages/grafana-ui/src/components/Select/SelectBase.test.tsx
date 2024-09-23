@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { select } from 'react-select-event';
 
 import { SelectableValue } from '@grafana/data';
@@ -63,39 +63,6 @@ describe('SelectBase', () => {
     expect(screen.queryByText('Test label')).toBeInTheDocument();
     await userEvent.click(screen.getByText('clear value'));
     expect(screen.queryByText('Test label')).not.toBeInTheDocument();
-  });
-
-  describe('with custom values', () => {
-    it('allows editing a custom SelectableValue', async () => {
-      render(
-        <SelectBase
-          onChange={onChangeHandler}
-          allowCustomValue
-          value={{
-            label: 'my custom value',
-            value: 'my custom value',
-          }}
-        />
-      );
-
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.type(screen.getByRole('combobox'), '{backspace}{backspace}{enter}');
-      expect(onChangeHandler).toHaveBeenCalled();
-      expect(onChangeHandler.mock.calls[0][0]).toEqual(
-        expect.objectContaining({ label: 'my custom val', value: 'my custom val' })
-      );
-    });
-
-    it('allows editing a custom basic value', async () => {
-      render(<SelectBase onChange={onChangeHandler} allowCustomValue value="my custom value" />);
-
-      await userEvent.click(screen.getByRole('combobox'));
-      await userEvent.type(screen.getByRole('combobox'), '{backspace}{backspace}{enter}');
-      expect(onChangeHandler).toHaveBeenCalled();
-      expect(onChangeHandler.mock.calls[0][0]).toEqual(
-        expect.objectContaining({ label: 'my custom val', value: 'my custom val' })
-      );
-    });
   });
 
   describe('when openMenuOnFocus prop', () => {
@@ -277,6 +244,7 @@ describe('SelectBase', () => {
         removedValue: { label: 'Option 1', value: 1 },
       });
     });
+
     it('does not allow deleting selected values when disabled', async () => {
       const value = [
         {
@@ -296,6 +264,97 @@ describe('SelectBase', () => {
       );
 
       expect(screen.queryByLabelText('Remove Option 1')).not.toBeInTheDocument();
+    });
+
+    describe('toggle all', () => {
+      beforeEach(() => {
+        jest.resetAllMocks();
+      });
+      it('renders menu with select all toggle', async () => {
+        render(
+          <SelectBase
+            options={options}
+            isMulti={true}
+            toggleAllOptions={{ enabled: true }}
+            onChange={onChangeHandler}
+          />
+        );
+        await userEvent.click(screen.getByText(/choose/i));
+        const toggleAllOptions = screen.getByTestId(selectors.components.Select.toggleAllOptions);
+        expect(toggleAllOptions).toBeInTheDocument();
+      });
+
+      it('correctly displays the number of selected items', async () => {
+        render(
+          <SelectBase
+            options={options}
+            isMulti={true}
+            value={[1]}
+            toggleAllOptions={{ enabled: true }}
+            onChange={onChangeHandler}
+          />
+        );
+        await userEvent.click(screen.getByText(/Option 1/i));
+        const toggleAllOptions = screen.getByTestId(selectors.components.Select.toggleAllOptions);
+        expect(toggleAllOptions.textContent).toBe('Selected (1)');
+      });
+
+      it('correctly removes all selected options when in indeterminate state', async () => {
+        render(
+          <SelectBase
+            options={options}
+            isMulti={true}
+            value={[1]}
+            toggleAllOptions={{ enabled: true }}
+            onChange={onChangeHandler}
+          />
+        );
+        await userEvent.click(screen.getByText(/Option 1/i));
+        let toggleAllOptions = screen.getByTestId(selectors.components.Select.toggleAllOptions);
+        expect(toggleAllOptions.textContent).toBe('Selected (1)');
+
+        // Toggle all unselected when in indeterminate state
+        await userEvent.click(toggleAllOptions);
+        expect(onChangeHandler).toHaveBeenCalledWith([], expect.anything());
+      });
+
+      it('correctly removes all selected options when all options are selected', async () => {
+        render(
+          <SelectBase
+            options={options}
+            isMulti={true}
+            value={[1, 2]}
+            toggleAllOptions={{ enabled: true }}
+            onChange={onChangeHandler}
+          />
+        );
+        await userEvent.click(screen.getByText(/Option 1/i));
+        let toggleAllOptions = screen.getByTestId(selectors.components.Select.toggleAllOptions);
+        expect(toggleAllOptions.textContent).toBe('Selected (2)');
+
+        // Toggle all unselected when in indeterminate state
+        await userEvent.click(toggleAllOptions);
+        expect(onChangeHandler).toHaveBeenCalledWith([], expect.anything());
+      });
+
+      it('correctly selects all values when none are selected', async () => {
+        render(
+          <SelectBase
+            options={options}
+            isMulti={true}
+            value={[]}
+            toggleAllOptions={{ enabled: true }}
+            onChange={onChangeHandler}
+          />
+        );
+        await userEvent.click(screen.getByText(/Choose/i));
+        let toggleAllOptions = screen.getByTestId(selectors.components.Select.toggleAllOptions);
+        expect(toggleAllOptions.textContent).toBe('Selected (0)');
+
+        // Toggle all unselected when in indeterminate state
+        await userEvent.click(toggleAllOptions);
+        expect(onChangeHandler).toHaveBeenCalledWith(options, expect.anything());
+      });
     });
   });
 });
