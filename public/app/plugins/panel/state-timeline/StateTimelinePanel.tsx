@@ -104,6 +104,7 @@ export const StateTimelinePanel = ({
   height,
   replaceVariables,
   onChangeTimeRange,
+  fieldConfig,
 }: TimelinePanelProps) => {
   const theme = useTheme2();
 
@@ -113,9 +114,20 @@ export const StateTimelinePanel = ({
   const cursorSync = sync?.() ?? DashboardCursorSync.Off;
 
   const { frames, warn } = useMemo(
-    () => prepareTimelineFields(data.series, options.mergeValues ?? true, timeRange, theme),
-    [data.series, options.mergeValues, timeRange, theme]
+    () => prepareTimelineFields(data.series, fieldConfig, options.mergeValues ?? true, timeRange, theme),
+    [data.series, fieldConfig, options.mergeValues, timeRange, theme]
   );
+
+  const vizSeries = useMemo(
+    () =>
+      frames?.map((frame) => ({
+        ...frame,
+        fields: frame.fields.filter((field, i) => i === 0 || !field.state?.hideFrom?.viz),
+      })),
+    [frames]
+  );
+
+  console.log(frames, vizSeries);
 
   const { paginatedFrames, paginationRev, paginationElement, paginationHeight } = usePagination(
     frames,
