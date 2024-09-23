@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
-import { DataQuery, DataQueryRequest, DataQueryResponse, TestDataSourceResponse } from '@grafana/data';
+import { DataQueryRequest, DataQueryResponse, TestDataSourceResponse } from '@grafana/data';
 import { RuntimeDataSource, sceneUtils } from '@grafana/scenes';
+import { type DataQuery } from '@grafana/schema';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 import { dispatch } from 'app/store/store';
 
@@ -47,8 +48,10 @@ class HistoryAPIDatasource extends RuntimeDataSource {
     const from = request.range.from.unix();
     const to = request.range.to.unix();
 
+    const history = await getHistory(from, to);
+
     return {
-      data: historyResultToDataFrame(await getHistory(from, to)),
+      data: historyResultToDataFrame(history),
     };
   }
 

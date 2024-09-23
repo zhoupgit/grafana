@@ -31,10 +31,8 @@ const QUERY_PARAM_PREFIX = 'var-'; // Prefix used by Grafana to sync variables i
  */
 export function historyResultToDataFrame(data: DataFrameJSON): DataFrame[] {
   // Get the labels and states filters from the URL
-  const stateToInQueryParams = getStateFilterToInQueryParams();
-  const stateFromInQueryParams = getStateFilterFromInQueryParams();
-  const stateToFilterValue = stateToInQueryParams === '' ? StateFilterValues.all : stateToInQueryParams;
-  const stateFromFilterValue = stateFromInQueryParams === '' ? StateFilterValues.all : stateFromInQueryParams;
+  const stateToFilterValue = getStateFilterToInQueryParams() ?? StateFilterValues.all;
+  const stateFromFilterValue = getStateFilterFromInQueryParams() ?? StateFilterValues.all;
 
   // Extract timestamps and lines from the response
   const tsValues = data?.data?.values[0] ?? [];
@@ -44,22 +42,29 @@ export function historyResultToDataFrame(data: DataFrameJSON): DataFrame[] {
   // Filter log records by state and create a list of log records with the timestamp and line
   const logRecords = timestamps.reduce((acc: LogRecord[], timestamp: number, index: number) => {
     const line = lines[index];
+
     // values property can be undefined for some instance states (e.g. NoData)
-    if (isLine(line)) {
-      if (!isGrafanaAlertState(line.current)) {
-        return acc;
-      }
-      // we have to filter out by state at that point , because we are going to group by timestamp and these states are going to be lost
-      const baseStateTo = mapStateWithReasonToBaseState(line.current);
-      const baseStateFrom = mapStateWithReasonToBaseState(line.previous);
-      const stateToMatch = stateToFilterValue !== StateFilterValues.all ? stateToFilterValue === baseStateTo : true;
-      const stateFromMatch =
-        stateFromFilterValue !== StateFilterValues.all ? stateFromFilterValue === baseStateFrom : true;
-      // filter by state
-      if (stateToMatch && stateFromMatch) {
-        acc.push({ timestamp, line });
-      }
+    if (!isLine(line)) {
+      return acc;
     }
+
+    if (!isGrafanaAlertState(line.current)) {
+      return acc;
+    }
+
+    // we have to filter out by state at that point , because we are going to group by timestamp and these states are going to be lost
+    const baseStateTo = mapStateWithReasonToBaseState(line.current);
+    const baseStateFrom = mapStateWithReasonToBaseState(line.previous);
+
+    const stateToMatch = stateToFilterValue !== StateFilterValues.all ? stateToFilterValue === baseStateTo : true;
+    const stateFromMatch =
+      stateFromFilterValue !== StateFilterValues.all ? stateFromFilterValue === baseStateFrom : true;
+
+    // filter by state
+    if (stateToMatch && stateFromMatch) {
+      acc.push({ timestamp, line });
+    }
+
     return acc;
   }, []);
 
@@ -81,16 +86,16 @@ export function historyResultToDataFrame(data: DataFrameJSON): DataFrame[] {
 // Scenes sync variables in the URL adding a prefix to the variable name.
 function getLabelsFilterInQueryParams() {
   const queryParams = new URLSearchParams(window.location.search);
-  return queryParams.get(`${QUERY_PARAM_PREFIX}${LABELS_FILTER}`) ?? '';
+  return queryParams.get(`${QUERY_PARAM_PREFIX}${LABELS_FILTER}`);
 }
 function getStateFilterToInQueryParams() {
   const queryParams = new URLSearchParams(window.location.search);
-  return queryParams.get(`${QUERY_PARAM_PREFIX}${STATE_FILTER_TO}`) ?? '';
+  return queryParams.get(`${QUERY_PARAM_PREFIX}${STATE_FILTER_TO}`);
 }
 
 function getStateFilterFromInQueryParams() {
   const queryParams = new URLSearchParams(window.location.search);
-  return queryParams.get(`${QUERY_PARAM_PREFIX}${STATE_FILTER_FROM}`) ?? '';
+  return queryParams.get(`${QUERY_PARAM_PREFIX}${STATE_FILTER_FROM}`);
 }
 /*
  * This function groups the data frames by time and filters them by labels.
@@ -102,7 +107,7 @@ function groupDataFramesByTimeAndFilterByLabels(dataFrames: DataFrame[]): DataFr
   const dataframesFiltered = dataFrames.filter((frame) => {
     const labels = JSON.parse(frame.name ?? ''); // in name we store the labels stringified
 
-    const matchers = Boolean(labelsFilterValue) ? parsePromQLStyleMatcherLooseSafe(labelsFilterValue) : [];
+    const matchers = Boolean(labelsFilterValue) ? parsePromQLStyleMatcherLooseSafe(labelsFilterValue ?? '') : [];
     return labelsMatchMatchers(labels, matchers);
   });
   // Extract time fields from filtered data frames

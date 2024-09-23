@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { capitalize, groupBy } from 'lodash';
+import { capitalize, groupBy, isEmpty } from 'lodash';
 import { useEffect, useMemo } from 'react';
 
 import { DataFrame, DataFrameJSON, GrafanaTheme2, TimeRange } from '@grafana/data';
@@ -238,9 +238,10 @@ interface ValueInTransitionProps {
   record: LogRecord;
 }
 function ValueInTransition({ record }: ValueInTransitionProps) {
-  const values = record?.line?.values
-    ? JSON.stringify(record.line.values)
-    : t('alerting.central-alert-history.details.no-values', 'No values');
+  const values = isEmpty(record.line.values)
+    ? t('alerting.central-alert-history.details.no-values', 'No values')
+    : JSON.stringify(record.line.values);
+
   return (
     <Stack gap={0.5} direction={'column'}>
       <Text variant="body" weight="light" color="secondary">

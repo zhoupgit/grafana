@@ -108,15 +108,18 @@ export const HistoryEventsList = ({
   return (
     <>
       {maximumEventsReached && (
-        <Alert
-          severity="warning"
-          title={t('alerting.central-alert-history.too-many-events.title', 'Unable to display all events')}
-        >
-          {t(
-            'alerting.central-alert-history.too-many-events.text',
-            'The selected time period has too many events to display. Diplaying the latest 5000 events. Try using a shorter time period.'
-          )}
-        </Alert>
+        // we need this div here to prevent the alert from pushing the logs to the bottom of the screen since the Alert's wrapper has "flex-grow: 1"
+        <div>
+          <Alert
+            severity="warning"
+            title={t('alerting.central-alert-history.too-many-events.title', 'Unable to display all events')}
+          >
+            {t(
+              'alerting.central-alert-history.too-many-events.text',
+              'The selected time period has too many events to display. Displaying the last 5.000 events. Try using a shorter time period.'
+            )}
+          </Alert>
+        </div>
       )}
       <LoadingIndicator visible={isLoading} />
       {!isLoading && <HistoryLogEvents logRecords={historyRecords} addFilter={addFilter} timeRange={timeRange} />}
@@ -146,16 +149,14 @@ function HistoryLogEvents({ logRecords, addFilter, timeRange }: HistoryLogEvents
     <Stack direction="column" gap={0}>
       <ListHeader />
       <ul>
-        {pageItems.map((record) => {
-          return (
-            <EventRow
-              key={record.timestamp + (record.line.fingerprint ?? '')}
-              record={record}
-              addFilter={addFilter}
-              timeRange={timeRange}
-            />
-          );
-        })}
+        {pageItems.map((record) => (
+          <EventRow
+            key={record.timestamp + (record.line.fingerprint ?? '')}
+            record={record}
+            addFilter={addFilter}
+            timeRange={timeRange}
+          />
+        ))}
       </ul>
       {/* This paginations improves the performance considerably , making the page load faster */}
       <Pagination currentPage={page} numberOfPages={numberOfPages} onNavigate={onPageChange} hideWhenSinglePage />
@@ -305,6 +306,17 @@ const StateIcon = ({ iconName, iconColor, tooltipContent, labelText, showLabel }
   </Tooltip>
 );
 
+interface StateConfig {
+  iconName: IconName;
+  iconColor: string;
+  tooltipContent: string;
+  labelText: ReactElement;
+}
+
+interface StateConfigMap {
+  [key: string]: StateConfig;
+}
+
 interface EventStateProps {
   state: GrafanaAlertStateWithReason;
   showLabel?: boolean;
@@ -314,6 +326,7 @@ interface EventStateProps {
 export function EventState({ state, showLabel = false, addFilter, type }: EventStateProps) {
   const styles = useStyles2(getStyles);
   const toolTip = t('alerting.central-alert-history.details.no-recognized-state', 'No recognized state');
+
   if (!isGrafanaAlertState(state) && !isAlertStateWithReason(state)) {
     return (
       <StateIcon
@@ -327,15 +340,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
   }
   const baseState = mapStateWithReasonToBaseState(state);
   const reason = mapStateWithReasonToReason(state);
-  interface StateConfig {
-    iconName: IconName;
-    iconColor: string;
-    tooltipContent: string;
-    labelText: ReactElement;
-  }
-  interface StateConfigMap {
-    [key: string]: StateConfig;
-  }
+
   const stateConfig: StateConfigMap = {
     Normal: {
       iconName: 'check-circle',
@@ -368,6 +373,7 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.pending">Pending</Trans>,
     },
   };
+
   function onStateClick() {
     addFilter('state', baseState, type === 'from' ? 'stateFrom' : 'stateTo');
   }
@@ -586,19 +592,25 @@ function useRuleHistoryRecords(
     // merge timestamp with "line"
     const logRecords = timestamps.reduce((acc: LogRecord[], timestamp: number, index: number) => {
       const line = lines[index];
+
       if (!isLine(line)) {
         return acc;
       }
+
       // values property can be undefined for some instance states (e.g. NoData)
-      const filterMatch = line.labels && labelsMatchMatchers(line.labels, filterMatchers);
+      const shouldFilterByLabels = !isEmpty(filterMatchers);
+      const labelsMatch =
+        shouldFilterByLabels && !isEmpty(line.labels) ? labelsMatchMatchers(line.labels, filterMatchers) : true;
       if (!isGrafanaAlertState(line.current) || !isGrafanaAlertState(line.previous)) {
         return acc;
       }
+
       const baseStateTo = mapStateWithReasonToBaseState(line.current);
       const baseStateFrom = mapStateWithReasonToBaseState(line.previous);
       const stateToMatch = filterInStateTo !== StateFilterValues.all ? filterInStateTo === baseStateTo : true;
       const stateFromMatch = filterInStateFrom !== StateFilterValues.all ? filterInStateFrom === baseStateFrom : true;
-      if (filterMatch && stateToMatch && stateFromMatch) {
+
+      if (labelsMatch && stateToMatch && stateFromMatch) {
         acc.push({ timestamp, line });
       }
 
