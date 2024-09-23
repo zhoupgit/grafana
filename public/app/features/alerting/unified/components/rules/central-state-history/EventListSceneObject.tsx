@@ -1,4 +1,5 @@
 import { css, cx } from '@emotion/css';
+import { isEmpty } from 'lodash';
 import { ReactElement, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useMeasure } from 'react-use';
@@ -12,7 +13,18 @@ import {
   VariableValue,
   sceneGraph,
 } from '@grafana/scenes';
-import { Alert, Icon, LoadingBar, Pagination, Stack, Text, Tooltip, useStyles2, withErrorBoundary } from '@grafana/ui';
+import {
+  Alert,
+  EmptyState,
+  Icon,
+  LoadingBar,
+  Pagination,
+  Stack,
+  Text,
+  Tooltip,
+  useStyles2,
+  withErrorBoundary,
+} from '@grafana/ui';
 import { Trans, t } from 'app/core/internationalization';
 import {
   GrafanaAlertStateWithReason,
@@ -107,7 +119,7 @@ export const HistoryEventsList = ({
         </Alert>
       )}
       <LoadingIndicator visible={isLoading} />
-      <HistoryLogEvents logRecords={historyRecords} addFilter={addFilter} timeRange={timeRange} />
+      {!isLoading && <HistoryLogEvents logRecords={historyRecords} addFilter={addFilter} timeRange={timeRange} />}
     </>
   );
 };
@@ -125,6 +137,11 @@ interface HistoryLogEventsProps {
 }
 function HistoryLogEvents({ logRecords, addFilter, timeRange }: HistoryLogEventsProps) {
   const { page, pageItems, numberOfPages, onPageChange } = usePagination(logRecords, 1, PAGE_SIZE);
+
+  if (isEmpty(logRecords)) {
+    return <EmptyState message={'No records found.'} variant={'not-found'}></EmptyState>;
+  }
+
   return (
     <Stack direction="column" gap={0}>
       <ListHeader />
