@@ -131,7 +131,7 @@ func (oss *OSSMigrations) AddMigration(mg *Migrator) {
 	ualert.AddReceiverActionScopesMigration(mg)
 
 	ualert.AddRuleMetadata(mg)
-	
+
 	ualert.AddReceiverReaderToRulesWriters(mg)
 }
 
