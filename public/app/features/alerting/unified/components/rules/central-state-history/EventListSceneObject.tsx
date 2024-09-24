@@ -1,8 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { isEmpty } from 'lodash';
-import { ReactElement, useMemo, useState } from 'react';
-import { useLocation } from 'react-router';
-import { useMeasure } from 'react-use';
+import { ReactElement, useMemo } from 'react';
+import { useMeasure, useToggle } from 'react-use';
 
 import { DataFrameJSON, GrafanaTheme2, IconName, TimeRange } from '@grafana/data';
 import {
@@ -15,14 +14,16 @@ import {
 } from '@grafana/scenes';
 import {
   Alert,
+  Button,
   EmptyState,
   Icon,
   LoadingBar,
   Pagination,
   Stack,
   Text,
-  Tooltip,
+  TextLink,
   useStyles2,
+  useTheme2,
   withErrorBoundary,
 } from '@grafana/ui';
 import { Trans, t } from 'app/core/internationalization';
@@ -42,7 +43,7 @@ import { GRAFANA_RULES_SOURCE_NAME } from '../../../utils/datasource';
 import { parsePromQLStyleMatcherLooseSafe } from '../../../utils/matchers';
 import { createRelativeUrl } from '../../../utils/url';
 import { AlertLabels } from '../../AlertLabels';
-import { CollapseToggle } from '../../CollapseToggle';
+import { WithReturnButton } from '../../WithReturnButton';
 import { LogRecord } from '../state-history/common';
 import { isLine, isNumbers } from '../state-history/useRuleHistoryRecords';
 
@@ -201,7 +202,8 @@ interface EventRowProps {
 }
 function EventRow({ record, addFilter, timeRange }: EventRowProps) {
   const styles = useStyles2(getStyles);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, toggleCollapsed] = useToggle(true);
+
   function onLabelClick(label: string, value: string) {
     addFilter(label, value, 'label');
   }
@@ -211,13 +213,8 @@ function EventRow({ record, addFilter, timeRange }: EventRowProps) {
       <div
         className={cx(styles.header, isCollapsed ? styles.collapsedHeader : styles.notCollapsedHeader)}
         data-testid="event-row-header"
+        onClick={() => toggleCollapsed()}
       >
-        <CollapseToggle
-          size="sm"
-          className={styles.collapseToggle}
-          isCollapsed={isCollapsed}
-          onToggle={setIsCollapsed}
-        />
         <Stack gap={0.5} direction={'row'} alignItems={'center'}>
           <div className={styles.timeCol}>
             <Timestamp time={record.timestamp} />
@@ -247,10 +244,8 @@ interface AlertRuleNameProps {
   ruleUID?: string;
 }
 function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
-  const styles = useStyles2(getStyles);
-  const { pathname, search } = useLocation();
-  const returnTo = `${pathname}${search}`;
   const alertRuleName = labels.alertname;
+
   if (!ruleUID) {
     return (
       <Text>
@@ -258,16 +253,20 @@ function AlertRuleName({ labels, ruleUID }: AlertRuleNameProps) {
       </Text>
     );
   }
+
   const ruleViewUrl = createRelativeUrl(`/alerting/${GRAFANA_RULES_SOURCE_NAME}/${ruleUID}/view`, {
     tab: 'history',
-    returnTo,
   });
+
   return (
-    <Tooltip content={alertRuleName ?? ''}>
-      <a href={ruleViewUrl} className={styles.alertName}>
-        {alertRuleName}
-      </a>
-    </Tooltip>
+    <WithReturnButton
+      title="History"
+      component={
+        <TextLink href={ruleViewUrl} inline={false} title={alertRuleName}>
+          {alertRuleName}
+        </TextLink>
+      }
+    />
   );
 }
 
@@ -278,7 +277,7 @@ interface EventTransitionProps {
 }
 function EventTransition({ previous, current, addFilter }: EventTransitionProps) {
   return (
-    <Stack gap={0.5} direction={'row'}>
+    <Stack gap={0} direction="row" alignItems="center">
       <EventState state={previous} addFilter={addFilter} type="from" />
       <Icon name="arrow-right" size="lg" />
       <EventState state={current} addFilter={addFilter} type="to" />
@@ -289,21 +288,18 @@ function EventTransition({ previous, current, addFilter }: EventTransitionProps)
 interface StateIconProps {
   iconName: IconName;
   iconColor: string;
-  tooltipContent: string;
   labelText: ReactElement;
   showLabel: boolean;
 }
-const StateIcon = ({ iconName, iconColor, tooltipContent, labelText, showLabel }: StateIconProps) => (
-  <Tooltip content={tooltipContent} placement="top">
-    <Stack gap={0.5} direction={'row'} alignItems="center">
-      <Icon name={iconName} size="md" className={iconColor} />
-      {showLabel && (
-        <Text variant="body" weight="light">
-          {labelText}
-        </Text>
-      )}
-    </Stack>
-  </Tooltip>
+const StateIcon = ({ iconName, iconColor, labelText, showLabel }: StateIconProps) => (
+  <Stack gap={0.5} direction="row" alignItems="center">
+    <Icon name={iconName} size="md" color={iconColor} />
+    {showLabel && (
+      <Text variant="body" weight="light">
+        {labelText}
+      </Text>
+    )}
+  </Stack>
 );
 
 interface StateConfig {
@@ -324,53 +320,58 @@ interface EventStateProps {
   type: 'from' | 'to';
 }
 export function EventState({ state, showLabel = false, addFilter, type }: EventStateProps) {
-  const styles = useStyles2(getStyles);
-  const toolTip = t('alerting.central-alert-history.details.no-recognized-state', 'No recognized state');
+  const theme = useTheme2();
+
+  const unknownState: StateConfig = {
+    iconName: 'exclamation-triangle',
+    iconColor: theme.colors.secondary.text,
+    tooltipContent: t('alerting.central-alert-history.details.no-recognized-state', 'Unknown state'),
+    labelText: <Trans i18nKey="alerting.central-alert-history.details.no-recognized-state">Unknown state</Trans>,
+  };
 
   if (!isGrafanaAlertState(state) && !isAlertStateWithReason(state)) {
-    return (
-      <StateIcon
-        iconName="exclamation-triangle"
-        tooltipContent={toolTip}
-        labelText={<Trans i18nKey="alerting.central-alert-history.details.unknown-event-state">Unknown</Trans>}
-        showLabel={showLabel}
-        iconColor={styles.warningColor}
-      />
-    );
+    <StateIcon {...unknownState} showLabel={showLabel} />;
   }
+
   const baseState = mapStateWithReasonToBaseState(state);
   const reason = mapStateWithReasonToReason(state);
 
   const stateConfig: StateConfigMap = {
     Normal: {
       iconName: 'check-circle',
-      iconColor: Boolean(reason) ? styles.warningColor : styles.normalColor,
+      iconColor: theme.colors.success.text,
       tooltipContent: Boolean(reason) ? `Normal (${reason})` : 'Normal',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.normal">Normal</Trans>,
     },
     Alerting: {
       iconName: 'exclamation-circle',
-      iconColor: styles.alertingColor,
+      iconColor: theme.colors.error.text,
       tooltipContent: 'Alerting',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.alerting">Alerting</Trans>,
     },
     NoData: {
       iconName: 'exclamation-triangle',
-      iconColor: styles.warningColor,
+      iconColor: theme.colors.warning.text,
       tooltipContent: 'Insufficient data',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.no-data">No data</Trans>,
     },
     Error: {
-      iconName: 'exclamation-circle',
+      iconName: 'times-circle',
       tooltipContent: 'Error',
-      iconColor: styles.warningColor,
+      iconColor: theme.colors.error.text,
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.error">Error</Trans>,
     },
     Pending: {
       iconName: 'circle',
-      iconColor: styles.warningColor,
+      iconColor: theme.colors.warning.text,
       tooltipContent: Boolean(reason) ? `Pending (${reason})` : 'Pending',
       labelText: <Trans i18nKey="alerting.central-alert-history.details.state.pending">Pending</Trans>,
+    },
+    Paused: {
+      iconName: 'pause-circle',
+      iconColor: theme.colors.warning.text,
+      tooltipContent: Boolean(reason) ? `${baseState} (${reason})` : baseState,
+      labelText: <Trans i18nKey="alerting.central-alert-history.details.state.paused">Paused</Trans>,
     },
   };
 
@@ -378,21 +379,15 @@ export function EventState({ state, showLabel = false, addFilter, type }: EventS
     addFilter('state', baseState, type === 'from' ? 'stateFrom' : 'stateTo');
   }
 
-  const config = stateConfig[baseState] || { iconName: 'exclamation-triangle', tooltipContent: 'Unknown State' };
+  let config = stateConfig[baseState] ?? unknownState;
+  if (state.includes('Paused')) {
+    config = stateConfig.Paused;
+  }
+
   return (
-    <div
-      onClick={onStateClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onStateClick();
-        }
-      }}
-      className={styles.state}
-      role="button"
-      tabIndex={0}
-    >
+    <Button variant="secondary" fill="text" size="sm" onClick={() => onStateClick()} tooltip={config.tooltipContent}>
       <StateIcon {...config} showLabel={showLabel} />
-    </div>
+    </Button>
   );
 }
 
@@ -426,6 +421,7 @@ export const getStyles = (theme: GrafanaTheme2) => {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
+      cursor: 'pointer',
       padding: `${theme.spacing(1)} ${theme.spacing(1)} ${theme.spacing(1)} 0`,
       flexWrap: 'nowrap',
       '&:hover': {
@@ -437,26 +433,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
     }),
     notCollapsedHeader: css({
       borderBottom: 'none',
-    }),
-
-    collapseToggle: css({
-      background: 'none',
-      border: 'none',
-      marginTop: `-${theme.spacing(1)}`,
-      marginBottom: `-${theme.spacing(1)}`,
-
-      svg: {
-        marginBottom: 0,
-      },
-    }),
-    normalColor: css({
-      fill: theme.colors.success.text,
-    }),
-    warningColor: css({
-      fill: theme.colors.warning.text,
-    }),
-    alertingColor: css({
-      fill: theme.colors.error.text,
     }),
     timeCol: css({
       width: '150px',
@@ -474,14 +450,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
       paddingRight: theme.spacing(2),
       flex: 1,
     }),
-    alertName: css({
-      whiteSpace: 'nowrap',
-      cursor: 'pointer',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      display: 'block',
-      color: theme.colors.text.link,
-    }),
     expandedRow: css({
       padding: theme.spacing(2),
       marginLeft: theme.spacing(2),
@@ -491,12 +459,6 @@ export const getStyles = (theme: GrafanaTheme2) => {
       color: theme.colors.primary.text,
       '&:hover': {
         opacity: 0.8,
-      },
-    }),
-    state: css({
-      '&:hover': {
-        opacity: 0.8,
-        cursor: 'pointer',
       },
     }),
     headerWrapper: css({
@@ -601,9 +563,6 @@ function useRuleHistoryRecords(
       const shouldFilterByLabels = !isEmpty(filterMatchers);
       const labelsMatch =
         shouldFilterByLabels && !isEmpty(line.labels) ? labelsMatchMatchers(line.labels, filterMatchers) : true;
-      if (!isGrafanaAlertState(line.current) || !isGrafanaAlertState(line.previous)) {
-        return acc;
-      }
 
       const baseStateTo = mapStateWithReasonToBaseState(line.current);
       const baseStateFrom = mapStateWithReasonToBaseState(line.previous);
