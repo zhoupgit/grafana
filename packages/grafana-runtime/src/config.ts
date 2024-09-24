@@ -18,6 +18,7 @@ import {
   getThemeById,
   AngularMeta,
   PluginLoadingStrategy,
+  PluginType,
 } from '@grafana/data';
 
 export interface AzureSettings {
@@ -52,6 +53,8 @@ export type PreinstalledPlugin = {
 type DependantInfo = {
   pluginId: string;
   pluginName: string;
+  pluginVersion: string;
+  pluginType: PluginType;
 };
 
 export class GrafanaBootConfig implements GrafanaConfig {

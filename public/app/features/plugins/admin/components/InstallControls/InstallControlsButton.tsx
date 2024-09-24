@@ -128,7 +128,7 @@ export function InstallControlsButton({
   }
 
   let modalBody = 'Are you sure you want to uninstall this plugin?';
-  if (config.pluginDependants) {
+  if (config.pluginDependants && config.pluginDependants[plugin.id]) {
     const dependencyOf = config.pluginDependants[plugin.id].map((dep) => dep.pluginName).join(', ');
     if (dependencyOf) {
       modalBody = `This plugin is a dependency of the following plugin(s): ${dependencyOf}. Are you sure you want to uninstall this plugin?`;

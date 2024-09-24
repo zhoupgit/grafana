@@ -768,8 +768,10 @@ func pluginDependencyMap(ctx context.Context, pluginStore pluginstore.Store) map
 				dependencies[dep.ID] = []dtos.DependencyInfo{}
 			}
 			dependencies[dep.ID] = append(dependencies[dep.ID], dtos.DependencyInfo{
-				PluginID:   plugin.ID,
-				PluginName: plugin.Name,
+				PluginID:      plugin.ID,
+				PluginVersion: plugin.Info.Version,
+				PluginName:    plugin.Name,
+				PluginType:    string(plugin.Type),
 			})
 		}
 	}
