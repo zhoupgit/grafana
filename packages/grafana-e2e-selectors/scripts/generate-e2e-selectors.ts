@@ -1,16 +1,18 @@
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { writeFile } from 'node:fs/promises';
 import { resolve, join } from 'path';
 import * as semver from 'semver';
 import * as ts from 'typescript';
 
-import { MIN_GRAFANA_VERSION } from '../src/selectors/constants';
+import { MIN_GRAFANA_VERSION } from '../src/resolver';
+
+const sourceDir = 'src/selectors';
+const destDir = 'src/generated';
+const fileNames = ['components.ts', 'pages.ts'];
 
 const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json')).toString());
 const version = packageJson.version.replace(/\-.*/, ''); // remove any pre-release tags. we may want to add support build number in the future though
-const sourceDir = 'src/selectors';
-const destDir = 'src/generated';
-const fileNames = ['components.ts', 'pages.ts', 'apis.ts'];
+
 const sourceFiles = fileNames.map((fileName) => {
   const buffer = readFileSync(resolve(join(process.cwd(), sourceDir, fileName)));
   // replace usage of [MIN_GRAFANA_VERSION] variable with the actual value
@@ -25,22 +27,22 @@ const getSelectorValue = (
 ): ts.PropertyAssignment | undefined => {
   let current: ts.PropertyAssignment | undefined = undefined;
   for (const property of properties) {
-    if (
-      property.name &&
-      ts.isStringLiteral(property.name) &&
-      ts.isPropertyAssignment(property) &&
-      semver.satisfies(version, `>=${property.name.text.replace(/'/g, '')}`)
-    ) {
+    if (!(property.name && ts.isStringLiteral(property.name) && ts.isPropertyAssignment(property))) {
+      continue;
+    }
+
+    const range = `>=${property.name.text}`;
+    if (semver.satisfies(version, range)) {
       if (!current) {
         current = property;
-      } else if (semver.gt(property.name.text.replace(/'/g, ''), current.name.getText().replace(/'/g, ''))) {
+      } else if (ts.isStringLiteral(current.name) && semver.gt(property.name.text, current.name.text)) {
         current = property;
       }
     }
   }
 
   if (!current) {
-    // selector doesn't have a version. should throw an error and terminate compilation, but for now just log a error
+    // selector doesn't have a version
     console.error(
       `${sourceFileName}: Could not resolve a value for selector '${escapedText}' using version '${version}'`
     );
@@ -49,7 +51,7 @@ const getSelectorValue = (
   return current;
 };
 
-const replaceVersions = (context: ts.TransformationContext) => (rootNode: ts.Node) => {
+const resolveSelectorValueTransformation = (context: ts.TransformationContext) => (rootNode: ts.Node) => {
   const visit = (node: ts.Node): ts.Node => {
     if (ts.isImportDeclaration(node) && node.getFullText().includes('.gen')) {
       return node;
@@ -87,14 +89,15 @@ const replaceVersions = (context: ts.TransformationContext) => (rootNode: ts.Nod
   return ts.visitNode(rootNode, visit);
 };
 
-const transformationResult = ts.transform(sourceFiles, [replaceVersions]);
+const transformationResult = ts.transform(sourceFiles, [resolveSelectorValueTransformation]);
 const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
 for (const transformed of transformationResult.transformed) {
   let output = printer.printNode(ts.EmitHint.Unspecified, transformed, transformed.getSourceFile());
-  output = output.replace(/export const versioned/g, 'export const ');
-  output = output.replace(/..\/generated\//g, './');
-  output = output.replace(/versionedComponents./g, 'Components.');
+  output = output.replace(/export const versioned/g, 'export const '); // remove versioned prefixs
+  output = output.replace(/..\/generated\//g, './'); // adjust import paths
+  output = output.replace(/: VersionedSelectorGroup/, ''); // remove typings for versioned selectors
+  output = output.replace(/^;\n/gm, ''); // ts.factory.createEmptyStatement() leaves semicolon. need to investigate why
   const fileName = transformed.getSourceFile().fileName.replace(/\.ts$/, '.gen.ts');
   writeFile(resolve(join(process.cwd(), destDir, fileName)), output);
 }

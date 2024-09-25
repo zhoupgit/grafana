@@ -1,14 +1,11 @@
 import { Components } from './components.gen';
-;
 /**
  * Selectors grouped/defined in Pages
- *
- * @alpha
  */
 export const Pages = {
     Alerting: {
         AddAlertRule: {
-            url: '/alerting/new',
+            url: '/alerting/new/alerting',
         },
         EditAlertRule: {
             url: (alertRuleUid: string) => `alerting/${alertRuleUid}/edit`,
@@ -138,7 +135,7 @@ export const Pages = {
             },
             Annotations: {
                 Edit: {
-                    url: (dashboardUid: string, annotationIndex: string) => `/d/${dashboardUid}?editview=annotations&editIndex=${annotationIndex}`,
+                    urlParams: (annotationIndex: string) => `editview=annotations&editIndex=${annotationIndex}`,
                 },
                 List: {
                     url: (dashboardUid: string) => `/d/${dashboardUid}?editview=annotations`,
@@ -172,7 +169,7 @@ export const Pages = {
                     tableRowRemoveButtons: (variableName: string) => `Variable editor Table Remove button ${variableName}`,
                 },
                 Edit: {
-                    url: (dashboardUid: string, editIndex: string) => `/d/${dashboardUid}?editview=templating&editIndex=${editIndex}`,
+                    urlParams: (editIndex: string) => `editview=templating&editIndex=${editIndex}`,
                     General: {
                         headerLink: 'Variable editor Header link',
                         modeLabelNew: 'Variable editor Header mode New',

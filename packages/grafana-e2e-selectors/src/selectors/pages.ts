@@ -1,17 +1,15 @@
 import { Components } from '../generated/components.gen';
-
-import { MIN_GRAFANA_VERSION } from './constants';
+import { MIN_GRAFANA_VERSION } from '../resolver';
+import { VersionedSelectorGroup } from '../types';
 
 /**
  * Selectors grouped/defined in Pages
- *
- * @alpha
  */
-export const versionedPages = {
+export const versionedPages: VersionedSelectorGroup = {
   Alerting: {
     AddAlertRule: {
       url: {
-        ['10.1.0']: '/alerting/new/alerting',
+        '10.1.0': '/alerting/new/alerting',
         [MIN_GRAFANA_VERSION]: '/alerting/new',
       },
     },
@@ -166,7 +164,9 @@ export const versionedPages = {
       publicDashboardTag: {
         '9.1.0': 'data-testid public dashboard tag',
       },
-      shareButton: 'data-testid share-button',
+      shareButton: {
+        '10.4.0': 'data-testid share-button',
+      },
       scrollContainer: {
         '11.1.0': 'data-testid Dashboard canvas scroll container',
       },
@@ -290,9 +290,8 @@ export const versionedPages = {
       },
       Annotations: {
         Edit: {
-          url: {
-            [MIN_GRAFANA_VERSION]: (dashboardUid: string, annotationIndex: string) =>
-              `/d/${dashboardUid}?editview=annotations&editIndex=${annotationIndex}`,
+          urlParams: {
+            [MIN_GRAFANA_VERSION]: (annotationIndex: string) => `editview=annotations&editIndex=${annotationIndex}`,
           },
         },
         List: {
@@ -370,9 +369,8 @@ export const versionedPages = {
           },
         },
         Edit: {
-          url: {
-            [MIN_GRAFANA_VERSION]: (dashboardUid: string, editIndex: string) =>
-              `/d/${dashboardUid}?editview=templating&editIndex=${editIndex}`,
+          urlParams: {
+            [MIN_GRAFANA_VERSION]: (editIndex: string) => `editview=templating&editIndex=${editIndex}`,
           },
           General: {
             headerLink: {
@@ -614,7 +612,9 @@ export const versionedPages = {
       CopyUrlButton: {
         '9.1.0': 'data-testid public dashboard copy url button',
       },
-      SettingsDropdown: 'data-testid public dashboard settings dropdown',
+      SettingsDropdown: {
+        '10.1.0': 'data-testid public dashboard settings dropdown',
+      },
       TemplateVariablesWarningAlert: {
         '9.1.0': 'data-testid public dashboard disabled template variables alert',
       },
@@ -940,3 +940,5 @@ export const versionedPages = {
     },
   },
 };
+
+export type VersionedPages = typeof versionedPages;
