@@ -1,7 +1,7 @@
 import { Components } from '../generated/components.gen';
 import { Pages } from '../generated/pages.gen';
 import { resolveSelectors } from '../resolver';
-import { E2ESelectors, FunctionSelector, StringSelector } from '../types';
+import { E2ESelectors } from '../types';
 
 export type E2ESelectorGroup = {
   pages: E2ESelectors<typeof Pages>;
